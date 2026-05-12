@@ -776,29 +776,29 @@ void __cdecl G_SayTo(
         }
         if ( ent->client->sess.cs.team == TEAM_SPECTATOR )
         {
-            Com_sprintf(szStateString, 0x40u, "( GAME_SPECTATOR )");
+            Com_sprintf(szStateString, 0x40u, "(GAME_SPECTATOR) ");
         }
         else if ( ent->client->sess.sessionState )
         {
-            Com_sprintf(szStateString, 0x40u, "%s ( GAME_DEAD )", team_color);
+            Com_sprintf(szStateString, 0x40u, "%s (GAME_DEAD) ", team_color);
         }
         else
         {
-            Com_sprintf(szStateString, 0x40u, "%s", team_color); // KISAKTODO
+            Com_sprintf(szStateString, 0x40u, "%s", team_color);
         }
         if ( mode == 1 )
         {
-            Com_sprintf(name, 0x80u, "%s( %s )%s%s", szStateString, teamString, cleanname, "^7");
+            Com_sprintf(name, 0x80u, "%s(%s) %s%s", szStateString, teamString, cleanname, "^7");
         }
         else if ( mode == 2 )
         {
-            Com_sprintf(name, 0x80u, "%s[%s]%s: ", szStateString, cleanname, "^7");
+            Com_sprintf(name, 0x80u, "%s[%s]%s", szStateString, cleanname, "^7");
         }
         else
         {
-            Com_sprintf(name, 0x80u, "%s%s%s: ", szStateString, cleanname, "^7");
+            Com_sprintf(name, 0x80u, "%s%s%s", szStateString, cleanname, "^7");
         }
-        v7 = va("%c %s%c%c%s", (char)((mode == 1) + 104), name, 94, color, message);
+        v7 = va("%c \"%s%c%c: %s\"", (char)((mode == 1) + 104), name, 94, color, message);
         SV_GameSendServerCommand(other - g_entities, SV_CMD_CAN_IGNORE, v7);
     }
 }
