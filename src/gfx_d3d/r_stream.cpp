@@ -15,6 +15,7 @@
 #include "r_image.h"
 #include "rb_resource.h"
 #include <database/db_file_load.h>
+#include <database/db_registry.h>
 #include <universal/com_workercmds.h>
 #include <cgame/cg_compass.h>
 #include <win32/win_shared.h>
@@ -1004,17 +1005,10 @@ void __cdecl R_Stream_AddImagePartImportance(int imagePartIndex, float importanc
 {
     float v2; // [esp+0h] [ebp-8h]
 
-    if ((unsigned int)imagePartIndex >= 4224
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp",
-            3345,
-            0,
-            "imagePartIndex doesn't index TOTAL_IMAGE_PARTS\n\t%i not in [0, %i)",
-            imagePartIndex,
-            4224))
-    {
-        __debugbreak();
-    }
+    vassert(imagePartIndex < POOLSIZE_IMAGE,
+        "imagePartIndex doesn't index TOTAL_IMAGE_PARTS\n\t%i not in [0, %i)",
+        imagePartIndex,
+        POOLSIZE_IMAGE);
 
     if ((float)(importance - *(float *)&streamFrontendGlob.imageImportanceBits[imagePartIndex - 4064]) < 0.0)
         v2 = *(float *)&streamFrontendGlob.imageImportanceBits[imagePartIndex - 4064];

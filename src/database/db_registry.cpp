@@ -40,58 +40,6 @@
 #include <win32/win_input.h>
 #include <client_mp/cl_scrn_mp.h>
 
-
-#define POOLSIZE_XMODELPIECES      64
-#define POOLSIZE_PHYSPRESET        64
-#define POOLSIZE_PHYSCONSTRAINTS   64
-#define POOLSIZE_DESTRUCTIBLEDEF   64
-#define POOLSIZE_XANIM             5100
-#define POOLSIZE_XMODEL            1000
-#define POOLSIZE_MATERIAL          4096
-#define POOLSIZE_TECHSET           2048
-//#define POOLSIZE_IMAGE             4224
-#define POOLSIZE_IMAGE             4608
-#define POOLSIZE_SOUND             32
-#define POOLSIZE_SOUND_PATCH       16
-#define POOLSIZE_COL_MAP_SP        1
-#define POOLSIZE_COL_MAP_MP        1
-#define POOLSIZE_COM_MAP           1
-#define POOLSIZE_GAME_MAP_SP       1
-#define POOLSIZE_GAME_MAP_MP       1
-#define POOLSIZE_MAP_ENTS          2
-#define POOLSIZE_GFX_MAP           1
-#define POOLSIZE_LIGHTDEF          32
-#define POOLSIZE_UI_MAP            0
-#define POOLSIZE_FONT              16
-//#define POOLSIZE_MENUFILE          128
-#define POOLSIZE_MENUFILE          164
-//#define POOLSIZE_MENU              850
-#define POOLSIZE_MENU              1024
-#define POOLSIZE_LOCALIZE          10240
-#define POOLSIZE_WEAPON            2048
-#define POOLSIZE_WEAPONDEF         0
-#define POOLSIZE_WEAPONVARIANT     0
-#define POOLSIZE_SNDDRIVERGLOBALS  1
-//#define POOLSIZE_FX                450
-#define POOLSIZE_FX                500
-#define POOLSIZE_IMPACTFX          4
-#define POOLSIZE_AITYPE            0
-#define POOLSIZE_MPTYPE            0
-#define POOLSIZE_MPBODY            0
-#define POOLSIZE_MPHEAD            0
-#define POOLSIZE_CHARACTER         0
-#define POOLSIZE_XMODELALIAS       0
-#define POOLSIZE_RAWFILE           1024
-//#define POOLSIZE_STRINGTABLE       256
-#define POOLSIZE_STRINGTABLE       576
-#define POOLSIZE_PACKINDEX         16
-#define POOLSIZE_XGLOBALS          1
-#define POOLSIZE_DDL               24
-#define POOLSIZE_GLASSES           1
-//#define POOLSIZE_EMBLEMSET         2
-#define POOLSIZE_EMBLEMSET         4
-
-
 static const int g_poolSize[43] =
 {
     POOLSIZE_XMODELPIECES,
@@ -4784,71 +4732,39 @@ void __cdecl DB_Cleanup()
 
 int __cdecl DB_GetImageIndex(const GfxImage *image)
 {
-    unsigned int index; // [esp+4h] [ebp-4h]
-
-    index = ((char *)image - (char *)g_GfxImagePool.entries) / 52;
-    if ( index >= 0x1080
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_registry.cpp",
-                    5945,
-                    0,
-                    "index doesn't index ARRAY_COUNT( g_GfxImagePool.entries )\n\t%i not in [0, %i)",
-                    index,
-                    4224) )
-    {
-        __debugbreak();
-    }
+    unsigned int index = ((char *)image - (char *)g_GfxImagePool.entries) / 52;
+    vassert(index < POOLSIZE_IMAGE,
+        "index doesn't index ARRAY_COUNT( g_GfxImagePool.entries )\n\t%i not in [0, %i)",
+        index,
+        POOLSIZE_IMAGE);
     return ((char *)image - (char *)g_GfxImagePool.entries) / 52;
 }
 
 XAssetPoolEntry<GfxImage> *__cdecl DB_GetImageAtIndex(unsigned int index)
 {
-    if ( index >= 0x1080
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_registry.cpp",
-                    5951,
-                    0,
-                    "index doesn't index ARRAY_COUNT( g_GfxImagePool.entries )\n\t%i not in [0, %i)",
-                    index,
-                    4224) )
-    {
-        __debugbreak();
-    }
+    vassert(index < POOLSIZE_IMAGE,
+        "index doesn't index ARRAY_COUNT( g_GfxImagePool.entries )\n\t%i not in [0, %i)",
+        index,
+        POOLSIZE_IMAGE);
     return &g_GfxImagePool.entries[index];
 }
 
 int __cdecl DB_GetMaterialIndex(const Material *material)
 {
-    unsigned int index; // [esp+4h] [ebp-4h]
-
-    index = ((char *)material - (char *)g_MaterialPool.entries) / 192;
-    if ( index >= 0x1000
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_registry.cpp",
-                    5970,
-                    0,
-                    "index doesn't index ARRAY_COUNT( g_MaterialPool.entries )\n\t%i not in [0, %i)",
-                    index,
-                    4096) )
-    {
-        __debugbreak();
-    }
+    unsigned int index = ((char *)material - (char *)g_MaterialPool.entries) / 192;
+    iassert(index < POOLSIZE_MATERIAL,
+        "index doesn't index ARRAY_COUNT( g_MaterialPool.entries )\n\t%i not in [0, %i)",
+        index,
+        POOLSIZE_MATERIAL);
     return ((char *)material - (char *)g_MaterialPool.entries) / 192;
 }
 
 XAssetPoolEntry<Material> *__cdecl DB_GetMaterialAtIndex(unsigned int index)
 {
-    if ( index >= 0x1000
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_registry.cpp",
-                    5977,
-                    0,
-                    "index doesn't index ARRAY_COUNT( g_MaterialPool.entries )\n\t%i not in [0, %i)",
-                    index,
-                    4096) )
-    {
-        __debugbreak();
-    }
+    vassert(index < POOLSIZE_MATERIAL,
+        "index doesn't index ARRAY_COUNT( g_MaterialPool.entries )\n\t%i not in [0, %i)",
+        index,
+        POOLSIZE_MATERIAL);
     return &g_MaterialPool.entries[index];
 }
 

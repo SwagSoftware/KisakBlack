@@ -6,6 +6,56 @@
 #include <gfx_d3d/r_material.h>
 #include <xanim/xmodel.h>
 
+#define POOLSIZE_XMODELPIECES      64
+#define POOLSIZE_PHYSPRESET        64
+#define POOLSIZE_PHYSCONSTRAINTS   64
+#define POOLSIZE_DESTRUCTIBLEDEF   64
+#define POOLSIZE_XANIM             5100
+#define POOLSIZE_XMODEL            1000
+#define POOLSIZE_MATERIAL          4096
+#define POOLSIZE_TECHSET           2048
+//#define POOLSIZE_IMAGE             4224
+#define POOLSIZE_IMAGE             4608
+#define POOLSIZE_SOUND             32
+#define POOLSIZE_SOUND_PATCH       16
+#define POOLSIZE_COL_MAP_SP        1
+#define POOLSIZE_COL_MAP_MP        1
+#define POOLSIZE_COM_MAP           1
+#define POOLSIZE_GAME_MAP_SP       1
+#define POOLSIZE_GAME_MAP_MP       1
+#define POOLSIZE_MAP_ENTS          2
+#define POOLSIZE_GFX_MAP           1
+#define POOLSIZE_LIGHTDEF          32
+#define POOLSIZE_UI_MAP            0
+#define POOLSIZE_FONT              16
+//#define POOLSIZE_MENUFILE          128
+#define POOLSIZE_MENUFILE          164
+//#define POOLSIZE_MENU              850
+#define POOLSIZE_MENU              1024
+#define POOLSIZE_LOCALIZE          10240
+#define POOLSIZE_WEAPON            2048
+#define POOLSIZE_WEAPONDEF         0
+#define POOLSIZE_WEAPONVARIANT     0
+#define POOLSIZE_SNDDRIVERGLOBALS  1
+//#define POOLSIZE_FX                450
+#define POOLSIZE_FX                500
+#define POOLSIZE_IMPACTFX          4
+#define POOLSIZE_AITYPE            0
+#define POOLSIZE_MPTYPE            0
+#define POOLSIZE_MPBODY            0
+#define POOLSIZE_MPHEAD            0
+#define POOLSIZE_CHARACTER         0
+#define POOLSIZE_XMODELALIAS       0
+#define POOLSIZE_RAWFILE           1024
+//#define POOLSIZE_STRINGTABLE       256
+#define POOLSIZE_STRINGTABLE       576
+#define POOLSIZE_PACKINDEX         16
+#define POOLSIZE_XGLOBALS          1
+#define POOLSIZE_DDL               24
+#define POOLSIZE_GLASSES           1
+//#define POOLSIZE_EMBLEMSET         2
+#define POOLSIZE_EMBLEMSET         4
+
 enum FF_DIR : __int32
 {                                       // XREF: XZoneName/r
                                         // UI_LoadModsMap/r ...
