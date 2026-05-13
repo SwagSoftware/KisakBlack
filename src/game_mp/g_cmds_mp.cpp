@@ -1290,7 +1290,7 @@ void __cdecl ClientCommand(int clientNum)
                                                                                                 if ( I_stricmp(cmd, "visionsetnight") )
                                                                                                 {
                                                                                                     memset(errMsg, 0, 64);
-                                                                                                    if ( Com_sprintf(errMsg, 0x40u, "%c GAME_UNKNOWNCLIENTCOMMAND", 101, cmd) < 0)
+                                                                                                    if ( Com_sprintf(errMsg, 0x40u, "%c \"GAME_UNKNOWNCLIENTCOMMAND\x15%s\"", 101, cmd) < 0)
                                                                                                         memset(&errMsg[60], 46, 3);
                                                                                                     errMsg[63] = 0;
                                                                                                     SV_GameSendServerCommand(clientNum, SV_CMD_CAN_IGNORE, errMsg);
