@@ -2487,16 +2487,13 @@ const dvar_s *__cdecl _Dvar_RegisterColor(
     DvarLimits domain;
     DvarValue dvarValue;
 
-    // Clamp r to [0.0, 1.0]
-    r = (r > 1.0f) ? 1.0f : ((r < 0.0f) ? 0.0f : r);
-    // Clamp g to [0.0, 1.0]
-    g = (g > 1.0f) ? 1.0f : ((g < 0.0f) ? 0.0f : g);
-    // Clamp b to [0.0, 1.0]
-    b = (b > 1.0f) ? 1.0f : ((b < 0.0f) ? 0.0f : b);
-    // Clamp a to [0.0, 1.0]
-    a = (a > 1.0f) ? 1.0f : ((a < 0.0f) ? 0.0f : a);
+    // Clamp rgba values to [0.0, 1.0]
+    r = min(1.0f, max(0.0f, r));
+    g = min(1.0f, max(0.0f, g));
+    b = min(1.0f, max(0.0f, b));
+    a = min(1.0f, max(0.0f, a));
 
-    // Convert to 0-255 range
+    // Convert to 0-255 range, +.5 for rounding
     dvarValue.color[0] = (int)(r * 255.0f + 0.5f);
     dvarValue.color[1] = (int)(g * 255.0f + 0.5f);
     dvarValue.color[2] = (int)(b * 255.0f + 0.5f);
