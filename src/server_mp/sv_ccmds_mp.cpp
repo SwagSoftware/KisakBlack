@@ -1127,7 +1127,7 @@ void __cdecl SV_ConSay_f()
         if ( SV_Cmd_Argc() >= 2 )
         {
             SV_AssembleConSayMessage(1, text, 1024);
-            SV_SendServerCommand(0, SV_CMD_CAN_IGNORE, "\"%c %s\"", 104, text);
+            SV_SendServerCommand(0, SV_CMD_CAN_IGNORE, "%c \"\x15%s\"", 104, text);
         }
     }
     else
@@ -1183,7 +1183,7 @@ void __cdecl SV_ConTell_f()
                 if ( v1->header.state == CS_ACTIVE )
                 {
                     SV_AssembleConSayMessage(2, text, 1024);
-                    SV_SendServerCommand(v1, SV_CMD_CAN_IGNORE, "\"%c %s\"", 104, text);
+                    SV_SendServerCommand(v1, SV_CMD_CAN_IGNORE, "%c \"\x15%s\"", 104, text);
                 }
             }
         }
