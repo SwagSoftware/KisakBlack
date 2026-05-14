@@ -723,7 +723,7 @@ gentity_s* Weapon_RocketLauncher_Fire(
     launchpos[1] = wp->muzzleTrace[1];
     launchpos[2] = wp->muzzleTrace[2];
     m = G_FireRocket(ent, weaponIndex, launchpos, dir, gunVel, target, targetOffset);
-    if (ent->client)
+    if (ent->client && wp->weapDef->fireType)
         Vec3Mad(ent->client->ps.velocity, -64.0, wp->forward, ent->client->ps.velocity);
 
     return m;
