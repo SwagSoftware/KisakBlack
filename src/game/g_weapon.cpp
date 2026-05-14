@@ -693,78 +693,40 @@ gentity_s *__cdecl Weapon_GrenadeLauncher_Fire(
     return m;
 }
 
-gentity_s * Weapon_RocketLauncher_Fire(
-                gentity_s *ent,
-                unsigned int weaponIndex,
-                float spread,
-                weaponParms *wp,
-                const float *gunVel,
-                gentity_s *target,
-                const float *targetOffset)
+gentity_s* Weapon_RocketLauncher_Fire(
+    gentity_s* ent,
+    unsigned int weaponIndex,
+    float spread,
+    weaponParms* wp,
+    const float* gunVel,
+    gentity_s* target,
+    const float* targetOffset)
 {
-    gclient_s *client; // edx
-    long double v10; // [esp-1Ch] [ebp-6Ch]
-    float *velocity; // [esp-10h] [ebp-60h]
-    float v12; // [esp-8h] [ebp-58h]
-    float v13; // [esp-4h] [ebp-54h]
-    float kickBack[3]; // [esp+0h] [ebp-50h] BYREF
-    gentity_s *m; // [esp+Ch] [ebp-44h]
-    float launchpos[5]; // [esp+10h] [ebp-40h]
-    float v17; // [esp+24h] [ebp-2Ch] BYREF
-    float v18; // [esp+28h] [ebp-28h]
-    float v19; // [esp+2Ch] [ebp-24h]
-    float dir[3]; // [esp+30h] [ebp-20h] BYREF
-    float v21; // [esp+3Ch] [ebp-14h]
-    ///float r; // [esp+40h] [ebp-10h]
-    float u; // [esp+44h] [ebp-Ch]
-    float fAimOffset; // [esp+48h] [ebp-8h]
-    float retaddr; // [esp+50h] [ebp+0h]
-
-    //u = a1;
-    //fAimOffset = retaddr;
+    float v8, v9, fAimOffset, r, u;
+    float dir[3], launchpos[3];
+    gentity_s* m;
+    
     iassert(ent);
     iassert(wp);
 
-    //__libm_sse2_tan(v10);
-    //r = spread * 0.017453292;
+    v9 = spread * 0.01745329238474369;
+    v8 = tan(v9);
+    fAimOffset = v8 * 16.0;
+    gunrandom(&r, &u);
+    r = r * fAimOffset;
+    u = u * fAimOffset;
+    Vec3Scale(wp->forward, 16.0, dir);
+    Vec3Mad(dir, r, wp->right, dir);
+    Vec3Mad(dir, u, wp->up, dir);
+    Vec3Normalize(dir);
+    launchpos[0] = wp->muzzleTrace[0];
+    launchpos[1] = wp->muzzleTrace[1];
+    launchpos[2] = wp->muzzleTrace[2];
+    m = G_FireRocket(ent, weaponIndex, launchpos, dir, gunVel, target, targetOffset);
+    if (ent->client)
+        Vec3Mad(ent->client->ps.velocity, -64.0, wp->forward, ent->client->ps.velocity);
 
-    v21 = (float)(spread * 0.017453292) * 16.0;
-    gunrandom(&dir[1], &dir[2]);
-    dir[1] = dir[1] * v21;
-    dir[2] = dir[2] * v21;
-    dir[0] = 16.0f;
-    v17 = 16.0 * wp->forward[0];
-    v18 = 16.0 * wp->forward[1];
-    v19 = 16.0 * wp->forward[2];
-    //LODWORD(launchpos[4]) = wp->right;
-    //launchpos[3] = dir[1];
-    v17 = (float)(dir[1] * wp->right[0]) + v17;
-    v18 = (float)(dir[1] * wp->right[1]) + v18;
-    v19 = (float)(dir[1] * wp->right[2]) + v19;
-    //LODWORD(launchpos[2]) = wp->up;
-    //launchpos[1] = dir[2];
-    v17 = (float)(dir[2] * wp->up[0]) + v17;
-    v18 = (float)(dir[2] * wp->up[1]) + v18;
-    v19 = (float)(dir[2] * wp->up[2]) + v19;
-    Vec3Normalize(&v17);
-    //LODWORD(launchpos[0]) = wp->muzzleTrace;
-    kickBack[1] = wp->muzzleTrace[0];
-    kickBack[2] = wp->muzzleTrace[1];
-    m = (gentity_s *)LODWORD(wp->muzzleTrace[2]);
-    gentity_s *proj = G_FireRocket(ent, weaponIndex, &kickBack[1], &v17, gunVel, target, targetOffset);
-    if ( ent->client && wp->weapDef->fireType )
-    {
-        v12 = -wp->forward[1];
-        v13 = -wp->forward[2];
-        if ( v13 > 0.0 )
-            v13 = 0.0f;
-        velocity = ent->client->ps.velocity;
-        client = ent->client;
-        *velocity = (float)(64.0 * (-(wp->forward[0]))) + client->ps.velocity[0];
-        velocity[1] = (float)(64.0 * v12) + client->ps.velocity[1];
-        velocity[2] = (float)(64.0 * v13) + client->ps.velocity[2];
-    }
-    return proj;
+    return m;
 }
 
 void __cdecl gunrandom(float *x, float *y)
