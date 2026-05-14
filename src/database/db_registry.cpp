@@ -806,15 +806,28 @@ void __cdecl Mark_MenuAsset(menuDef_t *menu)
 
 void __cdecl DB_DynamicCloneMenu(const XAssetHeader from, XAssetHeader to, DBCloneMethod _formal)
 {
-    if (from.data && to.data)
-    {
-        menuDef_t* fromMenu = (menuDef_t*)from.data;
-        menuDef_t* toMenu = (menuDef_t*)to.data;
+    windowDef_t* fromWindow; // [esp+14h] [ebp-18h]
+    int fromIndex; // [esp+18h] [ebp-14h]
+    int toIndex; // [esp+1Ch] [ebp-10h]
+    windowDef_t* toWindow; // [esp+24h] [ebp-8h]
 
-        if (fromMenu->window.name && toMenu->window.name && !strcmp(fromMenu->window.name, toMenu->window.name))
+    to.menu->window.dynamicFlags[0] = from.menu->window.dynamicFlags[0];
+    for (fromIndex = 0; fromIndex < from.menu->itemCount; ++fromIndex)
+    {
+        fromWindow = &from.menu->items[fromIndex]->window;
+        if (fromWindow->name)
         {
-            fromMenu->window.dynamicFlags[0] = fromMenu->window.dynamicFlags[0];
+            for (toIndex = 0; toIndex < to.menu->itemCount; ++toIndex)
+            {
+                toWindow = &to.menu->items[toIndex]->window;
+                if (toWindow->name && !strcmp(toWindow->name, fromWindow->name))
+                {
+                    toWindow->dynamicFlags[0] = fromWindow->dynamicFlags[0];
+                    break;
+                }
+            }
         }
+        DB_RemoveWindowFocus(fromWindow);
     }
 }
 
