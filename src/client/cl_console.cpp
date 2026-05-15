@@ -1204,16 +1204,18 @@ void __cdecl Con_UpdateNotifyMessageWindow(
 
 int __cdecl Con_GetDefaultMsgDuration(print_msg_dest_t dest)
 {
-    if ( dest == CON_DEST_MINICON )
-        return (int)((float)(con_minicontime->current.value * 1000.0) + 9.313225746154785e-10);
+    float time;
+    if (dest == CON_DEST_MINICON)
+        time = con_minicontime->current.value * 1000.0f;
+    else if (dest == CON_DEST_ERROR)
+        time = con_errormessagetime->current.value * 1000.0f;
+    else
+    {
+        iassert(dest >= CON_DEST_GAME_FIRST && dest <= CON_DEST_GAME_LAST);
+        time = con_gameMsgWindowNMsgTime[dest - CON_DEST_GAME_FIRST]->current.value * 1000.0f;
+    }
 
-    if ( dest == CON_DEST_ERROR )
-        return (int)((float)(con_errormessagetime->current.value * 1000.0) + 9.313225746154785e-10);
-
-    iassert(dest >= CON_DEST_GAME_FIRST && dest <= CON_DEST_GAME_LAST);
-
-    //return (int)((float)(con_gameMsgWindowNLineCount[dest]->current.value * 1000.0) + 9.313225746154785e-10);
-    return (int)((float)(con_gameMsgWindowNLineCount[dest - CON_DEST_GAME_FIRST]->current.value * 1000.0) + 9.313225746154785e-10); // not sure why this is missing
+    return static_cast<int>(time + 9.313225746154785e-10);
 }
 
 void __cdecl Con_UpdateMessage(int localClientNum, MessageWindow *msgwnd, int duration)
