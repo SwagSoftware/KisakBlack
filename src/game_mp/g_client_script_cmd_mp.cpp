@@ -4228,49 +4228,172 @@ void __cdecl PlayerCmd_Suicide(scr_entref_t entref)
 // LWSS ADD
 void PlayerCmd_BotPressAttackButton(scr_entref_t entref)
 {
-    iassert(0);
+    gentity_s* pSelf;
+
+    if (entref.classnum)
+    {
+        Scr_ObjectError("not an entity", SCRIPTINSTANCE_SERVER);
+        pSelf = 0;
+    }
+    else
+    {
+        bcassert(entref.entnum, 0x400u);
+        pSelf = &g_entities[entref.entnum];
+        if (!pSelf->client)
+        {
+            char* error1 = va("entity %i is not a player", entref.entnum);
+            Scr_ObjectError(error1, SCRIPTINSTANCE_SERVER);
+        }
+    }
+
+    client_t* pClient = &svs.clients[pSelf->s.number];
+    if (pClient->bIsTestClient)
+    {
+        SV_BotPressAttackButton(pClient);
+    }
+    else
+    {
+        char* error2 = va("Illegal call to PressAttackButton(). Player '%s' is not a bot.", pSelf->client->sess.cs.name);
+        Scr_Error(error2, 0);
+    }
 }
+
 void PlayerCmd_GetLookaheadDist(scr_entref_t entref)
 {
-    iassert(0);
+    gentity_s* pSelf;
+
+    if (entref.classnum)
+    {
+        Scr_ObjectError("not an entity", SCRIPTINSTANCE_SERVER);
+        pSelf = 0;
+    }
+    else
+    {
+        bcassert(entref.entnum, 0x400u);
+        pSelf = &g_entities[entref.entnum];
+        if (!pSelf->client)
+        {
+            char* error1 = va("entity %i is not a player", entref.entnum);
+            Scr_ObjectError(error1, SCRIPTINSTANCE_SERVER);
+        }
+    }
+
+    client_t* pClient = &svs.clients[pSelf->s.number];
+    if (pClient->bIsTestClient)
+    {
+        float lookaheadDist = SV_BotGetLookaheadDist(pClient);
+        Scr_AddFloat(lookaheadDist, SCRIPTINSTANCE_SERVER);
+    }
+    else
+    {
+        char* error2 = va("Illegal call to GetLookaheadDist(). Player '%s' is not a bot.", pSelf->client->sess.cs.name);
+        Scr_Error(error2, 0);
+    }
 }
+
 void PlayerCmd_GetLookaheadDir(scr_entref_t entref)
 {
-    iassert(0);
+    gentity_s* pSelf;
+
+    if (entref.classnum)
+    {
+        Scr_ObjectError("not an entity", SCRIPTINSTANCE_SERVER);
+        pSelf = 0;
+    }
+    else
+    {
+        bcassert(entref.entnum, 0x400u);
+        pSelf = &g_entities[entref.entnum];
+        if (!pSelf->client)
+        {
+            char* error1 = va("entity %i is not a player", entref.entnum);
+            Scr_ObjectError(error1, SCRIPTINSTANCE_SERVER);
+        }
+    }
+
+    client_t* pClient = &svs.clients[pSelf->s.number];
+    if (pClient->bIsTestClient)
+    {
+        float lookahedDir[3];
+        if (SV_BotGetLookaheadDir(pClient, lookahedDir))
+            return Scr_AddVector(lookahedDir, SCRIPTINSTANCE_SERVER);
+        else
+            return Scr_AddUndefined(SCRIPTINSTANCE_SERVER);
+    }
+    else
+    {
+        char* error2 = va("Illegal call to GetLookaheadDir(). Player '%s' is not a bot.", pSelf->client->sess.cs.name);
+        Scr_Error(error2, 0);
+    }
 }
+
 void PlayerCmd_GetThreat(scr_entref_t entref)
 {
-    iassert(0);
+    gentity_s* pSelf;
+
+    if (entref.classnum)
+    {
+        Scr_ObjectError("not an entity", SCRIPTINSTANCE_SERVER);
+        pSelf = 0;
+    }
+    else
+    {
+        bcassert(entref.entnum, 0x400u);
+        pSelf = &g_entities[entref.entnum];
+        if (!pSelf->client)
+        {
+            char* error1 = va("entity %i is not a player", entref.entnum);
+            Scr_ObjectError(error1, SCRIPTINSTANCE_SERVER);
+        }
+    }
+
+    client_t* pClient = &svs.clients[pSelf->s.number];
+    if (pClient->bIsTestClient)
+    {
+        gentity_s* pThreat = SV_BotGetThreat(pClient);
+        if(pThreat)
+            Scr_AddEntity(pThreat, SCRIPTINSTANCE_SERVER);
+        else
+            Scr_AddUndefined(SCRIPTINSTANCE_SERVER);
+    }
+    else
+    {
+        char* error2 = va("Illegal call to GetThreat(). Player '%s' is not a bot.", pSelf->client->sess.cs.name);
+        Scr_Error(error2, 0);
+    }
 }
+
 void PlayerCmd_HasScriptGoal(scr_entref_t entref)
 {
-    iassert(0); // KISAKTODO: requires another function
-    //gentity_s *pSelf;
-    //client_t *cl;
-    //const char *error;
-    //
-    //pSelf = GetEntity(entref);
-    //
-    //if (!pSelf->client)
-    //{
-    //    error = va("entity %i is not a player", entref.entnum);
-    //    Scr_Error(error, SCRIPTINSTANCE_SERVER);
-    //    return;
-    //}
-    //
-    //cl = &svs.clients[pSelf->s.number];
-    //
-    //if (cl->bIsTestClient)
-    //{
-    //    Scr_AddInt(SV_BotHasScriptGoal(cl), SCRIPTINSTANCE_SERVER);
-    //}
-    //else
-    //{
-    //    error = va(
-    //        "Illegal call to HasScriptGoal(). Player '%s' is not a bot.",
-    //        pSelf->client->sess.playerName);
-    //    Scr_Error(error, SCRIPTINSTANCE_SERVER);
-    //}
+    gentity_s* pSelf;
+
+    if (entref.classnum)
+    {
+        Scr_ObjectError("not an entity", SCRIPTINSTANCE_SERVER);
+        pSelf = 0;
+    }
+    else
+    {
+        bcassert(entref.entnum, 0x400u);
+        pSelf = &g_entities[entref.entnum];
+        if (!pSelf->client)
+        {
+            char* error1 = va("entity %i is not a player", entref.entnum);
+            Scr_ObjectError(error1, SCRIPTINSTANCE_SERVER);
+        }
+    }
+
+    client_t* pClient = &svs.clients[pSelf->s.number];
+    if (pClient->bIsTestClient)
+    {
+        int hasScriptGoal = (int)SV_BotHasScriptGoal(pClient);
+        return Scr_AddInt(hasScriptGoal, SCRIPTINSTANCE_SERVER);
+    }
+    else
+    {
+        char* error2 = va("Illegal call to HasScriptGoal(). Player '%s' is not a bot.", pSelf->client->sess.cs.name);
+        Scr_Error(error2, 0);
+    }
 }
 // LWSS END 
 

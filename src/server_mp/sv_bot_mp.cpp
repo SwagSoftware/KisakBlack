@@ -248,6 +248,12 @@ void __cdecl SV_BotPressUseButton(const client_t *bot, int msec)
     botInfos[bot->gentity->s.number].useButtonEndTime = msec + svs.time;
 }
 
+void __cdecl SV_BotPressAttackButton(client_t* bot)
+{
+    iassert(bot->bIsTestClient);
+    bot->lastUsercmd.button_bits.setBit(0); // may be different bit, check if bots fire
+}
+
 void __cdecl SV_BotSetAttacker(const client_t *bot, const gentity_s *attacker)
 {
     bot_info_t *botInfo; // [esp+4h] [ebp-4h]
@@ -638,6 +644,46 @@ bool __cdecl Bot_IsInLastStand(const client_t *bot)
 
     ps = G_GetPlayerState(bot->gentity->s.number);
     return ps->ps.pm_type == 6 || ps->ps.pm_type == 7 || ps->ps.pm_type == 8;
+}
+
+float __cdecl SV_BotGetLookaheadDist(const client_t *bot)
+{
+    iassert(bot->bIsTestClient);
+
+    path_t* path = &botInfos[bot->gentity->s.number].path;
+    if (Path_Exists(path))
+        return path->fLookaheadDist;
+    return 0.0f;
+}
+
+bool __cdecl SV_BotGetLookaheadDir(const client_t* bot, float* outDir)
+{
+    iassert(bot->bIsTestClient);
+
+    outDir[0] = outDir[1] = outDir[2] = 0.0f;
+    path_t* path = &botInfos[bot->gentity->s.number].path;
+    if (!Path_Exists(path))
+        return false;
+    
+    Vec3Copy(path->lookaheadDir, outDir);
+    return true;
+}
+
+gentity_s* __cdecl SV_BotGetThreat(const client_t* bot)
+{
+    iassert(bot->bIsTestClient);
+
+    gentity_s* pThreat = (gentity_s*)botInfos[bot->gentity->s.number].threat.enemy;
+    if(!pThreat || pThreat->s.number == 1023 || pThreat->s.number == 1022 || !pThreat->r.inuse)
+        return nullptr;
+    return pThreat;
+}
+
+bool __cdecl SV_BotHasScriptGoal(const client_t* bot)
+{
+    iassert(bot->bIsTestClient);
+
+    return (botInfos[bot->gentity->s.number].flags & 4) != 0;
 }
 
 bool __cdecl Bot_IsFacingEnemy(const client_t *bot, const gentity_s *enemy, float *dot)

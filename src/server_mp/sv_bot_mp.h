@@ -54,6 +54,7 @@ void __cdecl SV_BotSetScriptEnemy(const client_t *bot, const gentity_s *enemy);
 void __cdecl SV_BotClearScriptEnemy(const client_t *bot);
 void __cdecl Bot_ClearThreat(bot_info_t *botInfo);
 void __cdecl SV_BotPressUseButton(const client_t *bot, int msec);
+void __cdecl SV_BotPressAttackButton(client_t *bot);
 void __cdecl SV_BotSetAttacker(const client_t *bot, const gentity_s *attacker);
 void __cdecl SV_BotThink(client_t *bot, usercmd_s *cmd);
 int __cdecl Com_HashString(const char *fname, int len); // KISAKTODO: move somewhere in qcommon
@@ -124,7 +125,10 @@ char __cdecl Friends_IsInCurrentSession(const char *name);
 char __cdecl SV_BotNameRandomFriend(int controller, char *buf, int bufLen);
 client_t *__cdecl Bot_NameUsed(const char *name);
 void __cdecl SV_BotNameUpdate(const char *name);
-
+float __cdecl SV_BotGetLookaheadDist(const client_t* bot);
+bool __cdecl SV_BotGetLookaheadDir(const client_t* bot, float* outDir);
+gentity_s* __cdecl SV_BotGetThreat(const client_t* bot);
+bool __cdecl SV_BotHasScriptGoal(const client_t* bot);
 
 extern const dvar_t *sv_botsAllowMovement;
 extern const dvar_t *sv_botsForceStand;
