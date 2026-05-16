@@ -510,7 +510,6 @@ void __cdecl CG_PointTraceToEntity(const pointtrace_t *clip, unsigned int entInd
             results->partName = 0;
             results->partGroup = 0;
             results->boneIndex = 254;
-LABEL_113:
             number = p_nextState->number;
             if ( !results
                 && !Assert_MyHandler(
@@ -585,23 +584,23 @@ LABEL_113:
             DObjGeomTracelinePartBits(dobj, clip->contentmask, partBits);
             CG_DObjCalcPose(&centEA->pose, dobj, partBits);
             DObjGeomTraceline(dobj, localStart, localEnd, clip->contentmask, &objTrace);
-            {
-LABEL_57:
-                if ( objTrace.fraction >= results->fraction )
-                {
-                    return;
-                }
-                results->fraction = objTrace.fraction;
-                results->sflags = objTrace.sflags;
-                results->modelIndex = objTrace.modelIndex;
-                results->partName = objTrace.partName;
-                results->partGroup = objTrace.partGroup;
-                results->boneIndex = objTrace.localBoneIndex;
-                *(_QWORD *)results->normal.vec.v = *(_QWORD *)objTrace.normal;
-                results->normal.vec.u[2] = LODWORD(objTrace.normal[2]);
-                results->walkable = results->normal.vec.v[2] >= 0.69999999;
-            }
         }
+        if (objTrace.fraction >= results->fraction)
+        {
+            return;
+        }
+        results->fraction = objTrace.fraction;
+        results->sflags = objTrace.sflags;
+        results->modelIndex = objTrace.modelIndex;
+        results->partName = objTrace.partName;
+        results->partGroup = objTrace.partGroup;
+        results->boneIndex = objTrace.localBoneIndex;
+        *(_QWORD*)results->normal.vec.v = *(_QWORD*)objTrace.normal;
+        results->normal.vec.u[2] = LODWORD(objTrace.normal[2]);
+        results->walkable = results->normal.vec.v[2] >= 0.69999999;
+        results->hitType = TRACE_HITTYPE_ENTITY;
+        results->hitId = p_nextState->number;
+        results->cflags = contents;
     }
 }
 
@@ -745,7 +744,7 @@ void __cdecl CG_PointTraceToEntities_r(
                 __debugbreak();
             }
             node = &cgEntCollNodes[localClientNum][v7];
-            if ( listIndex - 1 != ignoreEntParamsBaseEntity )
+            if ( listIndex - 1 != ignoreEntParamsBaseEntity  )
             {
                 if ( intersect_extents_aabb(&clip->extents, node->linkMins, node->linkMaxs, results->fraction) )
                 {
