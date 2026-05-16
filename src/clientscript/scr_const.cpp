@@ -22,7 +22,6 @@ void __cdecl    GScr_LoadConsts()
     scr_const.begin_firing = GScr_AllocString("begin_firing");
     scr_const.unknown_location = GScr_AllocString("unknown_location");
     scr_const.cancel_location = GScr_AllocString("cancel_location");
-    scr_const.combat = GScr_AllocString("combat");
     scr_const.confirm_location = GScr_AllocString("confirm_location");
     scr_const.crouch = GScr_AllocString("crouch");
     scr_const.current = GScr_AllocString("current");
@@ -111,6 +110,10 @@ void __cdecl    GScr_LoadConsts()
     scr_const.tag_butt = GScr_AllocString("tag_butt");
     scr_const.tag_clip = GScr_AllocString("tag_clip");
     scr_const.tag_flash = GScr_AllocString("tag_flash");
+    scr_const.tag_flash_11 = GScr_AllocString("tag_flash_11");
+    scr_const.tag_flash_2 = GScr_AllocString("tag_flash_2");
+    scr_const.tag_flash_22 = GScr_AllocString("tag_flash_22");
+    scr_const.tag_flash_3 = GScr_AllocString("tag_flash_3");
     scr_const.tag_flash1 = GScr_AllocString("tag_flash1");
     scr_const.tag_flash_alt = GScr_AllocString("tag_flash_alt");
     scr_const.tag_gunner_barrel1 = GScr_AllocString("tag_gunner_barrel1");
@@ -234,6 +237,7 @@ void __cdecl    GScr_LoadConsts()
     scr_const.face_death = GScr_AllocString("face_death");
     scr_const.script_vehicle = GScr_AllocString("script_vehicle");
     scr_const.script_vehicle_collision = GScr_AllocString("script_vehicle_collision");
+    scr_const.script_vehicle_collmap = GScr_AllocString("script_vehicle_collmap");
     scr_const.script_vehicle_corpse = GScr_AllocString("script_vehicle_corpse");
     scr_const.turret_fire = GScr_AllocString("turret_fire");
     scr_const.turret_on_target = GScr_AllocString("turret_on_target");
@@ -257,6 +261,17 @@ void __cdecl    GScr_LoadConsts()
     scr_const.veh_suspension_limit_activated = GScr_AllocString("veh_suspension_limit_activated");
     scr_const.veh_engine_stutter = GScr_AllocString("veh_engine_stutter");
     scr_const.veh_ejectoccupants = GScr_AllocString("veh_ejectoccupants");
+    scr_const.veh_usespecialability = GScr_AllocString("veh_usespecialability");
+    scr_const.veh_usespecialabilityend = GScr_AllocString("veh_usespecialabilityend");
+    scr_const.veh_firepickup = GScr_AllocString("veh_firepickup");
+    scr_const.veh_firepickupend = GScr_AllocString("veh_firepickupend");
+    scr_const.veh_swappickup = GScr_AllocString("veh_swappickup");
+    scr_const.veh_swappickupend = GScr_AllocString("veh_swappickupend");
+    scr_const.veh_dropdeployable = GScr_AllocString("veh_dropdeployable");
+    scr_const.veh_dropdeployableend = GScr_AllocString("veh_dropdeployableend");
+    scr_const.veh_handbreak = GScr_AllocString("veh_handbreak");
+    scr_const.veh_boost = GScr_AllocString("veh_boost");
+    scr_const.veh_boost_regen = GScr_AllocString("veh_boost_regen");
     scr_const.begin = GScr_AllocString("begin");
     scr_const.script_camera = GScr_AllocString("script_camera");
     scr_const.jumpcut = GScr_AllocString("jumpcut");
@@ -317,6 +332,7 @@ void __cdecl    GScr_LoadConsts()
     scr_const.tag_enter_left = GScr_AllocString("tag_enter_left");
     scr_const.tag_enter_back = GScr_AllocString("tag_enter_back");
     scr_const.script_vehicle_collision = GScr_AllocString("script_vehicle_collision");
+    scr_const.script_vehicle_collmap = GScr_AllocString("script_vehicle_collmap");
     scr_const.script_vehicle_corpse = GScr_AllocString("script_vehicle_corpse");
     scr_const.tag_popout = GScr_AllocString("tag_popout");
     scr_const.tag_body = GScr_AllocString("tag_body");
@@ -338,7 +354,6 @@ void __cdecl    GScr_LoadConsts()
     scr_const.auto_nonai = GScr_AllocString("auto_nonai");
     scr_const.manual = GScr_AllocString("manual");
     scr_const.manual_ai = GScr_AllocString("manual_ai");
-    scr_const.scavenger = GScr_AllocString("scavenger");
     scr_const.auto_change = GScr_AllocString("auto_change");
     scr_const.call_vote = GScr_AllocString("call_vote");
     scr_const.intermission = GScr_AllocString("intermission");
@@ -358,6 +373,7 @@ void __cdecl    GScr_LoadConsts()
     scr_const.vehicle_driver = GScr_AllocString("vehicle_driver");
     scr_const.died_in_turret = GScr_AllocString("died_in_turret");
     scr_const.force_crouch = GScr_AllocString("force crouch");
+    scr_const.scavenger = GScr_AllocString("scavenger");
     scr_const.trigger_use_doubletap = GScr_AllocString("trigger_use_doubletap");
     scr_const.doubletap_detonate = GScr_AllocString("doubletap_detonate");
     scr_const.dtp_through_glass = GScr_AllocString("dtp_through_glass");
