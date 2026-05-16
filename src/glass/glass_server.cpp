@@ -625,38 +625,35 @@ void __cdecl GlassSv_PredictTouch(gentity_s *other)
     float maxs; // [esp+ECh] [ebp-1030h] BYREF
     float v24; // [esp+F0h] [ebp-102Ch]
     float v25; // [esp+F4h] [ebp-1028h]
-    float tvel; // [esp+F8h] [ebp-1024h] BYREF
-    float v27; // [esp+FCh] [ebp-1020h]
-    float v28; // [esp+100h] [ebp-101Ch]
+    float tvel[3] = { 0.0f, 0.0f, 0.0f }; // [esp+F8h] [ebp-1024h] BYREF
     float v29; // [esp+108h] [ebp-1014h]
     float v30; // [esp+10Ch] [ebp-1010h]
     float v31; // [esp+110h] [ebp-100Ch]
     const Glass *glasses[1025]; // [esp+114h] [ebp-1008h] BYREF
     unsigned int v33; // [esp+1118h] [ebp-4h]
 
-    if (!other && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\glass\\glass_server.cpp", 768, 0, "%s", "other"))
-        __debugbreak();
+    iassert(other);
     if (svGlasses.numGlasses)
     {
         if (other->physObjId)
         {
-            Phys_ObjGetVelocities(other->physObjId, &tvel, avel);
+            Phys_ObjGetVelocities(other->physObjId, tvel, avel);
         }
         else if (other->scr_vehicle)
         {
             scr_vehicle = other->scr_vehicle;
-            tvel = scr_vehicle->phys.vel[0];
-            v27 = scr_vehicle->phys.vel[1];
-            v28 = scr_vehicle->phys.vel[2];
+            tvel[0] = scr_vehicle->phys.vel[0];
+            tvel[1] = scr_vehicle->phys.vel[1];
+            tvel[2] = scr_vehicle->phys.vel[2];
         }
         else
         {
             if (!other->actor || !Flame_GetLocalClientSourceRange())
                 return;
             actor = other->actor;
-            tvel = actor->Physics.vVelocity[0];
-            v27 = actor->Physics.vVelocity[1];
-            v28 = actor->Physics.vVelocity[2];
+            tvel[0] = actor->Physics.vVelocity[0];
+            tvel[1] = actor->Physics.vVelocity[1];
+            tvel[2] = actor->Physics.vVelocity[2];
         }
         PROF_SCOPED("GlassSv_PredictTouch");
 
@@ -666,15 +663,15 @@ void __cdecl GlassSv_PredictTouch(gentity_s *other)
         mins = other->r.absmin[0];
         v21 = other->r.absmin[1];
         v22 = other->r.absmin[2];
-        v29 = PREDICT_TIME * tvel;
-        v30 = PREDICT_TIME * v27;
-        v31 = PREDICT_TIME * v28;
-        mins = mins + (float)(PREDICT_TIME * tvel);
-        v21 = v21 + (float)(PREDICT_TIME * v27);
-        v22 = v22 + (float)(PREDICT_TIME * v28);
-        maxs = maxs + (float)(PREDICT_TIME * tvel);
-        v24 = v24 + (float)(PREDICT_TIME * v27);
-        v25 = v25 + (float)(PREDICT_TIME * v28);
+        v29 = PREDICT_TIME * tvel[0];
+        v30 = PREDICT_TIME * tvel[1];
+        v31 = PREDICT_TIME * tvel[2];
+        mins = mins + (float)(PREDICT_TIME * tvel[0]);
+        v21 = v21 + (float)(PREDICT_TIME * tvel[1]);
+        v22 = v22 + (float)(PREDICT_TIME * tvel[2]);
+        maxs = maxs + (float)(PREDICT_TIME * tvel[0]);
+        v24 = v24 + (float)(PREDICT_TIME * tvel[1]);
+        v25 = v25 + (float)(PREDICT_TIME * tvel[2]);
         v33 = GlassSv_AreaGlasses(&mins, &maxs, glasses, 0x400u);
         for (i = 0; i < v33; ++i)
         {
@@ -698,15 +695,15 @@ void __cdecl GlassSv_PredictTouch(gentity_s *other)
                 v12 = other->r.currentOrigin[0];
                 v13 = other->r.currentOrigin[1];
                 v14 = other->r.currentOrigin[2];
-                v15 = (float)(tvel * out[0][0]) + 0.0;
-                v16 = (float)(tvel * out[0][1]) + 0.0;
-                v17 = (float)(tvel * out[0][2]) + 0.0;
-                v15 = (float)(v27 * out[0][3]) + v15;
-                v16 = (float)(v27 * out[1][0]) + v16;
-                v17 = (float)(v27 * out[1][1]) + v17;
-                v15 = (float)(v28 * out[1][2]) + v15;
-                v16 = (float)(v28 * out[1][3]) + v16;
-                v17 = (float)(v28 * out[2][0]) + v17;
+                v15 = (float)(tvel[0] * out[0][0]) + 0.0;
+                v16 = (float)(tvel[0] * out[0][1]) + 0.0;
+                v17 = (float)(tvel[0] * out[0][2]) + 0.0;
+                v15 = (float)(tvel[1] * out[0][3]) + v15;
+                v16 = (float)(tvel[1] * out[1][0]) + v16;
+                v17 = (float)(tvel[1] * out[1][1]) + v17;
+                v15 = (float)(tvel[2] * out[1][2]) + v15;
+                v16 = (float)(tvel[2] * out[1][3]) + v16;
+                v17 = (float)(tvel[2] * out[2][0]) + v17;
                 if ((float)((float)((float)(v14 * out[2][0])
                     + (float)((float)(v13 * out[1][1]) + (float)((float)(v12 * out[0][2]) + out[2][3])))
                     * v17) < 0.0
