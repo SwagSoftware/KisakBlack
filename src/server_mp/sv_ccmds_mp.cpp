@@ -105,6 +105,8 @@ void __cdecl SV_MapRestart(int fast_restart)
             sv.state = SS_LOADING;
             sv.restarting = 1;
             SV_RestartGameProgs(savepersist);
+            SV_ReconnectClients(savepersist);
+            SV_SaveSystemInfo();
         }
     }
     else
