@@ -54,7 +54,7 @@ void __cdecl SV_BotSetScriptEnemy(const client_t *bot, const gentity_s *enemy);
 void __cdecl SV_BotClearScriptEnemy(const client_t *bot);
 void __cdecl Bot_ClearThreat(bot_info_t *botInfo);
 void __cdecl SV_BotPressUseButton(const client_t *bot, int msec);
-void __cdecl SV_BotPressAttackButton(client_t *bot);
+void __cdecl SV_BotPressAttackButton(const client_t *bot);
 void __cdecl SV_BotSetAttacker(const client_t *bot, const gentity_s *attacker);
 void __cdecl SV_BotThink(client_t *bot, usercmd_s *cmd);
 int __cdecl Com_HashString(const char *fname, int len); // KISAKTODO: move somewhere in qcommon

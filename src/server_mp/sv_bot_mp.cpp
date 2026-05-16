@@ -248,10 +248,10 @@ void __cdecl SV_BotPressUseButton(const client_t *bot, int msec)
     botInfos[bot->gentity->s.number].useButtonEndTime = msec + svs.time;
 }
 
-void __cdecl SV_BotPressAttackButton(client_t* bot)
+void __cdecl SV_BotPressAttackButton(const client_t* bot)
 {
     iassert(bot->bIsTestClient);
-    bot->lastUsercmd.button_bits.setBit(0); // may be different bit, check if bots fire
+    botInfos[bot->gentity->s.number].flags |= 0x1000u;
 }
 
 void __cdecl SV_BotSetAttacker(const client_t *bot, const gentity_s *attacker)

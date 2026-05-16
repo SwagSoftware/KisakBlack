@@ -4314,9 +4314,9 @@ void PlayerCmd_GetLookaheadDir(scr_entref_t entref)
     client_t* pClient = &svs.clients[pSelf->s.number];
     if (pClient->bIsTestClient)
     {
-        float lookahedDir[3];
-        if (SV_BotGetLookaheadDir(pClient, lookahedDir))
-            return Scr_AddVector(lookahedDir, SCRIPTINSTANCE_SERVER);
+        float lookaheadDir[3];
+        if (SV_BotGetLookaheadDir(pClient, lookaheadDir))
+            return Scr_AddVector(lookaheadDir, SCRIPTINSTANCE_SERVER);
         else
             return Scr_AddUndefined(SCRIPTINSTANCE_SERVER);
     }
