@@ -22,13 +22,14 @@ void    R_SetFrameFog(GfxCmdBufInput *input, const GfxViewInfo *viewInfo)
     //
     //v26 = a1;
     //inputa = (GfxCmdBufInput *)vars0;
+
     if (r_fog->current.enabled)
     {
         data = input->data;
         iassert(data);
         fog = &data->fogSettings;
-        R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_COLOR_BIAS, data->fogSettings.sunFogColor);
-        R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_GLOW_APPLY, data->fogSettings.sunFogDir);
+        R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_SUN_FOG_COLOR, data->fogSettings.sunFogColor);
+        R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_SUN_FOG_DIR, data->fogSettings.sunFogDir);
         slopeAng = 1.0e7;
         startAng = cos(data->fogSettings.sunFogStartAng * 0.017453292);
         endAng = cos(data->fogSettings.sunFogEndAng * 0.017453292);
@@ -40,19 +41,19 @@ void    R_SetFrameFog(GfxCmdBufInput *input, const GfxViewInfo *viewInfo)
         parms[1] = slopeAng;
         parms[2] = 0.0f;
         parms[3] = 0.0f;
-        R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_GLOW_SETUP, parms);
+        R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_SUN_FOG, parms);
         fogColorVec[0] = fog->color[0];
         fogColorVec[1] = fog->color[1];
         fogColorVec[2] = fog->color[2];
         fogColorVec[3] = fog->color[3];
-        R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_SUN_FOG_COLOR, fogColorVec);
+        R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_FOG_COLOR, fogColorVec);
         viewerZ = viewInfo->cullViewInfo.viewParms.origin[2] - fog->baseHeight;
         fog_density = fog->density;
         fog_maxDensity = fog->maxDensity;
         if (fog_density == 0.0)
         {
-            R_SetInputCodeConstant(input, 0x38u, 0.0, 0.0, 0.0, 0.0);
-            R_SetInputCodeConstant(input, 0x39u, 0.0, 0.0, 0.0, 0.0);
+            R_SetInputCodeConstant(input, CONST_SRC_CODE_FOG, 0.0, 0.0, 0.0, 0.0);
+            R_SetInputCodeConstant(input, CONST_SRC_CODE_FOG2, 0.0, 0.0, 0.0, 0.0);
         }
         else
         {
@@ -81,14 +82,14 @@ void    R_SetFrameFog(GfxCmdBufInput *input, const GfxViewInfo *viewInfo)
             {
                 parms[1] *= log(2.0);
             }
-            R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_SUN_FOG, parms);
-            R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_SUN_FOG_DIR, parms2);
+            R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_FOG, parms);
+            R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_FOG2, parms2);
         }
     }
     else
     {
-        R_SetInputCodeConstant(input, CONST_SRC_CODE_SUN_FOG, 0.0, 0.0, 0.0, 0.0);
-        R_SetInputCodeConstant(input, CONST_SRC_CODE_SUN_FOG_DIR, 0.0, 0.0, 0.0, 0.0);
+        R_SetInputCodeConstant(input, CONST_SRC_CODE_FOG, 0.0, 0.0, 0.0, 0.0);
+        R_SetInputCodeConstant(input, CONST_SRC_CODE_FOG2, 0.0, 0.0, 0.0, 0.0);
     }
 }
 
