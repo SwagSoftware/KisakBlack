@@ -64,6 +64,7 @@ BuiltinFunctionDef client_project_functions[] =
   { "setextracamorigin", &CScr_SetExtraCamOrigin, 0 },
   { "setextracamangles", &CScr_SetExtraCamAngles, 0 },
   { "iscameraspiketoggled", &CScr_IsCameraSpikeToggled, 0 },
+  // NEW FUNCS FROM BLOPS MP RETAIL (LATEST)
   { "setclientvolumetricfog", &CScr_SetClientVolumetricFog, 0 },
   { "switchtoservervolumetricfog", &CScr_SwitchToServerVolumetricFog, 0 },
   { "switchtoclientvolumetricfog", &CScr_SwitchToClientVolumetricFog, 0 },
