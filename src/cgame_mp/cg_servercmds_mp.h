@@ -52,3 +52,6 @@ void __cdecl CG_ElectrifiedServerCommand(int localClientNum);
 void __cdecl CG_WaterDropsServerCommand(int localClientNum);
 void __cdecl CG_ScrCamera(int localClientNum, int cmd);
 void __cdecl CG_ExecuteNewServerCommands(int localClientNum, int latestSequence);
+
+struct GfxFog;
+extern GfxFog cg_serverVolFog;

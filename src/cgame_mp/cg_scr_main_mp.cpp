@@ -23,6 +23,10 @@
 #include <clientscript/scr_const.h>
 #include "cg_animscripted_mp.h"
 #include <universal/surfaceflags.h>
+#include <gfx_d3d/r_fog.h>
+#include "cg_servercmds_mp.h"
+
+GfxFog cg_clientVolFog;
 
 unsigned __int16 *footTags[4] =
 {
@@ -60,12 +64,10 @@ BuiltinFunctionDef client_project_functions[] =
   { "setextracamorigin", &CScr_SetExtraCamOrigin, 0 },
   { "setextracamangles", &CScr_SetExtraCamAngles, 0 },
   { "iscameraspiketoggled", &CScr_IsCameraSpikeToggled, 0 },
-  // LWSS ADD FROM BLOPS MP RETAIL (LATEST)
   { "setclientvolumetricfog", &CScr_SetClientVolumetricFog, 0 },
   { "switchtoservervolumetricfog", &CScr_SwitchToServerVolumetricFog, 0 },
   { "switchtoclientvolumetricfog", &CScr_SwitchToClientVolumetricFog, 0 },
   { "isinhelicopter", &CScr_IsInHelicopter, 0 },
-  // LWSS END
 };
 
 // LWSS: Looks congruent to retail blops MP
@@ -1124,24 +1126,195 @@ void CScr_IsCameraSpikeToggled()
     }
 }
 
-// LWSS ADD
 void CScr_SetClientVolumetricFog()
 {
-    iassert(0); // KISAKTODO :)
+    if (Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) != 18 && Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) != 8)
+    {
+        Scr_Error(
+            SCRIPTINSTANCE_CLIENT,
+            "Incorrect number of parameters\n"
+            "USAGE: setClientVolFog(<startDist>, <halfwayDist>, <halfwayHeight>, <baseHeight>, <red>, <green>, <blue>, <transit"
+            "ion time>, <sun red>, <sun blue>, <sun green>, <sun dir X>, <sun dir Y>, <sun dir Z>, <sun start angle>, <sun end "
+            "angle>, <max fog opacity>)\n",
+            0);
+    }
+
+    float startDist = Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT);
+    if (startDist < 0.0)
+        Scr_Error(SCRIPTINSTANCE_CLIENT, "setClientVolFog: startDist must be greater or equal to 0", 0);
+
+    float halfwayDist = Scr_GetFloat(1u, SCRIPTINSTANCE_CLIENT);
+    if (halfwayDist <= 0.0)
+        Scr_Error(SCRIPTINSTANCE_CLIENT, "setClientVolFog: halfwayDist must be greater than 0", 0);
+
+    float halfwayHeight = Scr_GetFloat(2u, SCRIPTINSTANCE_CLIENT);
+    if (halfwayHeight < 0.0)
+        Scr_Error(SCRIPTINSTANCE_CLIENT, "setClientVolFog: halfwayHeight must be greater or equal to 0", 0);
+
+    float baseHeight = Scr_GetFloat(3u, SCRIPTINSTANCE_CLIENT);
+    float density = 1.0 / halfwayDist;
+
+    float heightDensity;
+    if (halfwayHeight < 1.0)
+        heightDensity = 0.0;
+    else
+        heightDensity = 1.0 / halfwayHeight;
+
+    float red = Scr_GetFloat(4u, SCRIPTINSTANCE_CLIENT);
+    float green = Scr_GetFloat(5u, SCRIPTINSTANCE_CLIENT);
+    float blue = Scr_GetFloat(6u, SCRIPTINSTANCE_CLIENT);
+    int numParams = Scr_GetNumParam(SCRIPTINSTANCE_CLIENT);
+
+    cg_clientVolFog.fogStart = startDist;
+    cg_clientVolFog.color[0] = red;
+    cg_clientVolFog.color[1] = green;
+    cg_clientVolFog.color[2] = blue;
+    cg_clientVolFog.density = density;
+    cg_clientVolFog.heightDensity = heightDensity;
+    cg_clientVolFog.baseHeight = baseHeight;
+
+    if (numParams == 8)
+    {
+        cg_clientVolFog.color[3] = 1.0;
+        cg_clientVolFog.sunFogColor[0] = 0.0;
+        cg_clientVolFog.sunFogColor[1] = 0.0;
+        cg_clientVolFog.sunFogColor[2] = 0.0;
+        cg_clientVolFog.sunFogDir[0] = 0.0;
+        cg_clientVolFog.sunFogDir[1] = 0.0;
+        cg_clientVolFog.sunFogDir[2] = 0.0;
+        cg_clientVolFog.sunFogStartAng = 0.0;
+        cg_clientVolFog.sunFogEndAng = 0.0;
+        cg_clientVolFog.sunFogColor[3] = 1.0;
+    }
+    else
+    {
+        cg_clientVolFog.color[3] = Scr_GetFloat(7u, SCRIPTINSTANCE_CLIENT);
+        cg_clientVolFog.sunFogColor[0] = Scr_GetFloat(8u, SCRIPTINSTANCE_CLIENT);
+        cg_clientVolFog.sunFogColor[1] = Scr_GetFloat(9u, SCRIPTINSTANCE_CLIENT);
+        cg_clientVolFog.sunFogColor[2] = Scr_GetFloat(0xAu, SCRIPTINSTANCE_CLIENT);
+        cg_clientVolFog.sunFogDir[0] = Scr_GetFloat(0xBu, SCRIPTINSTANCE_CLIENT);
+        cg_clientVolFog.sunFogDir[1] = Scr_GetFloat(0xCu, SCRIPTINSTANCE_CLIENT);
+        cg_clientVolFog.sunFogDir[2] = Scr_GetFloat(0xDu, SCRIPTINSTANCE_CLIENT);
+        cg_clientVolFog.sunFogStartAng = Scr_GetFloat(0xEu, SCRIPTINSTANCE_CLIENT);
+        cg_clientVolFog.sunFogEndAng = Scr_GetFloat(0xFu, SCRIPTINSTANCE_CLIENT);
+        cg_clientVolFog.sunFogColor[3] = Scr_GetFloat(0x11u, SCRIPTINSTANCE_CLIENT);
+    }
 }
+
 void CScr_SwitchToServerVolumetricFog()
 {
-    iassert(0); // KISAKTODO :)
+    if (Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) != 1)
+    {
+        Scr_Error(
+            SCRIPTINSTANCE_CLIENT,
+            "Incorrect number of parameters\nUSAGE: SwitchToServerVolumetricFog(localClientNum)\n",
+            0);
+    }
+
+    int clientIndex = Scr_GetInt(0, SCRIPTINSTANCE_CLIENT);
+    if (clientIndex)
+    {
+        char* errorBuf = va("Trying to get a local client index for a client '%d' that is not a local client.", clientIndex);
+        Scr_Error(SCRIPTINSTANCE_CLIENT, errorBuf, 0);
+    }
+
+    cg_s* cgameGlob = CG_GetLocalClientGlobals(clientIndex);
+    R_SetFogFromServer(
+        clientIndex,
+        cg_serverVolFog.fogStart,
+        cg_serverVolFog.color[0],
+        cg_serverVolFog.color[1],
+        cg_serverVolFog.color[2],
+        cg_serverVolFog.density,
+        cg_serverVolFog.heightDensity,
+        cg_serverVolFog.baseHeight,
+        cg_serverVolFog.color[3],
+        cg_serverVolFog.sunFogColor[0],
+        cg_serverVolFog.sunFogColor[1],
+        cg_serverVolFog.sunFogColor[2],
+        cg_serverVolFog.sunFogDir[0],
+        cg_serverVolFog.sunFogDir[1],
+        cg_serverVolFog.sunFogDir[2],
+        cg_serverVolFog.sunFogStartAng,
+        cg_serverVolFog.sunFogEndAng,
+        cg_serverVolFog.sunFogColor[3]);
+
+    R_SwitchFog(clientIndex, 1u, cgameGlob->time, 0);
 }
+
 void CScr_SwitchToClientVolumetricFog()
 {
-    iassert(0); // KISAKTODO :)
+    if (Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) != 1)
+    {
+        Scr_Error(
+            SCRIPTINSTANCE_CLIENT,
+            "Incorrect number of parameters\nUSAGE: SwitchToClientVolumetricFog(localClientNum)\n",
+            0);
+    }
+        
+    int clientIndex = Scr_GetInt(0, SCRIPTINSTANCE_CLIENT);
+    if (clientIndex)
+    {
+        char* errorBuf = va("Trying to get a local client index for a client '%d' that is not a local client.", clientIndex);
+        Scr_Error(SCRIPTINSTANCE_CLIENT, errorBuf, 0);
+    }
+
+    cg_s* cgameGlob = CG_GetLocalClientGlobals(clientIndex);
+    R_SetFogFromServer(
+        clientIndex,
+        cg_clientVolFog.fogStart,
+        cg_clientVolFog.color[0],
+        cg_clientVolFog.color[1],
+        cg_clientVolFog.color[2],
+        cg_clientVolFog.density,
+        cg_clientVolFog.heightDensity,
+        cg_clientVolFog.baseHeight,
+        cg_clientVolFog.color[3],
+        cg_clientVolFog.sunFogColor[0],
+        cg_clientVolFog.sunFogColor[1],
+        cg_clientVolFog.sunFogColor[2],
+        cg_clientVolFog.sunFogDir[0],
+        cg_clientVolFog.sunFogDir[1],
+        cg_clientVolFog.sunFogDir[2],
+        cg_clientVolFog.sunFogStartAng,
+        cg_clientVolFog.sunFogEndAng,
+        cg_clientVolFog.sunFogColor[3]);
+
+    R_SwitchFog(clientIndex, 1u, cgameGlob->time, 0);
 }
+
 void CScr_IsInHelicopter()
 {
-    iassert(0); // KISAKTODO :)
+    if (Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) != 1)
+    {
+        Scr_Error(SCRIPTINSTANCE_CLIENT, "Incorrect number of parameters\nUSAGE: IsInHelicopter(localClientNum)\n", 0);
+    }
+    
+    int clientIndex = Scr_GetInt(0, SCRIPTINSTANCE_CLIENT);
+    if (clientIndex)
+    {
+        char* errorBuf = va("Trying to get a local client index for a client '%d' that is not a local client.", clientIndex);
+        Scr_Error(SCRIPTINSTANCE_CLIENT, errorBuf, 0);
+    }
+
+    cg_s* cgameGlob = CG_GetLocalClientGlobals(clientIndex);
+    
+    int isInHelicopter = 0;
+    if(cgameGlob->cameraData.lastCamMode == CAM_VEHICLE)
+    {
+        centity_s* vehicle = CG_GetEntity(clientIndex, cgameGlob->predictedPlayerState.viewlocked_entNum);
+        if (vehicle)
+        {
+            isInHelicopter = CG_GetVehicleInfo(vehicle->nextState.vehicleState.vehicleInfoIndex)->type == 6;
+        }
+    }
+    else
+    {
+        isInHelicopter = cgameGlob->cameraData.lastCamMode == CAM_VEHICLE_GUNNER;
+    }
+
+    Scr_AddInt(isInHelicopter, SCRIPTINSTANCE_CLIENT);
 }
-// LWSS END
 
 void CScr_GetGridFromPos()
 {
