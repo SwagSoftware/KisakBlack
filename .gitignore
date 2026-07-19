@@ -430,3 +430,5 @@ KisakCOD/.idea/*
 Debug/*
 KisakBlack/*
 __KisakBlack
+# OpenGL backend standalone build output
+build_gl/
