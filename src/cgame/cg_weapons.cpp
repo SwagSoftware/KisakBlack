@@ -6358,7 +6358,7 @@ void __cdecl CG_RandomEffectAxis(float *forward, float *left, float *up)
     point[1] += (dot * forward[1]);
     point[2] += (dot * forward[2]);
 
-    degrees = random() * 360.0;
+    degrees = Com_Random() * 360.0;
 
     RotatePointAroundVector(left, forward, point, degrees);
     Vec3Normalize(left);

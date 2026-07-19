@@ -1302,8 +1302,8 @@ void __cdecl CG_OffsetVehicleGunner(int localClientNum, cg_s *cgameGlob)
                     && vehicle->vehicle
                     && vehicle->vehicle->lastGunnerFire[gunnerIndex] > cgameGlob->time - 100)
                 {
-                    cgameGlob->refdefViewAngles[0] = crandom() * weapDef->vertViewJitter + cgameGlob->refdefViewAngles[0];
-                    cgameGlob->refdefViewAngles[1] = crandom() * weapDef->horizViewJitter + cgameGlob->refdefViewAngles[1];
+                    cgameGlob->refdefViewAngles[0] = Com_CRandom() * weapDef->vertViewJitter + cgameGlob->refdefViewAngles[0];
+                    cgameGlob->refdefViewAngles[1] = Com_CRandom() * weapDef->horizViewJitter + cgameGlob->refdefViewAngles[1];
                 }
             }
         }
@@ -2491,8 +2491,8 @@ void __cdecl CG_OffsetVehicleView(int localClientNum, CameraMode camMode)
         {
             if ( !v2 )
             {
-                cgameGlob->refdefViewAngles[0] = crandom() * weapDef->vertViewJitter + cgameGlob->refdefViewAngles[0];
-                cgameGlob->refdefViewAngles[1] = crandom() * weapDef->horizViewJitter + cgameGlob->refdefViewAngles[1];
+                cgameGlob->refdefViewAngles[0] = Com_CRandom() * weapDef->vertViewJitter + cgameGlob->refdefViewAngles[0];
+                cgameGlob->refdefViewAngles[1] = Com_CRandom() * weapDef->horizViewJitter + cgameGlob->refdefViewAngles[1];
             }
         }
     }

@@ -139,13 +139,13 @@ unsigned int __cdecl G_NewString(const char *string)
 }
 
 char str[8][32];
-int index;
+int vtos_index;
 char *__cdecl vtos(const float *v)
 {
     char *s; // [esp+0h] [ebp-4h]
 
-    s = str[index];
-    index = ((_BYTE)index + 1) & 7;
+    s = str[vtos_index];
+    vtos_index = ((_BYTE)vtos_index + 1) & 7;
     Com_sprintf(s, 0x20u, "(%i %i %i)", (int)*v, (int)v[1], (int)v[2]);
     return s;
 }

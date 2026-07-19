@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Windows.h>   // _SYSTEMTIME (Material_SubtractDays)
 #include "r_material.h"
 
 struct _D3DXSHADER_CONSTANTTABLE;

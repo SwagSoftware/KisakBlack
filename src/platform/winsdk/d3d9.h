@@ -12,6 +12,12 @@
 #ifndef KISAK_D3D9_H
 #define KISAK_D3D9_H
 
+// Also announce the real SDK's include-guard macro: third-party vendor headers
+// (e.g. nvapi.h) gate their D3D9-interop sections on `#if defined(_D3D9_H_)`.
+#ifndef _D3D9_H_
+#define _D3D9_H_
+#endif
+
 #include "d3d9types.h"
 
 #define D3D_SDK_VERSION 32
@@ -259,8 +265,27 @@ struct IDirect3DDevice9 : public IUnknown {
 };
 
 // ---------------------------------------------------------------------------
+// Adapter identification (D3DADAPTER_IDENTIFIER9). Layout matches the real SDK;
+// the renderer reads Description (GPU name), VendorId, and DriverVersion.
+#define MAX_DEVICE_IDENTIFIER_STRING 512
+typedef struct _D3DADAPTER_IDENTIFIER9 {
+    char          Driver[MAX_DEVICE_IDENTIFIER_STRING];
+    char          Description[MAX_DEVICE_IDENTIFIER_STRING];
+    char          DeviceName[32];
+    LARGE_INTEGER DriverVersion;
+    DWORD         VendorId, DeviceId, SubSysId, Revision;
+    GUID          DeviceIdentifier;
+    DWORD         WHQLLevel;
+} D3DADAPTER_IDENTIFIER9, *LPD3DADAPTER_IDENTIFIER9;
+
 struct IDirect3D9 : public IUnknown {
     virtual UINT    WINAPI GetAdapterCount() = 0;
+    virtual HRESULT WINAPI GetAdapterIdentifier(UINT Adapter, DWORD Flags,
+                                                D3DADAPTER_IDENTIFIER9 *pIdentifier) = 0;
+    virtual UINT    WINAPI GetAdapterModeCount(UINT Adapter, D3DFORMAT Format) = 0;
+    virtual HRESULT WINAPI EnumAdapterModes(UINT Adapter, D3DFORMAT Format, UINT Mode,
+                                            D3DDISPLAYMODE *pMode) = 0;
+    virtual HMONITOR WINAPI GetAdapterMonitor(UINT Adapter) = 0;
     virtual HRESULT WINAPI GetAdapterDisplayMode(UINT Adapter, D3DDISPLAYMODE *pMode) = 0;
     virtual HRESULT WINAPI GetDeviceCaps(UINT Adapter, D3DDEVTYPE DeviceType, D3DCAPS9 *pCaps) = 0;
     virtual HRESULT WINAPI CheckDeviceType(UINT Adapter, D3DDEVTYPE DevType,
@@ -286,6 +311,11 @@ struct IDirect3D9 : public IUnknown {
 // Library entry point. On Windows this lives in d3d9.dll; here it is provided by
 // src/gfx_gl (it instantiates our GL-backed IDirect3D9).
 extern "C" IDirect3D9 *WINAPI Direct3DCreate9(UINT SDKVersion);
+
+// PIX debug-event markers (exported from d3d9.dll on Windows). No-ops here; a GL
+// build can later route these to GL_KHR_debug push/pop groups.
+static inline int WINAPI D3DPERF_BeginEvent(D3DCOLOR, const wchar_t *) { return 0; }
+static inline int WINAPI D3DPERF_EndEvent(void) { return 0; }
 
 // Convenience typedefs used by the renderer.
 typedef IDirect3D9                 *LPDIRECT3D9;

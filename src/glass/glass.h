@@ -44,7 +44,7 @@ struct GlassDef // sizeof=0x3C
     const FxEffectDef *shatterEffect;
 };
 
-const struct Glass // sizeof=0x7C
+struct Glass // sizeof=0x7C
 {
     GlassDef *glassDef;
     unsigned int index;

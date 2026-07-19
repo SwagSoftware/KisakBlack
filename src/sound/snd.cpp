@@ -809,11 +809,11 @@ void __cdecl SND_SetVoiceStartSeeds(const snd_alias_t *alias, snd_voice_t *voice
     if ( (((alias->flags & 0xE0000000) >> 29) & 1) != 0 && randomSeed )
         voice->volModSeed = SND_GetSeed(baseHash | 0x80000000, g_snd.time);
     else
-        voice->volModSeed = random();
+        voice->volModSeed = Com_Random();
     if ( (((alias->flags & 0xE0000000) >> 29) & 2) != 0 && randomSeed )
         voice->pitchModSeed = SND_GetSeed(baseHash & 0x7FFFFFFF, g_snd.time);
     else
-        voice->pitchModSeed = random();
+        voice->pitchModSeed = Com_Random();
     if ( voice->volModSeed < 0.0
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 527, 0, "%s", "voice->volModSeed >= 0.0f") )
     {
@@ -1926,7 +1926,7 @@ unsigned int __cdecl SND_PlaySoundAlias(
     if ( (float)((float)alias->probability / 255.0) > 0.0 )
     {
         v12 = (float)alias->probability / 255.0;
-        if ( random() > v12 )
+        if ( Com_Random() > v12 )
             return -1;
     }
     volume = Snd_GetGlobalPriorityVolume(alias, org);

@@ -132,9 +132,10 @@ typedef struct BINKTEXTURESET
 
   // this is specialized global data for each platform
 
-  #if defined( __RADNT__ )
-  
-    // on windows, we need a second set of textures to draw with
+  #if defined( __RADNT__ ) || defined( __RADLINUX__ )
+
+    // on windows, we need a second set of textures to draw with. The Linux build
+    // translates this same D3D9 texture path to OpenGL, so it needs tex_draw too.
     BINKFRAMETEXTURES tex_draw;
 
   #elif defined( __RADPS3__ )

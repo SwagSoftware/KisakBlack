@@ -43,8 +43,11 @@ bool Assert_MyHandler(const char *filename, int line, int type, const char *fmt,
 
 #define IS_NAN(x) (isnan(x))
 
-#ifdef _DEBUG 
-#define iassert(expression) (void)(                                                                                                             \
+#ifdef _DEBUG
+// Variadic: some decompiled call sites pass extra file/line/message args after the
+// condition; __FILE__/__LINE__ already capture the location, so the extras are
+// ignored. (A 1-arg-only macro fails to compile those call sites on any compiler.)
+#define iassert(expression, ...) (void)(                                                                                                             \
                         (!!(expression)) ||                                                                                                                    \
                         (Assert_MyHandler(__FILE__, (unsigned)(__LINE__), 0, "%s", #expression), 0) \
                 )
@@ -60,7 +63,7 @@ bool Assert_MyHandler(const char *filename, int line, int type, const char *fmt,
 #define nanassertvec3(vec) iassert( !IS_NAN((vec)[0]) && !IS_NAN((vec)[1]) && !IS_NAN((vec)[2]) )
 #define alwaysfails 0
 #else
-#define iassert(expression)
+#define iassert(...)
 #define vassert(expression, fmt, ...)
 #define bcassert(expression, maxv)
 #define bcassert2(expression, maxv)

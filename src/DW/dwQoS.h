@@ -49,7 +49,7 @@ struct bdQoSProbeListener // sizeof=0x4
     virtual ~bdQoSProbeListener() = default;
 };
 
-const struct bdQoSProbeInfo // sizeof=0x24
+struct bdQoSProbeInfo // sizeof=0x24
 {                                       // XREF: dwQoSMultiProbeListener/r
     bdReference<bdCommonAddr> m_addr;
     bdAddr m_realAddr;

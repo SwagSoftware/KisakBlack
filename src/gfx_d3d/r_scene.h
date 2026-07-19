@@ -510,7 +510,7 @@ void __cdecl R_ClearScene_For_ExtraCam(int localClientNum);
 int __cdecl R_GetLocalClientNum();
 void __cdecl R_SetLodOrigin(const refdef_s *refdef);
 void __cdecl R_UpdateFrameFog(unsigned int localClientNum);
-double __cdecl lerp(float from, float to, float t);
+double __cdecl Lerp(float from, float to, float t);
 void __cdecl R_SetViewParmsForScene(const refdef_s *refdef, GfxViewParms *viewParms);
 void __cdecl R_SetupProjection(float tanHalfFovX, float tanHalfFovY, GfxViewParms *viewParms);
 void R_UpdateFrameSun();

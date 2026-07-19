@@ -32,8 +32,12 @@ typedef unsigned int        ULONG, *PULONG;
 typedef float               FLOAT, *LPFLOAT;
 typedef char                CHAR,  *PCHAR;
 typedef wchar_t             WCHAR, *LPWSTR;
-typedef int64_t             LONGLONG, INT64;
-typedef uint64_t            ULONGLONG, UINT64, DWORDLONG;
+typedef int64_t             LONGLONG, INT64, LONG64;
+typedef uint64_t            ULONGLONG, UINT64, DWORDLONG, ULONG64;
+typedef union _LARGE_INTEGER {
+    struct { DWORD LowPart; LONG HighPart; };
+    LONGLONG QuadPart;
+} LARGE_INTEGER, *PLARGE_INTEGER;
 typedef int8_t              INT8;
 typedef uint8_t             UINT8;
 typedef int16_t             INT16;
@@ -77,6 +81,16 @@ typedef const wchar_t      *LPCWSTR;
 #define STDAPICALLTYPE
 #define FAR
 #define WINAPIV
+
+// COM interface-declaration macros (from <objbase.h>): the decompiled COM-style
+// interfaces (e.g. the XAudio2 voice callback) are written with these.
+#define STDMETHOD(method)        virtual HRESULT method
+#define STDMETHOD_(type, method) virtual type method
+#define THIS_
+#define THIS                     void
+#ifndef PURE
+#define PURE                     = 0
+#endif
 #ifndef __cdecl
 #define __cdecl
 #endif
@@ -93,6 +107,7 @@ typedef LONG HRESULT;
 #define E_OUTOFMEMORY   ((HRESULT)0x8007000EL)
 #define E_INVALIDARG    ((HRESULT)0x80070057L)
 #define E_NOTIMPL       ((HRESULT)0x80004001L)
+#define E_POINTER       ((HRESULT)0x80004003L)
 #define SUCCEEDED(hr)   (((HRESULT)(hr)) >= 0)
 #define FAILED(hr)      (((HRESULT)(hr)) <  0)
 
@@ -101,6 +116,7 @@ typedef LONG HRESULT;
 KISAK_DECLARE_HANDLE(HWND);
 KISAK_DECLARE_HANDLE(HMONITOR);
 KISAK_DECLARE_HANDLE(HDC);
+KISAK_DECLARE_HANDLE(HFONT);
 KISAK_DECLARE_HANDLE(HINSTANCE);
 typedef HINSTANCE HMODULE;
 
@@ -119,6 +135,19 @@ typedef struct _GUID {
 typedef const GUID &REFGUID;
 typedef const IID  &REFIID;
 typedef const CLSID &REFCLSID;
+
+// The engine compares GUIDs/IIDs with == (e.g. in QueryInterface). MSVC provides
+// operator== for GUID via a header; supply it here (byte-compare).
+#ifdef __cplusplus
+inline bool operator==(const GUID &a, const GUID &b) {
+    return a.Data1 == b.Data1 && a.Data2 == b.Data2 && a.Data3 == b.Data3 &&
+           a.Data4[0] == b.Data4[0] && a.Data4[1] == b.Data4[1] &&
+           a.Data4[2] == b.Data4[2] && a.Data4[3] == b.Data4[3] &&
+           a.Data4[4] == b.Data4[4] && a.Data4[5] == b.Data4[5] &&
+           a.Data4[6] == b.Data4[6] && a.Data4[7] == b.Data4[7];
+}
+inline bool operator!=(const GUID &a, const GUID &b) { return !(a == b); }
+#endif
 
 // Abstract COM root. All D3D9 interfaces derive from this.
 struct IUnknown {

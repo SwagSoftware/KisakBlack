@@ -391,7 +391,7 @@ void    BG_UpdateVariantWind(
             + wind->wind_vector[2] * wind->wind_vector[2];
 
         const float gustStrength =
-            random() * (-mag2) + mag2 + 1.0f;
+            Com_Random() * (-mag2) + mag2 + 1.0f;
 
         wind->blade_acceleration =
             gustStrength / g_GlobalWindGrassScale->current.value;

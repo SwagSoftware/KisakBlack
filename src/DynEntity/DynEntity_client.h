@@ -49,7 +49,7 @@ struct DynEntityPose // sizeof=0x20
     float radius;
 };
 
-const struct DynEntityDef // sizeof=0x54
+struct DynEntityDef // sizeof=0x54
 {
     DynEntityType type;
     GfxPlacement pose;

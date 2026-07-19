@@ -1,0 +1,259 @@
+// win_kernel.cpp — POSIX/pthread implementations of the Win32 "kernel object" APIs
+// the engine uses (declared in platform/winsdk/windows.h): files, threads, events,
+// semaphores, mutexes, and virtual/global memory. All kernel handles are unified
+// behind one tagged object so CloseHandle / WaitForSingleObject dispatch on kind.
+//
+// This is the Linux replacement for the Win32 kernel calls in src/win32. Nothing
+// links against it yet (the engine is still being brought to compile), but the
+// implementations are real so the eventual link behaves correctly.
+#include <windows.h>
+
+#include <pthread.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <glob.h>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+
+namespace {
+
+enum Kind { K_FILE, K_THREAD, K_EVENT, K_SEM, K_MUTEX };
+
+struct KObject {
+    Kind kind;
+    int  fd = -1;                       // K_FILE
+    pthread_t thread{};                 // K_THREAD
+    LPTHREAD_START_ROUTINE start = nullptr;
+    void *param = nullptr;
+    pthread_mutex_t mtx{};              // K_EVENT / K_SEM / K_MUTEX
+    pthread_cond_t  cond{};             // K_EVENT / K_SEM
+    bool manualReset = false;          // K_EVENT
+    bool signaled = false;             // K_EVENT
+    long count = 0;                    // K_SEM
+};
+
+inline KObject *obj(HANDLE h) { return reinterpret_cast<KObject *>(h); }
+inline bool valid(HANDLE h)   { return h && h != INVALID_HANDLE_VALUE; }
+
+// Absolute deadline `ms` from now, for pthread_cond_timedwait.
+void deadline(struct timespec *ts, DWORD ms) {
+    clock_gettime(CLOCK_REALTIME, ts);
+    ts->tv_sec  += ms / 1000;
+    ts->tv_nsec += (long)(ms % 1000) * 1000000L;
+    if (ts->tv_nsec >= 1000000000L) { ts->tv_sec++; ts->tv_nsec -= 1000000000L; }
+}
+
+void *thread_thunk(void *arg) {
+    KObject *k = static_cast<KObject *>(arg);
+    if (k->start) k->start(k->param);
+    return nullptr;
+}
+
+} // namespace
+
+// ---- Threads ---------------------------------------------------------------
+// CREATE_SUSPENDED is not supported over pthreads; the thread starts immediately
+// (engine thread procs gate on an event/semaphore, so this is benign) and
+// ResumeThread/SuspendThread are no-ops.
+HANDLE CreateThread(void *, SIZE_T, LPTHREAD_START_ROUTINE start, void *param, DWORD, DWORD *threadId) {
+    KObject *k = new KObject(); k->kind = K_THREAD; k->start = start; k->param = param;
+    if (pthread_create(&k->thread, nullptr, thread_thunk, k) != 0) { delete k; return nullptr; }
+    if (threadId) *threadId = 0;
+    return static_cast<HANDLE>(k);
+}
+DWORD ResumeThread(HANDLE)  { return 0; }
+DWORD SuspendThread(HANDLE) { return 0; }
+
+// ---- Events ----------------------------------------------------------------
+HANDLE CreateEventA(void *, BOOL manualReset, BOOL initialState, const char *) {
+    KObject *k = new KObject(); k->kind = K_EVENT;
+    k->manualReset = manualReset; k->signaled = initialState;
+    pthread_mutex_init(&k->mtx, nullptr); pthread_cond_init(&k->cond, nullptr);
+    return static_cast<HANDLE>(k);
+}
+BOOL SetEvent(HANDLE h) {
+    if (!valid(h)) return FALSE; KObject *k = obj(h);
+    pthread_mutex_lock(&k->mtx); k->signaled = true;
+    if (k->manualReset) pthread_cond_broadcast(&k->cond); else pthread_cond_signal(&k->cond);
+    pthread_mutex_unlock(&k->mtx); return TRUE;
+}
+BOOL ResetEvent(HANDLE h) {
+    if (!valid(h)) return FALSE; KObject *k = obj(h);
+    pthread_mutex_lock(&k->mtx); k->signaled = false; pthread_mutex_unlock(&k->mtx); return TRUE;
+}
+BOOL PulseEvent(HANDLE h) {
+    if (!valid(h)) return FALSE; KObject *k = obj(h);
+    pthread_mutex_lock(&k->mtx); k->signaled = true; pthread_cond_broadcast(&k->cond);
+    k->signaled = false; pthread_mutex_unlock(&k->mtx); return TRUE;
+}
+
+// ---- Semaphores ------------------------------------------------------------
+HANDLE CreateSemaphoreA(void *, LONG initialCount, LONG, const char *) {
+    KObject *k = new KObject(); k->kind = K_SEM; k->count = initialCount;
+    pthread_mutex_init(&k->mtx, nullptr); pthread_cond_init(&k->cond, nullptr);
+    return static_cast<HANDLE>(k);
+}
+BOOL ReleaseSemaphore(HANDLE h, LONG releaseCount, LONG *prevCount) {
+    if (!valid(h)) return FALSE; KObject *k = obj(h);
+    pthread_mutex_lock(&k->mtx);
+    if (prevCount) *prevCount = (LONG)k->count;
+    k->count += releaseCount; pthread_cond_signal(&k->cond);
+    pthread_mutex_unlock(&k->mtx); return TRUE;
+}
+
+// ---- Mutexes (recursive, matching Win32 semantics) -------------------------
+HANDLE CreateMutexA(void *, BOOL initialOwner, const char *) {
+    KObject *k = new KObject(); k->kind = K_MUTEX;
+    pthread_mutexattr_t a; pthread_mutexattr_init(&a);
+    pthread_mutexattr_settype(&a, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&k->mtx, &a); pthread_mutexattr_destroy(&a);
+    if (initialOwner) pthread_mutex_lock(&k->mtx);
+    return static_cast<HANDLE>(k);
+}
+BOOL ReleaseMutex(HANDLE h) {
+    if (!valid(h)) return FALSE; pthread_mutex_unlock(&obj(h)->mtx); return TRUE;
+}
+
+// ---- Wait / close / duplicate ----------------------------------------------
+DWORD WaitForSingleObject(HANDLE h, DWORD ms) {
+    if (!valid(h)) return WAIT_TIMEOUT;
+    KObject *k = obj(h);
+    switch (k->kind) {
+    case K_MUTEX: pthread_mutex_lock(&k->mtx); return WAIT_OBJECT_0;
+    case K_THREAD: pthread_join(k->thread, nullptr); return WAIT_OBJECT_0;
+    case K_EVENT: {
+        pthread_mutex_lock(&k->mtx); int rc = 0;
+        struct timespec ts; if (ms != INFINITE) deadline(&ts, ms);
+        while (!k->signaled && rc == 0)
+            rc = (ms == INFINITE) ? pthread_cond_wait(&k->cond, &k->mtx)
+                                  : pthread_cond_timedwait(&k->cond, &k->mtx, &ts);
+        DWORD r = WAIT_OBJECT_0;
+        if (!k->signaled) r = WAIT_TIMEOUT; else if (!k->manualReset) k->signaled = false;
+        pthread_mutex_unlock(&k->mtx); return r;
+    }
+    case K_SEM: {
+        pthread_mutex_lock(&k->mtx); int rc = 0;
+        struct timespec ts; if (ms != INFINITE) deadline(&ts, ms);
+        while (k->count <= 0 && rc == 0)
+            rc = (ms == INFINITE) ? pthread_cond_wait(&k->cond, &k->mtx)
+                                  : pthread_cond_timedwait(&k->cond, &k->mtx, &ts);
+        DWORD r = WAIT_OBJECT_0;
+        if (k->count <= 0) r = WAIT_TIMEOUT; else k->count--;
+        pthread_mutex_unlock(&k->mtx); return r;
+    }
+    default: return WAIT_OBJECT_0;
+    }
+}
+BOOL CloseHandle(HANDLE h) {
+    if (!valid(h)) return FALSE; KObject *k = obj(h);
+    switch (k->kind) {
+    case K_FILE:   if (k->fd >= 0) close(k->fd); break;
+    case K_THREAD: pthread_detach(k->thread); break;
+    case K_EVENT:
+    case K_SEM:    pthread_cond_destroy(&k->cond);  pthread_mutex_destroy(&k->mtx); break;
+    case K_MUTEX:  pthread_mutex_destroy(&k->mtx); break;
+    }
+    delete k; return TRUE;
+}
+// Win32 duplicates create a second reference; the engine only uses the duplicate as
+// an opaque handle, so alias the same object (close is the caller's responsibility).
+BOOL DuplicateHandle(HANDLE, HANDLE src, HANDLE, HANDLE *dst, DWORD, BOOL, DWORD) {
+    if (dst) *dst = src; return TRUE;
+}
+
+// ---- Files (HANDLE = K_FILE wrapping a POSIX fd) ---------------------------
+HANDLE CreateFileA(const char *name, DWORD access, DWORD, void *, DWORD disp, DWORD, HANDLE) {
+    int flags = 0;
+    if ((access & GENERIC_READ) && (access & GENERIC_WRITE)) flags = O_RDWR;
+    else if (access & GENERIC_WRITE)                         flags = O_WRONLY;
+    else                                                     flags = O_RDONLY;
+    switch (disp) {
+    case CREATE_ALWAYS: flags |= O_CREAT | O_TRUNC; break;
+    case OPEN_ALWAYS:   flags |= O_CREAT;           break;
+    case OPEN_EXISTING: default:                    break;
+    }
+    int fd = open(name, flags, 0644);
+    if (fd < 0) return INVALID_HANDLE_VALUE;
+    KObject *k = new KObject(); k->kind = K_FILE; k->fd = fd;
+    return static_cast<HANDLE>(k);
+}
+BOOL ReadFile(HANDLE h, void *buf, DWORD n, DWORD *numRead, OVERLAPPED *) {
+    if (!valid(h)) return FALSE; ssize_t r = read(obj(h)->fd, buf, n);
+    if (numRead) *numRead = (r < 0) ? 0 : (DWORD)r; return r >= 0;
+}
+BOOL ReadFileEx(HANDLE h, void *buf, DWORD n, OVERLAPPED *, void *) {
+    return ReadFile(h, buf, n, nullptr, nullptr);
+}
+BOOL WriteFile(HANDLE h, const void *buf, DWORD n, DWORD *written, OVERLAPPED *) {
+    if (!valid(h)) return FALSE; ssize_t w = write(obj(h)->fd, buf, n);
+    if (written) *written = (w < 0) ? 0 : (DWORD)w; return w >= 0;
+}
+DWORD GetFileSize(HANDLE h, DWORD *high) {
+    if (!valid(h)) return (DWORD)-1; struct stat st;
+    if (fstat(obj(h)->fd, &st) != 0) return (DWORD)-1;
+    if (high) *high = (DWORD)((unsigned long long)st.st_size >> 32);
+    return (DWORD)(st.st_size & 0xffffffffu);
+}
+DWORD SetFilePointer(HANDLE h, LONG dist, LONG *distHigh, DWORD method) {
+    if (!valid(h)) return (DWORD)-1;
+    off_t off = (distHigh ? ((off_t)*distHigh << 32) : 0) | (unsigned)dist;
+    int whence = method == FILE_CURRENT ? SEEK_CUR : method == FILE_END ? SEEK_END : SEEK_SET;
+    off_t r = lseek(obj(h)->fd, off, whence);
+    if (r < 0) return (DWORD)-1;
+    if (distHigh) *distHigh = (LONG)((unsigned long long)r >> 32);
+    return (DWORD)(r & 0xffffffffu);
+}
+DWORD GetFileAttributesA(const char *name) {
+    struct stat st; if (stat(name, &st) != 0) return INVALID_FILE_ATTRIBUTES;
+    return S_ISDIR(st.st_mode) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
+}
+DWORD GetCurrentDirectoryA(DWORD len, char *buf) {
+    if (!buf || !getcwd(buf, len)) return 0; return (DWORD)strlen(buf);
+}
+DWORD GetModuleFileNameA(HMODULE, char *buf, DWORD size) {
+    if (!buf || size == 0) return 0;
+    ssize_t n = readlink("/proc/self/exe", buf, size - 1);
+    if (n < 0) { buf[0] = '\0'; return 0; }
+    buf[n] = '\0'; return (DWORD)n;
+}
+
+// ---- Virtual / global memory (malloc-backed) -------------------------------
+void *VirtualAlloc(void *, SIZE_T size, DWORD, DWORD)  { return calloc(1, size ? size : 1); }
+BOOL  VirtualFree(void *addr, SIZE_T, DWORD)           { free(addr); return TRUE; }
+SIZE_T VirtualQuery(const void *, MEMORY_BASIC_INFORMATION *info, SIZE_T len) {
+    if (info) memset(info, 0, sizeof(*info)); return len;
+}
+HGLOBAL GlobalAlloc(UINT, SIZE_T size)  { return static_cast<HGLOBAL>(calloc(1, size ? size : 1)); }
+void   *GlobalLock(HGLOBAL h)           { return h; }
+BOOL    GlobalUnlock(HGLOBAL)           { return TRUE; }
+HGLOBAL GlobalFree(HGLOBAL h)           { free(h); return nullptr; }
+
+// ---- Directory enumeration (FindFirstFile* -> glob) ------------------------
+// Kept here (not in windows.h) so <glob.h>'s `glob` symbol doesn't collide with the
+// engine's `glob` variables. Find handles are a separate namespace from kernel
+// objects above — the engine closes them with FindClose, never CloseHandle.
+namespace {
+struct FindState { glob_t g; size_t i; };
+void FindFill(FindState *h, WIN32_FIND_DATAA *d) {
+    const char *p = h->g.gl_pathv[h->i];
+    const char *base = strrchr(p, '/'); base = base ? base + 1 : p;
+    int n = 0; while (base[n] && n < MAX_PATH - 1) { d->cFileName[n] = base[n]; ++n; }
+    d->cFileName[n] = '\0'; d->dwFileAttributes = 0;
+}
+} // namespace
+HANDLE FindFirstFileA(const char *pattern, WIN32_FIND_DATAA *d) {
+    FindState *h = new FindState(); h->i = 0;
+    if (glob(pattern, 0, nullptr, &h->g) != 0 || h->g.gl_pathc == 0) { globfree(&h->g); delete h; return INVALID_HANDLE_VALUE; }
+    FindFill(h, d); return static_cast<HANDLE>(h);
+}
+BOOL FindNextFileA(HANDLE handle, WIN32_FIND_DATAA *d) {
+    FindState *h = static_cast<FindState *>(handle);
+    if (++h->i >= h->g.gl_pathc) return FALSE;
+    FindFill(h, d); return TRUE;
+}
+BOOL FindClose(HANDLE handle) {
+    FindState *h = static_cast<FindState *>(handle);
+    if (h && h != INVALID_HANDLE_VALUE) { globfree(&h->g); delete h; } return TRUE;
+}

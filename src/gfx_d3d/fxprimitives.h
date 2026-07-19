@@ -97,7 +97,7 @@ struct FxElemVelStateInFrame // sizeof=0x30
     FxElemVec3Range totalDelta;
 };
 
-const struct FxElemVelStateSample // sizeof=0x60
+struct FxElemVelStateSample // sizeof=0x60
 {
     FxElemVelStateInFrame local;
     FxElemVelStateInFrame world;
@@ -114,7 +114,7 @@ struct FxElemVisualState // sizeof=0x18
     float scale;
 };
 
-const struct FxElemVisStateSample // sizeof=0x30
+struct FxElemVisStateSample // sizeof=0x30
 {
     FxElemVisualState base;
     FxElemVisualState amplitude;
@@ -195,7 +195,7 @@ struct FxElemSpawnSound // sizeof=0x4
     const char *spawnSound;
 };
 
-const struct FxElemDef // sizeof=0x124
+struct FxElemDef // sizeof=0x124
 {
     int flags;
     FxSpawnDef spawn;
@@ -249,7 +249,7 @@ const struct FxElemDef // sizeof=0x124
     float billboardPivot[2];
 };
 
-const struct FxEffectDef // sizeof=0x3C
+struct FxEffectDef // sizeof=0x3C
 {                                       // XREF: XAssetPoolEntry<FxEffectDef>/r
     const char *name;
     unsigned __int8 flags;

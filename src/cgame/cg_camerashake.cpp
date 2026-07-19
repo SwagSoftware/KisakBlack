@@ -249,7 +249,7 @@ void __cdecl CG_ShakeCamera(int localClientNum)
     }
     else
     {
-        camShakeSet->phase = crandom() * 3.1415927;
+        camShakeSet->phase = Com_CRandom() * 3.1415927;
     }
 }
 

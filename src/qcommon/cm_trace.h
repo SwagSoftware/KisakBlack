@@ -246,7 +246,7 @@ struct leafList_s // sizeof=0x2C
     // CM_BoxLeafnums(float const * const,float const * const,ushort *,int,int *)+86/r ...
 };
 
-const struct __declspec(align(8)) cbrush_t // sizeof=0x60
+struct __declspec(align(8)) cbrush_t // sizeof=0x60
 {                                                                             // XREF: .data:g_box_brush/r
     float mins[3];
     int contents;

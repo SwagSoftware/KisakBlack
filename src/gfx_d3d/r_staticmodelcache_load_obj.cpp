@@ -246,8 +246,8 @@ unsigned int __cdecl R_MaxModelsInDistRange(
         v9 = 100;
     for ( dartIndex = 0; dartIndex < v9; ++dartIndex )
     {
-        yawDeviate = random();
-        radiusDeviate = random();
+        yawDeviate = Com_Random();
+        radiusDeviate = Com_Random();
         PointInCircleFromUniformDeviates(radiusDeviate, yawDeviate, testPos);
         testPos[0] = (float)(testPos[0] * size) + mid;
         testPos[1] = (float)(testPos[1] * size_4) + mid_4;

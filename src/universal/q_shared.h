@@ -60,6 +60,33 @@ static ID_INLINE int BigLong(int l) { return LongSwap(l); }
 
 #define	PATH_SEP '\\'
 
+#else // !WIN32 — portable (Linux/POSIX) equivalents of the block above
+
+#define	MAC_STATIC
+
+#undef QDECL
+#define	QDECL
+
+#define	CPUSTRING	"linux-x86"
+
+// angle indexes
+#define	PITCH				0		// up / down
+#define	YAW					1		// left / right
+#define	ROLL				2		// fall over
+
+#define ID_INLINE inline
+
+int ShortSwap(__int16 l);
+int LongSwap(int l);
+
+static ID_INLINE short BigShort(short l) { return (short)ShortSwap(l); }
+#define LittleShort
+static ID_INLINE int BigLong(int l) { return LongSwap(l); }
+#define LittleLong
+#define LittleFloat
+
+#define	PATH_SEP '/'
+
 #endif // WIN32
 
 

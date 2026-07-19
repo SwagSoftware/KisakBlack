@@ -208,14 +208,14 @@ float bradfordMI[4][4] =
 
 
 
-double __cdecl random()
+double __cdecl Com_Random()
 {
     return (double)rand() / 32768.0;
 }
 
-double __cdecl crandom()
+double __cdecl Com_CRandom()
 {
-    return random() * 2.0 - 1.0;
+    return Com_Random() * 2.0 - 1.0;
 }
 
 void __cdecl GaussianRandom(float *f0, float *f1)
@@ -232,8 +232,8 @@ void __cdecl GaussianRandom(float *f0, float *f1)
 
         do
         {
-                x = crandom();
-                y = crandom();
+                x = Com_CRandom();
+                y = Com_CRandom();
                 w = x * x + y * y;
         } while (w > 1.0);
         v4 = log(w);

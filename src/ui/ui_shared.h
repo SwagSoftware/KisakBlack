@@ -52,7 +52,7 @@ enum itemGroup_t : __int32
     ITEMGROUP_GLOBAL_ITEMS_START = 0x17,
     ITEMGROUP_KILLSTREAK         = 0x17,
     ITEMGROUP_COUNT              = 0x18,
-    ITEMGROUP_INVALID            = 0xFFFFFFFF,
+    ITEMGROUP_INVALID            = -1,
 };
 inline itemGroup_t &operator++(itemGroup_t &t)
 {

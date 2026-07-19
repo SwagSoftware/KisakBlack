@@ -7,7 +7,7 @@
 enum IKBoneNames : __int32
 {                                       // XREF: IKJointBones/r
                                         // IKJointBones/r ...
-    IKBONE_NONE         = 0xFFFFFFFF,
+    IKBONE_NONE         = -1,
     IKBONE_FIRST        = 0x0,
     IKBONE_ORIGIN       = 0x0,
     IKBONE_PELVIS       = 0x1,

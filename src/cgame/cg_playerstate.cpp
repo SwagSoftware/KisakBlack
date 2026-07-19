@@ -170,7 +170,7 @@ void __cdecl CG_DamageFeedback(int localClientNum, int yawByte, int pitchByte, i
         }
         cgameGlob->viewDamage[slot].time = cgameGlob->snap->serverTime;
         cgameGlob->viewDamage[slot].duration = cg_hudDamageIconTime->current.integer;
-        angle = (random() - 0.5) * 20.0 + yaw;
+        angle = (Com_Random() - 0.5) * 20.0 + yaw;
         v4 = AngleNormalize360(angle);
         cgameGlob->viewDamage[slot].yaw = v4;
     }

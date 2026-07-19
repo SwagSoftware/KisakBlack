@@ -135,7 +135,7 @@ struct ExpressionOperatorData // sizeof=0x14
     XExpr::MathOpcodes eMathType;
 };
 
-const struct ParseValue // sizeof=0x8
+struct ParseValue // sizeof=0x8
 {                                                                             // XREF: ParseTopRankExpr+89/w
                                                                                 // ParseRank2Expr+89/w ...
         unsigned int scriptExprData;                // XREF: StoreExprInList(scriptInstance_t,uint,ParseValue)+65/r

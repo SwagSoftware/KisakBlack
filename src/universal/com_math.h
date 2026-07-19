@@ -94,8 +94,8 @@ struct orientation_t // sizeof=0x30
     float axis[3][3];                                     // XREF: CG_Laser_Add(centity_s *,DObj *,cpose_t *,float const * const,LaserOwnerEnum)+50/o
 };
 
-double __cdecl random();
-double __cdecl crandom();
+double __cdecl Com_Random();
+double __cdecl Com_CRandom();
 void __cdecl GaussianRandom(float *f0, float *f1);
 unsigned int __cdecl RandWithSeed(int *seed);
 double __cdecl randomhash(int value);

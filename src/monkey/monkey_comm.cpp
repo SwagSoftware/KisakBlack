@@ -53,7 +53,7 @@ char __cdecl Monkey_InitCommunication(const char *server)
             memset(&zookeeper.sin_port, 0, 14);
             zookeeper.sin_family = 2;
             zookeeper.sin_port = htons(7000);
-            zookeeper.sin_addr.S_un.S_addr = addr;
+            zookeeper.sin_addr.s_addr = addr;
             if ( connect(g_MonkeySock, (const struct sockaddr *)&zookeeper, 16) )
             {
                 err = WSAGetLastError();
@@ -165,7 +165,6 @@ char __cdecl Monkey_RecvString(char *data, int data_size)
 
 bool __cdecl Monkey_SocketHasData()
 {
-    unsigned int i; // [esp+0h] [ebp-224h]
     int avail; // [esp+8h] [ebp-21Ch]
     fd_set readfds; // [esp+Ch] [ebp-218h] BYREF
     timeval timeout; // [esp+114h] [ebp-110h] BYREF
@@ -173,21 +172,15 @@ bool __cdecl Monkey_SocketHasData()
 
     if ( !g_MonkeyConnected )
         return 0;
-    errorfds.fd_count = 0;
-    readfds.fd_array[0] = g_MonkeySock;
-    readfds.fd_count = 1;
-    for ( i = 0; i < errorfds.fd_count && errorfds.fd_array[i] != g_MonkeySock; ++i )
-        ;
-    if ( i == errorfds.fd_count && errorfds.fd_count < 0x40 )
-    {
-        errorfds.fd_array[i] = g_MonkeySock;
-        ++errorfds.fd_count;
-    }
+    // The decompiled original hand-rolled Win32 fd_set (fd_count/fd_array); on POSIX
+    // use the FD_* macros, which build the same single-socket read/error sets.
+    FD_ZERO(&readfds);  FD_SET(g_MonkeySock, &readfds);
+    FD_ZERO(&errorfds); FD_SET(g_MonkeySock, &errorfds);
     timeout.tv_sec = 0;
     timeout.tv_usec = 0;
     avail = select(g_MonkeySock + 1, &readfds, 0, &errorfds, &timeout);
-    if ( avail == -1 || avail && __WSAFDIsSet(g_MonkeySock, &errorfds) )
+    if ( avail == -1 || (avail && FD_ISSET(g_MonkeySock, &errorfds)) )
         Monkey_DisconnectAndExit();
-    return avail && __WSAFDIsSet(g_MonkeySock, &readfds);
+    return avail && FD_ISSET(g_MonkeySock, &readfds);
 }
 

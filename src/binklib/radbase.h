@@ -192,7 +192,7 @@
         #endif
       #endif
 
-  #elif defined(linux)
+  #elif defined(linux) || defined(__linux__)
 
       #define __RADLINUX__
       #define __RADX86__
@@ -329,8 +329,11 @@
 
     #elif defined(__RADLINUX__)
 
-      #define RADLINK __attribute__((cdecl))
-      #define RADEXPLINK __attribute__((cdecl))
+      // cdecl is the default convention on x86-32; the __attribute__((cdecl))
+      // form here doesn't parse in GCC's function-pointer-typedef position, so
+      // leave the link macros empty (same effect).
+      #define RADLINK
+      #define RADEXPLINK
       #define RADEXPFUNC RADDEFFUNC
       #define RADASMLINK
       #define PTR4

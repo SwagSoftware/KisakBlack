@@ -158,7 +158,7 @@ struct TaskRecord // sizeof=0x34
                                         // TaskManager2_ProcessDemonwareTask(TaskRecord *)+21A/w ...
 };
 
-const struct __declspec(align(8)) TaskDefinition // sizeof=0x20
+struct __declspec(align(8)) TaskDefinition // sizeof=0x20
 {                                       // XREF: .rdata:task_RequestCACValidate/r
                                         // .rdata:task_QuickMatchFindSessions/r ...
     unsigned __int64 category;

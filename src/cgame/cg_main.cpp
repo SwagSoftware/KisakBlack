@@ -63,7 +63,7 @@ int __cdecl CG_rand()
 
 float __cdecl CG_random()
 {
-    return random();
+    return Com_Random();
 }
 
 bool __cdecl CG_HasClientSystemBeenInitialzed()

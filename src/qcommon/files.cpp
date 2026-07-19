@@ -963,7 +963,7 @@ void __cdecl FS_ServerSetReferencedFFs(const char *FFSums, const char *FFNames)
                                                                 fs_serverReferencedFFNames);
 }
 
-char basename[64];
+char map_basename[64];
 char *__cdecl FS_GetMapBaseName(char *mapname)
 {
     unsigned int v2; // [esp+0h] [ebp-18h]
@@ -978,13 +978,13 @@ char *__cdecl FS_GetMapBaseName(char *mapname)
     len = v2;
     if ( !I_stricmp(&mapname[v2 - 3], "bsp") )
         len = v2 - 7;
-    memcpy((unsigned __int8 *)basename, (unsigned __int8 *)mapname, len);
-    basename[len] = 0;
+    memcpy((unsigned __int8 *)map_basename, (unsigned __int8 *)mapname, len);
+    map_basename[len] = 0;
     for ( c = 0; c < len; ++c )
     {
-        if ( basename[c] == 37 )
-            basename[c] = 95;
+        if ( map_basename[c] == 37 )
+            map_basename[c] = 95;
     }
-    return basename;
+    return map_basename;
 }
 

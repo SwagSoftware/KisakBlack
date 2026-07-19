@@ -3,7 +3,7 @@
 enum VehicleSeatPositions : __int32
 {                                       // XREF: vehAnimClient_t/r
                                         // vehAnimClient_t/r
-    VEH_POS_NONE          = 0xFFFFFFFF,
+    VEH_POS_NONE          = -1,
     VEH_POS_DRIVER        = 0x0,
     VEH_POS_MIN_GUNNER    = 0x1,
     VEH_POS_GUNNER_1      = 0x1,

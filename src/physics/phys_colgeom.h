@@ -408,7 +408,7 @@ struct CollisionBorder // sizeof=0x1C
         float length;
 };
 
-const struct CollisionPartition // sizeof=0x14
+struct CollisionPartition // sizeof=0x14
 {
         unsigned __int8 triCount;
         unsigned __int8 borderCount;
@@ -492,7 +492,13 @@ struct __declspec(align(16)) gjk_partition_t : gjk_base_t // sizeof=0x70
         virtual bool is_walkable(const phys_vec3 *hit_point, const phys_vec3 *up) override;
         // get_brush() - gjk_base_t
 };
+// Itanium (GCC/Clang) reuses the polymorphic base gjk_base_t's tail padding for
+// this derived class, so it is 96 bytes here vs 112 under MSVC. gjk_partition_t is
+// a runtime-only physics object (never serialized from a fastfile), so its exact
+// size only has to match the original binary under MSVC.
+#ifdef _MSC_VER
 static_assert(sizeof(gjk_partition_t) == 112);
+#endif
 
 struct gjk_double_sphere_t : gjk_base_t // sizeof=0x90
 {

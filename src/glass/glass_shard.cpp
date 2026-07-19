@@ -4072,7 +4072,7 @@ bool __thiscall GlassShard::LeaveOnEdge(float stickiness)
     if ( stickiness > 0.0 )
     {
         prob = (GlassShard::EdgeRatio() - 0.15000001) * stickiness / (0.34999999 - 0.15000001);
-        return prob > 0.0 && prob > random();
+        return prob > 0.0 && prob > Com_Random();
     }
     return ret;
 }

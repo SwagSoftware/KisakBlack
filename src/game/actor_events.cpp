@@ -9,7 +9,7 @@
 #include <game_mp/g_misc_mp.h>
 #include <clientscript/scr_const.h>
 
-const struct $97E41B13BD0B431546CEBD7708497565 // sizeof=0xC
+struct $97E41B13BD0B431546CEBD7708497565 // sizeof=0xC
 {                                       // XREF: .rdata:g_ai_event_info/r
     const char *name;                   // XREF: Actor_DumpEvents+6E/r
     const dvar_s **defaultDistDvar;     // XREF: Actor_EventDefaultRadiusSqrd(ai_event_t)+F/r

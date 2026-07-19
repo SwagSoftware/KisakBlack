@@ -139,7 +139,7 @@ struct broad_phase_group : broad_phase_base // sizeof=0x60
     void collision_epilog();
 };
 
-const struct __declspec(align(16)) broad_phase_environment_query_input // sizeof=0x40
+struct __declspec(align(16)) broad_phase_environment_query_input // sizeof=0x40
 {                                       // XREF: ?bp_env_jq_batch_function2@@YAHPAUjqBatch@@@Z/r
     phys_vec3 trace_aabb_min_wace;
     phys_vec3 trace_aabb_max_wace;

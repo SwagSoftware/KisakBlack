@@ -3,6 +3,7 @@
 #include "r_dpvs_static.h"
 #include <universal/com_convexhull.h>
 #include "r_pretess.h"
+#include <algorithm>  // std::max (MSVC <windows.h> would supply a bare max() macro)
 
 const float g_shadowFrustumBound[5][2] =
 { { -1.0, -1.0 }, { -1.0, 1.0 }, { 1.0, 1.0 }, { 1.0, -1.0 }, { -1.0, -1.0 } };
@@ -502,7 +503,7 @@ void __cdecl R_SetupSunShadowMapProjection(
     sizeInSunProj[0] = maxsInSunProj[0][0] - minsInSunProj[0][0];
     sizeInSunProj[1] = maxsInSunProj[0][1] - minsInSunProj[0][1];
 
-    maxSizeInSunProj = max(sizeInSunProj[0], sizeInSunProj[1]);
+    maxSizeInSunProj = std::max(sizeInSunProj[0], sizeInSunProj[1]);
 
     sampleSizeNear = sm_sunSampleSizeNear->current.value; // Default: 0.25f
     sampleSizeFar = sampleSizeNear * rg.sunShadowPartitionRatio; // rg.sunShadowPartitionRatio Typically 4.0f

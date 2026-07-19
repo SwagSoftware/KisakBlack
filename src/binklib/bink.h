@@ -642,6 +642,11 @@ RADEXPFUNC S32 RADEXPLINK BinkControlPlatformFeatures( S32 use, S32 dont_use );
   RADEXPFUNC BINKSNDOPEN RADEXPLINK BinkOpenSDLMixer(UINTa param); // don't call directly
   #define BinkSoundUseSDLMixer() BinkSetSoundSystem(BinkOpenSDLMixer,0)
 
+  // The decompiled cinematic player (r_cinematic.cpp) references BinkOpenDirectSound
+  // directly. Declare it here so it compiles; when the audio subsystem is rehosted
+  // (XAudio2/DirectSound -> SDL/OpenAL) the cinematic sound system becomes SDLMixer.
+  RADEXPFUNC BINKSNDOPEN RADEXPLINK BinkOpenDirectSound(UINTa param); // don't call directly
+
 #endif
 
 #if defined( __RADNGC__ ) || defined( __RADWII__ )

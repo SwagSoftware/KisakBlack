@@ -30,7 +30,7 @@ enum statsMilestoneTypes_t : __int32
     MILESTONE_KILLSTREAKS = 0x6,
     MILESTONE_GRENADES = 0x7,
     MILESTONE_COUNT = 0x8,
-    MILESTONE_INVALID = 0xFFFFFFFF,
+    MILESTONE_INVALID = -1,
 };
 
 int __cdecl CL_GetMilestoneRowNum(

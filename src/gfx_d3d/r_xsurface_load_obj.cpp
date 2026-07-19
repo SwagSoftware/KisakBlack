@@ -6,6 +6,7 @@
 #include "r_dvars.h"
 #include <qcommon/com_bsp_load_obj.h>
 #include <set>
+#include <algorithm>  // std::min/std::max (MSVC <windows.h> would supply bare macros)
 
 #if 0
 void __cdecl XModelReadSurface(XModel *model, unsigned __int8 **pos, void *(__cdecl *Alloc)(int), XSurface *surface)
@@ -1105,8 +1106,8 @@ void XModelReadSurface(
             uint16_t b = surface->triIndices[i + 1];
             uint16_t c = surface->triIndices[i + 2];
 
-            uint16_t lo = min(a, min(b, c));
-            uint16_t hi = max(a, max(b, c));
+            uint16_t lo = std::min(a, std::min(b, c));
+            uint16_t hi = std::max(a, std::max(b, c));
             uint16_t mid = a ^ b ^ c ^ lo ^ hi;
 
             uint64_t key =

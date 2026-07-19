@@ -61,17 +61,17 @@ bool g_allowShadowMaps = true;
 
 void __cdecl lerp_0(float (*dest)[4], const float (*from)[4], const float (*to)[4], float t)
 {
-    (*dest)[0] = lerp((*from)[0], (*to)[0], t);
-    (*dest)[1] = lerp((*from)[1], (*to)[1], t);
-    (*dest)[2] = lerp((*from)[2], (*to)[2], t);
-    (*dest)[3] = lerp((*from)[3], (*to)[3], t);
+    (*dest)[0] = Lerp((*from)[0], (*to)[0], t);
+    (*dest)[1] = Lerp((*from)[1], (*to)[1], t);
+    (*dest)[2] = Lerp((*from)[2], (*to)[2], t);
+    (*dest)[3] = Lerp((*from)[3], (*to)[3], t);
 }
 
 void __cdecl lerp_1(float (*dest)[3], const float (*from)[3], const float (*to)[3], float t)
 {
-    (*dest)[0] = lerp((*from)[0], (*to)[0], t);
-    (*dest)[1] = lerp((*from)[1], (*to)[1], t);
-    (*dest)[2] = lerp((*from)[2], (*to)[2], t);
+    (*dest)[0] = Lerp((*from)[0], (*to)[0], t);
+    (*dest)[1] = Lerp((*from)[1], (*to)[1], t);
+    (*dest)[2] = Lerp((*from)[2], (*to)[2], t);
 }
 
 GfxScene *__cdecl R_GetScene()
@@ -2931,8 +2931,8 @@ void __cdecl R_UpdateFrameFog(unsigned int localClientNum)
             (const float (*)[3])f->settings[4].sunFogDir,
             lerpPos);
         Vec3Normalize(f->settings[2].sunFogDir);
-        f->settings[2].sunFogStartAng = lerp(f->settings[3].sunFogStartAng, f->settings[4].sunFogStartAng, lerpPos);
-        f->settings[2].sunFogEndAng = lerp(f->settings[3].sunFogEndAng, f->settings[4].sunFogEndAng, lerpPos);
+        f->settings[2].sunFogStartAng = Lerp(f->settings[3].sunFogStartAng, f->settings[4].sunFogStartAng, lerpPos);
+        f->settings[2].sunFogEndAng = Lerp(f->settings[3].sunFogEndAng, f->settings[4].sunFogEndAng, lerpPos);
         f->settings[2].maxDensity = (float)((float)(f->settings[4].maxDensity - f->settings[3].maxDensity) * lerpPos)
                                                             + f->settings[3].maxDensity;
     }
@@ -2946,7 +2946,7 @@ void __cdecl R_UpdateFrameFog(unsigned int localClientNum)
         memset((unsigned __int8 *)&frontEndDataOut->fogSettings, 0, sizeof(frontEndDataOut->fogSettings));
 }
 
-double __cdecl lerp(float from, float to, float t)
+double __cdecl Lerp(float from, float to, float t)
 {
     return (to - from) * t + from;
 }

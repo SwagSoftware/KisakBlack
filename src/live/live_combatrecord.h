@@ -9,13 +9,13 @@ enum sortedItemParams_t : __int32
     PARAM3                   = 0x3,
     SORT_KEY                 = 0x4,
     SORTEDITEM_PARAM_COUNT   = 0x5,
-    SORTEDITEM_PARAM_INVALID = 0xFFFFFFFF,
+    SORTEDITEM_PARAM_INVALID = -1,
 };
 
 enum itemSortingCriteria_t : __int32
 {                                       // XREF: LiveCombatRecord_CombatRecordViewUpdateCmd/r
                                         // LiveCombatRecord_BuildSortedItemListByStats/r ...
-    CRITERION_NULL             = 0xFFFFFFFF,
+    CRITERION_NULL             = -1,
     PERSONAL_BESTS             = 0x0,
     RECENT_PERFORMANCE         = 0x1,
     FAVORITE_WEAPON            = 0x2,
@@ -39,7 +39,7 @@ enum playerStatsKeyIndex_t : __int32;
 
 enum sortedStatLoadoutSlots_t : __int32
 {                                       // XREF: LiveCombatRecord_FilterCurrentSortedItem/r
-    SLOT_NULL                    = 0xFFFFFFFF,
+    SLOT_NULL                    = -1,
     PRIMARY_WEAPON               = 0x0,
     SECONDARY_WEAPON             = 0x1,
     PRIMARY_GRENADE              = 0x2,
@@ -55,7 +55,7 @@ enum sortedStatLoadoutSlots_t : __int32
 enum loadoutSlot_t : __int32
 {                                       // XREF: itemInfo_t/r
                                         // LiveCombatRecord_CompareItemsByStats/r ...
-    LOADOUTSLOT_INVALID              = 0xFFFFFFFF,
+    LOADOUTSLOT_INVALID              = -1,
     LOADOUTSLOT_FIRST                = 0x0,
     LOADOUTSLOT_PRIMARY_WEAPON       = 0x0,
     LOADOUTSLOT_PRIMARY_ATTACHMENT   = 0x1,

@@ -141,7 +141,7 @@ enum ai_substate_t : __int32
 enum ai_state_transition_t : __int32
 {                                       // XREF: ai_transition_cmd_t/r
                                         // Actor_SimplifyStateTransitions/r ...
-    AIS_TRANSITION_CANONICAL = 0xFFFFFFFF,
+    AIS_TRANSITION_CANONICAL = -1,
                                         // XREF: .rdata:g_eSimplificationRules/s
     AIS_TRANSITION_NONE      = 0x0,     // XREF: .rdata:g_eSimplificationRules/s
     AIS_TRANSITION_SET       = 0x1,     // XREF: .rdata:g_eSimplificationRules/s

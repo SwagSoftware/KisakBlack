@@ -17,7 +17,9 @@ void __cdecl MemFile_CommonInit(
     if ( !s_isLzoInitialized )
     {
         //__lzopro_lzo_init_v2(0x2020u, 2, 4, 4, 4, 4, 4, 4, 4, 24);
-        lzo_init(0x2020u, 2, 4, 4, 4, 4, 4, 4, 4, 24);
+        // lzo_init() is a 0-arg macro expanding to this; the decompiler emitted the
+        // expansion's args, so call the underlying function directly.
+        __lzo_init_v2(0x2020u, 2, 4, 4, 4, 4, 4, 4, 4, 24);
         s_isLzoInitialized = 1;
     }
     if ( !memFile

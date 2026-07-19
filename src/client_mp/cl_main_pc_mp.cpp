@@ -344,7 +344,9 @@ bool __cdecl CL_CDKeyValidate(netadr_t addr)
 #ifdef WIN32
     return Steam_UpdateClientAuthTicket(addr);
 #else
-#error Steam Auth for Arch
+    // Steam auth-ticket integration is deferred on the Linux port (Steamworks SDK
+    // not yet wired in); validate as a no-op for now.
+    (void)addr;
     return false;
 #endif
 }

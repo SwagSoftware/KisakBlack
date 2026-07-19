@@ -7,7 +7,7 @@ enum ShockViewTypes : __int32
     SHELLSHOCK_VIEWTYPE_NONE    = 0x2,
 };
 
-const struct shellshock_parms_t // sizeof=0x204
+struct shellshock_parms_t // sizeof=0x204
 {                                       // XREF: .data:shellshock_parms_t * bg_shellshockParms/r
                                         // cgs_t/r ...
     //shellshock_parms_t::<unnamed_type_screenBlend> screenBlend;

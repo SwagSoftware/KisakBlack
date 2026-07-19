@@ -1302,7 +1302,7 @@ void __cdecl CG_UpdateScriptedKillCam(int localClientNum)
         refdefViewAngles[1] = scriptAngles[1];
         refdefViewAngles[2] = scriptAngles[2];
         //sx = (float)cgameGlob->time / 600.0;
-        //phase = crandom() * 3.1415927;
+        //phase = Com_CRandom() * 3.1415927;
         //__libm_sse2_sin(v1);
         //cgameGlob->refdefViewAngles[0] = cgameGlob->refdefViewAngles[0]
         //                                                             + (float)((float)((float)((float)(25.132742 * sx) + phase) * 1.8) * 0.0020000001);
@@ -1314,7 +1314,7 @@ void __cdecl CG_UpdateScriptedKillCam(int localClientNum)
         //                                                             + (float)((float)((float)((float)(37.699112 * sx) + phase) * 1.0) * 0.0020000001);
         //AnglesToAxis(cgameGlob->refdefViewAngles, cgameGlob->refdef.viewaxis);
         sx = (float)cgameGlob->time * (1.0f / 600.0f);
-        phase = crandom() * 3.1415927f;
+        phase = Com_CRandom() * 3.1415927f;
 
         cgameGlob->refdefViewAngles[0] += sinf((25.132742f * sx) + phase) * 1.8f * 0.0020000001f;
 
@@ -3049,8 +3049,8 @@ void __cdecl CG_CalcTurretViewValues(int localClientNum)
             if ( cgameGlob->predictedPlayerState.viewlocked == PLAYERVIEWLOCK_WEAPONJITTER
                 && cgameGlob->renderingThirdPerson == TP_OFF )
             {
-                cgameGlob->refdefViewAngles[0] = crandom() * weapDef->vertViewJitter + cgameGlob->refdefViewAngles[0];
-                cgameGlob->refdefViewAngles[1] = crandom() * weapDef->horizViewJitter + cgameGlob->refdefViewAngles[1];
+                cgameGlob->refdefViewAngles[0] = Com_CRandom() * weapDef->vertViewJitter + cgameGlob->refdefViewAngles[0];
+                cgameGlob->refdefViewAngles[1] = Com_CRandom() * weapDef->horizViewJitter + cgameGlob->refdefViewAngles[1];
             }
             if ( swayTime[localClientNum] > cgameGlob->time || swayTime[localClientNum] < cgameGlob->time - 300 )
             {

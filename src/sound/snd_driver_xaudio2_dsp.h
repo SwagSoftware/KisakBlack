@@ -1,11 +1,15 @@
 #pragma once
 
-#include <XAPOBase.h>
-#include <XAudio2.h>
 #include <universal/assertive.h>
 #include "snd_radverb.h"
 
 #define SDXA2_MAX_FRAME_COUNT 480
+
+// The DSP effects derive from CXAPOBase / IXAPOParameters — reconstructed portably in
+// XAPOBase.h — so they now compile on every platform; the OpenAL backend
+// (src/audio_openal) supplies the XAudio2/XAPO runtime that drives them.
+#include <XAPOBase.h>
+#include <XAudio2.h>
 
 static const GUID HACK_IID_IXAPOParameters = { 0xA90BC001, 0xE897, 0xE897, { 0x55, 0xE4, 0x9E, 0x47, 0x00, 0x00, 0x00, 0x01 } };
 
@@ -87,6 +91,7 @@ struct SDXA2Effect : public CXAPOBase, public IXAPOParameters // sizeof=0x3C80
     
     virtual void Process(unsigned int channelCount, unsigned int frameCount, float *data) = 0;
 };
+
 
 struct snd_dsp_master_params // sizeof=0x60
 {                                       // XREF: SDXA2MasterBusEffect/r
@@ -218,6 +223,7 @@ struct SDXA2RadverbEffect : SDXA2Effect // sizeof=0x87B80
     void STDMETHODCALLTYPE SetParameters(const void *pParams, unsigned int cbParams);
 };
 
+
 struct snd_dsp_squelch_param // sizeof=0x8
 {                                       // XREF: snd_dsp_futz_param/r
     float tg;
@@ -285,6 +291,7 @@ struct SDXA2MasterNoVoiceBusEffect : SDXA2Effect // sizeof=0xB900
         float *data);
     void STDMETHODCALLTYPE SetParameters(const void *pParams, unsigned int cbParams);
 };
+
 
 
 

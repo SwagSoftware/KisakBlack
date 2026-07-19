@@ -556,7 +556,7 @@ struct __declspec(align(16)) GfxSpotShadow // sizeof=0x1D0
     // padding byte
 };
 
-const struct __declspec(align(32)) GfxBackEndData // sizeof=0x186300
+struct __declspec(align(32)) GfxBackEndData // sizeof=0x186300
 {                                       // XREF: .data:s_backEndData/r
                                         // GfxBackEndDataArray/r
     unsigned __int8 surfsBuffer[262144];

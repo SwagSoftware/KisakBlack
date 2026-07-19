@@ -49,12 +49,12 @@ enum defaultClass_t : __int32
     CLASS_WAGER9         = 0x12,
     CLASS_WAGER10        = 0x13,
     CLASS_COUNT          = 0x14,
-    CLASS_NONE           = 0xFFFFFFFF,
+    CLASS_NONE           = -1,
 };
 
 enum customClass_t : __int32
 {                                       // XREF: BG_UnlockablesGetCustomClassName/r
-    CUSTOM_CLASS_INVALID     = 0xFFFFFFFF,
+    CUSTOM_CLASS_INVALID     = -1,
     CUSTOM_CLASS_1           = 0x0,
     CUSTOM_CLASS_FIRST       = 0x0,
     CUSTOM_CLASS_2           = 0x1,

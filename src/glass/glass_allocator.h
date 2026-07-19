@@ -47,6 +47,14 @@ struct SmallAllocatorTemplate//<GlassPhysics * *> // sizeof=0x4
     {
         using other = SmallAllocatorTemplate<U>;
     };
+
+    // Two instances are interchangeable iff they wrap the same pool. std::list's
+    // splice/move paths compare allocators (libstdc++'s _M_check_equal_allocators),
+    // so these are required — MSVC's STL didn't demand them.
+    template<class U>
+    bool operator==(const SmallAllocatorTemplate<U> &o) const noexcept { return alloc == o.alloc; }
+    template<class U>
+    bool operator!=(const SmallAllocatorTemplate<U> &o) const noexcept { return alloc != o.alloc; }
 };
 
 // aislop

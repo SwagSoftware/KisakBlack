@@ -20,7 +20,7 @@ enum sortedChallengeParams_t : __int32
     CHALLENGE_PARAM_PREVTARGET   = 0x8,
     CHALLENGE_PARAM_XP_REWARD    = 0x9,
     CHALLENGE_PARAM_CP_REWARD    = 0xA,
-    CHALLENGE_PARAM_INVALID      = 0xFFFFFFFF,
+    CHALLENGE_PARAM_INVALID      = -1,
 };
 
 enum challengeSortOrder_e : __int32
@@ -32,7 +32,7 @@ enum challengeSortOrder_e : __int32
     SORTORDER_PERCENTAGECOMPLETED = 0x2,
     SORTORDER_DEFAULT             = 0x3,
     SORTORDER_COUNT               = 0x4,
-    SORTORDER_INVALID             = 0xFFFFFFFF,
+    SORTORDER_INVALID             = -1,
 };
 
 enum pointsSpent_t : __int32
