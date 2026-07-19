@@ -1051,7 +1051,7 @@ int __cdecl R_AddCellStaticSurfacesInFrustum(DpvsStaticCellCmd *dpvsCell)
     unsigned int bits; // [esp+10h] [ebp-15D4h]
     unsigned int k; // [esp+14h] [ebp-15D0h]
     int j; // [esp+18h] [ebp-15CCh]
-    float alignas(16) planebuf[320][4];
+    float planebufStorage[320 * 4 + 4];  // +16 bytes slack to hand-align to 16
     float (*occluderPlanes)[4]; // [esp+146Ch] [ebp-178h]
     const GfxCell *cell; // [esp+1470h] [ebp-174h]
     DpvsClipPlanes out; // [esp+1474h] [ebp-170h] BYREF
@@ -1087,7 +1087,11 @@ int __cdecl R_AddCellStaticSurfacesInFrustum(DpvsStaticCellCmd *dpvsCell)
     }
     else
     {
-        occluderPlanes = planebuf;
+        // The SSE occluder cull (TestOccludersPartial) asserts the plane buffer is
+        // 16-byte aligned, but GCC doesn't honor alignas(16) on this stack local
+        // here (no stack realignment in the prologue). Hand-align a pointer into the
+        // over-allocated storage instead.
+        occluderPlanes = (float (*)[4])(((unsigned)planebufStorage + 15u) & ~15u);
         for (j = 0; j < 5 * dpvsGlob.numOccluders; ++j)
         {
             float *v3 = occluderPlanes[j];

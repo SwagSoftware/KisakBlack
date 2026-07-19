@@ -2377,6 +2377,12 @@ void __cdecl R_FilterXModelIntoScene(
     }
 }
 
+// The decompiler emitted this same helper into r_dpvs_sceneent.cpp too; under GCC
+// -fpermissive both end up external (a header forward-declares it), so mark this copy
+// weak to let the linker keep one. MSVC (the Windows build) tolerates the duplicate.
+#ifdef __GNUC__
+__attribute__((weak))
+#endif
 int __cdecl R_CullSphereDpvs(const float *origin, float radius, const DpvsPlane *planes, int planeCount)
 {
     int planeIndex; // [esp+8h] [ebp-4h]

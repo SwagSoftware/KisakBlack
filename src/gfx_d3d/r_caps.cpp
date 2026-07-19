@@ -269,12 +269,17 @@ void __cdecl R_RespondToMissingCaps(DxCapsResponse response, const char *msg)
     switch ( response )
     {
         case DX_CAPS_RESPONSE_QUIT:
-            Com_Error(ERR_FATAL, "Video card or driver %s.\n", msg);
-            break;
+            // On the OpenGL translation backend these D3D9-specific cap bits don't map
+            // 1:1 (the GL layer supports the features regardless), so warn instead of
+            // aborting. TODO: report fully-accurate D3DCAPS9 from src/gfx_gl.
+            Com_PrintWarning(8, "Video card or driver %s. (ignored on GL backend)\n", msg);
+            return;
         case DX_CAPS_RESPONSE_WARN:
         case DX_CAPS_RESPONSE_INFO:
             return;
         case DX_CAPS_RESPONSE_FORBID_SM3:
+            Com_PrintWarning(8, "Shader model 3.0 cap check failed; allowing SM3 on GL backend.\n");
+            return;
             Com_Error(ERR_FATAL, "Shader model 3.0 not available.\n");
             break;
         default:

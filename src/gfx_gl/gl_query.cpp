@@ -47,7 +47,11 @@ HRESULT WINAPI GLQuery::GetData(void *pData, DWORD /*dwSize*/, DWORD dwGetDataFl
     }
 
     if (type_ == D3DQUERYTYPE_EVENT) {
-        if (!sync_) return S_FALSE;
+        // No outstanding fence (never Issue'd, or already consumed): real D3D9
+        // reports such an event query as signaled. Returning S_FALSE here makes
+        // R_FinishGpuFence's `while (GetData == S_FALSE)` spin forever, since the
+        // engine waits on dx.flushGpuQuery without ever issuing it.
+        if (!sync_) { if (pData) *static_cast<DWORD *>(pData) = TRUE; return S_OK; }
         GLenum r = glClientWaitSync(static_cast<GLsync>(sync_),
                                     flush ? GL_SYNC_FLUSH_COMMANDS_BIT : 0, 0);
         bool done = (r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED);

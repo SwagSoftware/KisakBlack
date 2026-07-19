@@ -158,7 +158,12 @@ void __cdecl R_GetWorldMatrixForModelSurf(const GfxModelRigidSurface *modelSurf,
     float scale; // [esp+64h] [ebp-18h]
     float4 scaleVec; // [esp+68h] [ebp-14h]
 
-    quat = *(float4 *)modelSurf->placement.base.quat;
+    // Source quat[4] field isn't guaranteed 16-aligned on Linux; the decompiled
+    // float4 cast (alignas(16) -> movaps) would fault. Copy the four components.
+    quat.v[0] = modelSurf->placement.base.quat[0];
+    quat.v[1] = modelSurf->placement.base.quat[1];
+    quat.v[2] = modelSurf->placement.base.quat[2];
+    quat.v[3] = modelSurf->placement.base.quat[3];
     if ( !Vec4IsNormalized(quat.v)
         && !Assert_MyHandler(
                     "c:\\projects_pc\\cod\\codsrc\\src\\universal\\com_vector4_novec.h",

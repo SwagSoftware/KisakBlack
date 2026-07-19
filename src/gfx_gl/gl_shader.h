@@ -23,6 +23,19 @@
 // `*outIsPixel`; on an unsupported token returns false (glslOut holds a comment).
 bool TranslateD3D9Shader(const DWORD *tokens, std::string &glslOut, bool *outIsPixel);
 
+// Canonical generic-vertex-attribute mapping for a D3D vertex-declaration usage +
+// usage index. A single source of truth shared by the translator (which names the
+// `attribute` inputs), the program linker (glBindAttribLocation) and the device's
+// vertex-array setup, so all three agree on which stream feeds which input. The
+// index matters: TEXCOORD0 and TEXCOORD1 are distinct attributes, so dropping it
+// would collapse them to one name and break the GLSL ("aTexCoord redeclared").
+// Returns a location in [0,15], or -1 for an unsupported usage.
+int         GLAttribLocation(int usage, int usageIndex);
+std::string GLAttribName(int usage, int usageIndex);
+// Bind the full canonical name->location set on a program before linking. Names
+// the shader does not declare are simply ignored by GL.
+void        GLBindAttribLocations(unsigned program);
+
 class GLVertexShader final : public GLObject<IDirect3DVertexShader9> {
 public:
     GLVertexShader(IDirect3DDevice9 *device, const DWORD *function);

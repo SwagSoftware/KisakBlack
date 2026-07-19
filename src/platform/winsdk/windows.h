@@ -80,6 +80,27 @@ static inline char *_itoa(int value, char *str, int radix) {
 #define InterlockedIncrement(p)            __sync_add_and_fetch((p), 1)
 #define InterlockedDecrement(p)            __sync_sub_and_fetch((p), 1)
 #define InterlockedCompareExchange(p, e, c) __sync_val_compare_and_swap((p), (c), (e))
+#define InterlockedExchange64(p, v)        __sync_lock_test_and_set((p), (v))
+#define InterlockedExchangeAdd64(p, v)     __sync_fetch_and_add((p), (v))
+#define InterlockedIncrement64(p)          __sync_add_and_fetch((p), 1)
+#define InterlockedDecrement64(p)          __sync_sub_and_fetch((p), 1)
+#define InterlockedCompareExchange64(p, e, c) __sync_val_compare_and_swap((p), (c), (e))
+
+// ---- System info -----------------------------------------------------------
+typedef struct _SYSTEM_INFO {
+    union { DWORD dwOemId; struct { WORD wProcessorArchitecture, wReserved; }; };
+    DWORD     dwPageSize;
+    void     *lpMinimumApplicationAddress, *lpMaximumApplicationAddress;
+    DWORD_PTR dwActiveProcessorMask;
+    DWORD     dwNumberOfProcessors, dwProcessorType, dwAllocationGranularity;
+    WORD      wProcessorLevel, wProcessorRevision;
+} SYSTEM_INFO, *LPSYSTEM_INFO;
+static inline void GetSystemInfo(SYSTEM_INFO *si) {
+    if (!si) return; memset(si, 0, sizeof(*si));
+    long n = sysconf(_SC_NPROCESSORS_ONLN);
+    si->dwNumberOfProcessors = n > 0 ? (DWORD)n : 1;
+    si->dwPageSize = 4096; si->dwAllocationGranularity = 65536; si->wProcessorArchitecture = 0;
+}
 
 // ---- COM init + wide/narrow string conversion ------------------------------
 // COM doesn't exist on Linux; the audio init calls become no-ops. The string
@@ -149,7 +170,16 @@ typedef struct _FILETIME { DWORD dwLowDateTime, dwHighDateTime; } FILETIME, *LPF
 static inline DWORD GetLastError() { return (DWORD)errno; }
 static inline void  SetLastError(DWORD e) { errno = (int)e; }
 static inline void  OutputDebugStringA(const char *s) { if (s) fputs(s, stderr); }
-static inline int   ShowCursor(BOOL) { return 0; }
+// Win32 ShowCursor maintains a per-process display counter: +1 on show, -1 on
+// hide, returning the new value (cursor visible when >= 0). The engine's swap
+// loop spins ShowCursor() until the returned counter reaches a target, so a
+// constant return value would loop forever (it hung the render thread in
+// RB_SwapBuffers). Track the counter so the loop converges.
+static inline int   ShowCursor(BOOL bShow) {
+    static int s_cursorDisplayCount = 0;
+    s_cursorDisplayCount += bShow ? 1 : -1;
+    return s_cursorDisplayCount;
+}
 static inline BOOL  SystemTimeToFileTime(const SYSTEMTIME *, FILETIME *ft) {
     if (ft) { ft->dwLowDateTime = 0; ft->dwHighDateTime = 0; } return TRUE;
 }
@@ -208,6 +238,22 @@ struct _EXCEPTION_POINTERS;
 #define CREATE_SUSPENDED 0x4
 
 typedef DWORD (*LPTHREAD_START_ROUTINE)(void *);
+typedef struct _SECURITY_ATTRIBUTES { DWORD nLength; void *lpSecurityDescriptor; BOOL bInheritHandle; } SECURITY_ATTRIBUTES, *LPSECURITY_ATTRIBUTES;
+static inline BOOL TerminateThread(HANDLE, DWORD) { return TRUE; }   // best-effort no-op (pthreads can't force-kill safely)
+#define STILL_ACTIVE 259
+static inline BOOL GetExitCodeThread(HANDLE, DWORD *code) { if (code) *code = 0; return TRUE; }   // thread already finished
+typedef struct _MEMORYSTATUS {
+    DWORD  dwLength, dwMemoryLoad;
+    SIZE_T dwTotalPhys, dwAvailPhys, dwTotalPageFile, dwAvailPageFile, dwTotalVirtual, dwAvailVirtual;
+} MEMORYSTATUS, *LPMEMORYSTATUS;
+static inline void GlobalMemoryStatus(MEMORYSTATUS *s) {
+    if (!s) return; memset(s, 0, sizeof(*s)); s->dwLength = sizeof(*s);
+    long pages = sysconf(_SC_PHYS_PAGES), avail = sysconf(_SC_AVPHYS_PAGES), psz = sysconf(_SC_PAGE_SIZE);
+    if (pages > 0 && psz > 0) s->dwTotalPhys = (SIZE_T)pages * psz;
+    if (avail > 0 && psz > 0) s->dwAvailPhys = (SIZE_T)avail * psz;
+    s->dwTotalVirtual = s->dwTotalPhys; s->dwAvailVirtual = s->dwAvailPhys;
+}
+static inline DWORD GetCurrentThreadId();   // (defined earlier)
 
 HANDLE CreateThread(void *attrs, SIZE_T stack, LPTHREAD_START_ROUTINE start, void *param, DWORD flags, DWORD *threadId);
 DWORD  ResumeThread(HANDLE thread);
@@ -259,9 +305,10 @@ typedef struct _MEMORY_BASIC_INFORMATION {
     DWORD  State, Protect, Type;
 } MEMORY_BASIC_INFORMATION, *PMEMORY_BASIC_INFORMATION;
 #ifndef MEM_COMMIT
-#define MEM_COMMIT  0x1000
-#define MEM_RESERVE 0x2000
-#define MEM_RELEASE 0x8000
+#define MEM_COMMIT   0x1000
+#define MEM_RESERVE  0x2000
+#define MEM_DECOMMIT 0x4000
+#define MEM_RELEASE  0x8000
 #define PAGE_READWRITE 0x04
 #endif
 typedef HANDLE HGLOBAL;
@@ -281,22 +328,53 @@ HGLOBAL GlobalFree(HGLOBAL h);
 #endif
 typedef struct _TOKEN_PRIVILEGES { DWORD PrivilegeCount; struct { struct { DWORD LowPart; LONG HighPart; } Luid; DWORD Attributes; } Privileges[1]; } TOKEN_PRIVILEGES, *PTOKEN_PRIVILEGES;
 static inline void ExitProcess(UINT code)            { _exit((int)code); }
-static inline void RaiseException(DWORD, DWORD, DWORD, const void *) { __builtin_trap(); }
+// No-op: the common caller is SetThreadName's magic SEH "name this thread" exception,
+// which is meant to be swallowed when no debugger is attached. Genuine fatal paths go
+// through Sys_Error / assert, not RaiseException.
+static inline void RaiseException(DWORD, DWORD, DWORD, const void *) {}
 static inline BOOL IsDebuggerPresent()               { return FALSE; }
 static inline void GetSystemTimeAsFileTime(FILETIME *ft) { if (ft) { ft->dwLowDateTime = 0; ft->dwHighDateTime = 0; } }
-static inline DWORD SleepEx(DWORD ms, BOOL)          { if (ms) usleep((useconds_t)ms * 1000u); return 0; }
+// SleepEx: an alertable wait (bAlertable=TRUE) is how the engine's async DB loader
+// waits for an I/O completion APC. Our overlapped I/O is synchronous (the data is
+// already read by the time we get here), so return WAIT_IO_COMPLETION immediately
+// rather than blocking forever on the APC that will never come.
+static inline DWORD SleepEx(DWORD ms, BOOL alertable) {
+    if (alertable) return 0x000000C0;                              // WAIT_IO_COMPLETION
+    if (ms && ms != INFINITE) usleep((useconds_t)ms * 1000u);
+    return 0;
+}
 static inline void *InterlockedExchangePointer(void **target, void *value) { return __sync_lock_test_and_set(target, value); }
 
 // ---- Thread scheduling (best-effort / no-op on Linux) ----------------------
 static inline DWORD_PTR SetThreadAffinityMask(HANDLE, DWORD_PTR mask)        { return mask; }
 static inline DWORD     SetThreadIdealProcessor(HANDLE, DWORD proc)          { return proc; }
 static inline BOOL      SetThreadPriority(HANDLE, int)                       { return TRUE; }
-static inline BOOL      GetProcessAffinityMask(HANDLE, DWORD_PTR *p, DWORD_PTR *s) { if (p) *p = 1; if (s) *s = 1; return TRUE; }
+// Report one affinity bit per online CPU. The engine derives its CPU count
+// (and thus sys_smp_allowed) by popcount-ing this mask, so returning a single
+// bit would force single-threaded rendering — which is wrong for the GL
+// backend, whose context is bound to the render thread and must receive all
+// draw work via the SMP hand-off rather than inline on the main thread.
+static inline BOOL      GetProcessAffinityMask(HANDLE, DWORD_PTR *p, DWORD_PTR *s) {
+    long n = sysconf(_SC_NPROCESSORS_ONLN);
+    if (n < 1)  n = 1;
+    if (n > 32) n = 32;  // the mask is 32-bit; the engine caps the count anyway
+    DWORD_PTR mask = (n >= 32) ? (DWORD_PTR)~0u : (((DWORD_PTR)1 << n) - 1);
+    if (p) *p = mask; if (s) *s = mask; return TRUE;
+}
 static inline HANDLE    GetCurrentThread()                                   { return (HANDLE)(intptr_t)-2; }
 static inline HANDLE    GetCurrentProcess()                                  { return (HANDLE)(intptr_t)-1; }
 
 // ---- Window / GDI / clipboard / shell (no-op on the SDL/Linux build) -------
 typedef BOOL (*WNDENUMPROC)(HWND, LPARAM);
+#ifndef IDC_ARROW
+#define IDC_ARROW   ((const char *)32512)
+#define IDC_WAIT    ((const char *)32514)
+#define IDC_APPSTARTING ((const char *)32650)
+#endif
+static inline HCURSOR LoadCursor(HINSTANCE, const char *) { return (HCURSOR)0; }
+static inline HCURSOR SetCursor(HCURSOR)                  { return (HCURSOR)0; }
+static inline HANDLE  OpenProcess(DWORD, BOOL, DWORD)     { return (HANDLE)0; }
+static inline DWORD   GetCurrentProcessId();   // (defined earlier)
 static inline HWND  GetActiveWindow()                       { return (HWND)0; }
 static inline HWND  GetDesktopWindow()                      { return (HWND)0; }
 static inline HDC   GetDC(HWND)                             { return (HDC)0; }
@@ -306,7 +384,20 @@ static inline int   GetWindowTextA(HWND, char *buf, int n)  { if (buf && n) buf[
 static inline BOOL  EnumThreadWindows(DWORD, WNDENUMPROC, LPARAM) { return TRUE; }
 static inline LONG  ChangeDisplaySettingsA(void *, DWORD)   { return 0; }   // DISP_CHANGE_SUCCESSFUL
 static inline BOOL  SetDeviceGammaRamp(HDC, void *)         { return TRUE; }
+#ifndef MB_OK
+#define MB_OK 0x0
+#define MB_OKCANCEL 0x1
+#define MB_YESNO 0x4
+#define MB_ICONERROR 0x10
+#define MB_ICONWARNING 0x30
+#define MB_ICONINFORMATION 0x40
+#define IDOK 1
+#define IDCANCEL 2
+#define IDYES 6
+#define IDNO 7
+#endif
 static inline int   MessageBoxA(HWND, const char *, const char *, UINT) { return 1; }   // IDOK
+static inline int   MessageBoxW(HWND, const wchar_t *, const wchar_t *, UINT) { return 1; }
 static inline HINSTANCE ShellExecuteA(HWND, const char *, const char *, const char *, const char *, int) { return (HINSTANCE)33; }
 static inline BOOL  OpenClipboard(HWND)                     { return FALSE; }
 static inline BOOL  CloseClipboard()                       { return TRUE; }

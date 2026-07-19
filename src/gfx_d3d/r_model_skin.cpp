@@ -1168,7 +1168,12 @@ void R_SkinXModelCmd(SkinXModelCmd *data)
     GfxPackedVertexNormal *normalIn; // [esp-28CCh] [ebp-28D8h]
     GfxPackedVertex *skinVerticesOut; // [esp-28C8h] [ebp-28D4h]
     const XSurface *xsurf; // [esp-28C4h] [ebp-28D0h]
-    DObjSkelMat alignas(16) boneSkelMats[DOBJ_MAX_PARTS]; // [esp-28C0h] [ebp-28CCh] BYREF
+    // DObjSkelMat is alignas(16) and R_SkinXSurfaceSkinnedSse does movaps on these,
+    // but GCC doesn't 16-align this large stack array for us (no stack realignment);
+    // hand-align a pointer into over-allocated storage.
+    char boneSkelMatsStorage[DOBJ_MAX_PARTS * sizeof(DObjSkelMat) + 16];
+    DObjSkelMat *boneSkelMats = reinterpret_cast<DObjSkelMat *>(
+        (reinterpret_cast<uintptr_t>(boneSkelMatsStorage) + 15u) & ~uintptr_t(15u));
     int j; // [esp-30h] [ebp-3Ch]
     GfxModelSkinnedSurface *skinnedSurf; // [esp-24h] [ebp-30h]
     unsigned int i; // [esp-20h] [ebp-2Ch]
@@ -1342,4 +1347,3 @@ __m128 * _mm_cvtpu8_ps@<eax>(int a1@<ebp>)
     return _mm_cvtpu16_ps((int)&aa.m64_i32[1]);
 }
 #endif
-

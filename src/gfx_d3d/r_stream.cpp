@@ -2079,7 +2079,12 @@ void __cdecl R_Stream_UpdateStaticModelsCmd(char *data)
 
     StreamUpdateCmd *cmd = (StreamUpdateCmd *)data;
 
-    s_viewPos = *(float4 *)cmd->viewPos;
+    // cmd->viewPos is at struct offset 4, so &viewPos[0] is never 16-aligned; the
+    // decompiled float4 cast (alignas(16) -> movaps) faults on Linux. Only v[0..2]
+    // are read downstream, so copy the three position floats directly.
+    s_viewPos.v[0] = cmd->viewPos[0];
+    s_viewPos.v[1] = cmd->viewPos[1];
+    s_viewPos.v[2] = cmd->viewPos[2];
     for (unsigned int instId = 0; instId < g_worldDpvs->smodelCount; ++instId)
     {
         R_StreamUpdateStaticModel(instId, cmd->viewPos, cmd->maxDistSq, cmd->distanceScale);
@@ -2091,7 +2096,12 @@ void __cdecl R_Stream_UpdateStaticSurfacesCmd(char *data)
     PROF_SCOPED("R_Stream_UpdateStaticSurfacesCmd");
 
     StreamUpdateCmd *cmd = (StreamUpdateCmd *)data;
-    s_viewPos = *(float4 *)cmd->viewPos;
+    // cmd->viewPos is at struct offset 4, so &viewPos[0] is never 16-aligned; the
+    // decompiled float4 cast (alignas(16) -> movaps) faults on Linux. Only v[0..2]
+    // are read downstream, so copy the three position floats directly.
+    s_viewPos.v[0] = cmd->viewPos[0];
+    s_viewPos.v[1] = cmd->viewPos[1];
+    s_viewPos.v[2] = cmd->viewPos[2];
 
     for (unsigned int surfId = 0; surfId < g_worldDpvs->staticSurfaceCount; ++surfId)
     {
@@ -2536,7 +2546,12 @@ int __cdecl r_stream_updateCallback(jqBatch *batch)
     if (batch->Module->Group.ExecutingBatchCount > 1)
         return 1;
     cmd = (StreamUpdateCmd *)jqLockData(batch);
-    s_viewPos = *(float4 *)cmd->viewPos;
+    // cmd->viewPos is at struct offset 4, so &viewPos[0] is never 16-aligned; the
+    // decompiled float4 cast (alignas(16) -> movaps) faults on Linux. Only v[0..2]
+    // are read downstream, so copy the three position floats directly.
+    s_viewPos.v[0] = cmd->viewPos[0];
+    s_viewPos.v[1] = cmd->viewPos[1];
+    s_viewPos.v[2] = cmd->viewPos[2];
     R_StreamUpdateStatic(cmd->viewPos, cmd->maxDistSq, cmd->distanceScale);
     jqUnlockData(batch);
     return 0;
@@ -2594,7 +2609,10 @@ void __cdecl R_StreamUpdateStatic(const float *viewPos, float maxDistSq, float *
 
     PROF_SCOPED("R_Stream update static");
 
-    s_viewPos = *(float4 *)viewPos;
+    // Unaligned source (a bare float*); avoid the float4 movaps fault — see above.
+    s_viewPos.v[0] = viewPos[0];
+    s_viewPos.v[1] = viewPos[1];
+    s_viewPos.v[2] = viewPos[2];
 
     if (rgp.world->streamInfo.aabbTreeCount > 0)
     {

@@ -236,7 +236,7 @@ const dvar_t *r_watersim_particleWidth;
 const dvar_t *r_watersim_scroll;
 
 waterconfig_t config;
-waterdata_t data;
+static waterdata_t data;
 
 HANDLE waterUpdateMutex;
 unsigned int freeVertBlocks[800];

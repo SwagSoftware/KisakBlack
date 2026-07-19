@@ -63,6 +63,15 @@ target_link_libraries(gl_triangle PRIVATE kisak_gl)
 add_executable(gl_texture tests/smoke_texture.cpp)
 target_link_libraries(gl_texture PRIVATE kisak_gl)
 
+add_executable(gl_cubetexture tests/smoke_cubetexture.cpp)
+target_link_libraries(gl_cubetexture PRIVATE kisak_gl)
+
+add_executable(gl_voltexture tests/smoke_voltexture.cpp)
+target_link_libraries(gl_voltexture PRIVATE kisak_gl)
+
+add_executable(gl_alphatest tests/smoke_alphatest.cpp)
+target_link_libraries(gl_alphatest PRIVATE kisak_gl)
+
 add_executable(gl_shader tests/smoke_shader.cpp)
 target_link_libraries(gl_shader PRIVATE kisak_gl)
 

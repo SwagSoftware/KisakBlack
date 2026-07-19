@@ -304,9 +304,10 @@ char __cdecl R_GetFrontBufferData(int x, int y, int width, int height, int bytes
     hr = dx.device->CreateOffscreenPlainSurface(surfWidth, surfHeight, D3DFMT_A8R8G8B8, D3DPOOL_SCRATCH, &surface, NULL);
     if ( hr < 0 )
         goto LABEL_12;
-    hr = (*(int (__stdcall **)(int, IDirect3DSurface9 *))(*(unsigned int *)dx.windows[0].width + 16))(
-                 dx.windows[0].width,
-                 surface);
+    // The decompiler labeled this object 'width', but at this vtable offset (index 4)
+    // it is the window's swap chain; call GetFrontBufferData(surface) on it. Reading
+    // the int 'width' field as a pointer (as decompiled) dereferences garbage.
+    hr = dx.windows[0].swapChain->GetFrontBufferData(surface);
     if ( hr < 0 )
     {
         do
@@ -474,9 +475,10 @@ char __cdecl R_TakeScreenshot(char *filename, int format)
     hr = dx.device->CreateOffscreenPlainSurface(surfWidth, surfHeight, D3DFMT_A8R8G8B8, D3DPOOL_SCRATCH, &surface, NULL);
     if ( hr < 0 )
         goto LABEL_12;
-    hr = (*(int (__stdcall **)(int, IDirect3DSurface9 *))(*(unsigned int *)dx.windows[0].width + 16))(
-                 dx.windows[0].width,
-                 surface);
+    // The decompiler labeled this object 'width', but at this vtable offset (index 4)
+    // it is the window's swap chain; call GetFrontBufferData(surface) on it. Reading
+    // the int 'width' field as a pointer (as decompiled) dereferences garbage.
+    hr = dx.windows[0].swapChain->GetFrontBufferData(surface);
     if ( hr < 0 )
     {
         do

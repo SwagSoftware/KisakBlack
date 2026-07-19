@@ -15,4 +15,9 @@ bool D3DToGLFormat(D3DFORMAT fmt, unsigned *internalFormat, unsigned *glFormat,
 // Bytes per pixel for `fmt` (4 if unknown).
 int D3DFormatBpp(D3DFORMAT fmt);
 
+// For a DXT/BC block-compressed FourCC format, returns the GL compressed internal
+// format (e.g. GL_COMPRESSED_RGBA_S3TC_DXT5_EXT) and the per-4x4-block byte size;
+// returns 0 for non-compressed formats.
+unsigned D3DCompressedGLFormat(D3DFORMAT fmt, int *blockBytes);
+
 #endif // KISAK_GL_FORMAT_H

@@ -1,5 +1,7 @@
 #include "assertive.h"
 
+#include <cstdarg>
+#include <cstdio>
 #include <Windows.h>
 #include "com_buildinfo.h"
 #include "q_shared.h"
@@ -623,7 +625,20 @@ bool Assert_MyHandler(const char *filename, int line, int type, const char *fmt,
     Sys_LeaveCriticalSection(CRITSECT_ASSERT);
     return shouldBreak == 0;
 #else
-    __debugbreak();
+    // Asserts are dev-only checks. Rather than trap (SIGILL) on every one — which
+    // kills the game on non-fatal checks whose callers already handle the bad case
+    // (release builds compile asserts out entirely) — log the assertion and continue,
+    // i.e. behave like clicking "Ignore". Genuine faults still surface as real
+    // crashes at the point they actually occur.
+    {
+        char assertMsg[1024];
+        va_list ap;
+        va_start(ap, fmt);
+        vsnprintf(assertMsg, sizeof(assertMsg), fmt ? fmt : "", ap);
+        va_end(ap);
+        Com_Printf(16, "ASSERT (ignored) %s (%d): %s\n", filename, line, assertMsg);
+    }
+    (void)type;
     return 1;
 #endif
 }

@@ -33,6 +33,8 @@ GLDevice::GLDevice(GLContext *ctx, int width, int height)
     : ctx_(ctx), fbWidth_(width), fbHeight_(height), bbWidth_(width), bbHeight_(height) {}
 
 GLDevice::~GLDevice() {
+    if (swapChain_)   swapChain_->Release();   // swap chain references the back buffer; drop it first
+    if (backBuffer_)  backBuffer_->Release();
     if (builtinProg_) glDeleteProgram(builtinProg_);
     if (vao_)         glDeleteVertexArrays(1, &vao_);
     if (fbo_)         glDeleteFramebuffers(1, &fbo_);
@@ -42,12 +44,13 @@ GLDevice::~GLDevice() {
 
 HRESULT WINAPI GLDevice::SetRenderTarget(DWORD RenderTargetIndex, IDirect3DSurface9 *pRenderTarget) {
     if (RenderTargetIndex != 0) return D3D_OK;  // single render target for now (MRT: TODO)
-    if (!pRenderTarget) {  // restore the back buffer (default framebuffer)
+    GLSurface *s = static_cast<GLSurface *>(pRenderTarget);
+    // A null target, or the back-buffer surface itself, means the default framebuffer.
+    if (!s || s->isBackbuffer()) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         fbWidth_ = bbWidth_; fbHeight_ = bbHeight_;
         return D3D_OK;
     }
-    GLSurface *s = static_cast<GLSurface *>(pRenderTarget);
     if (!fbo_) glGenFramebuffers(1, &fbo_);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->texName(), s->level());

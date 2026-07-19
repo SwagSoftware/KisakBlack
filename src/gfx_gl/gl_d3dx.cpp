@@ -26,9 +26,17 @@ private:
     std::vector<unsigned char> data_;
 };
 
-// Read a renderable surface into a BGRA8 CPU buffer via a temporary FBO.
+// Read a surface into a BGRA8 CPU buffer. A system-memory surface (the screenshot
+// target, filled by GetFrontBufferData) already holds BGRA8 in its shadow; a
+// renderable surface is read back via a temporary FBO.
 bool ReadSurfaceBGRA(GLSurface *s, int w, int h, std::vector<unsigned char> &out) {
-    if (!s || !s->texName()) return false;
+    if (!s) return false;
+    if (!s->texName()) {
+        std::vector<unsigned char> &shadow = s->shadow();
+        if (shadow.size() < (size_t)w * h * 4) return false;
+        out.assign(shadow.begin(), shadow.begin() + (size_t)w * h * 4);
+        return true;
+    }
     out.assign((size_t)w * h * 4, 0);
     GLuint fbo = 0;
     glGenFramebuffers(1, &fbo);

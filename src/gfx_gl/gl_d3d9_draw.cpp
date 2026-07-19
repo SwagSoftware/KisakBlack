@@ -7,20 +7,21 @@
 // built-in is bypassed.
 #include "gl_d3d9.h"
 #include "gl_resources.h"
+#include "gl_shader.h"   // GLAttribLocation / GLAttribName / GLBindAttribLocations
 
 #include <GL/glew.h>
 #include <cstdio>
 
-// Attribute locations shared by the built-in program and applyVertexState().
-enum { ATTR_POS = 0, ATTR_COLOR = 1, ATTR_TEXCOORD = 2, ATTR_NORMAL = 3 };
-
 namespace {
 
+// The built-in 2D program consumes the canonical POSITION / COLOR0 / TEXCOORD0
+// attribute names (see GLAttribName in gl_shader.cpp), so the same vertex setup
+// drives it and the translated programs.
 const char *kBuiltinVS =
     "#version 120\n"
-    "attribute vec4 aPos;\n"       // POSITIONT: x,y in screen pixels, z depth, w=rhw
-    "attribute vec4 aColor;\n"
-    "attribute vec2 aTexCoord;\n"
+    "attribute vec4 aPos;\n"        // POSITIONT: x,y in screen pixels, z depth, w=rhw
+    "attribute vec4 aColor0;\n"
+    "attribute vec2 aTexCoord0;\n"
     "uniform vec2 uViewport;\n"
     "varying vec4 vColor;\n"
     "varying vec2 vTexCoord;\n"
@@ -28,19 +29,37 @@ const char *kBuiltinVS =
     "  float x = (aPos.x / uViewport.x) * 2.0 - 1.0;\n"
     "  float y = 1.0 - (aPos.y / uViewport.y) * 2.0;\n"  // D3D top-left -> GL bottom-left
     "  gl_Position = vec4(x, y, aPos.z, 1.0);\n"
-    "  vColor = aColor;\n"
-    "  vTexCoord = aTexCoord;\n"
+    "  vColor = aColor0;\n"
+    "  vTexCoord = aTexCoord0;\n"
     "}\n";
 
 const char *kBuiltinFS =
     "#version 120\n"
     "uniform sampler2D uTex;\n"
     "uniform int uUseTexture;\n"
+    "uniform int uColorOp;\n"    // 0 = SELECTARG1 (texture only), 1 = MODULATE (tex*diffuse)
+    "uniform int uAlphaFunc;\n"  // GL compare func (GL_NEVER..GL_ALWAYS), 0 = alpha test off
+    "uniform float uAlphaRef;\n" // reference in [0,1]
     "varying vec4 vColor;\n"
     "varying vec2 vTexCoord;\n"
+    "bool alphaPass(float a) {\n"
+    "  if (uAlphaFunc == 0) return true;\n"            // disabled
+    "  if (uAlphaFunc == 0x0200) return false;\n"      // GL_NEVER
+    "  if (uAlphaFunc == 0x0201) return a <  uAlphaRef;\n"  // GL_LESS
+    "  if (uAlphaFunc == 0x0202) return a == uAlphaRef;\n"  // GL_EQUAL
+    "  if (uAlphaFunc == 0x0203) return a <= uAlphaRef;\n"  // GL_LEQUAL
+    "  if (uAlphaFunc == 0x0204) return a >  uAlphaRef;\n"  // GL_GREATER
+    "  if (uAlphaFunc == 0x0205) return a != uAlphaRef;\n"  // GL_NOTEQUAL
+    "  if (uAlphaFunc == 0x0206) return a >= uAlphaRef;\n"  // GL_GEQUAL
+    "  return true;\n"                                  // GL_ALWAYS (0x0207) / default
+    "}\n"
     "void main() {\n"
     "  vec4 c = vColor;\n"
-    "  if (uUseTexture != 0) c *= texture2D(uTex, vTexCoord);\n"
+    "  if (uUseTexture != 0) {\n"
+    "    vec4 t = texture2D(uTex, vTexCoord);\n"
+    "    c = (uColorOp == 0) ? t : (t * vColor);\n"  // SELECTARG1(tex) vs MODULATE(tex*diffuse)
+    "  }\n"
+    "  if (!alphaPass(c.a)) discard;\n"
     "  gl_FragColor = c;\n"
     "}\n";
 
@@ -58,30 +77,35 @@ unsigned compile(GLenum stage, const char *src) {
     return s;
 }
 
-// D3DDECLTYPE -> (component count, GL type, normalized)
+// D3DDECLTYPE -> (component count, GL type, normalized). CoD's vertex formats
+// pack normals/tangents (UBYTE4N/DEC3N), colours (UBYTE4N) and texcoords
+// (FLOAT16_2/4) — decoding any of these as plain floats yields garbage normals
+// (dark/flat lighting, half-black triangles) and garbage UVs (skybox moire).
 void declType(BYTE t, GLint *size, GLenum *type, GLboolean *norm) {
     *norm = GL_FALSE;
     switch (t) {
-        case D3DDECLTYPE_FLOAT1:   *size = 1; *type = GL_FLOAT;         break;
-        case D3DDECLTYPE_FLOAT2:   *size = 2; *type = GL_FLOAT;         break;
-        case D3DDECLTYPE_FLOAT3:   *size = 3; *type = GL_FLOAT;         break;
-        case D3DDECLTYPE_FLOAT4:   *size = 4; *type = GL_FLOAT;         break;
-        case D3DDECLTYPE_D3DCOLOR: *size = GL_BGRA; *type = GL_UNSIGNED_BYTE; *norm = GL_TRUE; break;
-        case D3DDECLTYPE_UBYTE4:   *size = 4; *type = GL_UNSIGNED_BYTE; break;
-        default:                   *size = 4; *type = GL_FLOAT;         break;
+        case D3DDECLTYPE_FLOAT1:    *size = 1; *type = GL_FLOAT;          break;
+        case D3DDECLTYPE_FLOAT2:    *size = 2; *type = GL_FLOAT;          break;
+        case D3DDECLTYPE_FLOAT3:    *size = 3; *type = GL_FLOAT;          break;
+        case D3DDECLTYPE_FLOAT4:    *size = 4; *type = GL_FLOAT;          break;
+        case D3DDECLTYPE_D3DCOLOR:  *size = GL_BGRA; *type = GL_UNSIGNED_BYTE; *norm = GL_TRUE; break;
+        case D3DDECLTYPE_UBYTE4:    *size = 4; *type = GL_UNSIGNED_BYTE;  break;
+        case D3DDECLTYPE_UBYTE4N:   *size = 4; *type = GL_UNSIGNED_BYTE;  *norm = GL_TRUE; break;
+        case D3DDECLTYPE_SHORT2:    *size = 2; *type = GL_SHORT;          break;
+        case D3DDECLTYPE_SHORT4:    *size = 4; *type = GL_SHORT;          break;
+        case D3DDECLTYPE_SHORT2N:   *size = 2; *type = GL_SHORT;          *norm = GL_TRUE; break;
+        case D3DDECLTYPE_SHORT4N:   *size = 4; *type = GL_SHORT;          *norm = GL_TRUE; break;
+        case D3DDECLTYPE_USHORT2N:  *size = 2; *type = GL_UNSIGNED_SHORT; *norm = GL_TRUE; break;
+        case D3DDECLTYPE_USHORT4N:  *size = 4; *type = GL_UNSIGNED_SHORT; *norm = GL_TRUE; break;
+        // 3 components packed 10:10:10:2 (low bits = x). REV matches D3D's order.
+        case D3DDECLTYPE_UDEC3:     *size = 4; *type = GL_UNSIGNED_INT_2_10_10_10_REV; break;
+        case D3DDECLTYPE_DEC3N:     *size = 4; *type = GL_INT_2_10_10_10_REV; *norm = GL_TRUE; break;
+        case D3DDECLTYPE_FLOAT16_2: *size = 2; *type = GL_HALF_FLOAT;     break;
+        case D3DDECLTYPE_FLOAT16_4: *size = 4; *type = GL_HALF_FLOAT;     break;
+        default:                    *size = 4; *type = GL_FLOAT;          break;
     }
 }
 
-int attribLocForUsage(BYTE usage) {
-    switch (usage) {
-        case D3DDECLUSAGE_POSITION:
-        case D3DDECLUSAGE_POSITIONT: return ATTR_POS;
-        case D3DDECLUSAGE_COLOR:     return ATTR_COLOR;
-        case D3DDECLUSAGE_TEXCOORD:  return ATTR_TEXCOORD;
-        case D3DDECLUSAGE_NORMAL:    return ATTR_NORMAL;
-        default:                     return -1;  // not consumed by the built-in program
-    }
-}
 
 void primInfo(D3DPRIMITIVETYPE pt, UINT primCount, GLenum *mode, GLsizei *verts) {
     switch (pt) {
@@ -103,6 +127,20 @@ HRESULT WINAPI GLDevice::CreateTexture(UINT Width, UINT Height, UINT Levels, DWO
                                        IDirect3DTexture9 **ppTexture, HANDLE *) {
     if (!ppTexture) return E_INVALIDARG;
     *ppTexture = new GLTexture(this, Width, Height, Levels, Usage, Format, Pool);
+    return D3D_OK;
+}
+
+HRESULT WINAPI GLDevice::CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage,
+                                             D3DFORMAT Format, D3DPOOL Pool, IDirect3DVolumeTexture9 **ppVolumeTexture, HANDLE *) {
+    if (!ppVolumeTexture) return E_INVALIDARG;
+    *ppVolumeTexture = new GLVolumeTexture(this, Width, Height, Depth, Levels, Usage, Format, Pool);
+    return D3D_OK;
+}
+
+HRESULT WINAPI GLDevice::CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format,
+                                           D3DPOOL Pool, IDirect3DCubeTexture9 **ppCubeTexture, HANDLE *) {
+    if (!ppCubeTexture) return E_INVALIDARG;
+    *ppCubeTexture = new GLCubeTexture(this, EdgeLength, Levels, Usage, Format, Pool);
     return D3D_OK;
 }
 
@@ -155,15 +193,32 @@ void GLDevice::ensureBuiltinProgram() {
     builtinProg_ = glCreateProgram();
     glAttachShader(builtinProg_, vs);
     glAttachShader(builtinProg_, fs);
-    glBindAttribLocation(builtinProg_, ATTR_POS,      "aPos");
-    glBindAttribLocation(builtinProg_, ATTR_COLOR,    "aColor");
-    glBindAttribLocation(builtinProg_, ATTR_TEXCOORD, "aTexCoord");
+    GLBindAttribLocations(builtinProg_);
     glLinkProgram(builtinProg_);
     glDeleteShader(vs);
     glDeleteShader(fs);
-    builtinViewportLoc_ = glGetUniformLocation(builtinProg_, "uViewport");
-    builtinTexLoc_      = glGetUniformLocation(builtinProg_, "uTex");
-    builtinUseTexLoc_   = glGetUniformLocation(builtinProg_, "uUseTexture");
+    builtinViewportLoc_  = glGetUniformLocation(builtinProg_, "uViewport");
+    builtinTexLoc_       = glGetUniformLocation(builtinProg_, "uTex");
+    builtinUseTexLoc_    = glGetUniformLocation(builtinProg_, "uUseTexture");
+    builtinColorOpLoc_   = glGetUniformLocation(builtinProg_, "uColorOp");
+    builtinAlphaFuncLoc_ = glGetUniformLocation(builtinProg_, "uAlphaFunc");
+    builtinAlphaRefLoc_  = glGetUniformLocation(builtinProg_, "uAlphaRef");
+}
+
+// D3DCMP_* -> the GL compare-func enum (GL_NEVER..GL_ALWAYS). The built-in
+// fragment shader emulates the alpha test against these values; 0 means the test
+// is disabled.
+static GLenum alphaFuncToGL(DWORD d3dCmp) {
+    switch (d3dCmp) {
+        case D3DCMP_NEVER:        return GL_NEVER;
+        case D3DCMP_LESS:         return GL_LESS;
+        case D3DCMP_EQUAL:        return GL_EQUAL;
+        case D3DCMP_LESSEQUAL:    return GL_LEQUAL;
+        case D3DCMP_GREATER:      return GL_GREATER;
+        case D3DCMP_NOTEQUAL:     return GL_NOTEQUAL;
+        case D3DCMP_GREATEREQUAL: return GL_GEQUAL;
+        default:                  return GL_ALWAYS;
+    }
 }
 
 // Bind the built-in program and set its frame/texture uniforms before a draw.
@@ -175,21 +230,33 @@ void GLDevice::bindBuiltinForDraw() {
     bool sampling = applyTextures();
     if (builtinTexLoc_ >= 0)    glUniform1i(builtinTexLoc_, 0);
     if (builtinUseTexLoc_ >= 0) glUniform1i(builtinUseTexLoc_, sampling ? 1 : 0);
+
+    // Fixed-function stage-0 combine: SELECTARG1 (texture only) vs MODULATE
+    // (texture * diffuse). Both arg slots default to the (TEXTURE, DIFFUSE) pair,
+    // which is all the engine's 2D path uses.
+    if (builtinColorOpLoc_ >= 0)
+        glUniform1i(builtinColorOpLoc_, texStage0_.colorOp == D3DTOP_SELECTARG1 ? 0 : 1);
+
+    // Alpha test (emulated by discard). Pass the GL compare func, or 0 to disable.
+    if (builtinAlphaFuncLoc_ >= 0)
+        glUniform1i(builtinAlphaFuncLoc_, alphaTest_.enable ? (int)alphaFuncToGL(alphaTest_.func) : 0);
+    if (builtinAlphaRefLoc_ >= 0)
+        glUniform1f(builtinAlphaRefLoc_, (float)alphaTest_.ref / 255.0f);
 }
 
 void GLDevice::applyVertexState() {
     if (!vao_) glGenVertexArrays(1, &vao_);
     glBindVertexArray(vao_);
 
-    for (int i = 0; i < 4; ++i) glDisableVertexAttribArray(i);
+    for (int i = 0; i < 16; ++i) glDisableVertexAttribArray(i);
     // D3D's default (unspecified) diffuse colour is white; GL's default generic
     // attribute is (0,0,0,1). Without this, a texcoord-only vertex would multiply
-    // the texture by black. The array, if the decl supplies COLOR, overrides this.
-    glVertexAttrib4f(ATTR_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
+    // the texture by black. The array, if the decl supplies COLOR0, overrides this.
+    glVertexAttrib4f(GLAttribLocation(D3DDECLUSAGE_COLOR, 0), 1.0f, 1.0f, 1.0f, 1.0f);
     if (!decl_) return;
 
     for (const D3DVERTEXELEMENT9 &e : decl_->elements()) {
-        int loc = attribLocForUsage(e.Usage);
+        int loc = GLAttribLocation(e.Usage, e.UsageIndex);
         if (loc < 0 || e.Stream >= 4) continue;
         const Stream &s = streams_[e.Stream];
         if (!s.vb) continue;

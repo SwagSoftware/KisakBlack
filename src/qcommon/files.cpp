@@ -754,10 +754,12 @@ char *__cdecl FS_ReferencedIwdPureChecksums()
     info6[0] = 0;
     checksum = fs_checksumFeed;
     numIwds = 0;
-    *(_BYTE *)(strlen(info6) + 67341897) = 0;
-    *(_BYTE *)(strlen(info6) + 67341898) = 0;
-    info6[strlen(info6)] = 35;
-    info6[strlen(info6)] = 32;
+    // The two byte-writes here were decompiled as stores through a hardcoded Win32
+    // absolute address (the original binary's &info6[1]/&info6[2]), which faults on
+    // Linux. Their net effect, with the two stores below, is the two-char header "# ".
+    info6[0] = '#';
+    info6[1] = ' ';
+    info6[2] = 0;
     for ( search = fs_searchpaths; search; search = search->next )
     {
         if ( search->iwd && !search->bLocalized )

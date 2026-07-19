@@ -373,7 +373,7 @@ void __cdecl FS_ReplaceSeparators(char *path)
             if ( !wasSep )
             {
                 wasSep = 1;
-                *dst++ = 92;
+                *dst++ = PATH_SEP;   // '\\' on Windows, '/' on Linux (q_shared.h)
             }
         }
         else
@@ -453,11 +453,15 @@ int __cdecl FS_CreatePath(char *OSPath)
     {
         for ( ofs = OSPath + 1; *ofs; ++ofs )
         {
-            if ( *ofs == 92 )
+            // Accept either separator: FS_BuildOSPath produces '/'-separated paths on
+            // Linux, so scanning only for '\\' (92) created no directories at all here
+            // (e.g. the screenshots/ dir was never made, so file writes silently failed).
+            if ( *ofs == 92 || *ofs == 47 )
             {
+                char ch = *ofs;
                 *ofs = 0;
                 Sys_Mkdir(OSPath);
-                *ofs = 92;
+                *ofs = ch;
             }
         }
         return 0;

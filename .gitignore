@@ -443,3 +443,6 @@ ref/
 # OpenAL backend standalone build output
 build_al/
 build_al32/
+
+# Whole-engine Linux build output
+build_linux/

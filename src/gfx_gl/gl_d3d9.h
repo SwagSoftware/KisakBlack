@@ -22,6 +22,8 @@ class GLVertexBuffer;
 class GLIndexBuffer;
 class GLVertexDeclaration;
 class GLTexture;
+class GLSurface;
+class GLSwapChain;
 class GLVertexShader;
 class GLPixelShader;
 
@@ -31,6 +33,23 @@ struct GLSamplerState {
     DWORD magFilter = D3DTEXF_LINEAR;
     DWORD addressU  = D3DTADDRESS_WRAP;
     DWORD addressV  = D3DTADDRESS_WRAP;
+};
+
+// Fixed-function texture-stage state (D3DTSS_*), kept in D3D terms and folded into
+// the built-in fragment shader's tex/diffuse combine at draw time. Defaults match
+// D3D's stage-0 defaults: COLOROP = MODULATE(TEXTURE, DIFFUSE).
+struct GLTextureStageState {
+    DWORD colorOp   = D3DTOP_MODULATE;
+    DWORD colorArg1 = D3DTA_TEXTURE;
+    DWORD colorArg2 = D3DTA_DIFFUSE;
+};
+
+// Alpha-test state (removed from core GL), emulated via discard in the fragment
+// shader. Defaults match D3D: disabled, ALWAYS, ref 0.
+struct GLAlphaTestState {
+    bool  enable = false;
+    DWORD func   = D3DCMP_ALWAYS;
+    DWORD ref    = 0;  // 0..255
 };
 
 // ---- IDirect3DDevice9 -> OpenGL -------------------------------------------
@@ -72,6 +91,7 @@ public:
     // --- Render / sampler / texture state (gl_state.cpp) ---
     HRESULT WINAPI SetRenderState(D3DRENDERSTATETYPE State, DWORD Value) override;
     HRESULT WINAPI SetSamplerState(DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD Value) override;
+    HRESULT WINAPI SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value) override;
     HRESULT WINAPI SetTexture(DWORD Stage, IDirect3DBaseTexture9 *pTexture) override;
     HRESULT WINAPI SetScissorRect(const RECT *pRect) override;
     HRESULT WINAPI SetVertexShader(IDirect3DVertexShader9 *pShader) override;
@@ -83,13 +103,15 @@ public:
     void    WINAPI SetGammaRamp(UINT, DWORD, const D3DGAMMARAMP *) override {}
 
     // --- Not yet ported: textures / surfaces / shaders / queries — TODO(task #4/#5) ---
-    HRESULT WINAPI GetBackBuffer(UINT, UINT, D3DBACKBUFFER_TYPE, IDirect3DSurface9 **pp) override { return ni(pp); }
-    HRESULT WINAPI GetSwapChain(UINT, IDirect3DSwapChain9 **pp) override { return ni(pp); }
+    HRESULT WINAPI GetBackBuffer(UINT, UINT, D3DBACKBUFFER_TYPE, IDirect3DSurface9 **pp) override;
+    HRESULT WINAPI GetSwapChain(UINT, IDirect3DSwapChain9 **pp) override;
     HRESULT WINAPI CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
                                  D3DFORMAT Format, D3DPOOL Pool,
                                  IDirect3DTexture9 **ppTexture, HANDLE *) override;
-    HRESULT WINAPI CreateVolumeTexture(UINT, UINT, UINT, UINT, DWORD, D3DFORMAT, D3DPOOL, IDirect3DVolumeTexture9 **pp, HANDLE *) override { return ni(pp); }
-    HRESULT WINAPI CreateCubeTexture(UINT, UINT, DWORD, D3DFORMAT, D3DPOOL, IDirect3DCubeTexture9 **pp, HANDLE *) override { return ni(pp); }
+    HRESULT WINAPI CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage,
+                                       D3DFORMAT Format, D3DPOOL Pool, IDirect3DVolumeTexture9 **ppVolumeTexture, HANDLE *) override;
+    HRESULT WINAPI CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format,
+                                     D3DPOOL Pool, IDirect3DCubeTexture9 **ppCubeTexture, HANDLE *) override;
     HRESULT WINAPI CreateRenderTarget(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE,
                                       DWORD, BOOL, IDirect3DSurface9 **ppSurface, HANDLE *) override;
     HRESULT WINAPI CreateOffscreenPlainSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DPOOL,
@@ -100,14 +122,18 @@ public:
                                IDirect3DSurface9 *pDestSurface, const RECT *pDestRect,
                                D3DTEXTUREFILTERTYPE Filter) override;
     // Still stubbed (TODO): standalone depth-stencil surfaces, UpdateSurface.
-    HRESULT WINAPI CreateDepthStencilSurface(UINT, UINT, D3DFORMAT, D3DMULTISAMPLE_TYPE, DWORD, BOOL, IDirect3DSurface9 **pp, HANDLE *) override { return ni(pp); }
+    HRESULT WINAPI CreateDepthStencilSurface(UINT, UINT, D3DFORMAT, D3DMULTISAMPLE_TYPE, DWORD, BOOL, IDirect3DSurface9 **pp, HANDLE *) override;
     HRESULT WINAPI UpdateSurface(IDirect3DSurface9 *, const RECT *, IDirect3DSurface9 *, const POINT *) override { return E_NOTIMPL; }
     HRESULT WINAPI CreateVertexShader(const DWORD *pFunction, IDirect3DVertexShader9 **ppShader) override;
     HRESULT WINAPI CreatePixelShader(const DWORD *pFunction, IDirect3DPixelShader9 **ppShader) override;
     HRESULT WINAPI CreateQuery(D3DQUERYTYPE Type, IDirect3DQuery9 **ppQuery) override;
 
 private:
-    static const int kMaxStages = 8;
+    // ps_3_0 addresses 16 sampler stages (s0..s15). The lit world/material
+    // shaders use the high samplers (s11 lightmap, s15 lookup, s12..s14) — with
+    // fewer stages those bind to nothing and sample unit 0, turning lightmapped
+    // surfaces magenta while low-sampler models render fine.
+    static const int kMaxStages = 16;
 
     template <class T> static HRESULT ni(T **pp) { if (pp) *pp = nullptr; return E_NOTIMPL; }
     void ensureBuiltinProgram();  // lazily compile the built-in pre-transformed-vertex shader
@@ -115,6 +141,8 @@ private:
     void useDrawProgram();        // pick shader program (if vs+ps bound) or built-in; set uniforms
     void applyVertexState();      // set up VAO attribs from decl_ + streams_
     bool applyTextures();         // bind stage-0 texture + sampler state; returns true if sampling
+    void applyStageSampler(unsigned stage, unsigned target); // apply stage's filter/wrap to bound tex
+    GLSurface *backBufferSurface(); // lazily create the back-buffer surface (FBO 0 view)
 
     GLContext *ctx_ = nullptr;
     int  fbWidth_   = 0;   // current render-target dimensions (back buffer or FBO)
@@ -127,23 +155,40 @@ private:
     int      fboDepthH_ = 0;
     bool inScene_   = false;
 
+    // Back buffer / swap chain — the window's default framebuffer (FBO 0),
+    // exposed to the renderer through GetBackBuffer()/GetSwapChain().
+    GLSurface   *backBuffer_ = nullptr;  // owned
+    GLSwapChain *swapChain_  = nullptr;  // owned
+
     unsigned vao_                 = 0;
     unsigned builtinProg_         = 0;
     int      builtinViewportLoc_  = -1;
     int      builtinTexLoc_       = -1;
     int      builtinUseTexLoc_    = -1;
+    int      builtinColorOpLoc_   = -1;  // 0 = SELECTARG1 (tex), 1 = MODULATE (tex*diffuse)
+    int      builtinAlphaFuncLoc_ = -1;  // GL-style compare func, or 0 = disabled
+    int      builtinAlphaRefLoc_  = -1;  // [0,1] reference
 
     struct Stream { GLVertexBuffer *vb = nullptr; UINT offset = 0; UINT stride = 0; };
     Stream               streams_[4];
     GLIndexBuffer       *ib_   = nullptr;
     GLVertexDeclaration *decl_ = nullptr;
 
-    GLTexture     *boundTex_[kMaxStages] = {};
+    // Bound textures, resolved to a GL name + target in SetTexture so the bind
+    // path is texture-type aware (2D / cube / volume) without a blind downcast.
+    unsigned       boundTexName_[kMaxStages]   = {};   // GL texture object (0 = none)
+    unsigned       boundTexTarget_[kMaxStages] = {};   // GL_TEXTURE_2D / _CUBE_MAP / _3D
     GLSamplerState samplers_[kMaxStages];
+    GLTextureStageState texStage0_;     // stage-0 fixed-function combine (built-in program)
+    GLAlphaTestState    alphaTest_;     // alpha-test emulation (built-in program)
 
     // Blend factors are set by two separate render states but applied together.
     DWORD blendSrc_  = D3DBLEND_ONE;
     DWORD blendDest_ = D3DBLEND_ZERO;
+
+    // Alpha test (func + ref are set separately but applied together via glAlphaFunc).
+    DWORD alphaFunc_ = D3DCMP_ALWAYS;
+    DWORD alphaRef_  = 0;
 
     // Programmable shader path: bound shaders, c# constant registers, and a cache
     // of linked (vs,ps) programs keyed by (vsShaderId<<32 | psShaderId).

@@ -56,11 +56,8 @@ void GLDevice::useDrawProgram() {
         unsigned prog = glCreateProgram();
         glAttachShader(prog, vs_->glShader());
         glAttachShader(prog, ps_->glShader());
-        // Match the device's fixed attribute locations (see gl_d3d9_draw.cpp).
-        glBindAttribLocation(prog, 0, "aPos");
-        glBindAttribLocation(prog, 1, "aColor");
-        glBindAttribLocation(prog, 2, "aTexCoord");
-        glBindAttribLocation(prog, 3, "aNormal");
+        // Match the device's canonical attribute locations (see gl_shader.cpp).
+        GLBindAttribLocations(prog);
         glLinkProgram(prog);
         GLint ok = 0;
         glGetProgramiv(prog, GL_LINK_STATUS, &ok);
@@ -82,13 +79,15 @@ void GLDevice::useDrawProgram() {
 
     // Bind each referenced sampler s# to texture unit # and the matching texture.
     for (int i = 0; i < kMaxStages; ++i) {
-        char name[3] = {'s', char('0' + i), 0};
+        char name[4];                     // "s0".."s15" — two digits need 4 bytes
+        snprintf(name, sizeof(name), "s%d", i);
         int loc = glGetUniformLocation(lp.prog, name);
         if (loc < 0) continue;
         glUniform1i(loc, i);
-        if (boundTex_[i]) {
+        if (boundTexName_[i]) {
             glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, boundTex_[i]->glName());
+            glBindTexture(boundTexTarget_[i], boundTexName_[i]);
+            applyStageSampler(i, boundTexTarget_[i]);
         }
     }
 }

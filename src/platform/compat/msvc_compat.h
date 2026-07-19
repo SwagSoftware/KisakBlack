@@ -47,6 +47,18 @@ extern "C" int strncasecmp(const char *, const char *, size_t) noexcept;
 #define _strnicmp  strncasecmp
 #define _strdup    strdup
 #endif
+// Wide secure printf variants -> the C wide-char equivalents (CubeMapGen/ErrorMsg).
+#include <cwchar>
+#include <cstdarg>
+extern "C" { void exit(int) noexcept; void *realloc(void *, size_t) noexcept; }  // declared directly (not <cstdlib>: random() clash)
+static inline void *_aligned_realloc(void *p, size_t size, size_t /*align*/) { return realloc(p, size); }
+static inline int _vsnwprintf_s(wchar_t *buf, size_t bufsize, size_t /*count*/, const wchar_t *fmt, va_list args) {
+    return bufsize ? vswprintf(buf, bufsize, fmt, args) : 0;
+}
+static inline int _vscwprintf(const wchar_t *fmt, va_list args) { wchar_t tmp[2048]; return vswprintf(tmp, 2048, fmt, args); }
+static inline int _snwprintf_s(wchar_t *buf, size_t bufsize, size_t /*count*/, const wchar_t *fmt, ...) {
+    if (!bufsize) return 0; va_list a; va_start(a, fmt); int r = vswprintf(buf, bufsize, fmt, a); va_end(a); return r;
+}
 #ifndef sprintf_s
 #define sprintf_s(buf, size, ...) snprintf((buf), (size), __VA_ARGS__)
 #endif

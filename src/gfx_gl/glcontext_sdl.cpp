@@ -31,6 +31,9 @@ public:
         win_ = SDL_CreateWindow("KisakBlack", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                 desc.width, desc.height, flags);
         if (!win_) { fprintf(stderr, "[gl] SDL_CreateWindow: %s\n", SDL_GetError()); return false; }
+        // Request raise + keyboard focus so menu/game input (which needs X input
+        // focus, unlike the polled mouse position) reaches the window.
+        if (desc.visible) SDL_RaiseWindow(win_);
 
         ctx_ = SDL_GL_CreateContext(win_);
         if (!ctx_) { fprintf(stderr, "[gl] SDL_GL_CreateContext: %s\n", SDL_GetError()); return false; }

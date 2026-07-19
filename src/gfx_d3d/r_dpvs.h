@@ -132,15 +132,11 @@ struct DpvsGlob // sizeof=0xC320
     unsigned int cellForceInvisibleBits[32];
                                         // XREF: R_AddWorldSurfacesPortalWalk+255/o
                                         // R_AddWorldSurfacesPortalWalk+269/o ...
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    float occluderPlanes[320][4];       // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+657/o
+    // The original reserved 8 padding bytes here to 16-byte-align occluderPlanes
+    // (the SSE occluder-cull path asserts (plane & 0xf) == 0 in TestOccludersPartial).
+    // alignas(16) reproduces that: it pads this member to a 16-aligned offset AND
+    // raises DpvsGlob's alignment to 16 so the `dpvsGlob` global itself is 16-aligned.
+    alignas(16) float occluderPlanes[320][4];  // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+657/o
                                         // R_AddCellStaticSurfacesInFrustum+161/o ...
     int numOccluders;                   // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+44A/w
                                         // R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+661/w ...

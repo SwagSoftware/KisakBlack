@@ -1589,6 +1589,12 @@ void __cdecl Com_Init(char *commandLine)
             Com_LoadUiFastFile();
         //BLOPS_NULLSUB();
         Com_LoadFrontEnd();
+        // The intro-movie/logo startup sequence is stubbed (COM_PlayIntroMovies is a
+        // no-op and Bink is disabled), so the logo-skip path that normally opens the
+        // main menu via CL_StopLogoOrCinematic never runs. Open the startup menu
+        // directly now that the UI is up, mirroring Com_StartHunkUsers()'s recovery path.
+        if ( !IsDedicatedServer() && cls.uiStarted )
+            UI_SetActiveMenu(Com_LocalClients_GetPrimary(), (uiMenuCommand_t)UI_GetMenuScreen());
     }
 
     if (IsDedicatedServer())
