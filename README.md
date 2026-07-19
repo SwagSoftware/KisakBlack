@@ -8,23 +8,30 @@ Aimed towards mod developers and BLOPS enthusiasts.
 ### Development Blog
 Learn about the Development of KisakBlack here: [https://lwss.github.io/Kisak-Black/](https://lwss.github.io/Kisak-Black/)
 
-## Current Requirements
-- Windows OS
-- Visual Studio 2022
-- CMake >= 3.16
-- [DirectX SDK 2010](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
-- Steam with a copy of [Call of Duty: Black Ops](https://store.steampowered.com/app/42700/Call_of_Duty_Black_Ops/)
+## Building
 
+Both native targets require a Steam copy of [Call of Duty: Black Ops](https://store.steampowered.com/app/42700/Call_of_Duty_Black_Ops/) and its game data.
 
-## How to build
-1) Install the above requirements and Clone repo
-2) create a `/build` folder
-3) `CMAKE .. -G"Visual Studio 17 2022" -DCMAKE_GENERATOR_PLATFORM=WIN32`
-4) Open the generated .sln file
-5) Build Debug or Release (Visual Studio dropdown)
-6) Copy BLOPS Game files to `build/(BUILD_TYPE)/*` (Don't try to cherry-pick them, small files like localization.txt are needed)
-8) Copy `binkw32.dll`, `steam.dll`, `steam_api.dll`, `steamclient.dll`, `tier0_s.dll`, `vpx.dll`, `vstdlib_s.dll` into the folder as well (You can find these in-tree in the respective folders)
-11) Run the game via Visual Studio play button or just the .exe
+### Windows x86
+
+Install Visual Studio 2022, CMake 3.16+, and the [DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812), then run:
+
+```sh
+cmake -S . -B build -G "Visual Studio 17 2022" -A Win32
+cmake --build build --config Release
+```
+
+Copy the game data and required runtime DLLs beside the executable before launching it.
+
+### Linux x86 / OpenGL
+
+Install CMake and the 32-bit GCC, SDL2, GLEW, Mesa GL/GLU, OpenAL, Speex, and VPX development packages, then run:
+
+```sh
+./build_linux.sh
+```
+
+The executable is written to `build_linux/blackops`.
 
 
 ```

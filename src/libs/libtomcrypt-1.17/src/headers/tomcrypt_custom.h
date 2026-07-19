@@ -1,6 +1,12 @@
 #ifndef TOMCRYPT_CUSTOM_H_
 #define TOMCRYPT_CUSTOM_H_
 
+#ifdef __cplusplus
+// tomcrypt.h includes the C runtime headers before this file. Avoid redeclaring
+// those functions without their C++ exception specifications on modern GCC.
+#define LTC_NO_PROTOTYPES
+#endif
+
 #undef MPI           // (LWSS MOD) prevents libtommath symbols from being required
 
 /* macros for various libc functions you can change for embedded targets */

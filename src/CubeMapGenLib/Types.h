@@ -5,8 +5,10 @@
 // (C) 2004-2005 ATI Research, Inc., All rights reserved.
 //========================================================================================================================================================
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef KISAK_CUBEMAPGEN_TYPES_H
+#define KISAK_CUBEMAPGEN_TYPES_H
+
+#include <stdlib.h>
 
 static char sgCopyrightString[] = "\r\n\r\n(C) 2004 ATI Research, Inc.\r\n\r\n";
 
@@ -47,4 +49,4 @@ static char sgCopyrightString[] = "\r\n\r\n(C) 2004 ATI Research, Inc.\r\n\r\n";
    typedef const char cstr;
    
 
-#endif
+#endif // KISAK_CUBEMAPGEN_TYPES_H

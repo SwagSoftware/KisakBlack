@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 #include <tl/tl_system.h>
 
 #include <Windows.h>

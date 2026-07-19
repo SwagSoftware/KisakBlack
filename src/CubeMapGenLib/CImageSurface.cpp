@@ -7,6 +7,7 @@
 //--------------------------------------------------------------------------------------
 
 #include "CImageSurface.h"
+#include <cstdlib>
 
 
 
@@ -229,7 +230,7 @@ void CImageSurface::FatalError(WCHAR *a_Msg)
    //MessageBoxW(NULL, a_Msg, L"Error: Application Terminating", MB_OK);
 
    OutputMessageString((wchar_t *)L"CImageSurface Error: Application Terminating", a_Msg);
-   exit(EM_FATAL_ERROR);
+   std::exit(EM_FATAL_ERROR);
 
 }
 

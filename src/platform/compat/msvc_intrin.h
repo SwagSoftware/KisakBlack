@@ -41,6 +41,7 @@ static inline unsigned char _BitScanReverse(T *Index, unsigned long Mask) {
 // _mm_prefetch(addr, hint): SSE prefetch. GCC's <xmmintrin.h> version takes an
 // enum _mm_hint (no implicit int->enum in C++), but the decompiled code passes a
 // bare int. Map straight to __builtin_prefetch (the locality arg is advisory).
+#include <xmmintrin.h>
 #ifndef _mm_prefetch
 #define _mm_prefetch(addr, hint) __builtin_prefetch((const void *)(addr))
 #endif

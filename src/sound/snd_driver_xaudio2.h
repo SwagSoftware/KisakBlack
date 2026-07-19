@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef _WIN32
+#include <Windows.h>
+#include <mmreg.h>
+#endif
 #include <XAPOBase.h>
 #include <XAudio2.h>
 #include <gfx_d3d/r_font.h>

@@ -26,17 +26,17 @@ CBBoxInt32::CBBoxInt32(void)
 //--------------------------------------------------------------------------------------
 // Text to see if CBBoxInt32 is empty or not
 //--------------------------------------------------------------------------------------
-bool8 CBBoxInt32::Empty(void)
+char CBBoxInt32::Empty(void)
 {
    if( (m_minCoord[0] > m_maxCoord[0]) ||
        (m_minCoord[1] > m_maxCoord[1]) ||
        (m_minCoord[2] > m_maxCoord[2]) )
    {
-      return TRUE;
+      return 1;
    }
    else
    {
-      return FALSE;    
+      return 0;
    }
 }
 

@@ -17,6 +17,7 @@ extern "C" {
 #include <mjpeg/mjpeg.h>
 #include <jpeg/jpeglib.h>
 }
+#undef boolean
 
 #include <d3d9.h>
 

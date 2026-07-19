@@ -9,6 +9,7 @@
 
 #include "Types.h"
 #include "ErrorMsg.h"
+#include <cstdlib>
 
 uint32 sg_MessageType = EM_DEFAULT_MESSAGE_MEDIUM;
 
@@ -145,7 +146,7 @@ HRESULT OutputFatalMessageOnFail(HRESULT a_hr, WCHAR *a_Message, ... )
         //va_end(args, a_Message);
 
         OutputMessageString((wchar_t *)L"Fatal Error!", msgBuffer);
-        exit(EM_FATAL_ERROR);
+        std::exit(EM_FATAL_ERROR);
     }
 
     return a_hr;

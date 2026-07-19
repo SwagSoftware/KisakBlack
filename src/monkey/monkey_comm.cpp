@@ -1,6 +1,6 @@
 #include "monkey_comm.h"
 
-#include <winsock.h>
+#include <winsock2.h>
 #include <qcommon/common.h>
 #include <universal/assertive.h>
 

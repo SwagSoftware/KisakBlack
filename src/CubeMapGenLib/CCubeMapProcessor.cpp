@@ -7,6 +7,7 @@
 // (C) 2005 ATI Research, Inc., All rights reserved.
 //--------------------------------------------------------------------------------------
 #include "CCubeMapProcessor.h"
+#include <cstdlib>
 
 #define CP_PI   3.14159265358979323846
 
@@ -198,7 +199,7 @@ int32 sg_CubeCornerList[6][4] = {
 void CPFatalError(WCHAR *a_Msg)
 {
    MessageBoxW(NULL, a_Msg, L"Error: Application Terminating", MB_OK);
-   exit(EM_FATAL_ERROR);
+   std::exit(EM_FATAL_ERROR);
 }
 
 
@@ -628,7 +629,7 @@ void CCubeMapProcessor::DetermineFilterExtents(float32 *a_CenterTapDir, int32 a_
 //--------------------------------------------------------------------------------------
 void CCubeMapProcessor::ProcessFilterExtents(float32 *a_CenterTapDir, float32 a_DotProdThresh, 
     CBBoxInt32 *a_FilterExtents, CImageSurface *a_NormCubeMap, CImageSurface *a_SrcCubeMap, 
-    CP_ITYPE *a_DstVal, uint32 a_FilterType, bool8 a_bUseSolidAngleWeighting )
+    CP_ITYPE *a_DstVal, uint32 a_FilterType, char a_bUseSolidAngleWeighting )
 {
    int32 iFaceIdx, u, v;
    int32 faceWidth;
@@ -1516,7 +1517,7 @@ void CCubeMapProcessor::GetOutputFaceData(int32 a_FaceIdx, int32 a_Level, int32 
 //
 //--------------------------------------------------------------------------------------
 void CCubeMapProcessor::FilterCubeMapMipChain(float32 a_BaseFilterAngle, float32 a_InitialMipAngle, float32 a_MipAnglePerLevelScale, 
-    int32 a_FilterType, int32 a_FixupType, int32 a_FixupWidth, bool8 a_bUseSolidAngle )
+    int32 a_FilterType, int32 a_FixupType, int32 a_FixupWidth, char a_bUseSolidAngle )
 {
    int32 i;
    float32 coneAngle;
@@ -1688,7 +1689,7 @@ void CCubeMapProcessor::PrecomputeFilterLookupTables(uint32 a_FilterType, int32 
 // defined next
 //--------------------------------------------------------------------------------------
 void CCubeMapProcessor::FilterCubeSurfaces(CImageSurface *a_SrcCubeMap, CImageSurface *a_DstCubeMap, 
-    float32 a_FilterConeAngle, int32 a_FilterType, bool8 a_bUseSolidAngle, int32 a_FaceIdxStart, 
+    float32 a_FilterConeAngle, int32 a_FilterType, char a_bUseSolidAngle, int32 a_FaceIdxStart,
     int32 a_FaceIdxEnd, int32 a_ThreadIdx)
 {
     //CImageSurface normCubeMap[6];     //
@@ -1784,7 +1785,7 @@ void CCubeMapProcessor::FilterCubeSurfaces(CImageSurface *a_SrcCubeMap, CImageSu
 //
 //--------------------------------------------------------------------------------------
 void CCubeMapProcessor::InitiateFiltering(float32 a_BaseFilterAngle, float32 a_InitialMipAngle, 
-      float32 a_MipAnglePerLevelScale, int32 a_FilterType, int32 a_FixupType, int32 a_FixupWidth, bool8 a_bUseSolidAngle )
+      float32 a_MipAnglePerLevelScale, int32 a_FilterType, int32 a_FixupType, int32 a_FixupWidth, char a_bUseSolidAngle )
 {
    SECURITY_ATTRIBUTES secAttr;
 
@@ -1964,7 +1965,7 @@ void CCubeMapProcessor::FlipOutputCubemapFaces(void)
 // test to see if filter thread is still active
 //
 //--------------------------------------------------------------------------------------
-bool8 CCubeMapProcessor::IsFilterThreadActive(uint32 a_ThreadIdx)
+char CCubeMapProcessor::IsFilterThreadActive(uint32 a_ThreadIdx)
 {
    if( (m_bThreadInitialized[a_ThreadIdx] == FALSE) ||
        (m_ThreadHandle[a_ThreadIdx] == NULL) 

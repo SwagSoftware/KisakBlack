@@ -1,5 +1,8 @@
 #include "win_main.h"
 #include "win_net.h"
+#include <Windows.h>
+#include <mmsystem.h>
+#include <shellapi.h>
 #include <game_mp/g_main_mp.h>
 #include <sound/snd_driver_xaudio2.h>
 #include "win_localize.h"

@@ -3,6 +3,9 @@
 #include <qcommon/common.h>
 #include <win32/win_localize.h>
 #include <Windows.h>
+#ifdef _WIN32
+#include <shellapi.h>
+#endif
 #include <win32/win_main.h>
 #include <steam/steamclientpublic.h>
 #include <steam/steam_api.h>

@@ -166,7 +166,7 @@ struct SThreadOptionsThread0
    int32   m_FilterType;
    int32   m_FixupType;
    int32   m_FixupWidth;
-   bool8   m_bUseSolidAngle;
+   char    m_bUseSolidAngle;
 };
 
 
@@ -180,7 +180,7 @@ struct SThreadOptionsThread1
    CImageSurface *m_DstCubeMap;
    float32        m_FilterConeAngle;
    int32          m_FilterType;
-   bool8          m_bUseSolidAngle; 
+   char           m_bUseSolidAngle;
    int32          m_FaceIdxStart; 
    int32          m_FaceIdxEnd; 
    int32          m_ThreadIdx; 
@@ -199,7 +199,7 @@ public:
 
    //information about threads actively processing the cubemap
    int32             m_NumFilterThreads;
-   bool8             m_bThreadInitialized[CP_MAX_FILTER_THREADS];
+   char              m_bThreadInitialized[CP_MAX_FILTER_THREADS];
    HANDLE            m_ThreadHandle[CP_MAX_FILTER_THREADS];
    DWORD             m_ThreadID[CP_MAX_FILTER_THREADS];
    SFilterProgress  m_ThreadProgress[CP_MAX_FILTER_THREADS];
@@ -292,7 +292,7 @@ private:
    //==========================================================================================================
    void ProcessFilterExtents(float32 *a_CenterTapDir, float32 a_DotProdThresh, CBBoxInt32 *a_FilterExtents, 
       CImageSurface *a_NormCubeMap, CImageSurface *a_SrcCubeMap, CP_ITYPE *a_DstVal, uint32 a_FilterType, 
-      bool8 a_bUseSolidAngle );
+      char a_bUseSolidAngle );
 
    //==========================================================================================================
    //void FixupCubeEdges(CImageSurface *a_CubeMap, int32 a_FixupType, int32 a_FixupWidth);
@@ -352,9 +352,9 @@ public:
    // to the class.
    //==========================================================================================================
    void FilterCubeMapMipChain(float32 a_BaseFilterAngle, float32 a_InitialMipAngle, float32 a_MipAnglePerLevelScale, 
-      int32 a_FilterType, int32 a_FixupType, int32 a_FixupWidth, bool8 a_bUseSolidAngle );
+      int32 a_FilterType, int32 a_FixupType, int32 a_FixupWidth, char a_bUseSolidAngle );
    void FilterCubeSurfaces(CImageSurface *a_SrcCubeMap, CImageSurface *a_DstCubeMap, float32 a_FilterConeAngle, 
-      int32 a_FilterType, bool8 a_bUseSolidAngle, int32 a_FaceIdxStart, int32 a_FaceIdxEnd, int32 aThreadIdx );        
+      int32 a_FilterType, char a_bUseSolidAngle, int32 a_FaceIdxStart, int32 a_FaceIdxEnd, int32 aThreadIdx );
 
 public:
    CCubeMapProcessor(void);
@@ -479,7 +479,7 @@ public:
    //                                  each texel in the filter kernel in the filtering.
    //==========================================================================================================
    void InitiateFiltering(float32 a_BaseFilterAngle, float32 a_InitialMipAngle, float32 a_MipAnglePerLevelScale, 
-      int32 a_FilterType, int32 a_FixupType, int32 a_FixupWidth, bool8 a_bUseSolidAngle );
+      int32 a_FilterType, int32 a_FixupType, int32 a_FixupWidth, char a_bUseSolidAngle );
 
    //==========================================================================================================
    // void WriteMipLevelIntoAlpha(void)
@@ -556,7 +556,7 @@ public:
    // Checks to see if either of the filtering threads is active 
    //
    //==========================================================================================================
-   bool8 IsFilterThreadActive(uint32 a_ThreadIdx);
+   char IsFilterThreadActive(uint32 a_ThreadIdx);
 
    //==========================================================================================================
    // Gets the current status of the cubemap processing threads.  The possible return values and their 

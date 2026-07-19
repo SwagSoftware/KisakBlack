@@ -8,6 +8,7 @@
 #include "bg_mantle.h"
 #include "bg_perks.h"
 #include <universal/com_math_anglevectors.h>
+#include <algorithm>
 
 double __cdecl BG_GetBobCycle(const playerState_s *ps)
 {
@@ -961,9 +962,9 @@ void __cdecl BG_ComputeAndApplyWeaponMovement_IdleAngles(weaponState_t *ws, floa
 
     const float factorSpeed = ws->frametime * 0.5f;
     if (fTargFactor > ws->fLastIdleFactor)
-        ws->fLastIdleFactor = min(ws->fLastIdleFactor + factorSpeed, fTargFactor);
+        ws->fLastIdleFactor = std::min(ws->fLastIdleFactor + factorSpeed, fTargFactor);
     else
-        ws->fLastIdleFactor = max(ws->fLastIdleFactor - factorSpeed, fTargFactor);
+        ws->fLastIdleFactor = std::max(ws->fLastIdleFactor - factorSpeed, fTargFactor);
 
     fTargScale *= ws->fLastIdleFactor;
 
@@ -1353,9 +1354,9 @@ void __cdecl BG_CalculateViewMovement_IdleAngles(viewState_t *vs, float *angles)
 
     const float factorSpeed = vs->frametime * 0.5f;
     if (fTargFactor > vs->fLastIdleFactor)
-        vs->fLastIdleFactor = min(vs->fLastIdleFactor + factorSpeed, fTargFactor);
+        vs->fLastIdleFactor = std::min(vs->fLastIdleFactor + factorSpeed, fTargFactor);
     else
-        vs->fLastIdleFactor = max(vs->fLastIdleFactor - factorSpeed, fTargFactor);
+        vs->fLastIdleFactor = std::max(vs->fLastIdleFactor - factorSpeed, fTargFactor);
 
     fTargScale *= vs->fLastIdleFactor;
     fTargScale *= ps->fWeaponPosFrac;

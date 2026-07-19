@@ -23,7 +23,7 @@ public:
     int32 m_maxCoord[3];  //lower right front corner
     
     CBBoxInt32();
-    bool8 Empty(void);
+    char Empty(void);
     void  Clear(void);
     void  Augment(int32 a_X, int32 a_Y, int32 a_Z);
     void  AugmentX(int32 a_X);

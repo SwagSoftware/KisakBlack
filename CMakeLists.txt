@@ -4,7 +4,12 @@ project(KisakBlack)
 set(BIN_NAME "KisakBlack")
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_GENERATOR_PLATFORM "WIN32")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+if (WIN32)
+if (NOT CMAKE_GENERATOR_PLATFORM)
+    set(CMAKE_GENERATOR_PLATFORM "Win32")
+endif()
 
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(TL_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/tl")
@@ -23,6 +28,8 @@ set_source_files_properties(
 # Common to both Debug and Release
 target_compile_definitions(KisakBlack PUBLIC
     WIN32
+    WIN32_LEAN_AND_MEAN
+    NOMINMAX
     _CONSOLE
     KISAK_MP
     _CRT_SECURE_NO_WARNINGS
@@ -105,3 +112,6 @@ set_target_properties(KisakBlack PROPERTIES WIN32_EXECUTABLE TRUE)
 set_target_properties(KisakBlack PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>"
 )
+else()
+    include(cmake/portable.cmake)
+endif()

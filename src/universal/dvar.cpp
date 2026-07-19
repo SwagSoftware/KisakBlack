@@ -2488,10 +2488,10 @@ const dvar_s *__cdecl _Dvar_RegisterColor(
     DvarValue dvarValue;
 
     // Clamp rgba values to [0.0, 1.0]
-    r = min(1.0f, max(0.0f, r));
-    g = min(1.0f, max(0.0f, g));
-    b = min(1.0f, max(0.0f, b));
-    a = min(1.0f, max(0.0f, a));
+    r = std::min(1.0f, std::max(0.0f, r));
+    g = std::min(1.0f, std::max(0.0f, g));
+    b = std::min(1.0f, std::max(0.0f, b));
+    a = std::min(1.0f, std::max(0.0f, a));
 
     // Convert to 0-255 range, +.5 for rounding
     dvarValue.color[0] = (int)(r * 255.0f + 0.5f);
