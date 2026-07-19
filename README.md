@@ -33,6 +33,14 @@ Install CMake and the 32-bit GCC, SDL2, GLEW, Mesa GL/GLU, OpenAL, Speex, and VP
 
 The executable is written to `build_linux/blackops`.
 
+For a more portable distributable binary, install the corresponding 32-bit static archives and run:
+
+```sh
+KISAK_STATIC_RUNTIME_DEPS=ON ./build_linux.sh
+```
+
+This statically links GLEW, Speex, VPX, `libstdc++`, and `libgcc`; SDL2, OpenAL, OpenGL, and glibc remain host-provided.
+
 
 ```
 Keep in Mind: This is a ~20 year old game with some known exploits. We will try to fix these as we become aware of them.

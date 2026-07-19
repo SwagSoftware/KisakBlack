@@ -44,14 +44,41 @@ target_compile_options(${BIN_NAME} PRIVATE
     -w
 )
 target_link_options(${BIN_NAME} PRIVATE -m32 -rdynamic)
-target_link_directories(${BIN_NAME} PRIVATE /usr/lib/i386-linux-gnu)
+
+option(KISAK_STATIC_RUNTIME_DEPS
+    "Statically link portable third-party libraries for release artifacts"
+    OFF
+)
+if (KISAK_STATIC_RUNTIME_DEPS)
+    set(KISAK_I386_LIBDIR "/usr/lib/i386-linux-gnu" CACHE PATH
+        "Directory containing the i386 static release libraries"
+    )
+    foreach(library IN ITEMS GLEW speex vpx)
+        if (NOT EXISTS "${KISAK_I386_LIBDIR}/lib${library}.a")
+            message(FATAL_ERROR
+                "KISAK_STATIC_RUNTIME_DEPS requires ${KISAK_I386_LIBDIR}/lib${library}.a"
+            )
+        endif()
+    endforeach()
+
+    target_compile_definitions(${BIN_NAME} PRIVATE GLEW_STATIC)
+    target_link_options(${BIN_NAME} PRIVATE -static-libgcc -static-libstdc++)
+    set(KISAK_GLEW_LIBRARY "${KISAK_I386_LIBDIR}/libGLEW.a")
+    set(KISAK_SPEEX_LIBRARY "${KISAK_I386_LIBDIR}/libspeex.a")
+    set(KISAK_VPX_LIBRARY "${KISAK_I386_LIBDIR}/libvpx.a")
+else()
+    set(KISAK_GLEW_LIBRARY GLEW)
+    set(KISAK_SPEEX_LIBRARY speex)
+    set(KISAK_VPX_LIBRARY vpx)
+endif()
+
 target_link_libraries(${BIN_NAME} PRIVATE
     SDL2
-    GLEW
+    ${KISAK_GLEW_LIBRARY}
     GL
     openal
-    speex
-    vpx
+    ${KISAK_SPEEX_LIBRARY}
+    ${KISAK_VPX_LIBRARY}
     pthread
     m
     dl
