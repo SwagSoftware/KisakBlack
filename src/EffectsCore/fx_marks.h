@@ -345,7 +345,6 @@ char __cdecl FX_GenerateMarkVertsForList_EntDObj(
                 unsigned int *hidePartBits,
                 const GfxLight *visibleLights,
                 int visibleLightCount);
-// local variable allocation has failed, the output may be wrong!
 void    FX_GenerateMarkVertsForMark_MatrixFromAnim(
                 const FxMark *mark,
                 const DObj *dobj,
