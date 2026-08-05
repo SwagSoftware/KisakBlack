@@ -255,6 +255,6 @@ void __cdecl CG_ShakeCamera(int localClientNum)
 
 void __cdecl CG_ClearCameraShakes(int localClientNum)
 {
-    memset((unsigned __int8 *)&s_cameraShakeSet[localClientNum], 0, 0x90u);
+    memset(&s_cameraShakeSet[localClientNum], 0, 0x90u);
 }
 

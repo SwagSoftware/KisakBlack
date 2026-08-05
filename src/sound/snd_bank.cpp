@@ -60,7 +60,7 @@ void __cdecl SND_AddBank(SndBank *bank)
         __debugbreak();
     }
     if ( !g_snd_bankCount )
-        memset((unsigned __int8 *)g_snd_banks, 0, sizeof(g_snd_banks));
+        memset(g_snd_banks, 0, sizeof(g_snd_banks));
     g_snd_banks[g_snd_bankCount++] = bank;
     SND_AssertBankIndexValid(bank);
     for ( i = 0; i < 8; ++i )

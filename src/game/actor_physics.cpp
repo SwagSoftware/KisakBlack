@@ -183,7 +183,7 @@ bool __cdecl Actor_Physics_1(actor_physics_t *pPhys)
     pPhys->iHitEntnum = 1023;
     pPhys->iNumTouch = 0;
     pPhys->bDeflected = 0;
-    memset((unsigned __int8 *)&g_apl, 0, sizeof(g_apl));
+    memset(&g_apl, 0, sizeof(g_apl));
     g_apl.iTraceMask = pPhys->iTraceMask;
     g_apl.vPrevOrigin[0] = pPhys->vOrigin[0];
     g_apl.vPrevOrigin[1] = pPhys->vOrigin[1];

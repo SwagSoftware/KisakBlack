@@ -395,7 +395,7 @@ void __cdecl HudElem_DestroyAll()
         if ( g_hudelems[i].elem.type )
             HudElem_Free(&g_hudelems[i]);
     }
-    memset((unsigned __int8 *)g_hudelems, 0, sizeof(g_hudelems));
+    memset(g_hudelems, 0, sizeof(g_hudelems));
 }
 
 void __cdecl HudElem_SetLocalizedString(game_hudelem_s *hud, int offset)
@@ -2646,7 +2646,7 @@ LABEL_27:
     {
         while ( currentCount < 31 && client->ps.hud.current[currentCount].type )
         {
-            memset((unsigned __int8 *)&client->ps.hud.current[currentCount], 0, sizeof(client->ps.hud.current[currentCount]));
+            memset(&client->ps.hud.current[currentCount], 0, sizeof(client->ps.hud.current[currentCount]));
             if ( client->ps.hud.current[currentCount].type
                 && !Assert_MyHandler(
                             "C:\\projects_pc\\cod\\codsrc\\src\\game\\g_hudelem.cpp",
@@ -2690,7 +2690,7 @@ void __cdecl HudElem_ClearClientSingle(hudelem_s *elems, int max)
 
     for ( elemCount = 0; elemCount < max && elems[elemCount].type; ++elemCount )
     {
-        memset((unsigned __int8 *)&elems[elemCount], 0, sizeof(hudelem_s));
+        memset(&elems[elemCount], 0, sizeof(hudelem_s));
         if ( elems[elemCount].type )
         {
             if ( !Assert_MyHandler(

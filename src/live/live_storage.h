@@ -225,7 +225,7 @@ struct bdStatsInfo : bdTaskResult // sizeof=0x70
         this->m_rating = 0;
         this->m_rank = 0;
         this->m_secondsSinceUpdate = 0;
-        memset((unsigned __int8 *)this->m_entityName, 0, sizeof(this->m_entityName));
+        memset(this->m_entityName, 0, sizeof(this->m_entityName));
     }
 
     inline bool deserialize(bdByteBuffer *buffer)
@@ -271,7 +271,7 @@ struct __declspec(align(8)) bdVoteRankStatsInfo : bdStatsInfo // sizeof=0xC8
         this->m_fileOwnerID = 0;
         this->m_totalVotes = 0;
         this->m_avgVoteValue = 0;
-        memset((unsigned __int8 *)this->m_fileOwnerName, 0, sizeof(this->m_fileOwnerName));
+        memset(this->m_fileOwnerName, 0, sizeof(this->m_fileOwnerName));
     }
 
     ~bdVoteRankStatsInfo() = default;

@@ -16,7 +16,7 @@ void __cdecl SV_Netchan_OutgoingSequenceIncremented(client_t *client, netchan_t 
     clientSnapshot_t *frame; // [esp+0h] [ebp-4h]
 
     frame = &client->frames[chan->outgoingSequence & 0x1F];
-    memset((unsigned __int8 *)frame, 0, sizeof(clientSnapshot_t));
+    memset(frame, 0, sizeof(clientSnapshot_t));
     frame->matchState = svs.nextSnapshotMatchStates;
     frame->first_entity = svs.nextSnapshotEntities;
     frame->first_client = svs.nextSnapshotClients;

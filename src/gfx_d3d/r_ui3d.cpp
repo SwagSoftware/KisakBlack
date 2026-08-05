@@ -309,7 +309,7 @@ void __cdecl R_UI3D_SetupTextureWindow(
 
 void __cdecl ScrPlace_SetupUI3D(ScreenPlacement *scrPlace, int viewportWidth, int viewportHeight)
 {
-    memset((unsigned __int8 *)scrPlace, 0xB0u, sizeof(ScreenPlacement));
+    memset(scrPlace, 0xB0u, sizeof(ScreenPlacement));
     scrPlace->realViewportBase[0] = 0.0f;
     scrPlace->realViewportBase[1] = 0.0f;
     scrPlace->virtualViewableMin[0] = 0.0f;

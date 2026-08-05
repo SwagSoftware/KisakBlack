@@ -947,7 +947,7 @@ void __cdecl SD_PreUpdate()
     iassert(g_sd.radverbParams.frameRate < 100000.0f);
 
     g_sd.radverbBus->SetEffectParameters(0, &g_sd.radverbParams, 100, 0);
-    memset((unsigned __int8 *)&g_sd.masterParams, 0, sizeof(g_sd.masterParams));
+    memset(&g_sd.masterParams, 0, sizeof(g_sd.masterParams));
     master = SND_GetMasterCurrent();
     g_sd.masterParams.lowE = master->lowE;
     g_sd.masterParams.lowG = master->lowG;

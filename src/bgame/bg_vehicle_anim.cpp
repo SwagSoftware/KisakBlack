@@ -31,7 +31,7 @@ void __cdecl VehAnim_Init()
     clVehAnimClients[0].animStage = 0;
     clVehAnimClients[0].animIndex = 0;
     clVehAnimClients[0].tagName = 0;
-    memset((unsigned __int8 *)svVehAnimClients, 0, sizeof(svVehAnimClients));
+    memset(svVehAnimClients, 0, sizeof(svVehAnimClients));
 }
 
 void __cdecl VehAnim_UpdatePosRot(

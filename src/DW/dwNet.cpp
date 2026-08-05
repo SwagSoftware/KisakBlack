@@ -1117,7 +1117,7 @@ bool __cdecl dwAddrIndexToAddrString(int addrHandleIndex, char *const str, unsig
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)str, 0, size);
+    memset(str, 0, size);
     if ( addrHandleIndex == dwGetLoopbackIndex() )
     {
         bdSnprintf(str, size, "loopback");

@@ -24,7 +24,7 @@ void __cdecl R_InitCmdBufSourceState(GfxCmdBufSourceState *source, const GfxCmdB
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)source, 0, sizeof(GfxCmdBufSourceState));
+    memset(source, 0, sizeof(GfxCmdBufSourceState));
     memcpy(&source->input, input, sizeof(source->input));
     for (constant = 0; constant < 0xC5; ++constant)
     {
@@ -370,7 +370,7 @@ void    R_CmdBufSet2D(GfxCmdBufSourceState *source, GfxViewport *viewport)
     v7 = 1.0 / (double)viewport->width;
     transform_60 = 1.0 / (double)viewport->height;
     transform_56 = &source->viewParms;
-    memset((unsigned __int8 *)&identity_52, 0, sizeof(identity_52));
+    memset(&identity_52, 0, sizeof(identity_52));
     identity_52.m[0][0] = v7 * 2.0;
     identity_52.m[1][1] = transform_60 * -2.0;
     identity_52.m[3][0] = -1.0 - v7;

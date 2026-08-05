@@ -636,7 +636,7 @@ void __cdecl SND_LosOcclusionInit()
     LONG Target; // [esp+0h] [ebp-8h] BYREF
     unsigned int i; // [esp+4h] [ebp-4h]
 
-    memset((unsigned __int8 *)g_snd.occlusionTraces, 0, sizeof(g_snd.occlusionTraces));
+    memset(g_snd.occlusionTraces, 0, sizeof(g_snd.occlusionTraces));
     for (i = 0; i < 0x4A; ++i)
         g_snd.occlusionTraces[i].id = -1;
     g_snd.occlusionRunning = 1;

@@ -755,7 +755,7 @@ void __cdecl CL_WriteUncompressedDemoInfo(int localClientNum)
     svsHeader.mapCenter[1] = cls.mapCenter[1];
     svsHeader.mapCenter[2] = cls.mapCenter[2];
     memset(&snapInfo, 0, sizeof(snapInfo));
-    memset((unsigned __int8 *)&nullstate, 0, sizeof(nullstate));
+    memset(&nullstate, 0, sizeof(nullstate));
     for ( i = 0; i < 1024; ++i )
     {
         ent = &LocalClientGlobals->entityBaselines[i];
@@ -1172,8 +1172,8 @@ void __cdecl CL_MapLoading(const char *mapname)
                     CL_GetLocalClientGlobals(localClientNuma);
                     clc = CL_GetLocalClientConnection(localClientNuma);
                     clientUIActives[localClientNuma].connectionState = CA_CONNECTED;
-                    memset((unsigned __int8 *)clc->serverMessage, 0, sizeof(clc->serverMessage));
-                    memset((unsigned __int8 *)&cls.gameState, 0, sizeof(cls.gameState));
+                    memset(clc->serverMessage, 0, sizeof(clc->serverMessage));
+                    memset(&cls.gameState, 0, sizeof(cls.gameState));
                     clc->lastPacketSentTime = -9999;
                     if (!*mapname
                         && !Assert_MyHandler(
@@ -1289,7 +1289,7 @@ void __cdecl CL_ClearState(int localClientNum)
 
     LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
     if ( LocalClientGlobals )
-        memset((unsigned __int8 *)LocalClientGlobals, 0, sizeof(clientActive_t));
+        memset(LocalClientGlobals, 0, sizeof(clientActive_t));
     Com_ClientDObjClearAllSkel();
 }
 
@@ -1418,7 +1418,7 @@ void __cdecl CL_Disconnect(unsigned int localClientNum, bool deactivateClient)
         CL_ClearState(localClientNum);
         CL_ClearMutedList();
         if ( connstate >= CA_CONNECTED )
-            memset((unsigned __int8 *)clc, 0, sizeof(clientConnection_t));
+            memset(clc, 0, sizeof(clientConnection_t));
         clientUIActives[localClientNum].connectionState = CA_DISCONNECTED;
         if ( !cls.wwwDlDisconnected )
             CL_ClearStaticDownload();
@@ -2070,12 +2070,12 @@ void __cdecl CL_CheckForResend(int localClientNum)
 #ifdef KISAK_LIVE_SERVICE
                 if ( live_service && live_service->current.enabled )
                 {
-                    memset((unsigned __int8 *)temp64buff, 0, sizeof(temp64buff));
+                    memset(temp64buff, 0, sizeof(temp64buff));
                     dwGetOnlineUserID(0, &ourUserID);
                     Com_DPrintf(14, "CHALLENGERESPONSE: Sending bdOnlineUserID %llu to server\n", ourUserID);
                     XUIDToString(&ourUserID, temp64buff);
                     Info_SetValueForKey(info, "bdOnlineUserID", temp64buff);
-                    memset((unsigned __int8 *)temp64buff, 0, sizeof(temp64buff));
+                    memset(temp64buff, 0, sizeof(temp64buff));
                     if ( !clc->nonce )
                     {
                         Instance = bdSingleton<bdTrulyRandomImpl>::getInstance();
@@ -2133,7 +2133,7 @@ void __cdecl CL_BuildMd5StrFromCDKey(char *md5Str)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)nums, 0, sizeof(nums));
+    memset(nums, 0, sizeof(nums));
     j = 0;
     l = strlen(cl_cdkey);
     if ( l > 32 )
@@ -2548,7 +2548,7 @@ char    CL_DispatchConnectionlessPacket(int localClientNum, netadr_t from, msg_t
                                 v11 = Com_LocalClient_GetControllerIndex(localClientNum);
                                 LiveStats_MakeStableGlobalStatsBuffer(v11);
                             }
-                            memset((unsigned __int8 *)clc->statPacketSendTime, 0, 0x8Cu);
+                            memset(clc->statPacketSendTime, 0, 0x8Cu);
                             clc->statPacketsToSend = 0x7FFFFFFFFLL;
                         }
                         clc->lastPacketTime = cls.realtime;
@@ -2699,9 +2699,9 @@ void __cdecl AllocatePerLocalClientMemory(int maxLocalClients, int maxClients, u
                                                                                             720712 * maxLocalClients,
                                                                                             4,
                                                                                             "clientConnections");
-    memset((unsigned __int8 *)clients, 0, 1728768 * maxLocalClients);
-    memset((unsigned __int8 *)clientConnections, 0, 720712 * maxLocalClients);
-    memset((unsigned __int8 *)&cls.gameState, 0, sizeof(cls.gameState));
+    memset(clients, 0, 1728768 * maxLocalClients);
+    memset(clientConnections, 0, 720712 * maxLocalClients);
+    memset(&cls.gameState, 0, sizeof(cls.gameState));
     cls.serverId = 0;
     if ( (flags & 1) == 0 )
         SV_AllocateClientMemory(perLocalClientMemHunk, maxLocalClients, maxClients);
@@ -3321,7 +3321,7 @@ void __cdecl CL_ParseBadPacket_f()
     fileSize = FS_ReadFile("badpacket.dat", (void **)&file);
     if ( fileSize >= 0 )
     {
-        memset((unsigned __int8 *)&msg, 0, sizeof(msg));
+        memset(&msg, 0, sizeof(msg));
         msg.cursize = fileSize;
         msg.data = (unsigned __int8 *)file;
         MSG_ReadLong(&msg);
@@ -4769,7 +4769,7 @@ char *__cdecl CL_GetServerIPAddress()
     }
     else
     {
-        memset((unsigned __int8 *)szServerIPAddress, 0, sizeof(szServerIPAddress));
+        memset(szServerIPAddress, 0, sizeof(szServerIPAddress));
     }
     return szServerIPAddress;
 }

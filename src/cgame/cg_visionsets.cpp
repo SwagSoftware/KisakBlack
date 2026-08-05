@@ -922,7 +922,7 @@ void __cdecl CG_VisionSetMyChanges()
             cgameGlob = CG_GetLocalClientGlobals(localClientNum);
             for ( visSetIdx = 0; visSetIdx < 8; ++visSetIdx )
                 cgameGlob->visionSetPreLoadedName[visSetIdx][0] = 0;
-            memset((unsigned __int8 *)cgameGlob->visionSetPreLoaded, 0, sizeof(cgameGlob->visionSetPreLoaded));
+            memset(cgameGlob->visionSetPreLoaded, 0, sizeof(cgameGlob->visionSetPreLoaded));
             if ( cgameGlob->visionNameNaked[0] )
                 CG_VisionSetStartLerp_To(
                     localClientNum,

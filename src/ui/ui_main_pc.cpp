@@ -406,7 +406,7 @@ int __cdecl UI_GetServerStatusInfo(char *serverAddress, serverStatusInfo_s *info
     mapname = 0;
     if ( info )
     {
-        memset((unsigned __int8 *)info, 0, sizeof(serverStatusInfo_s));
+        memset(info, 0, sizeof(serverStatusInfo_s));
         if ( LAN_GetServerStatus(serverAddress, info->text, 1024) )
         {
             Dvar_SetBool((dvar_s *)ui_browserShowInfo, 1);
@@ -556,7 +556,7 @@ int __cdecl UI_GetServerStatusInfoScoreBoard(char *serverAddress, serverStatusIn
 
     if ( info )
     {
-        memset((unsigned __int8 *)info, 0, sizeof(serverStatusInfo_s));
+        memset(info, 0, sizeof(serverStatusInfo_s));
         if ( LAN_GetServerStatusScoreBoard(serverAddress, info->text, 1024) )
         {
             I_strncpyz(info->address, serverAddress, 64);

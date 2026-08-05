@@ -52,7 +52,7 @@ void __cdecl DynEnt_ClearCollWorld(DynEntityCollType collType)
     if ( cm.isInUse )
     {
         world = DynEnt_GetCollWorld(collType);
-        memset((unsigned __int8 *)world, 0, sizeof(DynEntityCollWorld));
+        memset(world, 0, sizeof(DynEntityCollWorld));
         CM_ModelBounds(0, world->mins, world->maxs);
         world->freeHead = 2;
         for ( sectorIndex = 2; sectorIndex < 0x3FFu; ++sectorIndex )

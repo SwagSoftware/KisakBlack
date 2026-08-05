@@ -220,7 +220,7 @@ char __cdecl FX_ParseAssetArray_FxElemVisuals_32_(
 
 void __cdecl FX_UnregisterAll()
 {
-    memset((unsigned __int8 *)&fx_load, 0, sizeof(fx_load));
+    memset(&fx_load, 0, sizeof(fx_load));
 }
 
 unsigned __int8 *__cdecl FX_AllocMem(unsigned int size)
@@ -1156,7 +1156,7 @@ bool __cdecl FX_ParseEditorElem(int version, const char **parse, FxEditorElemDef
 {
     parseInfo_t *token; // [esp+4h] [ebp-4h]
 
-    memset((unsigned __int8 *)edElemDef, 0, sizeof(FxEditorElemDef));
+    memset(edElemDef, 0, sizeof(FxEditorElemDef));
     if ( edElemDef->flags
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_load_obj.cpp",

@@ -603,7 +603,7 @@ void IK_Layer_TerrainMapping(IKState *ikState)
         ikState->bHasActiveLayers = 1;
         if (ikState->cacheActive)
         {
-            memset((unsigned __int8 *)ikState->matArrayCache, 0, 0x5C0u);
+            memset(ikState->matArrayCache, 0, 0x5C0u);
             ikState->cacheActive = 0;
         }
         ikState->modifiedIKBones |= 2u;
@@ -1714,7 +1714,7 @@ void IK_Layer_PlayerPitch(IKState *ikState, bool preControllers)
         ikState->bHasActiveLayers = 1;
         if (ikState->cacheActive)
         {
-            memset((unsigned __int8 *)ikState->matArrayCache, 0, 0x5C0u);
+            memset(ikState->matArrayCache, 0, 0x5C0u);
             ikState->cacheActive = 0;
         }
         ikState->modifiedIKBones |= 2u;

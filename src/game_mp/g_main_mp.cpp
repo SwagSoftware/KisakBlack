@@ -705,7 +705,7 @@ void __cdecl    G_InitGame(int levelTime, int randomSeed, int restart, int regis
     Swap_Init();
     EntHandle::Init();
     SentientHandle::Init();
-    memset((unsigned __int8 *)&level, 0, sizeof(level));
+    memset(&level, 0, sizeof(level));
     level.initializing = 1;
     level.currentEntityThink = -1;
     level.scriptPrintChannel = 25;

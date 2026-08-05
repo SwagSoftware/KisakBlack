@@ -137,7 +137,7 @@ dsound_sample_t *__cdecl DSOUNDRecord_NewSample()
         __debugbreak();
     }
     pRecSample = s_recordingSamplePtr++;
-    memset((unsigned __int8 *)pRecSample, 0, sizeof(dsound_sample_t));
+    memset(pRecSample, 0, sizeof(dsound_sample_t));
     pRecSample->frequency = g_sound_recordFrequency;
     pRecSample->volume = g_sound_recordVolume;
     pRecSample->pan = 128;

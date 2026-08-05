@@ -637,7 +637,7 @@ bool __cdecl DObjSkelExists(const DObj *obj, int timeStamp)
 {
     if ( obj->skel.timeStamp == timeStamp )
         return obj->skel.mat != 0;
-    memset((unsigned __int8 *)&obj->skel, 0, sizeof(obj->skel));
+    memset((void *)&obj->skel, 0, sizeof(obj->skel));
     return 0;
 }
 
@@ -648,7 +648,7 @@ void __cdecl DObjClearSkel(const DObj *obj)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)&obj->skel, 0, 0x3Cu);
+    memset((void *)&obj->skel, 0, 0x3Cu);
 }
 
 int __cdecl DObjSkelAreBonesUpToDate(const DObj *obj, int *partBits)

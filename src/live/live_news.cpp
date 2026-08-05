@@ -698,7 +698,7 @@ void __cdecl formatStringWithCommas(char *outputString, int stringLength, unsign
         }
         if ( stringLength )
         {
-            memset((unsigned __int8 *)outputString, 0, stringLength);
+            memset(outputString, 0, stringLength);
             Com_sprintf(intermediateString, 0x400u, "%llu", value);
             intermediateStringLength = &intermediateString[strlen(intermediateString) + 1] - &intermediateString[1];
             if ( intermediateStringLength > stringLength

@@ -281,7 +281,7 @@ void __cdecl SP_spawn_node(SpawnVar *spawnVar, nodeType type)
     if ( gameWorldCurrent->path.nodeCount < 0x1F80 )
     {
         loadNode = &gameWorldCurrent->path.nodes[gameWorldCurrent->path.nodeCount];
-        memset((unsigned __int8 *)loadNode, 0, sizeof(pathnode_t));
+        memset(loadNode, 0, sizeof(pathnode_t));
         if ( gameWorldCurrent->path.nodeCount != LOWORD(gameWorldCurrent->path.nodeCount)
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\game\\pathnode_load_obj.cpp",
@@ -1198,7 +1198,7 @@ pathlink_s *__cdecl G_GetNextAvailableTempLinks()
         __debugbreak();
     }
     links = &g_tempPathNodeLinks[16 * g_tempPathNodeLinksCount];
-    memset((unsigned __int8 *)links, 0, 0xC0u);
+    memset(links, 0, 0xC0u);
     ++g_tempPathNodeLinksCount;
     return links;
 }

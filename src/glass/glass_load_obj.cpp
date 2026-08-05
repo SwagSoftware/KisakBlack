@@ -11,7 +11,7 @@ Glasses *__cdecl GetGlasses_LoadObj()
     if ( !glassesInited )
     {
         glassesInited = 1;
-        memset((unsigned __int8 *)&glasses, 0, sizeof(glasses));
+        memset(&glasses, 0, sizeof(glasses));
         glasses.glasses = (Glass *)operator new[](0x1E460u);
         glasses.numGlasses = 0;
         glasses.name = 0;

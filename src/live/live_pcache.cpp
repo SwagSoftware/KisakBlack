@@ -60,7 +60,7 @@ void __cdecl PCache_Init()
 #ifdef KISAK_LIVE_SERVICE
     if ( live_service->current.enabled )
     {
-        memset((unsigned __int8 *)s_entries, 0, sizeof(s_entries));
+        memset(s_entries, 0, sizeof(s_entries));
         for ( index = 0; index < 2; ++index )
             memset(
                 (unsigned __int8 *)s_componentPools[index].array,
@@ -189,7 +189,7 @@ PCacheComponent *__cdecl PCache_GetOrphanComponent(int controllerIndex, unsigned
     }
     if ( s_componentPools[type].release )
         s_componentPools[type].release(bestComponent);
-    memset((unsigned __int8 *)bestComponent, 0, pool->componentSize);
+    memset(bestComponent, 0, pool->componentSize);
     bestComponent->xuid = xuid;
     bestComponent->controllerIndex = controllerIndex;
     bestComponent->touchTime = PCache_Time();

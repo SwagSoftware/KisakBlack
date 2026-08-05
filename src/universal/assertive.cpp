@@ -109,7 +109,7 @@ int __cdecl Assert_DoStackTrace(char *msg, int nIgnore, int type, int *context)
     if ( g_inStackTrace )
         return 0;
     g_inStackTrace = 1;
-    memset((unsigned __int8 *)g_assertAddress, 0, sizeof(g_assertAddress));
+    memset(g_assertAddress, 0, sizeof(g_assertAddress));
     g_assertAddressCount = 0;
     if ( context )
         reg_ebp = context;

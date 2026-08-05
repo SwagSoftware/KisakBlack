@@ -595,7 +595,7 @@ void __cdecl WeaponComponentListAddAllPoints(WeaponComponentList *componentList)
     int compIdx; // [esp+Ch] [ebp-148h]
     WeaponComponentList tempList; // [esp+14h] [ebp-140h] BYREF
 
-    memset((unsigned __int8 *)&tempList, 0, sizeof(tempList));
+    memset(&tempList, 0, sizeof(tempList));
     memcpy(
         &tempList.components[tempList.numComponents++],
         componentList->components,
@@ -5445,7 +5445,7 @@ void __cdecl PlayerCmd_SetClientDvar(scr_entref_t entref)
     if ( Dvar_IsValidName(pszDvar) )
     {
         pCh = szOutString;
-        memset((unsigned __int8 *)szOutString, 0, sizeof(szOutString));
+        memset(szOutString, 0, sizeof(szOutString));
         for ( i = 0; i < 1023 && pszText[i]; ++i )
         {
             v4 = I_CleanChar(pszText[i]);

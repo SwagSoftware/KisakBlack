@@ -895,7 +895,7 @@ cmd_function_s UI_GV_ResetFeeder_f_VAR;
 
 void __cdecl UI_InitGametypeVariants()
 {
-    memset((unsigned __int8 *)&gvGlob, 0, sizeof(gvGlob));
+    memset(&gvGlob, 0, sizeof(gvGlob));
     gvEventCount = 10;
     gvActionCount = 25;
     gvTargetCount = 19;

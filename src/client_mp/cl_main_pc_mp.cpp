@@ -157,7 +157,7 @@ void __cdecl CL_SetServerInfo(serverInfo_t *server, char *info, __int16 ping)
             server->basictraining = atoi(v20) > 0;
             v21 = Info_ValueForKey(info, "customclass");
             server->customclassmode = atoi(v21) > 0;
-            memset((unsigned __int8 *)server->city, 0, sizeof(server->city));
+            memset(server->city, 0, sizeof(server->city));
             v22 = Info_ValueForKey(info, "geolocation");
             longname = CL_LongNameForShortName(v22);
             if ( longname )

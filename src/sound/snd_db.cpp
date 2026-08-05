@@ -428,16 +428,16 @@ void __cdecl SND_ParseInit(
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)GROUPS, 0, sizeof(GROUPS));
+    memset(GROUPS, 0, sizeof(GROUPS));
     for ( j = 0; j < groupCount; ++j )
         GROUPS[j] = groups[j].name;
-    memset((unsigned __int8 *)PANS, 0, sizeof(PANS));
+    memset(PANS, 0, sizeof(PANS));
     for ( k = 0; k < panCount; ++k )
         PANS[k] = pans[k].name;
-    memset((unsigned __int8 *)CURVES, 0, sizeof(CURVES));
+    memset(CURVES, 0, sizeof(CURVES));
     for ( m = 0; m < curveCount; ++m )
         CURVES[m] = curves[m].name;
-    memset((unsigned __int8 *)&SND_SNAPSHOT_FIELDS[9], 0, 0x800u);
+    memset(&SND_SNAPSHOT_FIELDS[9], 0, 0x800u);
     for ( i = 0; i < snapshotGroupCount; ++i )
     {
         if ( &snapshotGroups[i] && snapshotGroups[i].name[0] )
@@ -456,7 +456,7 @@ void __cdecl SND_ParseInit(
             SND_SNAPSHOT_FIELDS[i + 9].name = 0;
         }
     }
-    memset((unsigned __int8 *)SNAPSHOT_GROUPS, 0, sizeof(SNAPSHOT_GROUPS));
+    memset(SNAPSHOT_GROUPS, 0, sizeof(SNAPSHOT_GROUPS));
     for ( n = 0; n < snapshotGroupCount; ++n )
         SNAPSHOT_GROUPS[n] = snapshotGroups[n].name;
 }

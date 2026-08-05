@@ -345,7 +345,7 @@ void __cdecl R_ShutdownImages()
                 Image_Free(imageGlobals.imageHashTable[i]);
         }
     }
-    memset((unsigned __int8 *)&imageGlobals, 0, 0x2000u);
+    memset(&imageGlobals, 0, 0x2000u);
     for ( j = 0; j < v2; ++j )
     {
         imagea = (GfxImage *)v4[j];

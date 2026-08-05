@@ -572,7 +572,7 @@ void __cdecl G_CreatePhysicsObject(gentity_s *ent)
     velocity[1] = ent->s.lerp.apos.trDelta[1];
     velocity[2] = ent->s.lerp.apos.trDelta[2];
     AnglesToQuat(ent->s.lerp.apos.trBase, quat);
-    memset((unsigned __int8 *)&defaultPreset, 0, sizeof(defaultPreset));
+    memset(&defaultPreset, 0, sizeof(defaultPreset));
     if ( ent->classname == scr_const.script_brushmodel )
     {
         brushModel = ent->s.index.brushmodel;

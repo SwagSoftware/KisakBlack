@@ -14,7 +14,7 @@ void __cdecl CG_PerfInit()
 {
     if ( !cg_perfInfo.initialized )
     {
-        memset((unsigned __int8 *)&cg_perfInfo, 0, sizeof(cg_perfInfo));
+        memset(&cg_perfInfo, 0, sizeof(cg_perfInfo));
         cg_perfInfo.frame.count = 32;
         cg_perfInfo.script.count = 10;
         cg_perfInfo.cscript.count = 10;

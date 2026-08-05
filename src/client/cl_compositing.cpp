@@ -68,7 +68,7 @@ int __cdecl CL_CompositePushEmblem(CompositeEmblemLayer *layers, int layerCount)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)job, 0, sizeof(CompositeJob));
+    memset(job, 0, sizeof(CompositeJob));
     job->type = COMPOSITE_EMBLEM;
     job->state = COMPOSITE_STATE_PRE;
     memcpy((unsigned __int8 *)job->layers, (unsigned __int8 *)layers, 32 * layerCount);

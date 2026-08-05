@@ -3036,7 +3036,7 @@ int __fastcall Path_TrimToSeePoint(
 
 void __fastcall Path_Begin(path_t *pPath)
 {
-    memset((unsigned __int8 *)pPath, 0, sizeof(path_t));
+    memset(pPath, 0, sizeof(path_t));
     pPath->fLookaheadAmount = 21845.334f;
     pPath->wDodgeEntity = 1023;
 }

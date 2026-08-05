@@ -2801,7 +2801,7 @@ void __cdecl R_GenerateShadowMapCasterCells()
         __debugbreak();
     }
     cellCasterBitsCount = (rgp.world->dpvsPlanes.cellCount + 31) >> 5;
-    memset((unsigned __int8 *)rgp.world->cellCasterBits, 0, 4 * cellCasterBitsCount * rgp.world->dpvsPlanes.cellCount);
+    memset(rgp.world->cellCasterBits, 0, 4 * cellCasterBitsCount * rgp.world->dpvsPlanes.cellCount);
     if ( rgp.world->sunPrimaryLightIndex )
     {
         if ( (float)((float)((float)(rgp.world->sunLight->dir[0] * rgp.world->sunLight->dir[0])
@@ -3649,7 +3649,7 @@ void __cdecl R_AddWorldSurfacesFrustumOnly(unsigned int viewIndex)
     if (sm_strictCull->current.enabled)
     {
         cellBitsCount = (cellCount + 31) >> 5;
-        memset((unsigned __int8 *)cellDrawBits, 0, 4 * cellBitsCount);
+        memset(cellDrawBits, 0, 4 * cellBitsCount);
         for (visibleCellIndex = 0; visibleCellIndex < cellCount; ++visibleCellIndex)
         {
             if ((dpvsGlob.cellVisibleBits[visibleCellIndex >> 5] & (1 << (visibleCellIndex & 0x1F))) != 0)
@@ -3947,8 +3947,8 @@ void __cdecl R_InitSceneData(int localClientNum)
     }
     for ( cellIndex = 0; cellIndex < 2 * cellCount; ++cellIndex )
         Com_Memset(&rgp.world->dpvsPlanes.sceneEntCellBits[256 * cellIndex + offset], 0, 4 * (gfxCfg.entCount >> 5));
-    memset((unsigned __int8 *)dpvsGlob.entVisBits[localClientNum], 0, 4 * (gfxCfg.entCount >> 5));
-    memset((unsigned __int8 *)scene.dynSModelVisBitsCamera[localClientNum - 4], 0, 4 * gfxCfg.entCount);
+    memset(dpvsGlob.entVisBits[localClientNum], 0, 4 * (gfxCfg.entCount >> 5));
+    memset((void *)scene.dynSModelVisBitsCamera[localClientNum - 4], 0, 4 * gfxCfg.entCount);
 }
 
 void __cdecl DynEntCl_InitFilter()
@@ -4743,7 +4743,7 @@ void __cdecl R_AddWorldSurfacesPortalWalk(int cameraCellIndex)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)dpvsGlob.cellVisibleBits, 0, 4 * ((rgp.world->dpvsPlanes.cellCount + 31) >> 5));
+    memset(dpvsGlob.cellVisibleBits, 0, 4 * ((rgp.world->dpvsPlanes.cellCount + 31) >> 5));
     if ( !r_skipPvs->current.enabled )
     {
         dpvsView = dpvsGlob.views[scene.dpvs.localClientNum];
@@ -4798,7 +4798,7 @@ void __cdecl R_AddWorldSurfacesPortalWalk(int cameraCellIndex)
                 }
                 dpvsGlob.farPlaneEnabled = 0;
                 memcpy(v4, dpvsGlob.cellForceInvisibleBits, sizeof(v4));
-                memset((unsigned __int8 *)dpvsGlob.cellForceInvisibleBits, 0, sizeof(dpvsGlob.cellForceInvisibleBits));
+                memset(dpvsGlob.cellForceInvisibleBits, 0, sizeof(dpvsGlob.cellForceInvisibleBits));
                 for ( k = 0; k < (int)v5; ++k )
                 {
                     v1 = &rgp.world->cells[(unsigned int)v6[k]];
@@ -5913,6 +5913,6 @@ void __cdecl R_ExtraCam_RestoreDpvsData(int localClientNum, unsigned __int8 *buf
 
 void __cdecl R_PerMap_DpvsGlobInit()
 {
-    memset((unsigned __int8 *)dpvsGlob.cellForceInvisibleBits, 0, sizeof(dpvsGlob.cellForceInvisibleBits));
+    memset(dpvsGlob.cellForceInvisibleBits, 0, sizeof(dpvsGlob.cellForceInvisibleBits));
     dpvsGlob.cullDist = 0.0f;
 }

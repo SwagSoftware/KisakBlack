@@ -235,7 +235,7 @@ void __cdecl SV_BotClearScriptEnemy(const client_t *bot)
 
 void __cdecl Bot_ClearThreat(bot_info_t *botInfo)
 {
-    memset((unsigned __int8 *)&botInfo->threat, 0, sizeof(botInfo->threat));
+    memset(&botInfo->threat, 0, sizeof(botInfo->threat));
     botInfo->attackerEnt = 0;
     botInfo->flags &= ~1u;
     botInfo->flags &= ~0x40u;
@@ -528,7 +528,7 @@ void __cdecl Bot_UpdateThreat(bot_info_t *botInfo, const client_t *bot)
             //D3DPERF_EndEvent();
         return;
     }
-    memset((unsigned __int8 *)threats, 0, sizeof(threats));
+    memset(threats, 0, sizeof(threats));
     if ( sv_botsIgnoreHumans->current.enabled && botInfo->threat.enemy && Bot_IsEnemyHuman(botInfo->threat.enemy) )
         Bot_ClearThreat(botInfo);
     if ( botInfo->threat.enemy )
@@ -2944,7 +2944,7 @@ char __cdecl Bot_ShouldThrowGrenade(bot_info_t *botInfo, const client_t *bot)
 void __cdecl Bot_Clear(bot_info_t *botInfo)
 {
     //PIXBeginNamedEvent(-1, "Bot_Clear");
-    memset((unsigned __int8 *)botInfo, 0, sizeof(bot_info_t));
+    memset(botInfo, 0, sizeof(bot_info_t));
     Path_Clear(&botInfo->path);
     //if ( g_DXDeviceThread == GetCurrentThreadId() )
         //D3DPERF_EndEvent();

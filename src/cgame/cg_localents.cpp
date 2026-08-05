@@ -15,7 +15,7 @@ void __cdecl CG_InitLocalEntities(int localClientNum)
 {
     int entIter; // [esp+0h] [ebp-4h]
 
-    memset((unsigned __int8 *)cg_localEntities[localClientNum], 0, sizeof(localEntity_s[128]));
+    memset(cg_localEntities[localClientNum], 0, sizeof(localEntity_s[128]));
     cg_activeLocalEntities[localClientNum].next = &cg_activeLocalEntities[localClientNum];
     cg_activeLocalEntities[localClientNum].prev = &cg_activeLocalEntities[localClientNum];
     cg_freeLocalEntities[localClientNum] = cg_localEntities[localClientNum];
@@ -41,7 +41,7 @@ localEntity_s *__cdecl CG_AllocLocalEntity(int localClientNum)
         CG_FreeLocalEntity(localClientNum, cg_activeLocalEntities[localClientNum].prev);
     le = cg_freeLocalEntities[localClientNum];
     cg_freeLocalEntities[localClientNum] = le->next;
-    memset((unsigned __int8 *)le, 0, sizeof(localEntity_s));
+    memset(le, 0, sizeof(localEntity_s));
     le->next = cg_activeLocalEntities[localClientNum].next;
     le->prev = &cg_activeLocalEntities[localClientNum];
     cg_activeLocalEntities[localClientNum].next->prev = le;

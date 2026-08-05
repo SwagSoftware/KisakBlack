@@ -361,7 +361,7 @@ void __cdecl SpectatorThink(gentity_s *ent, usercmd_s *ucmd)
             client->ps.speed = 400;
         else
             client->ps.speed = 0;
-        memset((unsigned __int8 *)pm, 0, 0x258u);
+        memset(pm, 0, 0x258u);
         pm->localClientNum = -1;
         pm->ps = &client->ps;
         memcpy(&pm->cmd, ucmd, sizeof(pm->cmd));
@@ -1359,7 +1359,7 @@ LABEL_53:
                         v7->array[i2] &= mask_bits.array[i2];
                 }
                 oldEventSequence = client->ps.predictableEventSequence;
-                memset((unsigned __int8 *)pm, 0, 0x258u);
+                memset(pm, 0, 0x258u);
                 pm->localClientNum = -1;
                 pm->ps = &client->ps;
                 memcpy(&pm->cmd, ucmd, sizeof(pm->cmd));
@@ -1992,7 +1992,7 @@ int __cdecl GetFollowPlayerState(unsigned int clientNum, playerState_s *ps)
         memcpy((unsigned __int8 *)ps, (unsigned __int8 *)client, sizeof(playerState_s));
         for ( index = 0; index < 0x1F && ps->hud.current[index].type; ++index )
         {
-            memset((unsigned __int8 *)&ps->hud.current[index], 0, sizeof(ps->hud.current[index]));
+            memset(&ps->hud.current[index], 0, sizeof(ps->hud.current[index]));
             if ( ps->hud.current[index].type )
             {
                 if ( !Assert_MyHandler(
@@ -2022,7 +2022,7 @@ int __cdecl GetFollowPlayerState(unsigned int clientNum, playerState_s *ps)
     }
     else
     {
-        memset((unsigned __int8 *)ps, 0, sizeof(playerState_s));
+        memset(ps, 0, sizeof(playerState_s));
         return 0;
     }
 }

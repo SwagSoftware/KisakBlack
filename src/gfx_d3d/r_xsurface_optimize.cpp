@@ -84,7 +84,7 @@ void __cdecl XSurfaceOptimize(XModel *model, XSurface *surf)
     if ( indexBuffer )
     {
         Com_Memcpy(indexBuffer, surf->triIndices, rawIndexBytes);
-        memset((unsigned __int8 *)indexBuffer + rawIndexBytes, 0, indexBytes - rawIndexBytes);
+        memset((unsigned char *)indexBuffer + rawIndexBytes, 0, indexBytes - rawIndexBytes);
         R_FinishStaticIndexBuffer(surf->indexBuffer);
 LABEL_10:
         if ( (surf->flags & 0x80) == 0 )

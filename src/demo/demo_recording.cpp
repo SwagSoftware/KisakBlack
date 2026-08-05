@@ -113,7 +113,7 @@ void __cdecl Demo_StartStreaming(int controllerIndex)
     s_uploadStreamData.overflow = 0;
     s_uploadStreamUsage.changed = 0;
     s_uploadStreamUsage.highwater = 0;
-    memset((unsigned __int8 *)s_uploadStreamData.sendHistory, 0, sizeof(s_uploadStreamData.sendHistory));
+    memset(s_uploadStreamData.sendHistory, 0, sizeof(s_uploadStreamData.sendHistory));
     s_uploadStreamData.sendHistoryIndex = 0;
 }
 
@@ -762,7 +762,7 @@ void __cdecl Demo_WriteServerCommands(msg_t *msg)
 
     PROF_SCOPED("Demo Recording - Writing Server Commands");
 
-    memset((unsigned __int8 *)dst, 0, sizeof(dst));
+    memset(dst, 0, sizeof(dst));
     for ( clientNum = 0; clientNum < demo.header.maxClients; ++clientNum )
     {
         v2 = &svs.clients[clientNum];

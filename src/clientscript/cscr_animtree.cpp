@@ -964,7 +964,7 @@ void __cdecl Scr_LoadAnimTreeAtIndex(
 
                 iValueCount = Scr_GetAnimTreeValueCount(inst, gScrAnimPub[inst].animtree_node);
                 g_pCurrClientData->pTreeNameMap = (TreeNameMap *)Hunk_Alloc(84 * size, "Client AnimScript", 16);
-                memset((unsigned __int8 *)g_pCurrClientData->pTreeNameMap, 0, 84 * size);
+                memset(g_pCurrClientData->pTreeNameMap, 0, 84 * size);
                 g_pCurrClientData->numIndices = size;
                 animtree.anims = XAnimCreateAnimsWithValues(SL_ConvertToString(filenameId, inst), size, iValueCount, Alloc);
                 name = SL_GetString_(inst, "root", 0, 4);
@@ -2993,7 +2993,7 @@ void __cdecl Scr_FindAnim(
 
 void __cdecl Scr_ShutdownAnimTrees(int user)
 {
-    memset((unsigned __int8 *)gGScrXAnimTreesForClient[user], 0, sizeof(ClientTreeStorage[128]));
+    memset(gGScrXAnimTreesForClient[user], 0, sizeof(ClientTreeStorage[128]));
 }
 
 void __cdecl RemoveRefToValue(scriptInstance_t inst, VariableValue *value)

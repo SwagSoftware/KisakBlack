@@ -29,12 +29,12 @@ PlayerDetails playerDetails[1][32];
 
 void __cdecl CG_ClearOverheadFade()
 {
-    memset((unsigned __int8 *)overheadFade, 0, sizeof(overheadFade));
+    memset(overheadFade, 0, sizeof(overheadFade));
 }
 
 void __cdecl CG_ClearPlayerDetails()
 {
-    memset((unsigned __int8 *)playerDetails, 0, sizeof(playerDetails));
+    memset(playerDetails, 0, sizeof(playerDetails));
 }
 
 void __cdecl CG_InitPlayerDetails(int localClientNum, int targetClientNum)

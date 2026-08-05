@@ -142,7 +142,7 @@ void __cdecl Session_DeleteSession(SessionData_s *session)
             sessionGraveYard[FreeSessionGraveYardSlot].active = 1;
             memcpy((char *)&unk_A53DA40 + 2432 * FreeSessionGraveYardSlot, session, 0x978u);
             session->sessionHandle = 0;
-            memset((unsigned __int8 *)session->registeredUsers, 0, sizeof(session->registeredUsers));
+            memset(session->registeredUsers, 0, sizeof(session->registeredUsers));
         }
         else
         {
@@ -155,7 +155,7 @@ void __cdecl Session_DeleteSession(SessionData_s *session)
         }
     }
     //BLOPS_NULLSUB();
-    memset((unsigned __int8 *)session->registeredUsers, 0, sizeof(session->registeredUsers));
+    memset(session->registeredUsers, 0, sizeof(session->registeredUsers));
     session->flags = 0;
     session->privateSlots = 0;
     session->publicSlots = 0;
@@ -985,8 +985,8 @@ void Session_ManageGraveYard()
 
 void __cdecl Session_Init()
 {
-    memset((unsigned __int8 *)sessionJoinData, 0, sizeof(sessionJoinData));
-    memset((unsigned __int8 *)sessionCreateData, 0, sizeof(sessionCreateData));
+    memset(sessionJoinData, 0, sizeof(sessionJoinData));
+    memset(sessionCreateData, 0, sizeof(sessionCreateData));
     TaskManager_ClearOverlappedTasks(overlappedTasks_2);
     g_serverSession.sessionName = (char*)"gameSession";
     g_serverSession.registerUsersWithVoice = 1;

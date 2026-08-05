@@ -255,7 +255,7 @@ void __cdecl XModel_LoadCollMap(const char *name, void *(__cdecl *Alloc)(int), X
         {
             if ( fileSize )
             {
-                memset((unsigned __int8 *)boneHashes, 0xFFu, 0x280u);
+                memset(boneHashes, 0xFFu, 0x280u);
                 buf = (const char *)file;
                 collmapCount = Xmodel_CountPhysicsCollMaps(&buf, filename, boneHashes, 160);
                 if ( (!collmapCount || collmapCount > 0xFF)
@@ -272,7 +272,7 @@ void __cdecl XModel_LoadCollMap(const char *name, void *(__cdecl *Alloc)(int), X
                 }
                 model->numCollmaps = collmapCount;
                 model->collmaps = (Collmap *)Alloc(4 * collmapCount);
-                memset((unsigned __int8 *)model->collmaps, 0, 4 * collmapCount);
+                memset(model->collmaps, 0, 4 * collmapCount);
                 for ( boneIndex = 0; boneIndex < model->numBones; ++boneIndex )
                     model->localBoneInfo[boneIndex].collmap = -1;
                 for ( collIndex = 0; collIndex < collmapCount; ++collIndex )
@@ -626,7 +626,7 @@ PhysGeomList *__cdecl Xmodel_ParsePhysicsCollMap(
                 v8->contents = 0;
                 geomList->count = geomCount;
                 geomList->geoms = (PhysGeomInfo *)Alloc(68 * geomCount);
-                memset((unsigned __int8 *)geomList->geoms, 0, 68 * geomCount);
+                memset(geomList->geoms, 0, 68 * geomCount);
                 geomIndex = 0;
                 while ( geomIndex < geomCount )
                 {
@@ -908,8 +908,8 @@ char __cdecl Xmodel_ParsePhysicsBrush(
     }
     Com_UngetToken();
     v24 = 0;
-    memset((unsigned __int8 *)dst, 0, 0x80u);
-    memset((unsigned __int8 *)v36, 0, sizeof(v36));
+    memset(dst, 0, 0x80u);
+    memset(v36, 0, sizeof(v36));
     while (1)
     {
         str = (char *)Com_Parse((const char **)file);
@@ -1022,7 +1022,7 @@ char __cdecl Xmodel_ParsePhysicsBrush(
     if (v44)
     {
         geom->brush = (BrushWrapper *)Alloc(96);
-        memset((unsigned __int8 *)geom->brush, 0, sizeof(BrushWrapper));
+        memset(geom->brush, 0, sizeof(BrushWrapper));
         geom->type = 2;
         brush = geom->brush;
         brush->mins[0] = v29;

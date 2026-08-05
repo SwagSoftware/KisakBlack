@@ -18,7 +18,7 @@ char __cdecl G_ParseWeaponAccurayGraphs(WeaponDef *weaponDef)
 
     for ( weaponType = 0; weaponType < 2; ++weaponType )
     {
-        memset((unsigned __int8 *)accuracyGraphKnots, 0, sizeof(accuracyGraphKnots));
+        memset(accuracyGraphKnots, 0, sizeof(accuracyGraphKnots));
         accuracyGraphKnotCount = 0;
         if ( !G_ParseWeaponAccurayGraphInternal(
                         weaponDef,
@@ -100,7 +100,7 @@ char __cdecl G_ParseWeaponAccurayGraphInternal(
         {
             if ( v6 - len < 0x4000 )
             {
-                memset((unsigned __int8 *)buffer, 0, 0x4000u);
+                memset(buffer, 0, 0x4000u);
                 FS_Read((unsigned __int8 *)buffer, v6 - len, f);
                 buffer[v6 - len] = 0;
                 FS_FCloseFile(f);

@@ -133,7 +133,7 @@ void __cdecl SNDL_NotifyCinematicEnd()
 void __cdecl SNDL_DisconnectListener(int localClientNum)
 {
     bcassert(localClientNum, 1/*MAX_LOCAL_CLIENTS*/);
-    memset((unsigned __int8 *)&g_snd.listeners[localClientNum], 0, sizeof(g_snd.listeners[localClientNum]));
+    memset(&g_snd.listeners[localClientNum], 0, sizeof(g_snd.listeners[localClientNum]));
     AxisClear(g_snd.listeners[localClientNum].orient.axis);
     Vec3Clear(g_snd.listeners[localClientNum].orient.origin);
 
@@ -514,9 +514,9 @@ void __cdecl SNDL_GameReset()
     {
         SNDL_FadeIn();
         SND_ResetEntState();
-        memset((unsigned __int8 *)g_snd.loopEmitters, 0, sizeof(g_snd.loopEmitters));
-        memset((unsigned __int8 *)g_snd.lineEmitters, 0, sizeof(g_snd.lineEmitters));
-        memset((unsigned __int8 *)g_snd.currentContexts, 0, sizeof(g_snd.currentContexts));
+        memset(g_snd.loopEmitters, 0, sizeof(g_snd.loopEmitters));
+        memset(g_snd.lineEmitters, 0, sizeof(g_snd.lineEmitters));
+        memset(g_snd.currentContexts, 0, sizeof(g_snd.currentContexts));
         for (i = 0; i < SND_MAX_VOICES; ++i)
         {
             if (g_snd.voiceAliasHash[i])
@@ -551,7 +551,7 @@ void __cdecl SNDL_GameReset()
         SNDL_SetSnapshot(SND_SNAPSHOT_ADS, g_snd.defaultHash, 0.0, 1.0);
         SNDL_SetSnapshot(SND_SNAPSHOT_BREATH, g_snd.defaultHash, 0.0, 1.0);
         g_snd.scriptTimescale = 1.0f;
-        memset((unsigned __int8 *)g_snd.envEffects, 0, sizeof(g_snd.envEffects));
+        memset(g_snd.envEffects, 0, sizeof(g_snd.envEffects));
         g_snd.effect = g_snd.envEffects;
         g_snd.envEffects[0].reverbId = g_snd.defaultHash;
         g_snd.envEffects[0].drylevel = 1.0f;

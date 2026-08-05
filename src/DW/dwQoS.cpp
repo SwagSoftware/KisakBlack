@@ -147,8 +147,8 @@ void __thiscall dwQoSMultiProbeListener::clean()
         bdReference<bdCommonAddr>::operator=((bdReference<bdRemoteTask> *)&this->m_probeAddrs[i], 0);
         bdReference<bdCommonAddr>::operator=((bdReference<bdRemoteTask> *)&this->m_successes[i], 0);
     }
-    memset((unsigned __int8 *)this->m_probeAddrs, 0, sizeof(this->m_probeAddrs));
-    memset((unsigned __int8 *)this->m_successes, 0, sizeof(this->m_successes));
+    memset(this->m_probeAddrs, 0, sizeof(this->m_probeAddrs));
+    memset(this->m_successes, 0, sizeof(this->m_successes));
     memset(this->m_successIDs[0].ab, 0, 0xFA0u);
     memset(qos_data[0], 0, sizeof(qos_data));
 #endif

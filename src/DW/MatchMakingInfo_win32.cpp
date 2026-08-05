@@ -32,7 +32,7 @@ MatchMakingInfo::MatchMakingInfo() : bdMatchMakingInfo()
     //*(unsigned int *)&this->m_membersecKey[12] = 0;
     //this->m_membersecKey[16] = 0;
     memset(this->m_membersecKey, 0, sizeof(this->m_membersecKey));
-    memset((unsigned __int8 *)this->m_memberservername, 0, sizeof(this->m_memberservername));
+    memset(this->m_memberservername, 0, sizeof(this->m_memberservername));
     //*(unsigned int *)this->m_membermapname = 0;
     //*(unsigned int *)&this->m_membermapname[4] = 0;
     //*(unsigned int *)&this->m_membermapname[8] = 0;

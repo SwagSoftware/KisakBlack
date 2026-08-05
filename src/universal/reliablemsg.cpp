@@ -22,7 +22,7 @@ void __cdecl RMsg_DropAllPacketsForClient(unsigned int clientSlot)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)&s_reliableClientMessages[clientSlot], 0, sizeof(reliableClient));
+    memset(&s_reliableClientMessages[clientSlot], 0, sizeof(reliableClient));
 }
 
 int __cdecl RMsg_FindSlotForAddr(netadr_t *to)

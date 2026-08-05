@@ -605,7 +605,7 @@ DestructiblePiece *__cdecl DestructiblePieceLoadFile(const char *name, Destructi
                         {
                             __debugbreak();
                         }
-                        memset((unsigned __int8 *)destructiblePiece, 0, sizeof(DestructiblePiece));
+                        memset(destructiblePiece, 0, sizeof(DestructiblePiece));
                         if ( ParseConfigStringToStruct(
                                      (unsigned __int8 *)destructiblePiece,
                                      destructiblePieceFields,

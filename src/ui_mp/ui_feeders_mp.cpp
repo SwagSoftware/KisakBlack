@@ -2052,7 +2052,7 @@ char *__cdecl UI_FeederItemText_StatsMilestones(
     challengeInfo_t *challenge; // [esp+10Ch] [ebp-8h] BYREF
     bool isItemPurchased; // [esp+113h] [ebp-1h]
 
-    memset((unsigned __int8 *)outputString, 0, 0x100u);
+    memset(outputString, 0, 0x100u);
     if ( !LiveStats_GetChallengeInfo(&challenge, index, milestoneType) )
         return (char *)"";
     isItemPurchased = (challenge->flags & 1) == 0;
@@ -2094,7 +2094,7 @@ char *__cdecl UI_FeederItemText_GlobalChallenges(
     char outputString[1024]; // [esp+4h] [ebp-408h] BYREF
     challengeInfo_t *challenge; // [esp+408h] [ebp-4h] BYREF
 
-    memset((unsigned __int8 *)outputString, 0, sizeof(outputString));
+    memset(outputString, 0, sizeof(outputString));
     if ( !LiveStats_GetChallengeInfo(&challenge, index, 0) )
         return (char *)"";
     if ( column )

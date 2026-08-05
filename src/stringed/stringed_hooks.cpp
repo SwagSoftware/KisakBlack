@@ -468,7 +468,7 @@ char *__cdecl SEH_LocalizeTextMessage(const char *pszInputBuffer, const char *ps
     int digit; // [esp+884h] [ebp-4h]
 
     iCurrString = (iCurrString + 1) % 10;
-    memset((unsigned __int8 *)szStrings[iCurrString], 0, sizeof(char[1024]));
+    memset(szStrings[iCurrString], 0, sizeof(char[1024]));
     pszString = szStrings[iCurrString];
     iLen = 0;
     bLocOn = 1;

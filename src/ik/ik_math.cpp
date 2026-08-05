@@ -2047,7 +2047,7 @@ void    ikRotateBone(IKState *ikState, IKBoneNames boneName, float *rot, bool lo
         ikState->bHasActiveLayers = 1;
         if (ikState->cacheActive)
         {
-            memset((unsigned __int8 *)ikState->matArrayCache, 0, 0x5C0u);
+            memset(ikState->matArrayCache, 0, 0x5C0u);
             ikState->cacheActive = 0;
         }
         if (boneName != -1)

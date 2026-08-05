@@ -53,7 +53,7 @@ void __cdecl Actor_InitThreatBiasGroups()
     *(unsigned int *)&g_threatBias.groupName[10] = 0;
     *(unsigned int *)&g_threatBias.groupName[12] = 0;
     *(unsigned int *)&g_threatBias.groupName[14] = 0;
-    memset((unsigned __int8 *)g_threatBias.threatTable, 0, sizeof(g_threatBias.threatTable));
+    memset(g_threatBias.threatTable, 0, sizeof(g_threatBias.threatTable));
     g_threatBias.threatGroupCount = 1;
 }
 

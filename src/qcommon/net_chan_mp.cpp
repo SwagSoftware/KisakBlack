@@ -100,14 +100,14 @@ void __cdecl NetProf_PrepProfiling(netProfileInfo_t *prof)
             else
                 net_iProfilingOn = 2;
             Com_Printf(16, "Net Profiling turned on: %s\n", connectionString_135[net_iProfilingOn + 10]);
-            memset((unsigned __int8 *)prof, 0, sizeof(netProfileInfo_t));
+            memset(prof, 0, sizeof(netProfileInfo_t));
         }
     }
     else if ( net_iProfilingOn )
     {
         net_iProfilingOn = 0;
         Com_Printf(16, "Net Profiling turned off\n");
-        memset((unsigned __int8 *)prof, 0, sizeof(netProfileInfo_t));
+        memset(prof, 0, sizeof(netProfileInfo_t));
     }
 }
 
@@ -350,7 +350,7 @@ void __cdecl Netchan_Setup(
                 char *incomingBuffer,
                 int incomingBufferSize)
 {
-    memset((unsigned __int8 *)chan, 0, sizeof(netchan_t));
+    memset(chan, 0, sizeof(netchan_t));
     chan->sock = sock;
     chan->remoteAddress = adr;
     chan->qport = qport;
@@ -665,7 +665,7 @@ int __cdecl Netchan_Process(netchan_t *chan, msg_t *msg)
             chan->fragment_ack[fragmentIndex >> 5] |= 1 << ack_bit_index;
         if ( ack_requested )
         {
-            memset((unsigned __int8 *)&buf, 0, sizeof(buf));
+            memset(&buf, 0, sizeof(buf));
             MSG_Init(&buf, data, 2048);
             MSG_WriteLong(&buf, chan->fragmentSequence | 0xA0000000);
             if ( chan->sock < NS_SERVER )

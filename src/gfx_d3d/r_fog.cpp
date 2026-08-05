@@ -9,7 +9,7 @@ void __cdecl R_ClearFogs()
 
     for ( i = 0; i < 4; ++i )
     {
-        memset((unsigned __int8 *)&rg.clientFogs[i], 0, 0x190u);
+        memset(&rg.clientFogs[i], 0, 0x190u);
         rg.clientFogs[i].index = 0;
     }
 }

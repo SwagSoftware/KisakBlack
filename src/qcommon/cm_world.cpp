@@ -22,7 +22,7 @@ bool CM_ClearWorld()
     bool result; // eax
     unsigned int i; // [esp+Ch] [ebp-4h]
 
-    memset((unsigned __int8 *)&cm_world, 0, sizeof(cm_world));
+    memset(&cm_world, 0, sizeof(cm_world));
     CM_ModelBounds(0, cm_world.mins, cm_world.maxs);
     cm_world.freeHead = 2;
     for ( i = 2; i < 0x3FF; ++i )

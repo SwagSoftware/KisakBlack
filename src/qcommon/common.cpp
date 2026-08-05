@@ -3146,7 +3146,7 @@ void __cdecl Com_Close()
 
 void __cdecl Field_Clear(field_t *edit)
 {
-    memset((unsigned __int8 *)edit->buffer, 0, sizeof(edit->buffer));
+    memset(edit->buffer, 0, sizeof(edit->buffer));
     edit->cursor = 0;
     edit->scroll = 0;
     edit->drawWidth = 256;

@@ -2674,7 +2674,7 @@ void __cdecl G_SpawnTurret(gentity_s *self, const char *weaponinfoname, SpawnVar
     }
     if ( i == 32 )
         Com_Error(ERR_DROP, "G_SpawnTurret: max number of turrets (%d) exceeded", 32);
-    memset((unsigned __int8 *)turretInfo, 0, sizeof(TurretInfo));
+    memset(turretInfo, 0, sizeof(TurretInfo));
     self->pTurretInfo = turretInfo;
     turretInfo->inuse = 1;
     turretInfo->scanningPitch = 0.0f;

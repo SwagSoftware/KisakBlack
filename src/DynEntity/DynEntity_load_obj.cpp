@@ -1621,7 +1621,7 @@ PhysPreset *__cdecl DynEnt_AutoCreatePhysPreset(const DynEntityDef *dynEntDef, c
         }
     }
     physPreset = (PhysPreset *)Hunk_Alloc(0x54u, "DynEnt_AllocPhysPreset", 22);
-    memset((unsigned __int8 *)physPreset, 0, sizeof(PhysPreset));
+    memset(physPreset, 0, sizeof(PhysPreset));
     if ( dynEntDef->xModel )
     {
         DynEnt_Strcpy((char **)physPreset, dynEntDef->xModel->name);

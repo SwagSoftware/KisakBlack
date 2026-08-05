@@ -469,8 +469,8 @@ void __cdecl LiveCombatRecord_BuildSortedItemListByStats(
     {
         forOtherPlayer = Dvar_GetBool("ui_showFriendsCombatRecord");
         comparisonModeOn = Dvar_GetBool("ui_combatComparisonModeOn");
-        memset((unsigned __int8 *)s_sortedItemList, 0, sizeof(s_sortedItemList));
-        memset((unsigned __int8 *)s_otherPlayerSortedItemList, 0, sizeof(s_otherPlayerSortedItemList));
+        memset(s_sortedItemList, 0, sizeof(s_sortedItemList));
+        memset(s_otherPlayerSortedItemList, 0, sizeof(s_otherPlayerSortedItemList));
         if ( forOtherPlayer )
             v12 = s_otherPlayerSortedItemList;
         else

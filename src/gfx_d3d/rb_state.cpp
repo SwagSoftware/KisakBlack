@@ -16,7 +16,7 @@ GfxCmdBufContext gfxCmdBufContext=
 
 void __cdecl RB_SetInitialState()
 {
-  memset((unsigned __int8 *)&gfxCmdBufInput, 0, sizeof(gfxCmdBufInput));
+  memset(&gfxCmdBufInput, 0, sizeof(gfxCmdBufInput));
   R_InitCmdBufSourceState(&gfxCmdBufSourceState, &gfxCmdBufInput, 0);
   gfxCmdBufState.prim.device = dx.device;
 

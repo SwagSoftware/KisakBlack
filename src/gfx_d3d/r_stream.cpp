@@ -150,8 +150,8 @@ void __cdecl R_StreamSetDefaultConfig(bool clear)
     streamFrontendGlob.forcedImageImportance = 8.5070587e37f;
     if (clear)
     {
-        memset((unsigned __int8 *)streamFrontendGlob.imageInitialBits, 0, 528u);
-        memset((unsigned __int8 *)streamFrontendGlob.imageForceBits, 0, 528u);
+        memset(streamFrontendGlob.imageInitialBits, 0, 528u);
+        memset(streamFrontendGlob.imageForceBits, 0, 528u);
         streamFrontendGlob.imageInitialBitsSet = 0;
         streamFrontendGlob.initialLoadAllocFailures = 0;
         streamFrontendGlob.preloadCancelled = 0;
@@ -167,8 +167,8 @@ void __cdecl R_StreamSetUIConfig(bool clear)
     streamFrontendGlob.initialImageImportance = 8.5070587e37f;
     if (clear)
     {
-        memset((unsigned __int8 *)streamFrontendGlob.imageInitialBits, 0, 528u);
-        memset((unsigned __int8 *)streamFrontendGlob.imageForceBits, 0, 528u);
+        memset(streamFrontendGlob.imageInitialBits, 0, 528u);
+        memset(streamFrontendGlob.imageForceBits, 0, 528u);
         streamFrontendGlob.imageInitialBitsSet = 0;
         streamFrontendGlob.initialLoadAllocFailures = 0;
         streamFrontendGlob.preloadCancelled = 0;
@@ -352,7 +352,7 @@ bool __cdecl R_StreamUpdate_ProcessFileCallbacks()
 }
 void __cdecl R_Stream_InvalidateRequest(pendingRequest *request)
 {
-    memset((unsigned __int8 *)request, 0, sizeof(pendingRequest));
+    memset(request, 0, sizeof(pendingRequest));
     request->status = STREAM_STATUS_INVALID;
 }
 
@@ -365,7 +365,7 @@ void __cdecl R_StreamUpdate_SetupInitialImageList()
     }
     else
     {
-        memset((unsigned __int8 *)streamFrontendGlob.imageForceBits, 0, 0x210u);
+        memset(streamFrontendGlob.imageForceBits, 0, 0x210u);
     }
     streamFrontendGlob.diskOrderImagesNeedSorting = 1;
     streamFrontendGlob.imageInitialBitsSet = 1;
@@ -722,7 +722,7 @@ bool __cdecl R_StreamImageCheck(GfxImage *image, int level)
 void __cdecl R_Stream_ResetHintEntities()
 {
     s_numStreamHintsActive = 0;
-    memset((unsigned __int8 *)s_streamHints, 0, sizeof(s_streamHints));
+    memset(s_streamHints, 0, sizeof(s_streamHints));
 }
 
 void __cdecl R_StreamInit()
@@ -735,8 +735,8 @@ void __cdecl R_StreamInit()
     streamFrontendGlob.queryClient = -1;
     for (i = 0; i < 10; ++i)
         R_Stream_InvalidateRequest(&s_pendingRequests[i]);
-    memset((unsigned __int8 *)streamFrontendGlob.imageInSortedListBits, 0, 0x210u);
-    memset((unsigned __int8 *)s_preventMaterials, 0, sizeof(s_preventMaterials));
+    memset(streamFrontendGlob.imageInSortedListBits, 0, 0x210u);
+    memset(s_preventMaterials, 0, sizeof(s_preventMaterials));
     streamFrontendGlob.totalBytesWanted = 0;
     streamFrontendGlob.diskOrderImagesNeedSorting = 1;
     streamIsInitialized = 1;
@@ -745,8 +745,8 @@ void __cdecl R_StreamInit()
 void __cdecl R_StreamShutdown()
 {
     R_StreamSetDefaultConfig(1);
-    memset((unsigned __int8 *)s_preventMaterials, 0, sizeof(s_preventMaterials));
-    memset((unsigned __int8 *)streamFrontendGlob.imageInSortedListBits, 0, 0x210u);
+    memset(s_preventMaterials, 0, sizeof(s_preventMaterials));
+    memset(streamFrontendGlob.imageInSortedListBits, 0, 0x210u);
     streamFrontendGlob.totalBytesWanted = 0;
     streamFrontendGlob.diskOrderImagesNeedSorting = 1;
 }
@@ -985,7 +985,7 @@ char __cdecl R_StreamUpdate(const float *viewPos)
         }
         else
         {
-            memset((unsigned __int8 *)streamFrontendGlob.imageForceBits, 0, 0x210u);
+            memset(streamFrontendGlob.imageForceBits, 0, 0x210u);
         }
         Dvar_ClearModified(r_streamLowDetail);
         streamFrontendGlob.diskOrderImagesNeedSorting = 1;
@@ -1377,7 +1377,7 @@ char __cdecl R_StreamUpdate_FindImageAndOptimize(const float *viewPos)
             R_StreamUpdatePreventedMaterials();
             R_StreamUpdateForcedModels();
             R_StreamUpdateTouchedModels();
-            memset((unsigned __int8 *)streamFrontendGlob.modelTouchBits, 0, sizeof(streamFrontendGlob.modelTouchBits));
+            memset(streamFrontendGlob.modelTouchBits, 0, sizeof(streamFrontendGlob.modelTouchBits));
             R_StreamUpdate_AddForcedImages(
                 streamFrontendGlob.forcedImageImportance,
                 streamFrontendGlob.touchedImageImportance);
@@ -1487,7 +1487,7 @@ void R_StreamUpdatePreventedMaterials()
     unsigned int materialIndex; // [esp+0h] [ebp-8h]
     int i; // [esp+4h] [ebp-4h]
 
-    memset((unsigned __int8 *)streamFrontendGlob.materialPreventBits, 0, sizeof(streamFrontendGlob.materialPreventBits));
+    memset(streamFrontendGlob.materialPreventBits, 0, sizeof(streamFrontendGlob.materialPreventBits));
     for (i = 0; i < 32; ++i)
     {
         if (s_preventMaterials[i])
@@ -1610,16 +1610,16 @@ char __cdecl R_StreamUpdate_TryBeginQuery()
         R_ImageList_Output();
         streamFrontendGlob.outputImageList = 0;
     }
-    memset((unsigned __int8 *)streamFrontendGlob.materialImportance, 0, sizeof(streamFrontendGlob.materialImportance));
+    memset(streamFrontendGlob.materialImportance, 0, sizeof(streamFrontendGlob.materialImportance));
     memset(
         (unsigned __int8 *)streamFrontendGlob.materialImportanceBits,
         0,
         sizeof(streamFrontendGlob.materialImportanceBits));
-    memset((unsigned __int8 *)streamFrontendGlob.modelDistance, 0, sizeof(streamFrontendGlob.modelDistance));
-    memset((unsigned __int8 *)streamFrontendGlob.modelDistanceBits, 0, sizeof(streamFrontendGlob.modelDistanceBits));
-    memset((unsigned __int8 *)&streamFrontendGlob.imageImportance[32], 0, 0x4200u);
-    memset((unsigned __int8 *)&streamFrontendGlob.dynamicImageImportance[32], 0, 528u);
-    memset((unsigned __int8 *)streamFrontendGlob.dynamicModelDistance, 0, sizeof(streamFrontendGlob.dynamicModelDistance));
+    memset(streamFrontendGlob.modelDistance, 0, sizeof(streamFrontendGlob.modelDistance));
+    memset(streamFrontendGlob.modelDistanceBits, 0, sizeof(streamFrontendGlob.modelDistanceBits));
+    memset(&streamFrontendGlob.imageImportance[32], 0, 0x4200u);
+    memset(&streamFrontendGlob.dynamicImageImportance[32], 0, 528u);
+    memset(streamFrontendGlob.dynamicModelDistance, 0, sizeof(streamFrontendGlob.dynamicModelDistance));
     memset(
         (unsigned __int8 *)streamFrontendGlob.dynamicModelDistanceBits,
         0,

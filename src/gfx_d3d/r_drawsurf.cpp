@@ -332,7 +332,7 @@ void __cdecl R_SortWorldSurfaces()
     worldSurfArray = rgp.world->dpvs.surfaces;
     worldSurfCount = rgp.world->models->surfaceCount;
     if ( worldSurfCount )
-        memset((unsigned __int8 *)rgp.world->dpvs.surfaceCastsSunShadow, 0, 4 * ((worldSurfCount - 1) >> 5) + 4);
+        memset(rgp.world->dpvs.surfaceCastsSunShadow, 0, 4 * ((worldSurfCount - 1) >> 5) + 4);
     if ( worldSurfArray != rgp.world->dpvs.surfaces
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_drawsurf.cpp",

@@ -47,7 +47,7 @@ void __cdecl ScrPlace_SetupFloatViewport(
 {
     float adjustedRealWidth; // [esp+84h] [ebp-10h]
 
-    memset((unsigned __int8 *)scrPlace, 0xB0u, sizeof(ScreenPlacement));
+    memset(scrPlace, 0xB0u, sizeof(ScreenPlacement));
     scrPlace->realViewportBase[0] = 0.0f;
     scrPlace->realViewportBase[1] = 0.0f;
     scrPlace->realViewportSize[0] = viewportWidth;

@@ -301,7 +301,7 @@ void __thiscall UIViewer::Show()
                     this->bgs.GetDObj = (DObj *(__cdecl *)(unsigned int, int))UIViewer::GetDObj;
                     this->bgs.Rand = CG_rand;
                     this->bgs.animData = &this->bgsAnim;
-                    memset((unsigned __int8 *)this->bgs.animData, 0, 0x8D388u);
+                    memset(this->bgs.animData, 0, 0x8D388u);
                     //*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) = UIViewer::GetBGS();
                     ::bgs = UIViewer::GetBGS();
                     Scr_BeginLoadAnimTrees(SCRIPTINSTANCE_SERVER, 0);
@@ -320,8 +320,8 @@ void __thiscall UIViewer::Show()
                 I_strncpyz(cgameGlob->visionNameNaked, "ui_viewer", 64);
                 CG_VisionSetStartLerp_To(0, VISIONSETMODE_NAKED, VISIONSETLERP_TO_SMOOTH, cgameGlob->visionNameNaked, 0);
             }
-            memset((unsigned __int8 *)&this->pmove, 0, sizeof(this->pmove));
-            memset((unsigned __int8 *)&this->ps, 0, sizeof(this->ps));
+            memset(&this->pmove, 0, sizeof(this->pmove));
+            memset(&this->ps, 0, sizeof(this->ps));
             this->pmove.ps = &this->ps;
             for (i = 0; i < 1; ++i)
             {
@@ -791,7 +791,7 @@ void __thiscall UIViewer::Update(float deltaTime)
         {
             //*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) = UIViewer::GetBGS();
             ::bgs = UIViewer::GetBGS();
-            memset((unsigned __int8 *)&pml, 0, sizeof(pml));
+            memset(&pml, 0, sizeof(pml));
             pml.msec = (int)(float)(deltaTime * 1000.0);
             PM_Weapon(&this->pmove, &pml);
             v6 = (unsigned int *)((char *)UIViewer::GetPlayerEntity() + 804);
@@ -888,7 +888,7 @@ void __thiscall UIViewer::DrawScene(unsigned int eyeToRender)
 
 void __thiscall UIViewer::DrawDobj::Init()
 {
-    memset((unsigned __int8 *)this, 0, sizeof(UIViewer::DrawDobj));
+    memset(this, 0, sizeof(UIViewer::DrawDobj));
     R_InitShaderConstantSet(&this->constantSet);
     R_MapShaderConstantSet(&this->constantSet, 4u, "heroLightingR");
     R_MapShaderConstantSet(&this->constantSet, 5u, "heroLightingG");
@@ -1638,7 +1638,7 @@ void __thiscall UIViewer::AddWeaponToScene(
             {
                 baseWeaponVariantDef = UIViewer::GetWeaponVariantDef(baseWeapParams);
                 numAttachmentTags = 0;
-                memset((unsigned __int8 *)attachmentTags, 0, 0x40u);
+                memset(attachmentTags, 0, 0x40u);
                 for ( baseTagIndex = 0; baseTagIndex < 32 && baseWeaponVariantDef->hideTags[baseTagIndex]; ++baseTagIndex )
                 {
                     found = 0;

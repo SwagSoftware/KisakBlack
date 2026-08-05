@@ -1418,7 +1418,7 @@ void __cdecl Dvar_Shutdown()
     dvar_cheats = 0;
     dvar_restoreDvarsOnLive = 0;
     dvar_modifiedFlags = 0;
-    memset((unsigned __int8 *)dvarHashTable, 0, sizeof(dvarHashTable));
+    memset(dvarHashTable, 0, sizeof(dvarHashTable));
     Sys_UnlockWrite(&g_dvarCritSect);
 }
 

@@ -130,13 +130,13 @@ void __cdecl SpawnSystem_Init()
     g_lastInfluencerSortTime = 0;
     g_spawnPointsArchived = 0;
     g_spawnSystemDebugMode = SS_DEBUG_OFF;
-    memset((unsigned __int8 *)g_spawnPoints, 0, sizeof(g_spawnPoints));
-    memset((unsigned __int8 *)g_spawnInfluencers, 0, sizeof(g_spawnInfluencers));
-    memset((unsigned __int8 *)g_sortedSpawnInfluencers, 0, sizeof(g_sortedSpawnInfluencers));
+    memset(g_spawnPoints, 0, sizeof(g_spawnPoints));
+    memset(g_spawnInfluencers, 0, sizeof(g_spawnInfluencers));
+    memset(g_sortedSpawnInfluencers, 0, sizeof(g_sortedSpawnInfluencers));
     g_lastPointComputeTime[0] = 0;
     g_lastPointComputeTime[1] = 0;
     g_lastPointComputeTime[2] = 0;
-    memset((unsigned __int8 *)g_spawnInfluencerPresets, 0, sizeof(g_spawnInfluencerPresets));
+    memset(g_spawnInfluencerPresets, 0, sizeof(g_spawnInfluencerPresets));
     for ( i = 0; i < 328; ++i )
         g_spawnInfluencerPresets[i].type = INFLUENCER_TYPE_UNUSED;
     for ( j = 0; j < 3; ++j )
@@ -298,7 +298,7 @@ void __cdecl SpawnSystem_SetRandomVariation(float variation)
 void __cdecl SpawnSystem_ClearPoints()
 {
     g_spawnPointCount = 0;
-    memset((unsigned __int8 *)g_spawnPoints, 0, sizeof(g_spawnPoints));
+    memset(g_spawnPoints, 0, sizeof(g_spawnPoints));
     g_spawnPointsArchived = 0;
 }
 

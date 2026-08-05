@@ -498,7 +498,7 @@ void __cdecl track_userhunk_freerange(void *low, unsigned int size)
     //    if ( g_userhunk_track[i].pos >= (int)low && g_userhunk_track[i].pos < (int)((int)low + size) )
     //    {
     //        memcpy(&g_userhunk_track[i], &g_userhunk_track[g_userhunk_track_count - 1], sizeof(mem_track_t));
-    //        memset((unsigned __int8 *)&g_userhunk_track[g_userhunk_track_count - 1], 0, sizeof(mem_track_t));
+    //        memset(&g_userhunk_track[g_userhunk_track_count - 1], 0, sizeof(mem_track_t));
     //        --g_userhunk_track_count;
     //        --i;
     //    }
@@ -745,8 +745,8 @@ void __cdecl track_init()
     //else
     //{
     //    inited_0 = 1;
-    //    memset((unsigned __int8 *)&g_info, 0, sizeof(g_info));
-    //    memset((unsigned __int8 *)&g_virtualMemInfo, 0, sizeof(g_virtualMemInfo));
+    //    memset(&g_info, 0, sizeof(g_info));
+    //    memset(&g_virtualMemInfo, 0, sizeof(g_virtualMemInfo));
     //    for ( g_staticsMemTrackCount = 0; g_staticsMemTrackCount < 54; ++g_staticsMemTrackCount )
     //    {
     //        mem_track = &g_staticsMemTrack[g_staticsMemTrackCount];
@@ -902,7 +902,7 @@ void __cdecl track_getbasicinfo(meminfo_t *info)
     //if ( !info && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\mem_track.cpp", 1374, 0, "%s", "info") )
     //    __debugbreak();
     //Sys_EnterCriticalSection(CRITSECT_MEMTRACK);
-    //memset((unsigned __int8 *)info, 0, sizeof(meminfo_t));
+    //memset(info, 0, sizeof(meminfo_t));
     //track_addbasicmeminfo(info, &g_info);
     //Sys_LeaveCriticalSection(CRITSECT_MEMTRACK);
 }
@@ -987,7 +987,7 @@ void __cdecl track_PrintInfo()
 
     //csb.mCS = CRITSECT_MEMTRACK;
     //Sys_EnterCriticalSection(CRITSECT_MEMTRACK);
-    //memset((unsigned __int8 *)&info, 0, sizeof(info));
+    //memset(&info, 0, sizeof(info));
     //len2 = g_hunklow_track_count + g_hunk_track_count + g_userhunk_track_count + g_staticsMemTrackCount;
     //nodeCount = 0;
     //for ( node = g_ZMallocMemTrackList; node; node = node->next )

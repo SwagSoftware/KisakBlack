@@ -2120,7 +2120,7 @@ void __cdecl CM_BoxTrace(
                 int brushmask,
                 col_context_t *context)
 {
-    memset((unsigned __int8 *)results, 0, sizeof(trace_t));
+    memset(results, 0, sizeof(trace_t));
     results->fraction = 1.0f;
     results->boneIndex = 254;
     CM_Trace(results, start, end, mins, maxs, 0, brushmask, context);
@@ -2256,7 +2256,7 @@ void __cdecl CM_TransformedBoxTraceExternal(
                 const float *origin,
                 const float *angles)
 {
-    memset((unsigned __int8 *)results, 0, sizeof(trace_t));
+    memset(results, 0, sizeof(trace_t));
     results->fraction = 1.0f;
     CM_TransformedBoxTrace(results, start, end, mins, maxs, model, brushmask, origin, angles);
 }
@@ -3645,7 +3645,7 @@ int __cdecl CM_TracePointDown(
     nanassertvec3(start);
     nanassertvec3(end);
 
-    memset((unsigned __int8 *)&results, 0, sizeof(results));
+    memset(&results, 0, sizeof(results));
     results.fraction = 1.0f;
     if ( !cm.numNodes
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_trace.cpp", 2998, 0, "%s", "cm.numNodes") )
@@ -3754,7 +3754,7 @@ double __cdecl CM_GetWaterHeight(const float *pos, float z_up, float z_down)
         pointtrace_t clip; // [esp+20h] [ebp-B0h] BYREF
 
         ////TraceExtents::TraceExtents(&clip.extents);
-        memset((unsigned __int8 *)&trace, 0, sizeof(trace));
+        memset(&trace, 0, sizeof(trace));
         trace.fraction = 1.0f;
         check = &sv.svEntities[entnum];
         clip.contentmask = -1;
@@ -4758,7 +4758,7 @@ void __cdecl trace_point_vs_env(
     nanassertvec3(end);
     nanassertvec3(dir);
 
-    memset((unsigned __int8 *)trace, 0, sizeof(trace_t));
+    memset(trace, 0, sizeof(trace_t));
     trace->fraction = 1.0f;
     trace->boneIndex = 254;
     bHintFound = 0;
@@ -5524,7 +5524,7 @@ char __cdecl CM_GetHeliHeight(const float *pt, float checkdist, float *result)
         if (heli_height_lock_patches[i].enabled)
         {
             brushmodel = heli_height_lock_patches[i].brushmodel;
-            memset((unsigned __int8 *)&results, 0, sizeof(results));
+            memset(&results, 0, sizeof(results));
             results.fraction = 1.0f;
             results.boneIndex = 254;
             CM_TransformedBoxTrace(

@@ -2936,7 +2936,7 @@ void __cdecl G_SpawnVehicle(gentity_s *ent, char *typeName, int load)
             Scr_Error(v3, 0);
         }
     }
-    memset((unsigned __int8 *)veh, 0, sizeof(scr_vehicle_s));
+    memset(veh, 0, sizeof(scr_vehicle_s));
 
     //if ( (_S2_6 & 1) == 0 )
     //{
@@ -5279,7 +5279,7 @@ void __cdecl Scr_Vehicle_Think(gentity_s *pSelf)
         Sys_LeaveCriticalSection(CRITSECT_PHYSICS_UPDATE);
     }
     VEH_BackupPosition(pSelf);
-    memset((unsigned __int8 *)&s_phys, 0, sizeof(s_phys));
+    memset(&s_phys, 0, sizeof(s_phys));
     //if ( EntHandle::isDefined(&pSelf->r.ownerNum) && g_entities[EntHandle::entnum(&pSelf->r.ownerNum)].health <= 0 )
     if ( pSelf->r.ownerNum.isDefined() && g_entities[pSelf->r.ownerNum.entnum()].health <= 0)
     {

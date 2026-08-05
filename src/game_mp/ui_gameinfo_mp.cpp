@@ -394,7 +394,7 @@ void __cdecl UI_LoadMaps()
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)sharedUiInfo.mapList, 0, sizeof(sharedUiInfo.mapList));
+    memset(sharedUiInfo.mapList, 0, sizeof(sharedUiInfo.mapList));
     v0 = StringTable_Lookup(table.stringTable, 0, "maxnum_map", 1);
     sharedUiInfo.mapCount = atoi(v0);
     v1 = StringTable_Lookup(table.stringTable, 0, "mappack_count", 1);

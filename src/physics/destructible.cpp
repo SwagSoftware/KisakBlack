@@ -260,7 +260,7 @@ void __cdecl Destructible_FreeDestructible(Destructible *destructible)
         destructible->ddef = 0;
         destructible->oldestBurnTime = 0;
         destructible->flags = 0;
-        memset((unsigned __int8 *)destructible->states, 0, sizeof(destructible->states));
+        memset(destructible->states, 0, sizeof(destructible->states));
         if ( destructible->destructiblePoseID )
         {
             if ( !Assert_MyHandler(
@@ -318,7 +318,7 @@ void __cdecl CG_FreeDestructible(int localClientNum, Destructible *destructible)
         destructible->ddef = 0;
         destructible->oldestBurnTime = 0;
         destructible->flags = 0;
-        memset((unsigned __int8 *)destructible->states, 0, sizeof(destructible->states));
+        memset(destructible->states, 0, sizeof(destructible->states));
         if ( destructible->destructiblePoseID )
             CG_FreeDestructiblePose(localClientNum, destructible->destructiblePoseID);
         destructible->destructiblePoseID = 0;
@@ -330,7 +330,7 @@ void __cdecl CG_InitDestructibles(int localClientNum)
     Destructible *v1; // [esp+0h] [ebp-8h]
     int i; // [esp+4h] [ebp-4h]
 
-    memset((unsigned __int8 *)cg_destructibles[localClientNum], 0, 0x60C0u);
+    memset(cg_destructibles[localClientNum], 0, 0x60C0u);
     for ( i = 0; i < 144; ++i )
     {
         v1 = &cg_destructibles[localClientNum][i];
@@ -596,7 +596,7 @@ unsigned int __cdecl DestructibleUpdate(gentity_s *ent, DObjModel_s *dobjModels,
                                                                                                                                  24 * ddef->numPieces,
                                                                                                                                  4,
                                                                                                                                  0);
-        memset((unsigned __int8 *)ent->destructible->pieceArray, 0, 24 * ddef->numPieces);
+        memset(ent->destructible->pieceArray, 0, 24 * ddef->numPieces);
         if ( !ent->destructible->pieceArray
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\physics\\destructible.cpp",
@@ -1653,7 +1653,7 @@ unsigned int __cdecl CG_DestructibleUpdate(
                                                                                                                                  24 * ddef->numPieces,
                                                                                                                                  4,
                                                                                                                                  0);
-        memset((unsigned __int8 *)ent->destructible->pieceArray, 0, 24 * ddef->numPieces);
+        memset(ent->destructible->pieceArray, 0, 24 * ddef->numPieces);
         if ( !ent->destructible->pieceArray
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\physics\\destructible.cpp",

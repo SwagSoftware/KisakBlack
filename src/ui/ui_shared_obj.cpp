@@ -592,7 +592,7 @@ int __cdecl PC_CndStackAddConditionsToScript(GenericEventScript **baseScript, ch
     {
         *baseScript = newEventScript;
     }
-    memset((unsigned __int8 *)accumulatedScriptCommands, 0, 0x1400u);
+    memset(accumulatedScriptCommands, 0, 0x1400u);
     return 1;
 }
 
@@ -1079,7 +1079,7 @@ int __cdecl PC_EventScript_Parse(int handle, GenericEventScript **baseScript)
     bool v7; // [esp+282Bh] [ebp-419h]
     pc_token_s pc_token; // [esp+282Ch] [ebp-418h] BYREF
 
-    memset((unsigned __int8 *)dst, 0, 0x1400u);
+    memset(dst, 0, 0x1400u);
     memset(v4, 0, sizeof(v4));
     if ( !PC_ReadTokenHandle(handle, &pc_token) )
         return 0;
@@ -1507,7 +1507,7 @@ int __cdecl MenuParse_itemDef(menuDef_t *menu, int handle)
 
 void __cdecl Item_Init(itemDef_s *item, int imageTrack)
 {
-    memset((unsigned __int8 *)item, 0, sizeof(itemDef_s));
+    memset(item, 0, sizeof(itemDef_s));
     item->imageTrack = imageTrack;
     item->ui3dWindowId = -1;
     item->showBits = 0;
@@ -1519,7 +1519,7 @@ void __cdecl Item_Init(itemDef_s *item, int imageTrack)
 
 void __cdecl Window_Init(windowDef_t *w)
 {
-    memset((unsigned __int8 *)w, 0, sizeof(windowDef_t));
+    memset(w, 0, sizeof(windowDef_t));
     w->borderSize = 1.0f;
     w->foreColor[3] = 1.0f;
     w->foreColor[2] = 1.0f;
@@ -1958,7 +1958,7 @@ void __cdecl Menu_SetupKeywordHash()
     //unsigned int i; // [esp+0h] [ebp-4h]
     //
     //KeywordHash_Validate_menuDef_t_1024_128_(menuParseKeywords, 50);
-    //memset((unsigned __int8 *)menuParseKeywordHash, 0, sizeof(menuParseKeywordHash));
+    //memset(menuParseKeywordHash, 0, sizeof(menuParseKeywordHash));
     //for ( i = 0; i < 0x32; ++i )
     //    KeywordHash_Add_menuDef_t_1024_128_(
     //        menuParseKeywordHash,
@@ -2904,7 +2904,7 @@ int __cdecl PC_Script_Parse(int handle, const char **out)
     char dst[5120]; // [esp+34h] [ebp-1818h] BYREF
     pc_token_s pc_token; // [esp+1434h] [ebp-418h] BYREF
 
-    memset((unsigned __int8 *)dst, 0, sizeof(dst));
+    memset(dst, 0, sizeof(dst));
     if ( !PC_ReadTokenHandle(handle, &pc_token) )
         return 0;
     if ( I_stricmp(pc_token.string, "{") )
@@ -3581,7 +3581,7 @@ void __cdecl Item_SetupKeywordHash()
     //unsigned int i; // [esp+0h] [ebp-4h]
     //
     //KeywordHash_Validate_itemDef_s_1024_6_(itemParseKeywords, 91);
-    //memset((unsigned __int8 *)itemParseKeywordHash, 0, sizeof(itemParseKeywordHash));
+    //memset(itemParseKeywordHash, 0, sizeof(itemParseKeywordHash));
     //for ( i = 0; i < 0x5B; ++i )
     //    KeywordHash_Add_itemDef_s_1024_6_(
     //        itemParseKeywordHash,
@@ -3609,7 +3609,7 @@ MenuList *__cdecl UI_LoadMenu(const char *menuFile, int imageTrack)
 
 MenuList * UI_LoadMenu_LoadObj(char *menuFile, int imageTrack)
 {
-    memset((unsigned __int8 *)&g_load_0, 0, sizeof(g_load_0));
+    memset(&g_load_0, 0, sizeof(g_load_0));
     g_load_0.menuList.menus = g_load_0.menus;
     if ( !UI_ParseMenuInternal(menuFile, imageTrack) )
     {
@@ -3751,7 +3751,7 @@ char __cdecl Menu_New(int handle, int imageTrack)
 
 void __cdecl Menu_Init(menuDef_t *menu, int imageTrack)
 {
-    memset((unsigned __int8 *)menu, 0, sizeof(menuDef_t));
+    memset(menu, 0, sizeof(menuDef_t));
     Menu_SetCursorItem(0, menu, -1);
     menu->fadeAmount = g_load_0.loadAssets.fadeAmount;
     menu->fadeInAmount = g_load_0.loadAssets.fadeInAmount;
@@ -3789,7 +3789,7 @@ int __cdecl Menu_Parse(int handle, menuDef_t *menu)
         {
             do
             {
-                memset((unsigned __int8 *)&token, 0, sizeof(token));
+                memset(&token, 0, sizeof(token));
                 if ( !PC_ReadTokenHandle(handle, &token) )
                 {
                     PC_SourceError(handle, "end of file inside menu\n");
@@ -3847,7 +3847,7 @@ MenuList * UI_LoadMenus_LoadObj(char *menuFile, int imageTrack)
     const char *token; // [esp+8h] [ebp-8h]
     const char *p; // [esp+Ch] [ebp-4h] BYREF
 
-    memset((unsigned __int8 *)&g_load_0, 0, sizeof(g_load_0));
+    memset(&g_load_0, 0, sizeof(g_load_0));
     g_load_0.menuList.menus = g_load_0.menus;
     len = FS_FOpenFileByMode(menuFile, &f, FS_READ);
     if ( !f )

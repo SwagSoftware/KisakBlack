@@ -266,7 +266,7 @@ void __cdecl Scr_BeginLoadScripts(scriptInstance_t inst, int user)
 
 void __cdecl SL_BeginLoadScripts(scriptInstance_t inst)
 {
-    memset((unsigned __int8 *)gScrCompilePub[inst].canonicalStrings, 0, sizeof(gScrCompilePub[inst].canonicalStrings));
+    memset(gScrCompilePub[inst].canonicalStrings, 0, sizeof(gScrCompilePub[inst].canonicalStrings));
     gScrVarPub[inst].canonicalStrCount = 0;
 }
 

@@ -56,7 +56,7 @@ const FxEffectDef *__cdecl FX_Convert(const FxEditorEffectDef *editorEffect, voi
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)emitIndex, 0xFFu, sizeof(emitIndex));
+    memset(emitIndex, 0xFFu, sizeof(emitIndex));
     totalBytesNeeded = 292 * editorEffect->elemCount + 60;
     elemCountTotal = editorEffect->elemCount;
     for ( elemIndex = 0; elemIndex < editorEffect->elemCount; ++elemIndex )

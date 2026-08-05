@@ -48,7 +48,7 @@ char __cdecl dwGetOnlineUserName(int controllerIndex, char *buf, unsigned int bu
 {
     const char *ClientPersonaName; // eax
 
-    memset((unsigned __int8 *)buf, 0, bufsize);
+    memset(buf, 0, bufsize);
     ClientPersonaName = LiveSteam_GetClientPersonaName(1);
     I_strncpyz(buf, ClientPersonaName, bufsize);
     return 1;

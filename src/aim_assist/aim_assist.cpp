@@ -81,7 +81,7 @@ void __cdecl AimAssist_Init(int localClientNum)
     char graphName[128]; // [esp+4h] [ebp-88h] BYREF
     int graphIndex; // [esp+88h] [ebp-4h]
 
-    memset((unsigned __int8 *)&aaGlobArray[localClientNum], 0, sizeof(AimAssistGlobals));
+    memset(&aaGlobArray[localClientNum], 0, sizeof(AimAssistGlobals));
     AimAssist_RegisterDvars();
     for ( graphIndex = 0; graphIndex < 4; ++graphIndex )
     {
@@ -373,7 +373,7 @@ void __cdecl AimAssist_Setup(int localClientNum, const playerState_s *ps)
     if ( !ps && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\aim_assist\\aim_assist.cpp", 502, 0, "%s", "ps") )
         __debugbreak();
     aaGlob = &aaGlobArray[localClientNum];
-    memset((unsigned __int8 *)aaGlob, 0, sizeof(AimAssistGlobals));
+    memset(aaGlob, 0, sizeof(AimAssistGlobals));
     aaGlob->initialized = 1;
     aaGlob->fovTurnRateScale = 1.0f;
     aaGlob->fovScaleInv = 1.0f;

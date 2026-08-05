@@ -2058,7 +2058,7 @@ void CScr_SetSavedDvar()
         text = Scr_GetString(1u, SCRIPTINSTANCE_CLIENT);
         strlen(text);
         pCh = outString;
-        memset((unsigned __int8 *)outString, 0, 0x400u);
+        memset(outString, 0, 0x400u);
         i = 0;
         while ( i < 0x4000 && text[i] )
         {
@@ -10032,7 +10032,7 @@ void __cdecl CScr_LaunchRagdoll(scr_entref_t entref)
         else
             pFake = CG_GetFakeEntity(entref.client, entref.entnum);
     }
-    memset((unsigned __int8 *)&v4, 0, sizeof(v4));
+    memset(&v4, 0, sizeof(v4));
     Scr_GetVector(0, origin, SCRIPTINSTANCE_CLIENT);
     v4.lerp.pos.trBase[0] = origin[0];
     v4.lerp.pos.trBase[1] = origin[1];

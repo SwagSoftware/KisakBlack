@@ -355,7 +355,7 @@ void    CG_Vehicle_PreControllers(
         {
             __debugbreak();
         }
-        memset((unsigned __int8 *)cent->vehicle, 0, sizeof(cgVehicle_s));
+        memset(cent->vehicle, 0, sizeof(cgVehicle_s));
     }
     cgameGlob = CG_GetLocalClientGlobals((int)localClientNum);
     p_currentState = &cent->currentState;

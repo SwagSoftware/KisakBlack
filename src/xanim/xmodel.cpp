@@ -130,7 +130,7 @@ void __cdecl XModelMakeDefault(XModel *model)
     model->bad = 1;
     DefaultParts = XModelCreateDefaultParts();
     XModelCopyXModelParts(DefaultParts, model);
-    memset((unsigned __int8 *)model->lodInfo, 0, sizeof(model->lodInfo));
+    memset(model->lodInfo, 0, sizeof(model->lodInfo));
     model->numLods = 1;
     model->collLod = 0;
     model->name = "DEFAULT";

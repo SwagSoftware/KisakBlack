@@ -1965,7 +1965,7 @@ void __cdecl MSG_WriteDeltaClient(
     if ( !from )
     {
         from = &dummy;
-        memset((unsigned __int8 *)&dummy, 0, sizeof(dummy));
+        memset(&dummy, 0, sizeof(dummy));
     }
     MSG_PacketAnalyze_SetPacketEntityType(snapInfo, ANALYZE_DATATYPE_ENTITYTYPE_CLIENTSTATE, 0);
     if ( to )
@@ -2104,14 +2104,14 @@ void __cdecl MSG_WriteDeltaPlayerstate(
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)fieldsChanged, 0, sizeof(fieldsChanged));
+    memset(fieldsChanged, 0, sizeof(fieldsChanged));
     UsedBitCount = MSG_GetUsedBitCount(msg);
     SV_PacketAnalyze_TrackPS_ClearBits(UsedBitCount);
     MSG_PacketAnalyze_SetPacketEntityType(snapInfo, ANALYZE_DATATYPE_ENTITYTYPE_PLAYERSTATE, 0);
     if ( !from )
     {
         from = &dummy_1;
-        memset((unsigned __int8 *)&dummy_1, 0, sizeof(dummy_1));
+        memset(&dummy_1, 0, sizeof(dummy_1));
     }
     if ( snapInfo->demoSnapshot || snapInfo->archived )
         goto LABEL_17;

@@ -27,7 +27,7 @@ void __cdecl TaskManager2_Init()
     for ( idx = 0; idx < 255; ++idx )
         s_taskRecords[idx].next = &s_taskRecords[idx + 1];
     s_taskRecords[255].next = 0;
-    memset((unsigned __int8 *)s_taskMemoryPool, 0, sizeof(s_taskMemoryPool));
+    memset(s_taskMemoryPool, 0, sizeof(s_taskMemoryPool));
     s_taskMemoryPoolIndex = 0;
     s_taskMemoryPool[0] = 0x100001FFFLL;
     s_taskPollCount = 0;
@@ -1452,7 +1452,7 @@ void __cdecl TaskManager2_StateToString(TaskState state, char *string, unsigned 
 #ifdef KISAK_DW_TASK
     if ( string )
     {
-        memset((unsigned __int8 *)string, 0, stringsize);
+        memset(string, 0, stringsize);
         switch ( state )
         {
             case TASK_STATE_INVALID:

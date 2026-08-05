@@ -73,7 +73,7 @@ int __cdecl MatchRecord_InitMatchDataInternal(char *inputBuffer, int buffSize)
     else
     {
         Com_Printf(16, "Received NULL inputBuffer in MatchRecord_InitMatchData setting static buffer to 0\n");
-        memset((unsigned __int8 *)s_matchRecorderBuffer, 0, sizeof(s_matchRecorderBuffer));
+        memset(s_matchRecorderBuffer, 0, sizeof(s_matchRecorderBuffer));
     }
     if ( !useFastFile->current.enabled )
         return 0;
@@ -420,7 +420,7 @@ void __cdecl FindBitchForPlayer(unsigned int attackingPlayerSlot)
     __int16 lifeCount; // [esp+F8h] [ebp-14h]
     ddlState_t playerState; // [esp+FCh] [ebp-10h] BYREF
 
-    memset((unsigned __int8 *)playerKills, 0, sizeof(playerKills));
+    memset(playerKills, 0, sizeof(playerKills));
     playerCount = MatchRecord_GetPlayerCount();
     lifeCount = MatchRecord_GetLifeCount();
     for ( playerNum = 0; playerNum < playerCount; ++playerNum )
@@ -498,9 +498,9 @@ void __cdecl FindNemesisForPlayer(unsigned int attackingPlayerSlot)
     int playerNemesis; // [esp+29Ch] [ebp-14h]
     ddlState_t playerState; // [esp+2A0h] [ebp-10h] BYREF
 
-    memset((unsigned __int8 *)nemesisScore, 0, sizeof(nemesisScore));
-    memset((unsigned __int8 *)nemesisDeaths, 0, sizeof(nemesisDeaths));
-    memset((unsigned __int8 *)nemesisKills, 0, sizeof(nemesisKills));
+    memset(nemesisScore, 0, sizeof(nemesisScore));
+    memset(nemesisDeaths, 0, sizeof(nemesisDeaths));
+    memset(nemesisKills, 0, sizeof(nemesisKills));
     playerCount = MatchRecord_GetPlayerCount();
     lifeCount = MatchRecord_GetLifeCount();
     for ( playerNum = 0; playerNum < playerCount; ++playerNum )
@@ -642,7 +642,7 @@ void __cdecl MatchRecord_GenerateHeatMapData(
 
         //LargeLocal::LargeLocal(&heatMap_large_local, 0x10000);
         heatMap = (unsigned __int8 (*)[65536])heatMap_large_local.GetBuf();// LargeLocal::GetBuf(&heatMap_large_local);
-        memset((unsigned __int8 *)heatMap, 0, sizeof(unsigned __int8[65536]));
+        memset(heatMap, 0, sizeof(unsigned __int8[65536]));
         if ( buffSize < height * width
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\DW\\MatchRecorder.cpp",
@@ -839,7 +839,7 @@ void __cdecl MatchRecord_GeneratePooledFileDetails(int controllerIndex)
     if ( xuid )
     {
         context = fileDetails->context;
-        memset((unsigned __int8 *)fileDetails, 0, sizeof(fileSharePooledDetails_t));
+        memset(fileDetails, 0, sizeof(fileSharePooledDetails_t));
         fileDetails->context = context;
         numPlayers = 0;
         if ( DDL_MoveToName(&g_HeaderState, &headerItemState, "mapID") )

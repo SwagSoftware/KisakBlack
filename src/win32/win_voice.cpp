@@ -57,7 +57,7 @@ bool __cdecl Voice_Init()
     Encode_Init(g_current_bandwidth_setting);
     if ( Sound_Init(handle) )
         g_voice_initialized = 1;
-    memset((unsigned __int8 *)s_clientTalkTime, 0, sizeof(s_clientTalkTime));
+    memset(s_clientTalkTime, 0, sizeof(s_clientTalkTime));
     for ( client = 0; client < 32; ++client )
         s_clientSamples[client] = Sound_NewSample();
     return 0;
@@ -253,7 +253,7 @@ unsigned int __cdecl mixerGetRecordLevel(char *SrcName)
         return -1;
     if ( mixerOpen(&phmx, 0, 0, 0, 0) )
         return -1;
-    memset((unsigned __int8 *)&mixerline, 0, sizeof(mixerline));
+    memset(&mixerline, 0, sizeof(mixerline));
     mixerline.cbStruct = 168;
     mixerline.dwComponentType = 7;
     mixerGetLineInfoA((HMIXEROBJ)phmx, &mixerline, 3u);

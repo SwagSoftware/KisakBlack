@@ -34,7 +34,7 @@ XModel *cached_models[512];
 
 void __cdecl G_ClearCachedModels()
 {
-    memset((unsigned __int8 *)cached_models, 0, sizeof(cached_models));
+    memset(cached_models, 0, sizeof(cached_models));
 }
 
 int __cdecl G_FindConfigstringIndex(char *name, int start, int max, int create, const char *errormsg)
@@ -841,10 +841,10 @@ int __cdecl G_EntLinkToInternal(gentity_s *ent, gentity_s *parent, unsigned int 
     Scr_SetString((unsigned __int16 *)tagInfo + 4, tagName, SCRIPTINSTANCE_SERVER);
     *((unsigned int *)tagInfo + 1) = (unsigned int)parent->tagChildren;
     *((unsigned int *)tagInfo + 3) = index;
-    memset((unsigned __int8 *)tagInfo + 16, 0, 0x30u);
+    memset(tagInfo + 16, 0, 0x30u);
     parent->tagChildren = ent;
     ent->tagInfo = (tagInfo_s *)tagInfo;
-    memset((unsigned __int8 *)tagInfo + 64, 0, 0x30u);
+    memset(tagInfo + 64, 0, 0x30u);
     ent->s.clientLinkInfo.parentEnt = 0;
     ent->s.clientLinkInfo.tagIndex = 0;
     if ( ent->client )
@@ -1878,7 +1878,7 @@ void __cdecl G_FreeEntity(gentity_s *ed)
         __debugbreak();
     }
     useCount = ed->useCount;
-    memset((unsigned __int8 *)ed, 0, sizeof(gentity_s));
+    memset(ed, 0, sizeof(gentity_s));
     ed->eventTime = level.time;
     if ( ed - level.gentities >= 44 )
     {

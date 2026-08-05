@@ -17,7 +17,7 @@ void __cdecl CL_BuildRankXPTable()
     int row; // [esp+0h] [ebp-8h]
     const StringTable *table; // [esp+4h] [ebp-4h] BYREF
 
-    memset((unsigned __int8 *)&s_rankData, 0, sizeof(s_rankData));
+    memset(&s_rankData, 0, sizeof(s_rankData));
     StringTable_GetAsset("mp/rankTable.csv", (XAssetHeader *)&table);
     s_rankData.topRow = table->rowCount - 1;
     if ( table->rowCount >= 96

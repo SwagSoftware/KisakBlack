@@ -266,7 +266,7 @@ taskCompleteResults __cdecl dwFetchPerformanceValuesComplete(
             {
                 __debugbreak();
             }
-            memset((unsigned __int8 *)playerRanks, 0, 16 * numRankSlots);
+            memset(playerRanks, 0, 16 * numRankSlots);
             *numPlayerRanks = 0;
             for ( i = 0; i < numResults; ++i )
             {

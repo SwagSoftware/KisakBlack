@@ -1912,7 +1912,7 @@ void __cdecl UI_ReplaceConversions(
         }
         if ( outputStringSize >= 0 )
         {
-            memset((unsigned __int8 *)outputString, 0, outputStringSize);
+            memset(outputString, 0, outputStringSize);
             outputStringCounter = 0;
             if ( !sourceString
                 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\ui\\ui_main.cpp", 2359, 0, "%s", "sourceString") )

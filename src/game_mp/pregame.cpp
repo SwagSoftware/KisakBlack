@@ -46,7 +46,7 @@ void __cdecl Pregame_Reset()
 
 void __cdecl Pregame_ResetData()
 {
-    memset((unsigned __int8 *)pregameG.clients, 0, sizeof(pregameG.clients));
+    memset(pregameG.clients, 0, sizeof(pregameG.clients));
 }
 
 void __cdecl Pregame_ResetDataForClient(unsigned int clientNum)

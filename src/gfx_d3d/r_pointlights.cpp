@@ -251,7 +251,7 @@ void __cdecl R_AddHeroOnlyLightsToGridColors(GfxDecodedLightGridColors *packed, 
                     if ( !foundAny )
                     {
                         foundAny = 1;
-                        memset((unsigned __int8 *)incidentEnergy, 0, sizeof(incidentEnergy));
+                        memset(incidentEnergy, 0, sizeof(incidentEnergy));
                     }
                     GatherIncidentEnergyInSpaceForLightFromDir(attenuatedColor, dirToLight, incidentEnergy);
                 }

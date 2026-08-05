@@ -429,7 +429,7 @@ void GlassRenderer::Reset()
     this->maxNumGroupChanges = 0;
     this->actionInputIndex = 0;
     this->actionOutputIndex = 0;
-    memset((unsigned __int8 *)this->actions, 0, sizeof(this->actions));
+    memset(this->actions, 0, sizeof(this->actions));
     this->numUsedMaterials = 0;
     this->numShatters = 0;
     LODWORD(this->shatterTimer) = 0;

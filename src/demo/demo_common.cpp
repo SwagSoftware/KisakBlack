@@ -682,7 +682,7 @@ void __cdecl Demo_StreamingSuccessCallback(int controllerIndex, unsigned __int64
         Demo_SetTags(controllerIndex, &numTags, tags, &demo.info, FILESHARE_FILETYPE_FILM);
         memcpy(s_demoUploadInfo.tags, tags, sizeof(s_demoUploadInfo.tags));
         s_demoUploadInfo.numTags = numTags;
-        memset((unsigned __int8 *)s_demoUploadInfo.metaData, 0, sizeof(s_demoUploadInfo.metaData));
+        memset(s_demoUploadInfo.metaData, 0, sizeof(s_demoUploadInfo.metaData));
         Live_FileShare_WritePublicMetaDataTags(s_demoUploadInfo.metaData, tags, numTags);
         Live_FileShare_WritePublicMetaDataLength(s_demoUploadInfo.metaData, demo.info.endTime - demo.info.startTime);
         Live_FileShare_WritePublicMetaDataCreateTime(s_demoUploadInfo.metaData, demo.info.createTime);
@@ -2072,7 +2072,7 @@ void __cdecl Demo_DeleteSegment_f()
                     for ( ia = segmentIndex; ia < demo.playback->segmentCount; ++ia )
                     {
                         if ( ia + 1 >= demo.playback->segmentCount )
-                            memset((unsigned __int8 *)&demo.playback->segments[ia], 0, sizeof(demo.playback->segments[ia]));
+                            memset(&demo.playback->segments[ia], 0, sizeof(demo.playback->segments[ia]));
                         else
                             memcpy(
                                 &demo.playback->segments[ia],
@@ -2592,19 +2592,19 @@ void __cdecl Demo_Printf(int channel, const char *string)
 
 void __cdecl Demo_Init()
 {
-    memset((unsigned __int8 *)&demo, 0, sizeof(demo));
+    memset(&demo, 0, sizeof(demo));
     g_snapInfo.clientNum = 0;
     g_snapInfo.client = 0;
     g_snapInfo.snapshotDeltaTime = 0;
     *(unsigned int *)&g_snapInfo.fromBaseline = 0;
     g_snapInfo.packetEntityType = ANALYZE_DATATYPE_ENTITYTYPE_GENERALENTITY;
     *(unsigned int *)&g_snapInfo.packetEntityTypeArchived = 0;
-    memset((unsigned __int8 *)&g_defaultPlayerState, 0, sizeof(g_defaultPlayerState));
-    memset((unsigned __int8 *)&g_defaultEntityState, 0xFFu, sizeof(g_defaultEntityState));
-    memset((unsigned __int8 *)&g_defaultClientState, 0xFFu, sizeof(g_defaultClientState));
+    memset(&g_defaultPlayerState, 0, sizeof(g_defaultPlayerState));
+    memset(&g_defaultEntityState, 0xFFu, sizeof(g_defaultEntityState));
+    memset(&g_defaultClientState, 0xFFu, sizeof(g_defaultClientState));
     MSG_Init(&demo.msg, demo.msgBuf0, 49152);
-    memset((unsigned __int8 *)demo.ent, 0xFFu, sizeof(demo.ent));
-    memset((unsigned __int8 *)demo.client, 0xFFu, sizeof(demo.client));
+    memset(demo.ent, 0xFFu, sizeof(demo.ent));
+    memset(demo.client, 0xFFu, sizeof(demo.client));
     g_snapInfo.demoSnapshot = 1;
     demo.lastProcessedTime = -1;
     demo.lastProcessedMsgNum = -1;
@@ -2615,7 +2615,7 @@ bool __cdecl Demo_InitWrite()
     const char *v0; // eax
     char ospath[260]; // [esp+0h] [ebp-108h] BYREF
 
-    memset((unsigned __int8 *)ospath, 0, 0x100u);
+    memset(ospath, 0, 0x100u);
     Demo_GetDemoPath(ospath);
     v0 = va("%s.demo", demo.demoName);
     demo.demoFileHandle = Demo_OpenFileWrite(v0, ospath, 0);
@@ -2627,7 +2627,7 @@ bool __cdecl Demo_InitRead()
     const char *v0; // eax
     char ospath[260]; // [esp+0h] [ebp-108h] BYREF
 
-    memset((unsigned __int8 *)ospath, 0, 0x100u);
+    memset(ospath, 0, 0x100u);
     Demo_GetDemoPath(ospath);
     v0 = va("%s.demo", demo.demoName);
     demo.demoFileHandle = Demo_OpenFileRead(v0, ospath, 0);
@@ -2739,7 +2739,7 @@ void __cdecl Demo_DownloadFile(
     char ospath[260]; // [esp+0h] [ebp-138h] BYREF
     fileShareReadFileInfo fileInfo; // [esp+108h] [ebp-30h] BYREF
 
-    memset((unsigned __int8 *)ospath, 0, 0x100u);
+    memset(ospath, 0, 0x100u);
     Demo_GetDemoPath(ospath);
     s_demoFileHandle = Demo_OpenFileWrite(filmName, ospath, 0);
     if ( Demo_IsStreamBufferAllocated() )

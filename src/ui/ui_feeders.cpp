@@ -161,7 +161,7 @@ void __cdecl UI_BuildPlayerList(int localClientNum)
     info = CL_GetConfigString(0);
     v1 = Info_ValueForKey(info, "com_maxclients");
     count = atoi(v1);
-    memset((unsigned __int8 *)sharedUiInfo.playerClientNums, 0xFFu, sizeof(sharedUiInfo.playerClientNums));
+    memset(sharedUiInfo.playerClientNums, 0xFFu, sizeof(sharedUiInfo.playerClientNums));
     sharedUiInfo.playerCount = 0;
     for (n = 0; n < count; ++n)
     {

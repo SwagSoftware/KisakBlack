@@ -119,9 +119,9 @@ struct bdFileMetaData : bdTaskResult // sizeof=0x838
         {
             unsigned int i; // [esp+4h] [ebp-4h]
 
-            memset((unsigned __int8 *)this->m_fileName, 0, sizeof(this->m_fileName));
-            memset((unsigned __int8 *)this->m_url, 0, sizeof(this->m_url));
-            memset((unsigned __int8 *)this->m_ownerName, 0, sizeof(this->m_ownerName));
+            memset(this->m_fileName, 0, sizeof(this->m_fileName));
+            memset(this->m_url, 0, sizeof(this->m_url));
+            memset(this->m_ownerName, 0, sizeof(this->m_ownerName));
             memset(this->m_metaData, 0, sizeof(this->m_metaData));
 
             for (i = 0; i < this->m_numTags; ++i)

@@ -14,7 +14,7 @@ void __cdecl R_StreamAlloc_InitTempImages()
         for (index = 0; index < 32; ++index)
         {
             s_allocGlob.tempImages[2 * index] = DB_AllocTempImage();
-            memset((unsigned __int8 *)s_allocGlob.tempImages[2 * index], 0, sizeof(GfxImage));
+            memset(s_allocGlob.tempImages[2 * index], 0, sizeof(GfxImage));
             LOBYTE(s_allocGlob.tempImages[2 * index + 1]) = 0;
         }
         s_allocGlob.tempImagesInit = 1;

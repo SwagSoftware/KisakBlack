@@ -533,8 +533,8 @@ XAnimParts *__cdecl XAnimLoadFile(char *name, void *(__cdecl *Alloc)(int), bool 
                             pos += count;
                             memcpy(dst, pos, count);
                             pos += count;
-                            memset((unsigned __int8 *)part, 0, 8 * numBones);
-                            memset((unsigned __int8 *)v87, 0, 8 * numBones);
+                            memset(part, 0, 8 * numBones);
+                            memset(v87, 0, 8 * numBones);
                             for ( j = 0; j < numBones; ++j )
                             {
                                 part[j].partIndex = j;

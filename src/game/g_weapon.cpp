@@ -108,7 +108,7 @@ void __cdecl G_AntiLagRewindClientPos(int gameTime, AntilagClientStore *antilagS
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)antilagStore, 0, sizeof(AntilagClientStore));
+    memset(antilagStore, 0, sizeof(AntilagClientStore));
     if ( gameTime <= 0
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_weapon.cpp", 69, 0, "%s", "gameTime > 0") )
     {

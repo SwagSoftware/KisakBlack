@@ -117,8 +117,8 @@ void __cdecl BG_ShutdownFire()
 
 void __cdecl BG_ResetFire()
 {
-    memset((unsigned __int8 *)g_FM_ActiveCells, 0, sizeof(g_FM_ActiveCells));
-    memset((unsigned __int8 *)g_FM_BurnData, 0, sizeof(g_FM_BurnData));
+    memset(g_FM_ActiveCells, 0, sizeof(g_FM_ActiveCells));
+    memset(g_FM_BurnData, 0, sizeof(g_FM_BurnData));
     g_FM_BurnDataActiveCount = 0;
     Sync_VisualBurn_To_FM_State();
 }

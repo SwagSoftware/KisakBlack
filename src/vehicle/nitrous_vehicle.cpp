@@ -500,7 +500,7 @@ void __thiscall NitrousVehicleController::Init()
 {
     this->m_stuck_time = 0.0f;
     this->m_stopped_time = 0.0f;
-    memset((unsigned __int8 *)&this->m_cmd, 0, sizeof(this->m_cmd));
+    memset(&this->m_cmd, 0, sizeof(this->m_cmd));
     this->m_cmd_local_client_num = 0;
     this->m_cmd_valid = 1;
     this->m_stop_at_goal = 0;
@@ -3601,7 +3601,7 @@ void __cdecl G_ClearVehicleInputs()
                 && i[70].m_next_T_internal[43].m_prev_T_internal
                 && VEH_GetSeatOccupantEntNum((gentity_s *)i[70].m_next_T_internal, 0) == 1023 )
             {
-                memset((unsigned __int8 *)&i[100], 0, 0x34u);
+                memset(&i[100], 0, 0x34u);
             }
         }
         Sys_LeaveCriticalSection(CRITSECT_PHYSICS);

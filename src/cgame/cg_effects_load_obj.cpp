@@ -61,7 +61,7 @@ FxImpactTable *__cdecl CG_RegisterImpactEffects_LoadObj(const char *mapname)
 
     Hunk_CheckTempMemoryClear();
     listbuf = (char *)Hunk_AllocateTempMemory(0x10000, "CG_RegisterImpactEffects");
-    memset((unsigned __int8 *)&effectFile, 0, sizeof(effectFile));
+    memset(&effectFile, 0, sizeof(effectFile));
     CG_RegisterImpactEffectsForDir((char*)"fx", &effectFile, listbuf);
     if ( mapname )
     {

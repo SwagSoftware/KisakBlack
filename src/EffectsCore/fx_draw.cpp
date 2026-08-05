@@ -1347,7 +1347,7 @@ void __cdecl FX_DrawNonSpriteEffect(
     const FxElemDef *elemDefs; // [esp+F0h] [ebp-8h]
     FxElem *elem; // [esp+F4h] [ebp-4h]
 
-    memset((unsigned __int8 *)&drawState, 0, sizeof(drawState));
+    memset(&drawState, 0, sizeof(drawState));
     drawState.effect = effect;
     drawState.msecDraw = drawTime;
     elemHandle = effect->firstElemHandle[elemClass];
@@ -1607,7 +1607,7 @@ void __cdecl FX_DrawSpotLightEffect(FxSystem *system, FxEffect *effect, int draw
     const FxElemDef *elemDefs; // [esp+E8h] [ebp-8h]
     FxElem *elem; // [esp+ECh] [ebp-4h]
 
-    memset((unsigned __int8 *)&drawState, 0, sizeof(drawState));
+    memset(&drawState, 0, sizeof(drawState));
     if ( system->shared->activeSpotLightEffectCount <= 0
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_draw.cpp",
@@ -1764,7 +1764,7 @@ void __cdecl FX_DrawTrailsForEffect(FxSystem *system, FxEffect *effect, int draw
     unsigned __int16 trailHandle; // [esp+E8h] [ebp-8h]
     FxTrail *trail; // [esp+ECh] [ebp-4h]
 
-    memset((unsigned __int8 *)&drawState, 0, sizeof(drawState));
+    memset(&drawState, 0, sizeof(drawState));
     drawState.system = system;
     drawState.effect = effect;
     drawState.msecDraw = drawTime;
@@ -1854,7 +1854,7 @@ void __cdecl FX_DrawTrail(FxSystem *system, FxDrawState *draw, FxTrail *trail)
                 reservedVerts = R_GetCodeMeshVerts(reservedBaseVertex);
                 exactSegmentCount = 0;
                 lastSegmentNormTime = 1.0f;
-                memset((unsigned __int8 *)&lastSegmentDrawState, 0, sizeof(lastSegmentDrawState));
+                memset(&lastSegmentDrawState, 0, sizeof(lastSegmentDrawState));
                 for ( trailElemHandle = trail->firstElemHandle;
                             trailElemHandle != 0xFFFF;
                             trailElemHandle = trailElem->nextTrailElemHandle )
@@ -2215,7 +2215,7 @@ void __cdecl FX_DrawSpriteEffect(FxSystem *system, FxEffect *effect, int drawTim
     int count; // [esp+FCh] [ebp-4h]
 
     count = 0;
-    memset((unsigned __int8 *)&drawState, 0, sizeof(drawState));
+    memset(&drawState, 0, sizeof(drawState));
     drawState.effect = effect;
     drawState.msecDraw = drawTime;
     elemHandle = effect->firstElemHandle[0];

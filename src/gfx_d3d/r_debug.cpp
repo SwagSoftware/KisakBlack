@@ -272,7 +272,7 @@ void __cdecl R_AddScaledDebugString(
 
 void __cdecl R_InitDebugEntry(DebugGlobals *debugGlobalsEntry)
 {
-    memset((unsigned __int8 *)debugGlobalsEntry, 0, sizeof(DebugGlobals));
+    memset(debugGlobalsEntry, 0, sizeof(DebugGlobals));
     debugGlobalsEntry->polySet.vertLimit = 0x8000;
     debugGlobalsEntry->polySet.polyLimit = 0x2000;
     debugGlobalsEntry->stringLimit = 4096;

@@ -651,7 +651,7 @@ void __cdecl BG_LoadWeaponOptions(const StringTable *attachmentTable)
             BG_LoadWeaponOptionRow(attachmentTable, row, &s_weaponTableWeaponOptions[s_numweaponTableWeaponOptions], &count);
             ++s_numweaponTableWeaponOptions;
         }
-        memset((unsigned __int8 *)s_weaponOptionListForGroup, 0, sizeof(s_weaponOptionListForGroup));
+        memset(s_weaponOptionListForGroup, 0, sizeof(s_weaponOptionListForGroup));
         s_numweaponTableWeaponOptionsForGroup[0] = 0;
         s_numweaponTableWeaponOptionsForGroup[1] = 0;
         s_numweaponTableWeaponOptionsForGroup[2] = 0;

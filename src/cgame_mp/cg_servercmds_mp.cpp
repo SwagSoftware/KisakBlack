@@ -559,7 +559,7 @@ void __cdecl CG_MapRestart(int localClientNum, int savepersist)
     SND_GameReset();
     CG_SndGameReset();
     cgameGlob->v_dmg_time = 0;
-    memset((unsigned __int8 *)cgameGlob->viewDamage, 0, sizeof(cgameGlob->viewDamage));
+    memset(cgameGlob->viewDamage, 0, sizeof(cgameGlob->viewDamage));
     CG_SetThirdPerson(0);
     CL_SetStance(localClientNum, CL_STANCE_STAND);
     CL_SetADS(localClientNum, 0);

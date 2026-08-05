@@ -731,7 +731,7 @@ bool __cdecl GamerProfile_IsNewLocalProfile(int controllerIndex)
 
 void __cdecl GamerProfile_InitAllProfiles()
 {
-    memset((unsigned __int8 *)gamerSettings, 0, sizeof(gamerSettings));
+    memset(gamerSettings, 0, sizeof(gamerSettings));
     //BLOPS_NULLSUB();
     //BLOPS_NULLSUB();
     //BLOPS_NULLSUB();

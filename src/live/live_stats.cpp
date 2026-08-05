@@ -753,7 +753,7 @@ void __cdecl LiveStats_ProcessStatChangedData(
     char binaryData[68]; // [esp+10h] [ebp-48h] BYREF
 
     byteCount = 0;
-    memset((unsigned __int8 *)binaryData, 0, 0x40u);
+    memset(binaryData, 0, 0x40u);
     for ( i = 0; i < 2 * size; ++i )
     {
         if ( data[i] > 57 )
@@ -1646,7 +1646,7 @@ void __cdecl LiveStats_CompareStatsVsStableBuffer(int controllerIndex)
         LiveStats_GetIntPlayerStatFromForcedBase(&oldPLevel, "PLEVEL", oldStatsBuffer);
     }
     oldRank = CL_GetRankForXp(oldRankXP);
-    memset((unsigned __int8 *)s_recentlyUnlockedItems[controllerIndex], 0, sizeof(int[256]));
+    memset(s_recentlyUnlockedItems[controllerIndex], 0, sizeof(int[256]));
     s_numRecentlyUnlockedItems[controllerIndex] = 0;
     for ( itemNumber = 0; itemNumber < 0x100; ++itemNumber )
     {

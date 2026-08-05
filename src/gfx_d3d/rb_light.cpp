@@ -588,7 +588,7 @@ unsigned __int8 __cdecl R_LightGridLookup(
             honorSuppression = 1;
             bestPrimaryLightWeight = cornerWeight[cornerIndex];
             primaryLightIndex = entry->primaryLightIndex;
-            memset((unsigned __int8 *)cornerEntry, 0, 4 * cornerIndex);
+            memset(cornerEntry, 0, 4 * cornerIndex);
             goto LABEL_10;
         }
         v10 = entry->primaryLightIndex;
@@ -1481,7 +1481,7 @@ LABEL_2:
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)&accumulatedColors, 0, sizeof(accumulatedColors));
+    memset(&accumulatedColors, 0, sizeof(accumulatedColors));
     if ( maxWeight <= 0.0 )
         v2 = 0.0f;
     else

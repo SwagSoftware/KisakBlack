@@ -987,7 +987,7 @@ void __cdecl Path_Init(int restart)
         if ( !restart )
             Path_CreateNodes();
     }
-    memset((unsigned __int8 *)&g_path, 0, sizeof(g_path));
+    memset(&g_path, 0, sizeof(g_path));
     if ( !gameWorldCurrent->path.nodes
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\game\\pathnode.cpp",
@@ -3823,7 +3823,7 @@ void    Path_UpdateLimitedDepthArcBadPlaceCount(
     fHeightSqrd = arc->halfheight * arc->halfheight;
     fMaxRadiusSqrd = (float)(arc->radius + 256.0) * (float)(arc->radius + 256.0);
     fMaxHeightSqrd = (float)(arc->halfheight + 128.0) * (float)(arc->halfheight + 128.0);
-    memset((unsigned __int8 *)pathReturn, 0, sizeof(pathReturn));
+    memset(pathReturn, 0, sizeof(pathReturn));
     node = Path_NearestNode(
         arc->origin,
         pathReturn,
@@ -3986,7 +3986,7 @@ pathnode_t *__cdecl G_FindPathNode(SpawnVar *spawnVar, nodeType type, int gameId
     pathnode_t compare_node; // [esp+20h] [ebp-88h] BYREF
     pathnode_t *best_node; // [esp+A4h] [ebp-4h]
 
-    memset((unsigned __int8 *)&compare_node, 0, sizeof(compare_node));
+    memset(&compare_node, 0, sizeof(compare_node));
     G_ParsePathnodeFields(spawnVar, &compare_node, type);
     best_score = 1;
     best_node = 0;

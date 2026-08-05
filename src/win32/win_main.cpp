@@ -981,7 +981,7 @@ void Win_RegisterClass()
 {
     tagWNDCLASSEXA wce; // [esp+0h] [ebp-30h] BYREF
 
-    memset((unsigned __int8 *)&wce, 0, sizeof(wce));
+    memset(&wce, 0, sizeof(wce));
     wce.cbSize = 48;
     wce.lpfnWndProc = (WNDPROC)MainWndProc;
     wce.hInstance = g_wv.hInstance;

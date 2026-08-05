@@ -2731,7 +2731,7 @@ void __cdecl CG_InitClientEntityCaches(int localClientNum)
         if ( !cent->clientTagCache )
         {
             cent->clientTagCache = (ClientTagCache *)MT_Alloc(96, 22, SCRIPTINSTANCE_SERVER);
-            memset((unsigned __int8 *)cent->clientTagCache, 0, sizeof(ClientTagCache));
+            memset(cent->clientTagCache, 0, sizeof(ClientTagCache));
         }
         if ( !cent->aimTargetInfo )
         {
@@ -2929,7 +2929,7 @@ void __cdecl CG_Init(int localClientNum, int serverMessageNum, int serverCommand
     loaded_client_scripts = 0;
     if ( !Scr_IsSystemInitied(SCRIPTINSTANCE_CLIENT) )
     {
-        memset((unsigned __int8 *)&cg_bgsAnim, 0, sizeof(cg_bgsAnim));
+        memset(&cg_bgsAnim, 0, sizeof(cg_bgsAnim));
         if ( !com_sv_running->current.enabled )
         {
             CGScr_LoadScriptsAndAnims();
@@ -3544,7 +3544,7 @@ void __cdecl CG_InitEntities(int localClientNum)
         }
         cent->pose.localClientNum = localClientNum;
     }
-    memset((unsigned __int8 *)&cg_fakeEntitiesArray[512 * localClientNum], 0, 0x65800u);
+    memset(&cg_fakeEntitiesArray[512 * localClientNum], 0, 0x65800u);
     CG_InitFakeEntities(localClientNum, 1);
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     LocalClientGlobals->predictedPlayerEntity.pose.localClientNum = localClientNum;
@@ -3745,7 +3745,7 @@ void __cdecl CG_Shutdown(int localClientNum)
     num_heli_height_lock_patches = 0;
     CG_FreeAnimTreeInstances(localClientNum);
     cgameGlob->nextSnap = 0;
-    memset((unsigned __int8 *)cgameGlob, 0, sizeof(cg_s));
+    memset(cgameGlob, 0, sizeof(cg_s));
     if ( cgameGlob->nextSnap
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_main_mp.cpp",

@@ -232,7 +232,7 @@ void __cdecl CL_WritePacket(int localClientNum)
     MSG_SetDefaultUserCmd(&cl->snap.ps, &nullcmd);
     oldcmd = &nullcmd;
     cmd = &nullcmd;
-    memset((unsigned __int8 *)&buf, 0, sizeof(buf));
+    memset(&buf, 0, sizeof(buf));
     MSG_Init(&buf, data, 2048);
     MSG_WriteByte(&buf, cl->serverId);
     MSG_WriteLong(&buf, clc->serverMessageSequence);
@@ -448,7 +448,7 @@ usercmd_s *__cdecl CL_CreateCmd(usercmd_s *result, int localClientNum)
     LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
     oldAngles = LocalClientGlobals->viewangles[0];
     CL_AdjustAngles(localClientNum);
-    memset((unsigned __int8 *)&cmd, 0, sizeof(cmd));
+    memset(&cmd, 0, sizeof(cmd));
     if ( !Key_IsCatcherActive(localClientNum, 8) || !CG_HandleLocationSelectionInput(localClientNum, &cmd) )
     {
         CL_CmdButtons(localClientNum, &cmd);
@@ -2564,6 +2564,6 @@ void __cdecl CL_ShutdownInput()
 
 void __cdecl CL_ClearKeys(int localClientNum)
 {
-    memset((unsigned __int8 *)playersKb[localClientNum], 0, sizeof(kbutton_t[47]));
+    memset(playersKb[localClientNum], 0, sizeof(kbutton_t[47]));
 }
 

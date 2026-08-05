@@ -268,7 +268,7 @@ char __cdecl CL_GetMilestoneLocalizedName(
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)outputString, 0, stringLength);
+    memset(outputString, 0, stringLength);
     if ( !statName
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_milestone.cpp",
@@ -1086,7 +1086,7 @@ char __cdecl CL_GetMilestoneLocalizedDesc(
     }
     if ( !statName )
         return 0;
-    memset((unsigned __int8 *)outputString, 0, stringLength);
+    memset(outputString, 0, stringLength);
     couldLocalize = 0;
     switch ( milestoneType )
     {
@@ -1545,7 +1545,7 @@ char __cdecl CL_GetMilestoneLocalizedXP(
     }
     if ( !indexName )
         return 0;
-    memset((unsigned __int8 *)outputString, 0, stringLength);
+    memset(outputString, 0, stringLength);
     xpStringAmount = CL_GetMilestoneData(indexName, MILESTONE_COLUMN_XPEARNED);
     if ( !xpStringAmount
         && !Assert_MyHandler(
@@ -1624,7 +1624,7 @@ void __cdecl CL_GetMilestoneBackingMaterial(
             {
                 __debugbreak();
             }
-            memset((unsigned __int8 *)backingMaterialName, 0, stringLength);
+            memset(backingMaterialName, 0, stringLength);
             Com_sprintf(backingMaterialName, stringLength, "%s", "hud_medal_burst");
             if ( perkName && StringBeginsWith("perks_", statName) )
             {
@@ -1701,7 +1701,7 @@ void __cdecl CL_GetMilestoneMaterial(char *materialName, int stringLength, const
             {
                 __debugbreak();
             }
-            memset((unsigned __int8 *)materialName, 0, stringLength);
+            memset(materialName, 0, stringLength);
             Com_sprintf(materialName, stringLength, "%s", "menu_mp_lobby_aar_award_challenge");
             if ( perkName && StringBeginsWith("perks_", statName) )
             {
@@ -1771,7 +1771,7 @@ void __cdecl CL_MilestoneTier_DecToRoman(int milestoneTierId, char *milestoneTie
     }
     if ( milestoneTierRoman )
     {
-        memset((unsigned __int8 *)milestoneTierRoman, 0, stringLength);
+        memset(milestoneTierRoman, 0, stringLength);
         if ( stringLength < 5
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_milestone.cpp",

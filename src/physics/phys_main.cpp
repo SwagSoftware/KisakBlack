@@ -1089,7 +1089,7 @@ PhysObjUserData *__cdecl Phys_CreateUserData(int worldIndex)
     userData = physGlob.objects.add(1, "phys_free_list error: out of memory.");
     if ( !userData )
         return 0;
-    memset((unsigned __int8 *)userData, 0, sizeof(PhysObjUserData));
+    memset(userData, 0, sizeof(PhysObjUserData));
     //phys_link_list1<PhysObjUserData>::add(&physGlob.objects_by_world[worldIndex], userData);
     physGlob.objects_by_world[worldIndex].add(userData);
     return userData;
@@ -2192,7 +2192,7 @@ void __cdecl Phys_FindAndRenderBulletMesh(const float *start, const float *end)
     results.staticModel = 0;
     bHitDynEnt = 0;
     //TraceExtents::TraceExtents(&clip.extents);
-    memset((unsigned __int8 *)&resultsDyn, 0, sizeof(resultsDyn));
+    memset(&resultsDyn, 0, sizeof(resultsDyn));
     resultsDyn.fraction = 1.0f;
     *(_QWORD *)clip.extents.start.vec.v = *(_QWORD *)start;
     clip.extents.start.vec.v[2] = start[2];
@@ -2763,7 +2763,7 @@ void __cdecl debug_loop()
         if ( debug_trace->current.integer )
         {
             passEntityNum = 0;
-            memset((unsigned __int8 *)&results, 0, sizeof(results));
+            memset(&results, 0, sizeof(results));
             render_hitpoint = 0;
             switch ( debug_trace->current.integer )
             {

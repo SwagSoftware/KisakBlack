@@ -475,7 +475,7 @@ void __cdecl Demo_SaveScreenshotSuccessful(int controllerIndex, unsigned __int64
     UI_CloseMenu(v3, "fileshare_slotselection_scr");
     ClientName = Live_ControllerIndex_GetClientName(controllerIndex);
     I_strncpyz(gamerTag_1, ClientName, 32);
-    memset((unsigned __int8 *)metaData, 0, 0xFFu);
+    memset(metaData, 0, 0xFFu);
     Demo_SetTags(controllerIndex, &numTags, tags, &demo.playback->screenshotInfo, FILESHARE_FILETYPE_SCREENSHOT);
     if ( Demo_SetMetaData(
                  controllerIndex,
@@ -529,7 +529,7 @@ void __cdecl Demo_SaveScreenshot(int localClientNum, unsigned int fileSlot)
     char ospath[256]; // [esp+4h] [ebp-138h] BYREF
     fileShareWriteFileInfo writeFileInfo; // [esp+108h] [ebp-34h] BYREF
 
-    memset((unsigned __int8 *)ospath, 0, sizeof(ospath));
+    memset(ospath, 0, sizeof(ospath));
     if ( !Demo_IsPlaying() )
     {
         Com_PrintError(0, "ERROR: Cannot save screenshot when we are not playing a demo.\n");
@@ -1121,11 +1121,11 @@ bool __cdecl Demo_IsMetaInformationScreenActive()
 
 void __cdecl Demo_ResetSnapshotData()
 {
-    memset((unsigned __int8 *)demo.ps, 0, sizeof(demo.ps));
-    memset((unsigned __int8 *)&demo.matchState, 0, sizeof(demo.matchState));
-    memset((unsigned __int8 *)demo.ent, 0xFFu, sizeof(demo.ent));
-    memset((unsigned __int8 *)demo.entClientMask, 0, sizeof(demo.entClientMask));
-    memset((unsigned __int8 *)demo.client, 0xFFu, sizeof(demo.client));
+    memset(demo.ps, 0, sizeof(demo.ps));
+    memset(&demo.matchState, 0, sizeof(demo.matchState));
+    memset(demo.ent, 0xFFu, sizeof(demo.ent));
+    memset(demo.entClientMask, 0, sizeof(demo.entClientMask));
+    memset(demo.client, 0xFFu, sizeof(demo.client));
     demo.prevNumParsedEntities = 0;
     demo.prevNumParsedClients = 0;
 }
@@ -1176,7 +1176,7 @@ void __cdecl Demo_ResetWorldInformation(int localClientNum, int time)
 
     LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-    memset((unsigned __int8 *)cgameGlob->viewDamage, 0, sizeof(cgameGlob->viewDamage));
+    memset(cgameGlob->viewDamage, 0, sizeof(cgameGlob->viewDamage));
     CG_ClearCameraShakes(localClientNum);
     R_InitSceneData(localClientNum);
     cgameGlob->cursorHintFade = 0;
@@ -1616,7 +1616,7 @@ void __cdecl Demo_InitPlaybackData(int localClientNum)
 {
     int ControllerIndex; // eax
 
-    memset((unsigned __int8 *)demo.playback, 0, sizeof(demoPlayback));
+    memset(demo.playback, 0, sizeof(demoPlayback));
     demo.playback->keyframeIndex = -1;
     demo.playback->demoCmdInProgress = -1;
     demo.playback->transitionScreenTime = -1;
@@ -2064,7 +2064,7 @@ void __cdecl Demo_ParseSnapshot(int localClientNum, msg_t *msg)
     v2 = va("Begin Demo Snapshot Read\n");
     Demo_Printf(512, v2);
     Demo_EnableSnapshotProcessing();
-    memset((unsigned __int8 *)&newSnap_0, 0, sizeof(newSnap_0));
+    memset(&newSnap_0, 0, sizeof(newSnap_0));
     newSnap_0.serverCommandNum = LocalClientConnection->serverCommandSequence;
     newSnap_0.serverTime = MSG_ReadLong(msg);
     newSnap_0.physicsTime = MSG_ReadLong(msg);
@@ -2864,9 +2864,9 @@ void    Demo_GenerateUncompressedSnapshot(
     //v33[0] = a1;
     //v33[1] = retaddr;
     //v9 = alloca(10496);
-    memset((unsigned __int8 *)v32, 0, 0x80u);
+    memset(v32, 0, 0x80u);
     memcpy((unsigned __int8 *)&v31, (unsigned __int8 *)&g_defaultPlayerState, sizeof(v31));
-    memset((unsigned __int8 *)&v30, 0, sizeof(v30));
+    memset(&v30, 0, sizeof(v30));
     Demo_EnableSnapshotProcessing();
     MSG_GetUsedBitCount(msg);
     v10 = va(
@@ -4281,7 +4281,7 @@ void __cdecl Demo_WriteClipGameState(int localClientNum)
     svsHeader.mapCenter[0] = cls.mapCenter[0];
     svsHeader.mapCenter[1] = cls.mapCenter[1];
     svsHeader.mapCenter[2] = cls.mapCenter[2];
-    memset((unsigned __int8 *)&nullstate, 0, sizeof(nullstate));
+    memset(&nullstate, 0, sizeof(nullstate));
     for ( i = 0; i < 1024; ++i )
     {
         ent = &LocalClientGlobals->entityBaselines[i];
@@ -4547,7 +4547,7 @@ void __cdecl Demo_UploadClipSuccess(int controllerIndex, unsigned __int64 fileID
     metaDataSize = 0;
     ClientName = Live_ControllerIndex_GetClientName(controllerIndex);
     I_strncpyz(gamerTag_2, ClientName, 32);
-    memset((unsigned __int8 *)metaData, 0, 0xFFu);
+    memset(metaData, 0, 0xFFu);
     Demo_SetTags(controllerIndex, &numTags, tags, &demo.playback->clipRecordInfo, FILESHARE_FILETYPE_CLIP);
     if ( Demo_SetMetaData(
                  controllerIndex,

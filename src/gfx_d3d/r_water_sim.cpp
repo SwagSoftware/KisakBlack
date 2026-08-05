@@ -362,12 +362,12 @@ void __cdecl R_InitWaterSimulation()
         config.waveSeedHeight = 25.0f;
         config.waveSeedRadius = 125.0f;
         config.waveDamping = 64.0f;
-        memset((unsigned __int8 *)data.buffer[0].v, 0, data.buffer[0].bufferSize);
-        memset((unsigned __int8 *)data.buffer[1].v, 0, data.buffer[1].bufferSize);
-        memset((unsigned __int8 *)data.waterheight.v, 0, data.waterheight.bufferSize);
-        memset((unsigned __int8 *)data.flooroffset.v, 0, data.flooroffset.bufferSize);
-        memset((unsigned __int8 *)data.shoredist.v, 0, data.shoredist.bufferSize);
-        memset((unsigned __int8 *)data.colors.v, 0, data.colors.bufferSize);
+        memset(data.buffer[0].v, 0, data.buffer[0].bufferSize);
+        memset(data.buffer[1].v, 0, data.buffer[1].bufferSize);
+        memset(data.waterheight.v, 0, data.waterheight.bufferSize);
+        memset(data.flooroffset.v, 0, data.flooroffset.bufferSize);
+        memset(data.shoredist.v, 0, data.shoredist.bufferSize);
+        memset(data.colors.v, 0, data.colors.bufferSize);
         expiredMeshes.tail = 0;
         expiredMeshes.head = 0;
         numFreeVertBlocks = 0;
@@ -395,7 +395,7 @@ void __cdecl R_WaterSimulationRestart()
     data.oldEyePos[2] = 0.0f;
     for ( n = 0; n < 0x100; ++n )
         ExpireAllMeshes(&data.tiles[n]);
-    memset((unsigned __int8 *)&prevCmd, 0, sizeof(prevCmd));
+    memset(&prevCmd, 0, sizeof(prevCmd));
     R_WaterSimulationTeleport(-559038737, -559038737);
     if ( rgp.world )
     {
@@ -489,12 +489,12 @@ void __cdecl R_InitWaterSimulationBuffers(unsigned int location)
             data.flooroffset.Alloc(location);
             data.shoredist.Alloc(location);
             data.colors.Alloc(location);
-            memset((unsigned __int8 *)data.buffer[0].v, 0, data.buffer[0].bufferSize);
-            memset((unsigned __int8 *)data.buffer[1].v, 0, data.buffer[1].bufferSize);
-            memset((unsigned __int8 *)data.waterheight.v, 0, data.waterheight.bufferSize);
-            memset((unsigned __int8 *)data.flooroffset.v, 0, data.flooroffset.bufferSize);
-            memset((unsigned __int8 *)data.shoredist.v, 0, data.shoredist.bufferSize);
-            memset((unsigned __int8 *)data.colors.v, 0, data.colors.bufferSize);
+            memset(data.buffer[0].v, 0, data.buffer[0].bufferSize);
+            memset(data.buffer[1].v, 0, data.buffer[1].bufferSize);
+            memset(data.waterheight.v, 0, data.waterheight.bufferSize);
+            memset(data.flooroffset.v, 0, data.flooroffset.bufferSize);
+            memset(data.shoredist.v, 0, data.shoredist.bufferSize);
+            memset(data.colors.v, 0, data.colors.bufferSize);
             PMem_EndAlloc("water buffers", location);
             R_InitWaterSimulationVertexBuffers();
             buffersAllocated = 1;

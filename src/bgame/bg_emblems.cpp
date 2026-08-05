@@ -188,7 +188,7 @@ ResultCache *__cdecl BG_EmblemsGetResults(int controllerIndex, unsigned int incl
         if ( results->use < best->use )
             best = &s_resultCache[i];
     }
-    memset((unsigned __int8 *)best, 0, sizeof(ResultCache));
+    memset(best, 0, sizeof(ResultCache));
     for ( ia = 0; ia < s_emblemSet->iconCount; ++ia )
     {
         icon = &s_emblemSet->icons[ia];
@@ -1017,7 +1017,7 @@ void __cdecl BG_EmblemsInit()
         }
 
         s_emblemSet = DB_FindXAssetHeader(ASSET_TYPE_EMBLEMSET, (char*)"emblemset", 1, -1).emblemSet;
-        memset((unsigned __int8 *)s_resultCache, 0, sizeof(s_resultCache));
+        memset(s_resultCache, 0, sizeof(s_resultCache));
         allEmblemsUnlocked = _Dvar_RegisterBool("allEmblemsUnlocked", 0, 0x80u, "Unlock all emblem icons and layers");
         allEmblemsPurchased = _Dvar_RegisterBool(
                                                         "allEmblemsPurchased",

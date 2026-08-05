@@ -608,7 +608,7 @@ void __cdecl CG_FreeWeapons(int localClientNum)
             XAnimFreeTree(viewModelInfo->tree, 0, SCRIPTINSTANCE_SERVER);
         viewModelInfo->tree = 0;
     }
-    memset((unsigned __int8 *)cg_weaponsArray[localClientNum], 0, 0x12000u);
+    memset(cg_weaponsArray[localClientNum], 0, 0x12000u);
 }
 
 int removeMeWhenMPStopsCrashingInHere;
@@ -5205,7 +5205,7 @@ LABEL_94:
                 aimSpreadAmount = (float)((float)(maxSpread - weaponDef->fAdsSpread) * aimSpreadScale) + weaponDef->fAdsSpread;
             else
                 aimSpreadAmount = (float)((float)(maxSpread - minSpread) * aimSpreadScale) + minSpread;
-            memset((unsigned __int8 *)&v41, 0, sizeof(v41));
+            memset(&v41, 0, sizeof(v41));
             v41.weaponEntIndex = 1022;
             v41.ignoreEntIndex = ent->nextState.number;
             if ( vehicle_selfCollision->current.enabled && ent->nextState.eType == 14 )
@@ -5565,8 +5565,8 @@ void __cdecl CG_SndAutoSimReset()
 {
     if ( !snd_autoSim )
         snd_autoSim = _Dvar_RegisterBool("snd_autoSim", 1, 0x80u, "turn on client side simulation of automatic gun sounds");
-    memset((unsigned __int8 *)g_snd_autosims, 0, sizeof(g_snd_autosims));
-    memset((unsigned __int8 *)g_snd_autosim_history, 0, sizeof(g_snd_autosim_history));
+    memset(g_snd_autosims, 0, sizeof(g_snd_autosims));
+    memset(g_snd_autosim_history, 0, sizeof(g_snd_autosim_history));
     snd_autosim_time = Sys_Milliseconds();
     snd_autosim_frame = 5;
 }
@@ -6112,7 +6112,7 @@ void __cdecl CG_DrawTracer(const float *start, const float *finish, const refdef
     float startWidth; // [esp+68h] [ebp-8h] BYREF
     float tracerWidth; // [esp+6Ch] [ebp-4h]
 
-    memset((unsigned __int8 *)&beam, 0, sizeof(beam));
+    memset(&beam, 0, sizeof(beam));
     if ( le->tracerWidth == 0.0 )
         tracerWidth = cg_tracerWidth->current.value;
     else

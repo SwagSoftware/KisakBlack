@@ -410,10 +410,10 @@ const char *__cdecl ClientConnect(unsigned int clientNum, unsigned int scriptPer
     ent = &g_entities[clientNum];
     client = &level.clients[clientNum];
     ClientClearFields(client);
-    memset((unsigned __int8 *)client, 0, sizeof(gclient_s));
+    memset(client, 0, sizeof(gclient_s));
     ci = &level_bgs.clientinfo[clientNum];
     pXAnimTree = ci->pXAnimTree;
-    memset((unsigned __int8 *)ci, 0, sizeof(clientInfo_t));
+    memset(ci, 0, sizeof(clientInfo_t));
     ci->pXAnimTree = pXAnimTree;
     ci->infoValid = 1;
     ci->nextValid = 1;
@@ -583,7 +583,7 @@ void __cdecl ClientSpawn(gentity_s *ent, const float *spawn_origin, const float 
     savedSpawnCount = client->ps.stats[4];
     savedServerTime = client->lastServerTime;
     ClientClearFields(client);
-    memset((unsigned __int8 *)client, 0, sizeof(gclient_s));
+    memset(client, 0, sizeof(gclient_s));
     memcpy(&client->sess, &savedSess, sizeof(client->sess));
     client->lastServerTime = savedServerTime;
     client->spectatorClient = -1;
@@ -768,7 +768,7 @@ void __cdecl ClientDisconnect(unsigned int clientNum)
     ent->client = client;
     ClientClearFields(client);
     client->sess.connected = CON_DISCONNECTED;
-    memset((unsigned __int8 *)&client->sess.cs, 0, sizeof(client->sess.cs));
+    memset(&client->sess.cs, 0, sizeof(client->sess.cs));
     CalculateRanks();
     if ( ent->client != client
         && !Assert_MyHandler(

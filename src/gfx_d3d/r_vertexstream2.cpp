@@ -27,7 +27,7 @@ void __cdecl R_VertexStream2_Init(unsigned int stream2ByteSize)
             vbPtr = (float *)R_LockVertexBuffer(stream2VertexBuffer, 0, 0, 0);
             if ( vbPtr )
             {
-                memset((unsigned __int8 *)vbPtr, 0, stream2ByteSize);
+                memset(vbPtr, 0, stream2ByteSize);
                 R_UnlockVertexBuffer(stream2VertexBuffer);
             }
             stream2AllocatedSize = stream2ByteSize;

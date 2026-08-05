@@ -527,8 +527,8 @@ int __cdecl BG_GetMaxPickupableAmmo(const playerState_s *ps, unsigned int weapon
     const WeaponDef *weapDef; // [esp+84h] [ebp-40h]
     int ammoCounted[15]; // [esp+88h] [ebp-3Ch] BYREF
 
-    memset((unsigned __int8 *)ammoCounted, 0, sizeof(ammoCounted));
-    memset((unsigned __int8 *)clipCounted, 0, sizeof(clipCounted));
+    memset(ammoCounted, 0, sizeof(ammoCounted));
+    memset(clipCounted, 0, sizeof(clipCounted));
     weapDef = BG_GetWeaponDef(weaponIndex);
     if ( weapDef->iSharedAmmoCapIndex >= 0 )
     {
@@ -593,8 +593,8 @@ int __cdecl BG_GetTotalAmmoReserve(const playerState_s *ps, unsigned int weaponI
     int ammoCounted[15]; // [esp+68h] [ebp-3Ch] BYREF
 
     ammo = 0;
-    memset((unsigned __int8 *)ammoCounted, 0, sizeof(ammoCounted));
-    memset((unsigned __int8 *)clipCounted, 0, sizeof(clipCounted));
+    memset(ammoCounted, 0, sizeof(ammoCounted));
+    memset(clipCounted, 0, sizeof(clipCounted));
     weapDef = BG_GetWeaponDef(weaponIndex);
     if ( weapDef->iSharedAmmoCapIndex < 0 )
     {

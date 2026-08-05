@@ -68,7 +68,7 @@ void __cdecl PCache_GetPublicProfilesCompleted(TaskRecord *task)
                 }
                 else
                 {
-                    memset((unsigned __int8 *)profile->ddl, 0, sizeof(profile->ddl));
+                    memset(profile->ddl, 0, sizeof(profile->ddl));
                     DDL_AssociateBuffer(profile->ddl, 256, g_playerDDL);
                 }
                 profile->c.state |= 2u;
@@ -97,7 +97,7 @@ void __cdecl PCache_GetPublicProfilesCompleted(TaskRecord *task)
                 HIDWORD(v2) = HIDWORD(s_batchedProfileXuids[controllerIndex][batchedProfileIndex]);
                 LODWORD(v2) = s_batchedProfileXuids[controllerIndex][batchedProfileIndex];
                 profilea = (PCachePublicProfile *)PCache_GetComponent(task->controllerIndex, v2, 0);
-                memset((unsigned __int8 *)profilea->ddl, 0, sizeof(profilea->ddl));
+                memset(profilea->ddl, 0, sizeof(profilea->ddl));
                 profilea->c.state |= 0x20u;
             }
         }
@@ -123,7 +123,7 @@ void __cdecl PCache_GetPublicProfilesFailed(TaskRecord *task)
         HIDWORD(v1) = HIDWORD(s_batchedProfileXuids[controllerIndex][index]);
         LODWORD(v1) = s_batchedProfileXuids[controllerIndex][index];
         profile = (PCachePublicProfile *)PCache_GetComponent(task->controllerIndex, v1, 0);
-        memset((unsigned __int8 *)profile->ddl, 0, sizeof(profile->ddl));
+        memset(profile->ddl, 0, sizeof(profile->ddl));
         profile->c.state |= 0x20u;
     }
     PCache_Unlock();
@@ -217,7 +217,7 @@ void __cdecl PCache_GetPublicProfileCompleted(TaskRecord *task)
         }
         else
         {
-            memset((unsigned __int8 *)profile->ddl, 0, sizeof(profile->ddl));
+            memset(profile->ddl, 0, sizeof(profile->ddl));
             DDL_AssociateBuffer(profile->ddl, 256, g_playerDDL);
         }
         profile->c.state |= 0x41u;
@@ -261,7 +261,7 @@ void __cdecl PCache_GetPublicProfileFailed(TaskRecord *task)
     }
     if ( bdRemoteTask::getErrorCode(task->remoteTask.m_ptr) == BD_NO_PROFILE_INFO_EXISTS )
     {
-        memset((unsigned __int8 *)profile->ddl, 0, sizeof(profile->ddl));
+        memset(profile->ddl, 0, sizeof(profile->ddl));
         DDL_AssociateBuffer(profile->ddl, 256, g_playerDDL);
         profile->c.state |= 2u;
     }
@@ -340,7 +340,7 @@ void __cdecl PCache_BatchUpdatePublicProfiles(int controllerIndex, PCachePublicP
                     && !TaskManager2_TaskIsInProgressForController(task_pcacheSetPublicProfile, controllerIndex) )
                 {
                     PCache_Lock();
-                    memset((unsigned __int8 *)s_batchedProfileXuids[controllerIndex], 0, sizeof(unsigned __int64[16]));
+                    memset(s_batchedProfileXuids[controllerIndex], 0, sizeof(unsigned __int64[16]));
                     LODWORD(v3) = Live_GetXuid(controllerIndex);
                     xuid = v3;
                     profile = (PCachePublicProfile *)PCache_GetComponent(controllerIndex, v3, 0);
@@ -664,7 +664,7 @@ void __cdecl PCache_GetProfileEmblem(
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)layers, 0, 32 * layerCount);
+    memset(layers, 0, 32 * layerCount);
     DDL_MoveToName(&s_emblemState, &layerState, "layer");
     DDL_MoveToIndex(&layerState, &layerState, 0, 1);
     for ( layer = 0; layer < layerCount; ++layer )

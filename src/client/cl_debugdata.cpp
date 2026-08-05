@@ -656,7 +656,7 @@ void __cdecl CL_ShutdownDebugData()
     R_DebugFree((void **)&cls.debug.svStrings.durations);
     R_DebugFree((void **)&cls.debug.svStringsBuffer.strings);
     R_DebugFree((void **)&cls.debug.svStringsBuffer.durations);
-    memset((unsigned __int8 *)&cls.debug, 0, sizeof(cls.debug));
+    memset(&cls.debug, 0, sizeof(cls.debug));
     R_ShutdownDebug();
     //BLOPS_NULLSUB();
 }

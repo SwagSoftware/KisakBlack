@@ -417,7 +417,7 @@ double __cdecl DrawEntityCounts(const ScreenPlacement *scrPlace, float posY)
     }
     if (listEntityCountsCurrent > 2 && listEntityCountsCurrent <= 5)
     {
-        memset((unsigned __int8 *)entity_counts, 0, sizeof(entity_counts));
+        memset(entity_counts, 0, sizeof(entity_counts));
         for (i = 0; ; ++i)
         {
             if (i >= 1024)
@@ -469,7 +469,7 @@ double __cdecl DrawEntityCounts(const ScreenPlacement *scrPlace, float posY)
     }
     if (listEntityCountsCurrent == 6)
     {
-        memset((unsigned __int8 *)entity_counts, 0, sizeof(entity_counts));
+        memset(entity_counts, 0, sizeof(entity_counts));
         for (ib = 0; ib < 1024; ++ib)
         {
             if (g_entities[ib].r.inuse)

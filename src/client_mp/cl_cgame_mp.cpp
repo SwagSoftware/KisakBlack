@@ -178,7 +178,7 @@ int __cdecl CL_GetSnapshot(int localClientNum, int snapshotNumber, snapshot_s *s
         count = 512;
     }
     snapshot->numEntities = count;
-    memset((unsigned __int8 *)entityFound, 0, sizeof(entityFound));
+    memset(entityFound, 0, sizeof(entityFound));
     snapshotEntityIndex = 0;
     for ( i = 0; i < count; ++i )
     {
@@ -226,7 +226,7 @@ int __cdecl CL_GetSnapshot(int localClientNum, int snapshotNumber, snapshot_s *s
     count = clSnap->numClients;
     if ( count > 32 )
         count = 32;
-    memset((unsigned __int8 *)snapshot->clients, 0xAAu, sizeof(snapshot->clients));
+    memset(snapshot->clients, 0xAAu, sizeof(snapshot->clients));
     snapshot->numClients = count;
     for ( i = 0; i < count; ++i )
         memcpy(
@@ -380,7 +380,7 @@ int __cdecl CL_CGameNeedsServerCommand(int localClientNum, int serverCommandNumb
             case 'n':
                 Con_ClearNotify(localClientNum);
                 LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
-                memset((unsigned __int8 *)LocalClientGlobals->cmds, 0, sizeof(LocalClientGlobals->cmds));
+                memset(LocalClientGlobals->cmds, 0, sizeof(LocalClientGlobals->cmds));
                 return 1;
             case 'd':
                 Cmd_EndTokenizedString();
@@ -526,7 +526,7 @@ void __cdecl CL_SetExpectedHunkUsage(const char *mapname)
     if ( len >= 0 )
     {
         buf = (char *)Z_Malloc(len + 1, "CL_SetExpectedHunkUsage", 11);
-        memset((unsigned __int8 *)buf, 0, len + 1);
+        memset(buf, 0, len + 1);
         FS_Read((unsigned __int8 *)buf, len, handle);
         FS_FCloseFile(handle);
         buftrav = buf;
@@ -1009,9 +1009,9 @@ void __cdecl CL_UpdateLevelHunkUsage()
     if ( len >= 0 )
     {
         buf = (char *)Z_Malloc(len + 1, "CL_UpdateLevelHunkUsage", 11);
-        memset((unsigned __int8 *)buf, 0, len + 1);
+        memset(buf, 0, len + 1);
         outbuf = (char *)Z_Malloc(len + 1, "CL_UpdateLevelHunkUsage", 11);
-        memset((unsigned __int8 *)outbuf, 0, len + 1);
+        memset(outbuf, 0, len + 1);
         FS_Read((unsigned __int8 *)buf, len, handle);
         FS_FCloseFile(handle);
         buftrav = buf;

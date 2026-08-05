@@ -255,7 +255,7 @@ void __cdecl XModelReadSurface(XModel *model, unsigned __int8 **pos, void *(__cd
             if ( !surface->vertInfo.tensionData )
             {
                 surface->vertInfo.tensionData = (float *)Alloc(48 * surface->vertCount);
-                memset((unsigned __int8 *)surface->vertInfo.tensionData, 0, 48 * surface->vertCount);
+                memset(surface->vertInfo.tensionData, 0, 48 * surface->vertCount);
             }
             for ( m = 0; m < 12; ++m )
             {
@@ -502,7 +502,7 @@ void __cdecl XModelReadSurface(XModel *model, unsigned __int8 **pos, void *(__cd
     if ( vertListCount == 1 )
     {
         vertFlags = (unsigned __int16 *)Hunk_AllocateTempMemory(2 * surface->vertCount, "XModelReadSurface");
-        memset((unsigned __int8 *)vertFlags, 0, 2 * surface->vertCount);
+        memset(vertFlags, 0, 2 * surface->vertCount);
         indices = surface->triIndices;
         vertFlags[*indices] = 1;
         vertFlags[indices[1]] = 1;
@@ -541,7 +541,7 @@ void __cdecl XModelReadSurface(XModel *model, unsigned __int8 **pos, void *(__cd
                 indices[ii + 2] = v55;
             }
         }
-        memset((unsigned __int8 *)vertFlags, 0, 2 * surface->vertCount);
+        memset(vertFlags, 0, 2 * surface->vertCount);
         next_index = 1;
         for ( jj = 0; jj < num_indices; ++jj )
         {
@@ -625,7 +625,7 @@ void __cdecl XModelReadSurface(XModel *model, unsigned __int8 **pos, void *(__cd
     vertexBytes = 32;
     vertexBytes = 32 * surface->vertCount;
     surface->verts0 = (GfxPackedVertex *)Alloc(vertexBytes);
-    memset((unsigned __int8 *)surface->verts0, 0, vertexBytes);
+    memset(surface->verts0, 0, vertexBytes);
     model->memUsage += vertexBytes;
     XSurfaceTransfer(surfVerts, surface->verts0, surface->verts0, surface->vertCount);
     if ( deformed )

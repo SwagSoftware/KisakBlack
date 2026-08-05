@@ -1131,7 +1131,7 @@ flameTable *__cdecl BG_LoadFlameTableInternal(const char *folder, char *name)
         {
             if ( (unsigned int)(v6 - len) < 0x2800 )
             {
-                memset((unsigned __int8 *)buffer, 0, 0x2800u);
+                memset(buffer, 0, 0x2800u);
                 FS_Read((unsigned __int8 *)buffer, v6 - len, f);
                 buffer[v6 - len] = 0;
                 FS_FCloseFile(f);
@@ -1247,7 +1247,7 @@ char __cdecl BG_LoadWeaponFile(char *szFileName, char *szBuffer, int iBufferSize
         {
             if ( iFileLength - iIdentifierLen < iBufferSize )
             {
-                memset((unsigned __int8 *)szBuffer, 0, iBufferSize);
+                memset(szBuffer, 0, iBufferSize);
                 FS_Read((unsigned __int8 *)szBuffer, iFileLength - iIdentifierLen, hFile);
                 szBuffer[iFileLength - iIdentifierLen] = 0;
                 FS_FCloseFile(hFile);
@@ -1388,7 +1388,7 @@ int __cdecl BG_MergeWeaponDefClipName(char **value, char *mergedValue, int size)
     int comp[3]; // [esp+170h] [ebp-3BCh] BYREF
     WeaponComponentList componentList[3]; // [esp+17Ch] [ebp-3B0h] BYREF
 
-    memset((unsigned __int8 *)&merged, 0, sizeof(merged));
+    memset(&merged, 0, sizeof(merged));
     for ( m = 0; m < 3; ++m )
         BG_WeaponNameToComponentList(value[m], &componentList[m]);
     memset(comp, 0, sizeof(comp));

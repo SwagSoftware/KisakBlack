@@ -276,7 +276,7 @@ void __cdecl R_ShutdownWorld()
     R_ReleaseWorld();
     rgp.world = 0;
     g_worldDraw = 0;
-    memset((unsigned __int8 *)&g_drawConsts, 0, 0x40u);
+    memset(&g_drawConsts, 0, 0x40u);
     if ( s_world.draw.vd.worldVb
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_bsp.cpp",

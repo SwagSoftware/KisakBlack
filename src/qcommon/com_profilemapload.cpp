@@ -108,7 +108,7 @@ void __cdecl ProfLoad_Activate()
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)&mapLoadProfile, 0, sizeof(mapLoadProfile));
+    memset(&mapLoadProfile, 0, sizeof(mapLoadProfile));
     mapLoadProfile.isLoading = 1;
     QueryPerformanceCounter(&PerformanceCount);
     mapLoadProfile.ticksStart = PerformanceCount.QuadPart;

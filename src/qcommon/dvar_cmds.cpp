@@ -742,12 +742,12 @@ char *__cdecl Dvar_InfoString(int localClientNum, int bit)
         bdTrulyRandomImpl *v9; // eax
         if ( live_service && live_service->current.enabled )
         {
-            memset((unsigned __int8 *)temp64buff, 0, 0xB1u);
+            memset(temp64buff, 0, 0xB1u);
             dwGetOnlineUserID(0, &ourUserID);
             Com_DPrintf(14, "CHALLENGERESPONSE: Sending bdOnlineUserID %llu to server\n", ourUserID);
             XUIDToString(&ourUserID, temp64buff);
             Info_SetValueForKey(info1, "bdOnlineUserID", temp64buff);
-            memset((unsigned __int8 *)temp64buff, 0, 0xB1u);
+            memset(temp64buff, 0, 0xB1u);
             if ( !clc->nonce )
             {
                 Instance = bdSingleton<bdTrulyRandomImpl>::getInstance();

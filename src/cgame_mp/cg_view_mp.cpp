@@ -5568,7 +5568,7 @@ void __cdecl CG_ClearSaveScreenFx(int localClientNum)
     cg_s *cgameGlob; // [esp+0h] [ebp-4h]
 
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-    memset((unsigned __int8 *)&cgameGlob->refdef.saveScreenFx, 0, sizeof(cgameGlob->refdef.saveScreenFx));
+    memset(&cgameGlob->refdef.saveScreenFx, 0, sizeof(cgameGlob->refdef.saveScreenFx));
 }
 
 void __cdecl CG_SaveScreen(int localClientNum)

@@ -4083,7 +4083,7 @@ void __cdecl Con_Restricted_SetState(e_restricted_initState state)
 
 void __cdecl Con_Restricted_ShutDown()
 {
-    memset((unsigned __int8 *)g_restricted, 0, sizeof(g_restricted));
+    memset(g_restricted, 0, sizeof(g_restricted));
     g_restricted_count = 0;
     g_restricted_ranked = 0;
     Con_Restricted_Reset();
@@ -4267,7 +4267,7 @@ int __cdecl Con_Restricted_RestrictBuf(const char *buf, int start, int length, c
     int size; // [esp+4h] [ebp-8h]
 
     quotes = 0;
-    memset((unsigned __int8 *)buffer, 0, buffer_size);
+    memset(buffer, 0, buffer_size);
     I_strncat(buffer, buffer_size, "#dcr#");
     size = 5;
     while ( start < length )

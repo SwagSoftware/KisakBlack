@@ -1629,7 +1629,7 @@ void __cdecl FinitePerspectiveMatrix(float tanHalfFovX, float tanHalfFovY, float
     iassert(zNear > 0.0f);
     iassert(zFar > zNear);
 
-    memset((unsigned __int8 *)mtx, 0, 0x40u);
+    memset(mtx, 0, 0x40u);
 
     (*mtx)[0] = 1.0 / tanHalfFovX;
     (*mtx)[5] = 1.0 / tanHalfFovY;
@@ -1759,7 +1759,7 @@ void __cdecl SpotLightProjectionMatrix(float cosFov, float zNear, float zFar, fl
     float Q; // [esp+8h] [ebp-8h]
     float cotanFov; // [esp+Ch] [ebp-4h]
 
-    memset((unsigned __int8 *)mtx, 0, 0x40u);
+    memset(mtx, 0, 0x40u);
     if ( zNear >= 0.001 )
         v4 = zNear;
     else
@@ -1779,7 +1779,7 @@ void __cdecl InfinitePerspectiveMatrix(float tanHalfFovX, float tanHalfFovY, flo
         iassert(mtx);
         iassert(zNear > 0);
 
-        memset((unsigned __int8 *)mtx, 0, sizeof(mat4x4));
+        memset(mtx, 0, sizeof(mat4x4));
 
         (*mtx)[0] = MAX_11BIT_FLT / tanHalfFovX;
         (*mtx)[5] = MAX_11BIT_FLT / tanHalfFovY;

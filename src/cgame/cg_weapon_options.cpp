@@ -152,7 +152,7 @@ void __thiscall WeaponOptions::InitWeaponOptions()
     int goldRow; // [esp+18h] [ebp-8h]
     int blackRow; // [esp+1Ch] [ebp-4h]
 
-    memset((unsigned __int8 *)this, 0, sizeof(WeaponOptions));
+    memset(this, 0, sizeof(WeaponOptions));
     for ( i = 0; i < 0xA; ++i )
     {
         WeaponOptions::InitWeaponOptionTextures(

@@ -117,7 +117,7 @@ void __cdecl clear_debug_brushes_and_patches()
             Com_Printf(0, "Could not allocate memory for debug_brush_info\n");
             return;
         }
-        memset((unsigned __int8 *)debug_brush_info, 0, sizeof(debug_brush_info_t));
+        memset(debug_brush_info, 0, sizeof(debug_brush_info_t));
     }
     debug_brush_info->num_brushes = 0;
     debug_brush_info->num_windings = 0;
@@ -130,7 +130,7 @@ void __cdecl clear_debug_brushes_and_patches()
             Com_Printf(0, "Could not allocate memory for debug_patch_info\n");
             return;
         }
-        memset((unsigned __int8 *)debug_patch_info, 0, sizeof(debug_patch_info_t));
+        memset(debug_patch_info, 0, sizeof(debug_patch_info_t));
     }
     debug_patch_info->num_patches = 0;
     debug_patch_info->num_indices = 0;

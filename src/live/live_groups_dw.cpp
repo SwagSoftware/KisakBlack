@@ -27,7 +27,7 @@ void __cdecl LiveGroups_Init()
     int i; // [esp+0h] [ebp-8h]
     GroupSet *j; // [esp+4h] [ebp-4h]
 
-    memset((unsigned __int8 *)s_groupMembership, 0, sizeof(s_groupMembership));
+    memset(s_groupMembership, 0, sizeof(s_groupMembership));
     s_groupSetCount = 0;
     s_groupCount = 0;
     s_groupUpdateTime = 0;
@@ -134,7 +134,7 @@ void __cdecl LiveGroups_GetGroupCountsComplete(TaskRecord *task)
 #ifdef KISAK_DEMON
     unsigned int idx; // [esp+4h] [ebp-4h]
 
-    memset((unsigned __int8 *)s_groupCounts, 0, sizeof(s_groupCounts));
+    memset(s_groupCounts, 0, sizeof(s_groupCounts));
     for ( idx = 0; idx < bdTaskByteBuffer::getHeaderSize((bdTaskByteBuffer *)task->remoteTask.m_ptr); ++idx )
         s_groupCounts[*((unsigned int *)&unk_A4E0D04 + 3 * idx)] = dword_A4E0D08[3 * idx];
 #endif
@@ -370,7 +370,7 @@ void __cdecl LiveGroups_RegisterPlayer(int localControllerIndex)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)&s_groupMembership[localControllerIndex], 0, 0x80u);
+    memset(&s_groupMembership[localControllerIndex], 0, 0x80u);
     LiveGroups_JoinGroup(localControllerIndex, (char*)"online/mp");
 }
 

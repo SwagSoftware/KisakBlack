@@ -600,7 +600,7 @@ void __cdecl DObjFree(DObj *obj)
         obj->duplicatePartsSize = 0;
         obj->duplicateParts = 0;
     }
-    memset((unsigned __int8 *)obj, 0x77u, sizeof(DObj));
+    memset(obj, 0x77u, sizeof(DObj));
     obj->entnum = entnum;
 }
 
@@ -819,7 +819,7 @@ void __cdecl DObjUnarchive(DObj *obj)
 
 void __cdecl DObjSkelClear(const DObj *obj)
 {
-    memset((unsigned __int8 *)&obj->skel, 0, sizeof(obj->skel));
+    memset((void *)&obj->skel, 0, sizeof(obj->skel));
 }
 
 bool __cdecl DObjIsServer(const DObj *obj)

@@ -583,7 +583,7 @@ unsigned __int8 *__cdecl UI_Alloc(unsigned int size, int alignment)
 
 void __cdecl String_Init()
 {
-    memset((unsigned __int8 *)g_strHandle, 0, sizeof(g_strHandle));
+    memset(g_strHandle, 0, sizeof(g_strHandle));
 }
 
 static const char *staticNULL = "";

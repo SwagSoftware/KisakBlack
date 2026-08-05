@@ -323,7 +323,7 @@ void __cdecl Con_InitChannels()
     int i; // [esp+0h] [ebp-8h]
     unsigned int channel; // [esp+4h] [ebp-4h]
 
-    memset((unsigned __int8 *)&pcGlob, 0, 0x2100u);
+    memset(&pcGlob, 0, 0x2100u);
     for ( channel = 0; channel < 0x22; ++channel )
         Con_OpenChannel(builtinChannels[channel], 0);
     pcGlob.openChannels[25].allowScript = 1;

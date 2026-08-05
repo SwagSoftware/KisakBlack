@@ -1371,7 +1371,7 @@ void __cdecl FinishSpawningItem(gentity_s *ent)
 
 void __cdecl ClearRegisteredItems()
 {
-    memset((unsigned __int8 *)itemRegistered, 0, sizeof(itemRegistered));
+    memset(itemRegistered, 0, sizeof(itemRegistered));
     itemRegistered[0] = 1;
 }
 

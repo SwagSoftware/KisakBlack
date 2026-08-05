@@ -498,7 +498,7 @@ int __cdecl GetFollowPlayerStateLocal(int clientNum, playerState_s *ps)
             sizeof(playerState_s));
         for ( index = 0; index < 0x1F && ps->hud.current[index].type; ++index )
         {
-            memset((unsigned __int8 *)&ps->hud.current[index], 0, sizeof(ps->hud.current[index]));
+            memset(&ps->hud.current[index], 0, sizeof(ps->hud.current[index]));
             if ( ps->hud.current[index].type )
             {
                 if ( !Assert_MyHandler(
@@ -528,7 +528,7 @@ int __cdecl GetFollowPlayerStateLocal(int clientNum, playerState_s *ps)
     }
     else
     {
-        memset((unsigned __int8 *)ps, 0, sizeof(playerState_s));
+        memset(ps, 0, sizeof(playerState_s));
         return 0;
     }
 }

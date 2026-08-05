@@ -942,7 +942,7 @@ void __cdecl Material_FreeAllTechniqueSets()
 {
     DB_EnumXAssets(ASSET_TYPE_TECHNIQUE_SET, (void (__cdecl *)(XAssetHeader, void *))Material_FreeTechniqueSet, 0, 1);
     if ( !useFastFile->current.enabled )
-        memset((unsigned __int8 *)materialGlobals.techniqueSetHashTable, 0, sizeof(materialGlobals.techniqueSetHashTable));
+        memset(materialGlobals.techniqueSetHashTable, 0, sizeof(materialGlobals.techniqueSetHashTable));
 }
 
 void __cdecl Material_DirtySort()
@@ -1717,7 +1717,7 @@ void __cdecl Material_Init()
 {
     if ( !useFastFile->current.enabled )
     {
-        memset((unsigned __int8 *)&materialGlobals, 0, sizeof(materialGlobals));
+        memset(&materialGlobals, 0, sizeof(materialGlobals));
         Material_PreLoadAllShaderText();
     }
     Material_LoadBuiltIn(s_builtInMaterials, 122);
@@ -1750,8 +1750,8 @@ void __cdecl Material_LoadBuiltIn(const BuiltInMaterialTable *mtlTable, int mtlT
 void __cdecl Material_Shutdown()
 {
     Material_FreeAll();
-    memset((unsigned __int8 *)&materialGlobals, 0, sizeof(materialGlobals));
-    memset((unsigned __int8 *)rg.materialHashTable, 0, sizeof(rg.materialHashTable));
+    memset(&materialGlobals, 0, sizeof(materialGlobals));
+    memset(rg.materialHashTable, 0, sizeof(rg.materialHashTable));
     rgp.materialCount = 0;
 }
 

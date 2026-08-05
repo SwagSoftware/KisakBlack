@@ -83,7 +83,7 @@ void __cdecl R_SetupSunShadowMaps(const GfxViewParms *viewParms, GfxSunShadow *s
     {
         partition = &sunShadow->partition[partitionIndex];
         shadowViewParms = &partition->shadowViewParms;
-        memset((unsigned __int8 *)partition, 0xB0u, 0x140u);
+        memset(partition, 0xB0u, 0x140u);
 
         shadowViewParms->origin[0] = -sunAxis[0][0];
         shadowViewParms->origin[1] = -sunAxis[0][1];
@@ -351,7 +351,7 @@ void __cdecl R_SunShadowMapProjectionMatrix(
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)&shadowViewParms->projectionMatrix, 0, sizeof(shadowViewParms->projectionMatrix));
+    memset(&shadowViewParms->projectionMatrix, 0, sizeof(shadowViewParms->projectionMatrix));
     shadowSampleExtents = (double)partitionRes * shadowSampleSize;
     shadowViewParms->projectionMatrix.m[0][0] = 2.0 / shadowSampleExtents;
     shadowViewParms->projectionMatrix.m[3][0] = *snappedViewOrgInClipSpace;

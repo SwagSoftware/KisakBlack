@@ -22,7 +22,7 @@ void __cdecl UILocalVar_Shutdown(UILocalVarContext *context)
             FreeString(context->table[hash].name, 36, SCRIPTINSTANCE_SERVER);
         }
     }
-    memset((unsigned __int8 *)context, 0, sizeof(UILocalVarContext));
+    memset(context, 0, sizeof(UILocalVarContext));
 }
 
 UILocalVarContext *__cdecl UILocalVar_Find(UILocalVarContext *context, const char *name)

@@ -341,7 +341,7 @@ char __cdecl Live_FileShare_PublicMetaDataToTags(bdFileMetaData *descriptor)
     createTime = 0;
     Live_FileShare_ReadPublicMetaDataLength(descriptor, &duration);
     Live_FileShare_ReadPublicMetaDataCreateTime(descriptor, &createTime);
-    memset((unsigned __int8 *)metaData, 0, sizeof(metaData));
+    memset(metaData, 0, sizeof(metaData));
     DDL_AssociateBuffer(metaData, 255, g_fileshareDDL);
     if ( DDL_MoveToName(&g_fileShareRootState, &state, "name")
         && (LocalizedGameTypeFromIndex = Live_FileShare_GetLocalizedGameTypeFromIndex(gameTypeIndex, 1),
@@ -2171,7 +2171,7 @@ void __cdecl Live_FileShare_ExpirePooledFileDetails()
 void __cdecl Live_FileShare_SetPooledFileDetailsContext(fileSharePooledFileContext_t context)
 {
     if ( s_pooledFileDetails.context != context )
-        memset((unsigned __int8 *)&s_pooledFileDetails, 0, sizeof(s_pooledFileDetails));
+        memset(&s_pooledFileDetails, 0, sizeof(s_pooledFileDetails));
     s_pooledFileDetails.context = context;
 }
 

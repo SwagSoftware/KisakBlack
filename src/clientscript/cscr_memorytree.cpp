@@ -52,7 +52,7 @@ void __cdecl MT_DumpTree(scriptInstance_t inst)
     int type; // [esp+80h] [ebp-8h]
     int totalBuckets; // [esp+84h] [ebp-4h]
 
-    memset((unsigned __int8 *)mt_type_usage, 0, sizeof(mt_type_usage));
+    memset(mt_type_usage, 0, sizeof(mt_type_usage));
     Com_Printf(24, "********************************\n");
     totalAlloc = 0;
     totalAllocBuckets = 0;
@@ -172,7 +172,7 @@ void __cdecl MT_Init(scriptInstance_t inst)
     gScrMemTreeGlob[inst].totalAlloc = 0;
     gScrMemTreeGlob[inst].totalAllocBuckets = 0;
     memset(gScrMemTreeDebugGlob[inst].mt_usage, 0, sizeof(gScrMemTreeDebugGlob[inst].mt_usage));
-    memset((unsigned __int8 *)&byte_9D4A088[0x20000 * inst], 0, 0x10000u);
+    memset(&byte_9D4A088[0x20000 * inst], 0, 0x10000u);
     Sys_LeaveCriticalSection(CRITSECT_MEMORY_TREE);
 }
 

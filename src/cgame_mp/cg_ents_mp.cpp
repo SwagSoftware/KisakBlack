@@ -3704,7 +3704,7 @@ void __cdecl CG_ClearUnion(int localClientNum, centity_s *cent)
             break;
         case 0xCu:
         case 0xEu:
-            //memset((unsigned __int8 *)&cent->pose.108, 0, sizeof(cent->pose.108));
+            //memset(&cent->pose.108, 0, sizeof(cent->pose.108));
             memset(&cent->pose.vehicle, 0, sizeof(cent->pose.vehicle)); // biggest union member
             break;
         default:
@@ -3715,7 +3715,7 @@ void __cdecl CG_ClearUnion(int localClientNum, centity_s *cent)
 
 void __cdecl CG_SetUnionType(int localClientNum, centity_s *cent)
 {
-    //memset((unsigned __int8 *)&cent->pose.108, 0, sizeof(cent->pose.108));
+    //memset(&cent->pose.108, 0, sizeof(cent->pose.108));
     memset(&cent->pose.vehicle, 0, sizeof(cent->pose.vehicle)); // biggest union member
     switch ( cent->nextState.eType )
     {

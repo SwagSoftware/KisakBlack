@@ -74,7 +74,7 @@ void __cdecl PS_CreatePunctuationTable(script_s *script, punctuation_s *punctuat
 
     if ( !script->punctuationtable )
         script->punctuationtable = (punctuation_s **)GetMemory(0x400u);
-    memset((unsigned __int8 *)script->punctuationtable, 0, 0x400u);
+    memset(script->punctuationtable, 0, 0x400u);
     for ( i = 0; punctuations[i].p; ++i )
     {
         newp = &punctuations[i];
@@ -625,7 +625,7 @@ int __cdecl PS_ReadToken(script_s *script, token_s *token)
     }
     script->lastscript_p = script->script_p;
     script->lastline = script->line;
-    memset((unsigned __int8 *)token, 0, sizeof(token_s));
+    memset(token, 0, sizeof(token_s));
     script->whitespace_p = script->script_p;
     token->whitespace_p = script->script_p;
     if ( !PS_ReadWhiteSpace(script) )

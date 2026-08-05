@@ -193,7 +193,7 @@ int __cdecl VP_FindPath(float *start, float *end, vehicle_pathpos_t *vpp)
     v31 = VP_FindClosestPathNode(end);
     if ( v31 < 0 || ClosestPathNode < 0 )
         return 0;
-    memset((unsigned __int8 *)dst, 0, sizeof(dst));
+    memset(dst, 0, sizeof(dst));
     v29 = 0;
     *(unsigned int *)&dst[8 * v31 + 2] = 0;
     v4 = Vec3Distance(s_nodes[v31].origin, s_nodes[ClosestPathNode].origin);

@@ -1077,13 +1077,13 @@ void __cdecl Material_FreeAll()
     Material_FreeAllTechniqueSets();
     if ( !useFastFile->current.enabled )
     {
-        memset((unsigned __int8 *)mtlLoadGlob.techniqueHashTable, 0, sizeof(mtlLoadGlob.techniqueHashTable));
+        memset(mtlLoadGlob.techniqueHashTable, 0, sizeof(mtlLoadGlob.techniqueHashTable));
         mtlLoadGlob.techniqueCount = 0;
         memset(&mtlLoadGlob.vertexDeclHashTable[0].streamCount, 0, 0x1B00u);
         mtlLoadGlob.vertexDeclCount = 0;
-        memset((unsigned __int8 *)mtlLoadGlob.vertexShaderHashTable, 0, sizeof(mtlLoadGlob.vertexShaderHashTable));
+        memset(mtlLoadGlob.vertexShaderHashTable, 0, sizeof(mtlLoadGlob.vertexShaderHashTable));
         mtlLoadGlob.vertexShaderCount = 0;
-        memset((unsigned __int8 *)mtlLoadGlob.pixelShaderHashTable, 0, sizeof(mtlLoadGlob.pixelShaderHashTable));
+        memset(mtlLoadGlob.pixelShaderHashTable, 0, sizeof(mtlLoadGlob.pixelShaderHashTable));
         mtlLoadGlob.pixelShaderCount = 0;
     }
 }
@@ -1095,13 +1095,13 @@ void Material_FreeAllLiterals()
 
 void Material_FreeAllStrings()
 {
-    memset((unsigned __int8 *)mtlLoadGlob.stringHashTable, 0, sizeof(mtlLoadGlob.stringHashTable));
+    memset(mtlLoadGlob.stringHashTable, 0, sizeof(mtlLoadGlob.stringHashTable));
     mtlLoadGlob.stringCount = 0;
 }
 
 void Material_FreeAllStateMaps()
 {
-    memset((unsigned __int8 *)mtlLoadGlob.stateMapHashTable, 0, sizeof(mtlLoadGlob.stateMapHashTable));
+    memset(mtlLoadGlob.stateMapHashTable, 0, sizeof(mtlLoadGlob.stateMapHashTable));
     mtlLoadGlob.stateMapCount = 0;
 }
 
@@ -1812,7 +1812,7 @@ char __cdecl Material_ParseRuleSet(
         return 0;
     if ( !Material_MatchToken((const char **)text, "{") )
         return 0;
-    memset((unsigned __int8 *)dst, 0, sizeof(dst));
+    memset(dst, 0, sizeof(dst));
     v7 = 0;
     ruleCount = 0;
     while ( 1 )
@@ -2527,7 +2527,7 @@ char __cdecl Material_LoadPassVertexShader(
     parseInfo_t *shaderName; // [esp+8h] [ebp-8h]
     MaterialVertexShader *mtlShader; // [esp+Ch] [ebp-4h]
 
-    memset((unsigned __int8 *)paramSet, 0, sizeof(ShaderParameterSet));
+    memset(paramSet, 0, sizeof(ShaderParameterSet));
     if ( !Material_MatchToken(text, "vertexShader") )
         return 0;
     Material_ParseShaderVersion(text);
@@ -3651,7 +3651,7 @@ char __cdecl Material_ParseShaderArguments(
     MaterialShaderArgument argTable; // [esp+144h] [ebp-5008h] BYREF
     char dst[256][64]; // [esp+1144h] [ebp-4008h] BYREF
 
-    memset((unsigned __int8 *)dst, 0, sizeof(dst));
+    memset(dst, 0, sizeof(dst));
     if ( !techFlags
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_material_load_obj.cpp",
@@ -5166,7 +5166,7 @@ char __cdecl Material_LoadPassPixelShader(
     parseInfo_t *shaderName; // [esp+8h] [ebp-8h]
     MaterialPixelShader *mtlShader; // [esp+Ch] [ebp-4h]
 
-    memset((unsigned __int8 *)paramSet, 0, sizeof(ShaderParameterSet));
+    memset(paramSet, 0, sizeof(ShaderParameterSet));
     if ( !Material_MatchToken(text, "pixelShader") )
         return 0;
     Material_ParseShaderVersion(text);

@@ -20,7 +20,7 @@ void __cdecl R_InitDrawSurfListInfo(GfxDrawSurfListInfo *info)
                 __debugbreak();
         }
     }
-    memset((unsigned __int8 *)info, 0, sizeof(GfxDrawSurfListInfo));
+    memset(info, 0, sizeof(GfxDrawSurfListInfo));
 }
 
 void __cdecl R_EmitDrawSurfList(const GfxDrawSurf *drawSurfs, unsigned int drawSurfCount, GfxBackEndData *data)

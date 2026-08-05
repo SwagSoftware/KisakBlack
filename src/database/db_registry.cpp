@@ -1005,7 +1005,7 @@ void __cdecl DB_FreeXGlobals(XAssetPoolEntry<EmblemSet> **pool, XAssetHeader hea
 
 void __cdecl DB_MarkAssetTypeUsageDirty()
 {
-    memset((unsigned __int8 *)s_usageUpToDate, 0, sizeof(s_usageUpToDate));
+    memset(s_usageUpToDate, 0, sizeof(s_usageUpToDate));
 }
 
 void __cdecl DB_GetAssetTypeUsageInfo(XAssetType assetType, const char **outName, int *outUsed, int *outPool)
@@ -3653,7 +3653,7 @@ int __cdecl DB_TryLoadXFileInternal(const char *zoneName, int zoneFlags)
 
     zoneDir = FFD_DEFAULT;
     zone = &g_zones[g_zoneCount];
-    memset((unsigned __int8 *)zone, 0, sizeof(XZone));
+    memset(zone, 0, sizeof(XZone));
     if ( g_zoneInfoCount
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_registry.cpp",
@@ -3732,7 +3732,7 @@ int __cdecl DB_TryLoadXFileInternal(const char *zoneName, int zoneFlags)
         g_zoneNames[g_zoneIndex].dir = zoneDir;
         zone->index = g_zoneIndex;
         zone->flags = zoneFlags;
-        memset((unsigned __int8 *)zone->blocks, 0, sizeof(zone->blocks));
+        memset(zone->blocks, 0, sizeof(zone->blocks));
         if ( g_loadingZone
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_registry.cpp",

@@ -997,7 +997,7 @@ XModelPartsLoad *__cdecl XModelPartsLoadFile(
                         FS_FreeFile(buf);
                         XModelCalcBasePose(modelParts);
                         if ( !useBones )
-                            memset((unsigned __int8 *)modelParts->trans, 0, 16 * numChildBones);
+                            memset(modelParts->trans, 0, 16 * numChildBones);
                         return modelParts;
                     }
                     else

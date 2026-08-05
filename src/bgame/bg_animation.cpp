@@ -540,7 +540,7 @@ void __cdecl BG_InitWeaponString(int index, const char *name)
 
 void __cdecl BG_InitWeaponStrings()
 {
-    memset((unsigned __int8 *)weaponStrings, 0, sizeof(weaponStrings));
+    memset(weaponStrings, 0, sizeof(weaponStrings));
     BG_LoadWeaponStrings();
 }
 
@@ -616,8 +616,8 @@ unsigned int __cdecl BG_AnimGetConditionValue(animScriptItem_t *scriptItem, int 
 
 void __cdecl BG_InitVehicles()
 {
-    memset((unsigned __int8 *)animVehicleNameStr, 0, sizeof(animVehicleNameStr));
-    memset((unsigned __int8 *)animVehicleTypes, 0, sizeof(animVehicleTypes));
+    memset(animVehicleNameStr, 0, sizeof(animVehicleNameStr));
+    memset(animVehicleTypes, 0, sizeof(animVehicleTypes));
 }
 
 int __cdecl BG_GetVehicleAnimSetIndex(unsigned __int16 animSetStr)
@@ -2242,7 +2242,7 @@ void __cdecl BG_Player_DoControllersInternal(const entityState_s *es, const clie
     if ( moveType == 24 )
     {
 LABEL_7:
-        memset((unsigned __int8 *)info, 0, sizeof(controller_info_t));
+        memset(info, 0, sizeof(controller_info_t));
     }
     else
     {
@@ -3489,9 +3489,9 @@ void __cdecl BG_AnimParseAnimScript(
     parseMode = PARSEMODE_DEFINES;
     BG_InitWeaponStrings();
     BG_InitVehicles();
-    memset((unsigned __int8 *)defineStr, 0, sizeof(defineStr));
-    memset((unsigned __int8 *)defineStrings, 0, sizeof(defineStrings));
-    memset((unsigned __int8 *)numDefines, 0, sizeof(numDefines));
+    memset(defineStr, 0, sizeof(defineStr));
+    memset(defineStrings, 0, sizeof(defineStrings));
+    memset(numDefines, 0, sizeof(numDefines));
     defineStringsOffset = 0;
     parseVehicleLoop = 0;
     parseVehicleNameIndex = -1;
@@ -3503,7 +3503,7 @@ void __cdecl BG_AnimParseAnimScript(
     text_p = input;
     Com_BeginParseSession("BG_AnimParseAnimScript");
     for ( i = 0; i < 34; ++i )
-        memset((unsigned __int8 *)&scriptData->scriptEvents[i], 0, sizeof(scriptData->scriptEvents[i]));
+        memset(&scriptData->scriptEvents[i], 0, sizeof(scriptData->scriptEvents[i]));
     while ( 1 )
     {
         token = (const char *)Com_Parse(&text_p);
@@ -3705,7 +3705,7 @@ void __cdecl BG_AnimParseAnimScript(
                                         {
                                             currentScript = &scriptData->scriptCannedAnims[indexes[0]][indexes[1]];
                                         }
-                                        memset((unsigned __int8 *)currentScript, 0, sizeof(animScript_t));
+                                        memset(currentScript, 0, sizeof(animScript_t));
                                     }
                                     else
                                     {
@@ -3725,7 +3725,7 @@ void __cdecl BG_AnimParseAnimScript(
                                         {
                                             if ( I_stricmp(token, "#END_FOR_ALL_VEHICLES") )
                                             {
-                                                memset((unsigned __int8 *)&tempScriptItem, 0, sizeof(tempScriptItem));
+                                                memset(&tempScriptItem, 0, sizeof(tempScriptItem));
                                                 v11 = BG_ParseConditions(&text_p, &tempScriptItem);
                                                 indexes[indentLevel] = v11;
                                                 if ( currentScript->numItems >= 128 )
@@ -3810,7 +3810,7 @@ void __cdecl BG_AnimParseAnimScript(
                                         text_p -= strlen(token);
                                         if ( I_strncmp(text_p, token, strlen(token)) )
                                             BG_AnimParseError("BG_AnimParseAnimScript: internal error");
-                                        memset((unsigned __int8 *)&tempScriptItem, 0, sizeof(tempScriptItem));
+                                        memset(&tempScriptItem, 0, sizeof(tempScriptItem));
                                         v14 = BG_ParseConditions(&text_p, &tempScriptItem);
                                         indexes[indentLevel] = v14;
                                         if ( currentScript->numItems >= 128 )
@@ -3890,7 +3890,7 @@ LABEL_181:
                                     if ( !token || I_stricmp(token, "{") )
                                         BG_AnimParseError("BG_AnimParseAnimScript: expected '{'");
                                     ++indentLevel;
-                                    memset((unsigned __int8 *)currentScript, 0, sizeof(animScript_t));
+                                    memset(currentScript, 0, sizeof(animScript_t));
                                 }
                                 else if ( I_stricmp(token, "#FOR_ALL_VEHICLES") )
                                 {

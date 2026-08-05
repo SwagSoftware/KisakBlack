@@ -1760,7 +1760,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
     //    bdTag::bdTag(i);
     ClientName = Live_ControllerIndex_GetClientName(controllerIndex);
     I_strncpyz(gamerTag, ClientName, 32);
-    memset((unsigned __int8 *)metaData, 0, sizeof(metaData));
+    memset(metaData, 0, sizeof(metaData));
     LODWORD(v3) = Live_GetXuid(controllerIndex);
     Live_FileShare_AddTag(4u, v3, &numTags, tags, 40);
     Live_FileShare_AddTag(3u, 4u, &numTags, tags, 40);

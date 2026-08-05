@@ -27,7 +27,7 @@ void __cdecl Flame_Class_Stream_Init()
 {
     int i; // [esp+0h] [ebp-4h]
 
-    memset((unsigned __int8 *)&flameStreams, 0, 0x2300u);
+    memset(&flameStreams, 0, 0x2300u);
     Flame_List_Init((flameGeneric_s*)&flameStreams[0], 140, 64);
     flameStreamsFree = (flameStream_s *)&flameStreams;
     flameStreamsUsed = 0;

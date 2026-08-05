@@ -35,11 +35,11 @@ void __cdecl FX_AllocateClientMemory(HunkUser *hunk, int maxLocalClients)
 
     fx_maxLocalClients = maxLocalClients;
     fx_systemPool = (FxSystemContainer *)Hunk_UserAlloc(hunk, 2976 * maxLocalClients, 128, "fx_systemPool");
-    memset((unsigned __int8 *)fx_systemPool, 0, 2976 * maxLocalClients);
+    memset(fx_systemPool, 0, 2976 * maxLocalClients);
     fx_systemBufferPool = (FxSystemBuffers *)Hunk_UserAlloc(hunk, 402560 * maxLocalClients, 128, "fx_systemBufferPool");
-    memset((unsigned __int8 *)fx_systemBufferPool, 0, 402560 * maxLocalClients);
+    memset(fx_systemBufferPool, 0, 402560 * maxLocalClients);
     fx_marksSystemPool = (FxMarksSystem *)Hunk_UserAlloc(hunk, 155688 * maxLocalClients, 128, "fx_marksSystemPool");
-    memset((unsigned __int8 *)fx_marksSystemPool, 0, 155688 * maxLocalClients);
+    memset(fx_marksSystemPool, 0, 155688 * maxLocalClients);
     for ( i = 0; i < maxLocalClients; ++i )
     {
         fx_systemPool[i].system.shared = &fx_systemPool[i].shared;
@@ -120,7 +120,7 @@ void __cdecl FX_InitSystem(int localClientNum)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)system, 0, 0x360u);
+    memset(system, 0, 0x360u);
     system->system.shared = &system->shared;
     systemBuffers = FX_GetSystemBuffers(localClientNum);
     if ( !systemBuffers
@@ -128,7 +128,7 @@ void __cdecl FX_InitSystem(int localClientNum)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)systemBuffers, 0, sizeof(FxSystemBuffers));
+    memset(systemBuffers, 0, sizeof(FxSystemBuffers));
     FX_LinkSystemBuffers(&system->system, systemBuffers);
     FX_RegisterDvars();
     FX_CreateDevGui();
@@ -261,13 +261,13 @@ void __cdecl FX_ShutdownSystem(int localClientNum)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)system, 0, 0x360u);
+    memset(system, 0, 0x360u);
     if ( !systemBuffers
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_system.cpp", 558, 0, "%s", "systemBuffers") )
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)systemBuffers, 0, sizeof(FxSystemBuffers));
+    memset(systemBuffers, 0, sizeof(FxSystemBuffers));
     if ( system->system.isInitialized
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_system.cpp",
@@ -3538,7 +3538,7 @@ void __cdecl FX_FreeElem(
         Phys_ObjDestroy(1, remoteElem->item.elem.physObjId);
         Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
     }
-    memset((unsigned __int8 *)remoteElem, 0, 0x2Cu);
+    memset(remoteElem, 0, 0x2Cu);
     FX_FreePool_Generic_FxElem_FxElemContainer_(
         &remoteEffect->effect,
         (FxElem *)remoteElem,

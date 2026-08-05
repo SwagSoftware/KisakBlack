@@ -148,7 +148,7 @@ void __cdecl MD4Final(unsigned __int8 *digest, MD4_CTX *context)
     MD4Update(context, PADDING, v2);
     MD4Update(context, bits, 8u);
     Encode(digest, context->state, 0x10u);
-    memset((unsigned __int8 *)context, 0, sizeof(MD4_CTX));
+    memset(context, 0, sizeof(MD4_CTX));
 }
 
 void __cdecl MD4Transform(unsigned int *state, unsigned __int8 *block)
@@ -358,7 +358,7 @@ void __cdecl MD4Transform(unsigned int *state, unsigned __int8 *block)
     state[1] += (bw >> 17) | (bw << 15);
     state[2] += cx;
     state[3] += dy;
-    memset((unsigned __int8 *)x, 0, sizeof(x));
+    memset(x, 0, sizeof(x));
 }
 
 

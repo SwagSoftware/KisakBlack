@@ -551,7 +551,7 @@ char __cdecl DB_LoadXFile(
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)&g_load, 0, sizeof(g_load));
+    memset(&g_load, 0, sizeof(g_load));
     g_load.f = f;
     g_load.filename = filename;
     g_load.flags = flags;

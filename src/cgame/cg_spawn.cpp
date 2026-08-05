@@ -215,7 +215,7 @@ void __cdecl CG_Free(int localClientNum, int entNum)
     }
     fcent->flags = 0;
     CG_ClearFakeEntInUse(localClientNum, fcent);
-    memset((unsigned __int8 *)&fcent->cent, 0, sizeof(fcent->cent));
+    memset(&fcent->cent, 0, sizeof(fcent->cent));
 }
 
 void __cdecl CG_ClearFakeEntInUse(int localClientNum, fake_centity_s *ent)
@@ -258,7 +258,7 @@ void __cdecl CG_ShutdownFakeEntities(int localClientNum)
         if ( cg_fakeEntitiesInuseArray[512 * localClientNum + cent - &cg_fakeEntitiesArray[512 * localClientNum]] )
             CG_Free(localClientNum, cent->cent.nextState.number);
     }
-    memset((unsigned __int8 *)&cg_fakeEntitiesInuseArray[512 * localClientNum], 0, 0x200u);
+    memset(&cg_fakeEntitiesInuseArray[512 * localClientNum], 0, 0x200u);
     cg_fakeEntitiesInuseCount[localClientNum] = 0;
     cg_fakeEntitiesInuseCountFromMap = 0;
     cg_fakeEntitiesInuseCountFromLoadScript = 0;

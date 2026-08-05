@@ -1859,7 +1859,7 @@ void __cdecl PmoveSingle(pmove_t *pm)
     {
         ps->pm_flags &= ~0x400u;
     }
-    memset((unsigned __int8 *)&pml, 0, sizeof(pml));
+    memset(&pml, 0, sizeof(pml));
     pml.msec = pm->cmd.serverTime - ps->commandTime;
     if ( pml.msec >= 1 )
     {

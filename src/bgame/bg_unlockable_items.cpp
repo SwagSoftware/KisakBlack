@@ -587,7 +587,7 @@ void __cdecl BG_InitUnlockables()
 {
     int numUnlockables; // [esp+0h] [ebp-4h]
 
-    memset((unsigned __int8 *)&s_unlockableItems, 0, sizeof(s_unlockableItems));
+    memset(&s_unlockableItems, 0, sizeof(s_unlockableItems));
     for ( numUnlockables = 0; numUnlockables < 256; ++numUnlockables )
     {
         if ( BG_UnlockablesBuildItemInfo(numUnlockables, &s_unlockableItems.itemTable[numUnlockables]) )
@@ -801,7 +801,7 @@ char __cdecl BG_UnlockablesBuildItemInfo(int itemIndex, itemInfo_t *itemInfo)
     row = StringTable_LookupRowNumForValue(statsTable, 0, v4);
     if ( row == -1 )
         return 0;
-    memset((unsigned __int8 *)itemInfo, 0, sizeof(itemInfo_t));
+    memset(itemInfo, 0, sizeof(itemInfo_t));
     name = StringTable_GetColumnValueForRow(statsTable, row, 3);
     reference = StringTable_GetColumnValueForRow(statsTable, row, 4);
     if ( name && reference && strlen(name) && strlen(reference) )

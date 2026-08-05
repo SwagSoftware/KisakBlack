@@ -3509,7 +3509,7 @@ void __cdecl MSG_SetDefaultUserCmd(playerState_s *ps, usercmd_s *cmd)
 {
     int i; // [esp+4h] [ebp-4h]
 
-    memset((unsigned __int8 *)cmd, 0, sizeof(usercmd_s));
+    memset(cmd, 0, sizeof(usercmd_s));
     cmd->weapon = ps->weapon;
     cmd->offHandIndex = ps->offHandIndex;
     for ( i = 0; i < 2; ++i )
@@ -5274,7 +5274,7 @@ void __cdecl MSG_ReadDeltaHudElems(msg_t *msg, int time, const hudelem_s *from, 
     }
     while ( inuse < count && to[inuse].type )
     {
-        memset((unsigned __int8 *)&to[inuse], 0, sizeof(hudelem_s));
+        memset(&to[inuse], 0, sizeof(hudelem_s));
         if ( to[inuse].type
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",

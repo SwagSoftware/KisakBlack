@@ -16,7 +16,7 @@ snd_pack_file g_snd_pack_files[8];
 
 void __cdecl Snd_StreamBufferInit(snd_buffer *buffer, char *data)
 {
-    memset((unsigned __int8 *)buffer, 0, sizeof(snd_buffer));
+    memset(buffer, 0, sizeof(snd_buffer));
     buffer->filename[0] = 0;
     buffer->data = data;
     buffer->reference_count = 0;
@@ -104,8 +104,8 @@ void __cdecl Snd_StreamInit()
         Snd_StreamBufferInit(&g_snd_buffers[j], &g_snd_stream_buffer[536576 * j]);
 
     g_snd_stream_time = 0;
-    memset((unsigned __int8 *)g_snd_stream_files, 0, sizeof(g_snd_stream_files));
-    memset((unsigned __int8 *)g_snd_pack_files, 0, sizeof(g_snd_pack_files));
+    memset(g_snd_stream_files, 0, sizeof(g_snd_stream_files));
+    memset(g_snd_pack_files, 0, sizeof(g_snd_pack_files));
 }
 
 void __cdecl Snd_StreamFini()
@@ -1191,7 +1191,7 @@ void __cdecl Snd_StreamUpdate()
     while ( g_snd.init )
     {
         have_work = 0;
-        memset((unsigned __int8 *)requests, 0, sizeof(requests));
+        memset(requests, 0, sizeof(requests));
         for ( i = 0; i < 0xA; ++i )
         {
             s = &g_snd_streams[i];
@@ -1215,7 +1215,7 @@ void __cdecl Snd_StreamUpdate()
                             __debugbreak();
                         }
                     }
-                    memset((unsigned __int8 *)&requests[i], 0, sizeof(snd_stream_request));
+                    memset(&requests[i], 0, sizeof(snd_stream_request));
                 }
                 else
                 {

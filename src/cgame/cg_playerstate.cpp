@@ -67,11 +67,11 @@ void __cdecl CG_Respawn(int localClientNum, int spectate)
     cgameGlob->kickAVel[1] = 0.0f;
     cgameGlob->kickAVel[2] = 0.0f;
     cgameGlob->xyspeed = 0.0f;
-    memset((unsigned __int8 *)&cgameGlob->playerEntity, 0, sizeof(cgameGlob->playerEntity));
+    memset(&cgameGlob->playerEntity, 0, sizeof(cgameGlob->playerEntity));
     cgameGlob->damageTime = 0;
     cgameGlob->v_dmg_pitch = 0.0f;
     cgameGlob->v_dmg_roll = 0.0f;
-    memset((unsigned __int8 *)cgameGlob->viewDamage, 0, sizeof(cgameGlob->viewDamage));
+    memset(cgameGlob->viewDamage, 0, sizeof(cgameGlob->viewDamage));
     CG_ClearCameraShakes(localClientNum);
     cgameGlob->predictedError[0] = 0.0f;
     cgameGlob->predictedError[1] = 0.0f;

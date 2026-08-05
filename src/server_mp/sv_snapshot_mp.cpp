@@ -234,7 +234,7 @@ void __cdecl SV_EmitPacketEntities(
     quickBits = 0;
     total_bits = MSG_GetUsedBitCount(msg);
     MSG_ClearLastReferencedEntity(msg);
-    memset((unsigned __int8 *)entityFound, 0, sizeof(entityFound));
+    memset(entityFound, 0, sizeof(entityFound));
     g_entsTransmitted = 0;
     g_entsDeltaCompared = 0;
     g_entsClientOnce = 0;
@@ -2004,7 +2004,7 @@ void __cdecl SV_AddModifiedStats(unsigned int clientNum)
         isRunningStatBlock = 0;
         startOffset = 0;
         endOffset = 0;
-        memset((unsigned __int8 *)msgBuff, 0, 0x41u);
+        memset(msgBuff, 0, 0x41u);
         if ( svs.clients[clientNum].statsSentIndex >= 5021
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
@@ -2158,7 +2158,7 @@ void __cdecl SV_BuildClientSnapshot(client_t *client)
                 position[2] = *((float *)dst + 11);
                 position[2] = position[2] + *((float *)dst + 100);
                 AddLeanToPosition(position, *((float *)dst + 97), *((float *)dst + 31), 16.0, 20.0);
-                memset((unsigned __int8 *)v15, 0, sizeof(v15));
+                memset(v15, 0, sizeof(v15));
                 if ( CachedSnapshot )
                 {
                     SV_AddCachedEntitiesVisibleFromPoint(
@@ -2432,7 +2432,7 @@ void __cdecl SV_AddCachedEntitiesVisibleFromPoint(
         fogOpaqueDistSqrd = G_GetFogOpaqueDistSqrd();
         if ( fogOpaqueDistSqrd == 3.4028235e38 )
             fogOpaqueDistSqrd = 0.0f;
-        memset((unsigned __int8 *)dst, 0, 0x1000u);
+        memset(dst, 0, 0x1000u);
         for ( e = 0; ; ++e )
         {
             if ( e >= from_num_entities )

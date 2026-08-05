@@ -251,7 +251,7 @@ void __cdecl CG_SetInitialSnapshot(int localClientNum, snapshot_s *snap)
 
     R_InitSceneData(localClientNum);
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-    memset((unsigned __int8 *)cgameGlob->centInNextSnapshot, 0, sizeof(cgameGlob->centInNextSnapshot));
+    memset(cgameGlob->centInNextSnapshot, 0, sizeof(cgameGlob->centInNextSnapshot));
     CG_SetNextSnap(localClientNum, 0);
     if ( cgameGlob->nextSnap
         && !Assert_MyHandler(
@@ -358,7 +358,7 @@ void __cdecl CG_TransitionSnapshot(int localClientNum)
         else
         {
             pXAnimTree = cgameGlob->bgs.clientinfo[clientState->clientIndex].pXAnimTree;
-            memset((unsigned __int8 *)ci, 0, sizeof(clientInfo_t));
+            memset(ci, 0, sizeof(clientInfo_t));
             ci->pXAnimTree = pXAnimTree;
             XAnimClearTree(ci->pXAnimTree);
             CG_SafeDObjFree(localClientNum, clientState->clientIndex);
@@ -433,7 +433,7 @@ void __cdecl CG_SetNextSnap(int localClientNum, snapshot_s *snap)
 
     bWasDemoJump = 0;
     bSwitchedDemoPlayers = 0;
-    memset((unsigned __int8 *)centInPrevSnapshot, 0, sizeof(centInPrevSnapshot));
+    memset(centInPrevSnapshot, 0, sizeof(centInPrevSnapshot));
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     if ( cgameGlob->nextSnap )
     {
@@ -491,7 +491,7 @@ void __cdecl CG_SetNextSnap(int localClientNum, snapshot_s *snap)
         CG_UnpackMatchState(localClientNum, &snap->matchState);
         CG_ExecuteNewServerCommands(localClientNum, snap->serverCommandSequence);
         CG_CheckOpenWaitingScriptMenu(localClientNum);
-        memset((unsigned __int8 *)clientIndex, 0, sizeof(clientIndex));
+        memset(clientIndex, 0, sizeof(clientIndex));
         for ( num = 0; num < 32; ++num )
             cgameGlob->scoreOrder[num] = 32;
         for ( num = 0; num < snap->numClients; ++num )

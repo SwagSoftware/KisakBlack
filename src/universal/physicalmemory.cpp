@@ -44,7 +44,7 @@ void __cdecl PMem_InitPhysicalMemory(
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)pmem, 0, sizeof(PhysicalMemory));
+    memset(pmem, 0, sizeof(PhysicalMemory));
     pmem->name = name;
     pmem->buf = memory;
     pmem->prim[1].pos = memorySize;

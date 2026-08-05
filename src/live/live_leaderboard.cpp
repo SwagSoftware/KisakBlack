@@ -382,7 +382,7 @@ void __cdecl LB_InitStructure(LbStructure *const structure, int type)
     }
     structure->numColums = 0;
     structure->type = type;
-    memset((unsigned __int8 *)structure->columns, 0, sizeof(structure->columns));
+    memset(structure->columns, 0, sizeof(structure->columns));
 }
 
 void __cdecl LB_RegisterStat(LbStructure *const structure, LbStatEnum statType, bool isRating)
@@ -449,7 +449,7 @@ void __cdecl LB_InitGlobalStructure(LbGlobalStructure *const globalStructures, i
     }
     globalStructures->numColums = 0;
     globalStructures->lbIndex = lbIndex;
-    memset((unsigned __int8 *)globalStructures->columns, 0, sizeof(globalStructures->columns));
+    memset(globalStructures->columns, 0, sizeof(globalStructures->columns));
 }
 
 void __cdecl LB_RegisterGlobalStat(
@@ -2760,7 +2760,7 @@ void __cdecl LB_Init()
     LbGlobalStructure globalStructures; // [esp+68h] [ebp-58h] BYREF
 
     TaskManager_ClearOverlappedTasks(g_lbGlob.tasks);
-    memset((unsigned __int8 *)&g_LbLookup, 0, sizeof(g_LbLookup));
+    memset(&g_LbLookup, 0, sizeof(g_LbLookup));
     for ( type = 0; type < 8; ++type )
         LB_InitAndRegisterStructure(&structure, type);
     type = 0;

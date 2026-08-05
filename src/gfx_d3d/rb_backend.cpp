@@ -4574,7 +4574,7 @@ void __cdecl RB_ProjectionSetCmd(GfxRenderCommandExecState *execState)
 void __cdecl RB_ResetStatTracking(int viewIndex)
 {
     RB_Stats_UpdateMaxs(&g_frameStatsCur, &backEnd.frameStatsMax);
-    memset((unsigned __int8 *)&g_frameStatsCur, 0, sizeof(g_frameStatsCur));
+    memset(&g_frameStatsCur, 0, sizeof(g_frameStatsCur));
     g_viewStats = (GfxViewStats *)&g_frameStatsCur;
     if ( rg.globalstats )
         rg.stats = &rg.globalstats->views[viewIndex];

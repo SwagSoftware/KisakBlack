@@ -1367,7 +1367,7 @@ unsigned __int16 __cdecl DynEntCl_CreateEntityModel(
     if ( dynEntId == 0xFFFF )
         return -1;
     dynEntDef = (DynEntityDef*)DynEnt_GetEntityDef(dynEntId, DYNENT_DRAW_MODEL);
-    memset((unsigned __int8 *)dynEntDef, 0, sizeof(DynEntityDef));
+    memset(dynEntDef, 0, sizeof(DynEntityDef));
     dynEntDef->type = DYNENT_TYPE_CLUTTER;
     dynEntDef->pose.origin[0] = *origin;
     dynEntDef->pose.origin[1] = origin[1];
@@ -2648,7 +2648,7 @@ char __cdecl DynEntCl_DynEntImpactEvent(
     if ( localClientNum == RETURN_ZERO32() )
     {
 LABEL_24:
-        memset((unsigned __int8 *)&trace, 0, sizeof(trace));
+        memset(&trace, 0, sizeof(trace));
         trace.fraction = 1.0f;
         *(_QWORD *)clip.extents.start.vec.v = *(_QWORD *)start;
         clip.extents.start.vec.v[2] = start[2];

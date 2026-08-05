@@ -23,7 +23,7 @@ void __cdecl EntHandle::Init()
     }
     g_entHandleInfoArray[1023].next = 0;
     g_entHandleInfoHead = 1;
-    memset((unsigned __int8 *)g_entitiesHandleList, 0, sizeof(g_entitiesHandleList));
+    memset(g_entitiesHandleList, 0, sizeof(g_entitiesHandleList));
     g_usedEntHandle = 0;
 }
 
@@ -74,7 +74,7 @@ void __cdecl EntHandle::Shutdown()
 
 void __cdecl SentientHandle::Init()
 {
-    memset((unsigned __int8 *)g_sentientsHandleList, 0, sizeof(g_sentientsHandleList));
+    memset(g_sentientsHandleList, 0, sizeof(g_sentientsHandleList));
 }
 
 void __cdecl EntHandleDissociate(gentity_s *ent)

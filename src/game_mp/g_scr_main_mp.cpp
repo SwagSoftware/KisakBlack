@@ -5154,7 +5154,7 @@ void Scr_Objective_Current()
     int objNum; // [esp+8Ch] [ebp-4h]
 
     numParam = Scr_GetNumParam(SCRIPTINSTANCE_SERVER);
-    memset((unsigned __int8 *)makeCurrent, 0, sizeof(makeCurrent));
+    memset(makeCurrent, 0, sizeof(makeCurrent));
     for ( i = 0; i < numParam; ++i )
     {
         objNum = Scr_GetInt(i, SCRIPTINSTANCE_SERVER);
@@ -16995,7 +16995,7 @@ int Scr_ParseGameTypeList_LoadObj()
     char *dest; // [esp+1438h] [ebp-8h]
     int FileList; // [esp+143Ch] [ebp-4h]
 
-    memset((unsigned __int8 *)g_scr_data.gametype.list, 0, sizeof(g_scr_data.gametype.list));
+    memset(g_scr_data.gametype.list, 0, sizeof(g_scr_data.gametype.list));
     v11 = 0;
     FileList = FS_GetFileList("maps/mp/gametypes", (char*)"gsc", FS_LIST_PURE_ONLY, listbuf, 4096);
     src = listbuf;
@@ -17072,7 +17072,7 @@ void Scr_ParseGameTypeList_FastFile()
     const char *gametypesBuf; // [esp+3Ch] [ebp-8h] BYREF
     gameTypeScript_t *pGameType; // [esp+40h] [ebp-4h]
 
-    memset((unsigned __int8 *)g_scr_data.gametype.list, 0, sizeof(g_scr_data.gametype.list));
+    memset(g_scr_data.gametype.list, 0, sizeof(g_scr_data.gametype.list));
     iNumGameTypes = 0;
     gametypesFile = DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, (char*)"maps/mp/gametypes/_gametypes.txt", 1, -1).rawfile;
     if ( gametypesFile )

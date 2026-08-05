@@ -4032,7 +4032,7 @@ char *__cdecl GetLocalizedTimeRemaining(int secondsRemaining)
         seconds = secondsRemaining % 86400;
     }
     convArgs.argCount = 0;
-    memset((unsigned __int8 *)output, 0, 0x40u);
+    memset(output, 0, 0x40u);
     if ( days <= 0 )
     {
         if ( hours <= 0 )
@@ -10373,7 +10373,7 @@ void __cdecl GetStatsMilestoneName(int localClientNum, itemDef_s *item, OperandS
     result.dataType = VAL_STRING;
     result.internals.intVal = (int)"";
     controllerIndex = Com_LocalClient_GetControllerIndex(localClientNum);
-    memset((unsigned __int8 *)outputString, 0, sizeof(outputString));
+    memset(outputString, 0, sizeof(outputString));
     index = GetSourceInt(&source).intVal;
     if ( index >= 0
         && (NumStatsMilestones = LiveStats_GetNumStatsMilestones(controllerIndex), index <= (int)(NumStatsMilestones - 1)) )
@@ -10733,7 +10733,7 @@ void __cdecl GetChallengeProgressString(int localClientNum, itemDef_s *item, Ope
     result.dataType = VAL_STRING;
     result.internals.intVal = (int)"";
     challengeNum = 0;
-    memset((unsigned __int8 *)outputString, 0, sizeof(outputString));
+    memset(outputString, 0, sizeof(outputString));
     memset(&convArgs, 0, sizeof(convArgs));
     milestoneType = 0;
     if ( GetCurrentIndexOfHighlightedFeeder(localClientNum, item, dataStack, &result, &challengeNum, &milestoneType, 0)
@@ -11028,7 +11028,7 @@ void __cdecl GetProgressString(int localClientNum, itemDef_s *item, OperandStack
     result.dataType = VAL_STRING;
     result.internals.intVal = (int)"";
     challengeNum = 0;
-    memset((unsigned __int8 *)outputString, 0, 0x400u);
+    memset(outputString, 0, 0x400u);
     milestoneType = 0;
     if ( GetCurrentIndex(
                  localClientNum,
@@ -11063,8 +11063,8 @@ void __cdecl GetName(int localClientNum, itemDef_s *item, OperandStack *dataStac
     result.dataType = VAL_STRING;
     result.internals.intVal = (int)"";
     challengeNum = 0;
-    memset((unsigned __int8 *)outputString, 0, sizeof(outputString));
-    memset((unsigned __int8 *)challengeType, 0, sizeof(challengeType));
+    memset(outputString, 0, sizeof(outputString));
+    memset(challengeType, 0, sizeof(challengeType));
     memset(&convArgs, 0, sizeof(convArgs));
     milestoneType = 0;
     if ( GetCurrentIndex(
@@ -11099,8 +11099,8 @@ void __cdecl GetDescription(int localClientNum, itemDef_s *item, OperandStack *d
     result.dataType = VAL_STRING;
     result.internals.intVal = (int)"";
     challengeNum = 0;
-    memset((unsigned __int8 *)outputString, 0, sizeof(outputString));
-    memset((unsigned __int8 *)challengeType, 0, sizeof(challengeType));
+    memset(outputString, 0, sizeof(outputString));
+    memset(challengeType, 0, sizeof(challengeType));
     memset(&convArgs, 0, sizeof(convArgs));
     milestoneType = 0;
     if ( GetCurrentIndex(
@@ -11201,7 +11201,7 @@ void __cdecl GetChallengeName(int localClientNum, itemDef_s *item, OperandStack 
     result.dataType = VAL_STRING;
     result.internals.intVal = (int)"";
     challengeNum = 0;
-    memset((unsigned __int8 *)outputString, 0, sizeof(outputString));
+    memset(outputString, 0, sizeof(outputString));
     memset(&convArgs, 0, sizeof(convArgs));
     milestoneType = 0;
     if ( GetCurrentIndexOfHighlightedFeeder(localClientNum, item, dataStack, &result, &challengeNum, &milestoneType, 0) )
@@ -11222,7 +11222,7 @@ void __cdecl GetChallengeDescription(int localClientNum, itemDef_s *item, Operan
     result.dataType = VAL_STRING;
     result.internals.intVal = (int)"";
     challengeNum = 0;
-    memset((unsigned __int8 *)outputString, 0, sizeof(outputString));
+    memset(outputString, 0, sizeof(outputString));
     milestoneType = 0;
     if ( GetCurrentIndexOfHighlightedFeeder(localClientNum, item, dataStack, &result, &challengeNum, &milestoneType, 0) )
     {

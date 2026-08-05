@@ -429,7 +429,7 @@ void __cdecl R_Cinematic_ClearTexture(IDirect3DTexture9 *texture, int width, int
         {
             __debugbreak();
         }
-        memset((unsigned __int8 *)lockedRect.pBits, clearValue, lockedRect.Pitch * height);
+        memset(lockedRect.pBits, clearValue, lockedRect.Pitch * height);
         texture->UnlockRect(0);
     }
     else
@@ -444,7 +444,7 @@ void __cdecl R_Cinematic_Init()
     iassert(!cinematicGlob.memPool);
     iassert(!g_cinematicInitialized);
 
-    memset((unsigned __int8 *)&cinematicGlob, 0, 0x9F4u);
+    memset(&cinematicGlob, 0, 0x9F4u);
     cinematicGlob.activeImageFrame = -1;
     R_Cinematic_ReserveMemory();
 
@@ -1106,7 +1106,7 @@ char __cdecl R_Cinematic_StartPlayback_Now(const char *filename, unsigned int pl
             __debugbreak();
         }
         R_Cinematic_InitBinkVolumes();
-        memset((unsigned __int8 *)&cinematicGlob.binkTextureSet, 0, 0xD8u);
+        memset(&cinematicGlob.binkTextureSet, 0, 0xD8u);
         BinkGetFrameBuffersInfo(cinematicGlob.bink, &cinematicGlob.binkTextureSet.bink_buffers);
         R_Cinematic_CheckBinkError();
         R_Cinematic_InitBinkTextures();

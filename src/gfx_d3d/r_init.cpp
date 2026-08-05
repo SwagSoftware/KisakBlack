@@ -365,7 +365,7 @@ void __cdecl R_SetD3DPresentParameters(_D3DPRESENT_PARAMETERS_ *d3dpp, const Gfx
         __debugbreak();
     }
     R_SetupAntiAliasing(wndParms);
-    memset((unsigned __int8 *)d3dpp, 0, sizeof(_D3DPRESENT_PARAMETERS_));
+    memset(d3dpp, 0, sizeof(_D3DPRESENT_PARAMETERS_));
     d3dpp->BackBufferHeight = wndParms->displayHeight;
     d3dpp->BackBufferWidth = wndParms->displayWidth;
     d3dpp->BackBufferFormat = D3DFMT_A8R8G8B8;
@@ -1611,8 +1611,8 @@ void R_Register()
 
 void R_InitGlobalStructs()
 {
-    memset((unsigned __int8 *)&rg, 0, sizeof(rg));
-    memset((unsigned __int8 *)&rgp, 0, sizeof(rgp));
+    memset(&rg, 0, sizeof(rg));
+    memset(&rgp, 0, sizeof(rgp));
     RB_InitBackendGlobalStructs();
     g_drawConsts.identityPlacement.base.quat[0] = 0.0f;
     g_drawConsts.identityPlacement.base.quat[1] = 0.0f;

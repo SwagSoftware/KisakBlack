@@ -634,7 +634,7 @@ void __cdecl SV_MasterHeartbeat(int controllerIndex)
                                                                                                 v13);
                     bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>(&v14);
                     outstandingnotifyleave = 1;
-                    memset((unsigned __int8 *)g_notifyLeave, 0, sizeof(g_notifyLeave));
+                    memset(g_notifyLeave, 0, sizeof(g_notifyLeave));
                 }
             }
 #ifdef KISAK_LIVE_SERVICE

@@ -138,7 +138,7 @@ int __cdecl DDL_Converter_Versions(
     ddlState_t oldRootState; // [esp+10h] [ebp-14h] BYREF
     int startTime; // [esp+20h] [ebp-4h]
 
-    memset((unsigned __int8 *)backupBuffer, 0, bufferSize);
+    memset(backupBuffer, 0, bufferSize);
     DDL_AssociateBuffer(backupBuffer, bufferSize, ddlVersionTo);
     DDL_Reset(&oldRootState, ddlVersionFrom);
     DDL_Reset(&newRootState, ddlVersionTo);

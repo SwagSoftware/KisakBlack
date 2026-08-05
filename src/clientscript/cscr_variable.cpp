@@ -449,7 +449,7 @@ void __cdecl Scr_InitVariables(scriptInstance_t inst)
     if (gScrVarDebugPub[inst])
     {
         gScrVarDebugPub[inst]->leakCount = (int *)_PMem_AllocNamed(0x11FFF8u, 4u, 4, 1u, gScriptVarsAlloc, TRACK_SCRIPT);
-        memset((unsigned __int8 *)gScrVarDebugPub[inst]->leakCount, 0, 0x11FFF8u);
+        memset(gScrVarDebugPub[inst]->leakCount, 0, 0x11FFF8u);
     }
     gScrVarPub[inst].totalObjectRefCount = 0;
     gScrVarPub[inst].totalVectorRefCount = 0;
@@ -462,7 +462,7 @@ void __cdecl Scr_InitVariables(scriptInstance_t inst)
             1u,
             gScriptVarsAlloc,
             TRACK_SCRIPT);
-        memset((unsigned __int8 *)gScrVarDebugPub[inst]->extRefCount, 0, 0xFFFCu);
+        memset(gScrVarDebugPub[inst]->extRefCount, 0, 0xFFFCu);
     }
     gScrVarPub[inst].numScriptValues = 0;
     gScrVarPub[inst].numScriptObjects = 0;
@@ -475,7 +475,7 @@ void __cdecl Scr_InitVariables(scriptInstance_t inst)
             1u,
             gScriptVarsAlloc,
             TRACK_SCRIPT);
-        memset((unsigned __int8 *)gScrVarDebugPub[inst]->varUsage, 0, 0x11FFF8u);
+        memset(gScrVarDebugPub[inst]->varUsage, 0, 0x11FFF8u);
     }
     Scr_InitVariableRange(inst, 1u, 0x7FFFu);
     Scr_InitVariableRange(inst, 0x8000u, 0x47FFEu);

@@ -380,7 +380,7 @@ int __cdecl MSG_ReadDeltaClient(msg_t *msg, int time, clientState_s *from, clien
     if ( !from )
     {
         from = &dummy;
-        memset((unsigned __int8 *)&dummy, 0, sizeof(dummy));
+        memset(&dummy, 0, sizeof(dummy));
     }
     return MSG_ReadDeltaStruct(msg, time, (char *)from, (char *)to, number, numFields, 5, fields, 1);
 }

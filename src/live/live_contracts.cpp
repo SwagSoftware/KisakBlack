@@ -105,13 +105,13 @@ void __cdecl LiveContracts_ParseContracts(char *buffer)
 
     contractIndex = 0;
     requirementIndex = 0;
-    memset((unsigned __int8 *)contracts, 0, sizeof(contracts));
+    memset(contracts, 0, sizeof(contracts));
     for ( i = 0; i < 512; ++i )
         s_contractDisplayOrder[i] = -1;
     lineNumber = 0;
     s_numContracts = 0;
     s_contractsStringBufferLen = 0;
-    memset((unsigned __int8 *)s_contractCycleTickerMessages, 0, sizeof(s_contractCycleTickerMessages));
+    memset(s_contractCycleTickerMessages, 0, sizeof(s_contractCycleTickerMessages));
     currentParseBlockType = PARSE_UNKNOWN;
     Com_BeginParseSession("contracts");
     Com_SetSpaceDelimited(1);

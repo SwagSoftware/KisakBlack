@@ -391,7 +391,7 @@ XAnim_s *__cdecl XAnimCreateAnimsWithValues(
     if ( !Alloc && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\xanim.cpp", 684, 0, "%s", "Alloc") )
         __debugbreak();
     anims = (XAnim_s *)Alloc(16 * size + 20 * iTotalValueCount + 24);
-    memset((unsigned __int8 *)anims, 0, 16 * size + 20 * iTotalValueCount + 24);
+    memset(anims, 0, 16 * size + 20 * iTotalValueCount + 24);
     anims->size = size;
     anims->paramSize = iTotalValueCount;
     if ( anims->paramSize )
@@ -409,10 +409,10 @@ XAnim_s *__cdecl XAnimCreateAnimsWithValues(
         while ( v5 );
         anims->debugName = newDebugName;
         anims->debugAnimNames = (const char **)Hunk_UserAlloc(g_DebugHunkUser, 4 * size, 4, "XAnimCreateAnims");
-        memset((unsigned __int8 *)anims->debugAnimNames, 0, 4 * size);
+        memset(anims->debugAnimNames, 0, 4 * size);
     }
     anims->wasLoggedIfMissing = (bool *)Hunk_UserAlloc(g_DebugHunkUser, size, 4, "XAnimCreateAnims");
-    memset((unsigned __int8 *)anims->wasLoggedIfMissing, 0, size);
+    memset(anims->wasLoggedIfMissing, 0, size);
     if ( Hunk_DataOnHunk((unsigned __int8 *)anims) )
         Hunk_AddData(2, anims, Alloc);
     return anims;
@@ -455,7 +455,7 @@ XAnimTree_s *__cdecl XAnimCreateTree(XAnim_s *anims, void *(__cdecl *Alloc)(unsi
         __debugbreak();
     entrySize = XAnimTreeSize();
     tree = (XAnimTree_s *)Alloc(entrySize);
-    memset((unsigned __int8 *)tree, 0, entrySize);
+    memset(tree, 0, entrySize);
     tree->anims = anims;
     return tree;
 }
@@ -505,7 +505,7 @@ void __cdecl XAnimInitModelMap(XModel *const *models, unsigned int numModels, XM
     unsigned int i; // [esp+18h] [ebp-8h]
     unsigned __int16 *boneNames; // [esp+1Ch] [ebp-4h]
 
-    memset((unsigned __int8 *)modelMap, 0, 0x800u);
+    memset(modelMap, 0, 0x800u);
     boneIndex = 0;
     for ( i = 0; i < numModels; ++i )
     {

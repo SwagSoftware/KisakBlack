@@ -2803,7 +2803,7 @@ void __cdecl R_ClearScene(int localClientNum)
     Com_Memset((unsigned int *)&scene.sceneBrush[0].info.surfId, 0, 44 * scene.sceneBrushCount);
     Com_Memset((unsigned int *)scene.glassBrush, 0, 40 * scene.glassBrushCount);
     scene.addedLightCount = 0;
-    memset((unsigned __int8 *)scene.drawSurfCount, 0, sizeof(scene.drawSurfCount));
+    memset((void*)scene.drawSurfCount, 0, sizeof(scene.drawSurfCount));
     for ( viewIndex = 0; viewIndex < 7; ++viewIndex )
         Com_Memset((unsigned int *)scene.sceneModelVisData[viewIndex], 1, scene.sceneModelCount);
     scene.sceneDObjCount = 0;
@@ -2817,8 +2817,8 @@ void __cdecl R_ClearScene(int localClientNum)
 
 void R_ClearSceneDynSModelVisBits()
 {
-    memset((unsigned __int8 *)scene.dynSModelVisBitsCamera, 0, sizeof(scene.dynSModelVisBitsCamera));
-    memset((unsigned __int8 *)scene.dynSModelVisBitsSunShadow, 0, sizeof(scene.dynSModelVisBitsSunShadow));
+    memset(scene.dynSModelVisBitsCamera, 0, sizeof(scene.dynSModelVisBitsCamera));
+    memset(scene.dynSModelVisBitsSunShadow, 0, sizeof(scene.dynSModelVisBitsSunShadow));
 }
 
 void __cdecl R_ClearScene_For_ExtraCam(int localClientNum)
@@ -2943,7 +2943,7 @@ void __cdecl R_UpdateFrameFog(unsigned int localClientNum)
     if ( f->index && !r_fog_disable->current.enabled )
         memcpy(&frontEndDataOut->fogSettings, &f->settings[2], sizeof(frontEndDataOut->fogSettings));
     else
-        memset((unsigned __int8 *)&frontEndDataOut->fogSettings, 0, sizeof(frontEndDataOut->fogSettings));
+        memset(&frontEndDataOut->fogSettings, 0, sizeof(frontEndDataOut->fogSettings));
 }
 
 double __cdecl lerp(float from, float to, float t)
@@ -2956,7 +2956,7 @@ void __cdecl R_SetViewParmsForScene(const refdef_s *refdef, GfxViewParms *viewPa
     float v2; // [esp+Ch] [ebp-28h]
     float DefaultNearClip; // [esp+10h] [ebp-24h]
 
-    memset((unsigned __int8 *)viewParms, 0, sizeof(GfxViewParms));
+    memset(viewParms, 0, sizeof(GfxViewParms));
     viewParms->origin[0] = refdef->vieworg[0];
     viewParms->origin[1] = refdef->vieworg[1];
     viewParms->origin[2] = refdef->vieworg[2];
@@ -3747,7 +3747,7 @@ void __cdecl R_GenerateSortedDrawSurfs(
         }
     }
     FX_BeginMarks(viewInfo->localClientNum);
-    memset((unsigned __int8 *)&cmd, 0, sizeof(cmd));
+    memset(&cmd, 0, sizeof(cmd));
     cmd.localClientNum = viewInfo->localClientNum;
     cmd.visibleLights = viewInfo->visibleLights;
     cmd.visibleLightCount = viewInfo->visibleLightCount;
@@ -5628,7 +5628,7 @@ void __cdecl R_MissileCam_SetSceneParms(const refdef_s *refdef, GfxSceneParms *s
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)sceneParms, 0, sizeof(GfxSceneParms));
+    memset(sceneParms, 0, sizeof(GfxSceneParms));
     sceneParms->localClientNum = refdef->localClientNum;
     specularScale = refdef->visionset.charPrimaryLightScale.specularScale;
     sceneParms->charPrimaryLightScale.diffuseScale = refdef->visionset.charPrimaryLightScale.diffuseScale;

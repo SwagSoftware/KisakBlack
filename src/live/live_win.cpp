@@ -378,7 +378,7 @@ void __cdecl Live_InitPlatform()
     int i; // [esp+0h] [ebp-8h]
     int controllerIndex; // [esp+4h] [ebp-4h]
 
-    memset((unsigned __int8 *)xenonUserData, 0, sizeof(xenonUserData));
+    memset(xenonUserData, 0, sizeof(xenonUserData));
     s_signInRequirement[0] = 0;
     live_service = _Dvar_RegisterBool("live_service", 1, 0x10u, "online service on/off");
     if ( G_ExitAfterToolComplete() )

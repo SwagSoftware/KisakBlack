@@ -2050,7 +2050,7 @@ char __cdecl FX_UpdateElement_SetupUpdate(
     int ElemLifeSpanMsec; // eax
     const FxElemDef *elemDef; // [esp+10h] [ebp-4h]
 
-    memset((unsigned __int8 *)update, 0xD0u, sizeof(FxUpdateElem));
+    memset(update, 0xD0u, sizeof(FxUpdateElem));
     update->effect = effect;
     update->msecUpdateBegin = msecUpdateBegin;
     update->msecUpdateEnd = msecUpdateEnd;
@@ -3096,7 +3096,7 @@ void __cdecl FX_RewindTo_Setup(int localClientNum, int time)
     if ( time < system->system.msecNow )
     {
         system->system.msecNow = time;
-        memset((unsigned __int8 *)system->system.restartList, 0, sizeof(system->system.restartList));
+        memset(system->system.restartList, 0, sizeof(system->system.restartList));
         FX_BeginIteratingOverEffects_Cooperative(&system->system);
         for ( activeIndex = system->system.shared->firstActiveEffect;
                     activeIndex != system->system.shared->firstNewEffect;
@@ -3206,7 +3206,7 @@ void __cdecl FX_RewindTo_Finish(int localClientNum)
             }
         }
     }
-    memset((unsigned __int8 *)system->system.restartList, 0, sizeof(system->system.restartList));
+    memset(system->system.restartList, 0, sizeof(system->system.restartList));
     FX_RunGarbageCollectionAndPrioritySort(&system->system);
 }
 
@@ -3254,7 +3254,7 @@ void __cdecl FX_RewindTo(int localClientNum, int time)
     {
         system->system.msecNow = time;
         v13 = 0;
-        memset((unsigned __int8 *)system->system.restartList, 0, sizeof(system->system.restartList));
+        memset(system->system.restartList, 0, sizeof(system->system.restartList));
         FX_BeginIteratingOverEffects_Cooperative(&system->system);
         for ( i = system->system.shared->firstActiveEffect; i != system->system.shared->firstNewEffect; ++i )
         {
@@ -3340,7 +3340,7 @@ void __cdecl FX_RewindTo(int localClientNum, int time)
                 }
             }
         }
-        memset((unsigned __int8 *)system->system.restartList, 0, sizeof(system->system.restartList));
+        memset(system->system.restartList, 0, sizeof(system->system.restartList));
         FX_RunGarbageCollectionAndPrioritySort(&system->system);
     }
 }

@@ -960,7 +960,7 @@ define_s *__cdecl PC_DefineFromString(char *string)
     int res; // [esp+4F4h] [ebp-4h]
 
     script = LoadScriptMemory(string, strlen(string), "*extern");
-    memset((unsigned __int8 *)&src, 0, sizeof(src));
+    memset(&src, 0, sizeof(src));
     strncpy((char *)&src, "*extern", 0x40u);
     src.scriptstack = script;
     src.definehash = (define_s **)GetClearedMemory(0x1000u);

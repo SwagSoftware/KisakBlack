@@ -1611,12 +1611,12 @@ void __cdecl CG_ResetPlayerEntity(int localClientNum, cg_s *cgameGlob, centity_s
             XAnimSetCompleteGoalWeight(obj, cgameGlob->bgs.animData->animScriptData.torsoAnim, 0.0, 0.0, 1.0, 0, 0, 0, -1);
             XAnimSetCompleteGoalWeight(obj, cgameGlob->bgs.animData->animScriptData.legsAnim, 1.0, 0.0, 1.0, 0, 0, 0, -1);
             XAnimSetCompleteGoalWeight(obj, cgameGlob->bgs.animData->animScriptData.turningAnim, 0.0, 0.0, 1.0, 0, 0, 0, -1);
-            memset((unsigned __int8 *)&ci->legs, 0, sizeof(ci->legs));
+            memset(&ci->legs, 0, sizeof(ci->legs));
             ci->legs.yawAngle = ci->playerAngles[1];
             ci->legs.yawing = 0;
             ci->legs.pitchAngle = 0.0f;
             ci->legs.pitching = 0;
-            memset((unsigned __int8 *)&ci->torso, 0, sizeof(ci->torso));
+            memset(&ci->torso, 0, sizeof(ci->torso));
             ci->torso.yawAngle = ci->playerAngles[1];
             ci->torso.yawing = 0;
             ci->torso.pitchAngle = ci->playerAngles[0];

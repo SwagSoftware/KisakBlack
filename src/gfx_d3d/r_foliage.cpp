@@ -147,7 +147,7 @@ void __cdecl R_MarkDynFoliageModels(GfxWorld *gfxWorld)
     bool isDynFoliage; // [esp+37h] [ebp-5h]
     unsigned int modelIdx; // [esp+38h] [ebp-4h]
 
-    memset((unsigned __int8 *)g_isFoliageModel, 0, sizeof(g_isFoliageModel));
+    memset(g_isFoliageModel, 0, sizeof(g_isFoliageModel));
     for ( modelIdx = 0; modelIdx < g_modelInfoCount; ++modelIdx )
     {
         xm = gfxWorld->dpvs.smodelDrawInsts[modelIdx].model;
@@ -189,7 +189,7 @@ void __cdecl R_FoliageSetInitialBurnState()
 {
     //ModelHashTable<ActiveModelNode,63,128>::Init(&g_activeModelsHash);
     g_activeModelsHash.Init();
-    memset((unsigned __int8 *)g_fullySquashedModelBits, 0, sizeof(g_fullySquashedModelBits));
+    memset(g_fullySquashedModelBits, 0, sizeof(g_fullySquashedModelBits));
 }
 
 //double __cdecl R_GetWindBestStrength(
@@ -738,7 +738,7 @@ void __cdecl R_DirtyCodeConstant(GfxCmdBufSourceState *source, CodeConstant cons
 
 void __cdecl R_DynSModelInitGfxState(DynSModelGfxState *dynData)
 {
-    memset((unsigned __int8 *)dynData, 0, sizeof(DynSModelGfxState));
+    memset(dynData, 0, sizeof(DynSModelGfxState));
 }
 
 int __cdecl dyn_smodel_drawstateCallback(jqBatch *batch)
@@ -1155,7 +1155,7 @@ void __cdecl R_DynSModelBuildClientView(
             }
         }
     }
-    memset((unsigned __int8 *)view, 0xFFu, 0x1000u);
+    memset(view, 0xFFu, 0x1000u);
     for ( visSModelIndex = 0; visSModelIndex < visibleDynSModelCount; visSModelIndex += v5 )
     {
         if ( (int)(visibleDynSModelCount - visSModelIndex) > 256 )

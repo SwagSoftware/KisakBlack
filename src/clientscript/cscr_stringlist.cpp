@@ -220,7 +220,7 @@ void __cdecl SL_Init(scriptInstance_t inst)
     gScrStringGlob[inst].hashTable->u.prev = prev;
     SL_InitCheckLeaks(inst);
     gScrStringGlob[inst].indentLevel = 0;
-    memset((unsigned __int8 *)gScrStringGlob[inst].stringsUsed, 0, sizeof(gScrStringGlob[inst].stringsUsed));
+    memset(gScrStringGlob[inst].stringsUsed, 0, sizeof(gScrStringGlob[inst].stringsUsed));
     gScrStringGlob[inst].inited = 1;
     Sys_LeaveCriticalSection(CRITSECT_SCRIPT_STRING);
 }

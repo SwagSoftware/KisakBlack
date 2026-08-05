@@ -1005,7 +1005,7 @@ void __cdecl SV_DirectConnect(netadr_t from)
         Demo_ClientConnected(clients - svs.clients);
     gotnewcl:
         tempslot = newcl->reservedSlot;
-        memset((unsigned __int8 *)newcl, 0, sizeof(client_t));
+        memset(newcl, 0, sizeof(client_t));
         newcl->reservedSlot = tempslot;
         clientNum = newcl - svs.clients;
         Pregame_ResetDataForClient(clientNum);
@@ -1692,7 +1692,7 @@ process_configString:
     clientNum = client - svs.clients;
 
     bcassert(clientNum, com_maxclients->current.integer);
-    memset((unsigned __int8 *)&nullstate, 0, sizeof(nullstate));
+    memset(&nullstate, 0, sizeof(nullstate));
     for ( entNum = 0; entNum < 1024; ++entNum )
     {
         base = &sv.svEntities[entNum].baseline.s;
@@ -3267,7 +3267,7 @@ gentity_s *__cdecl SV_AddTestClient()
                 "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
                 5090);
             SV_SendClientGameState(dropb);
-            memset((unsigned __int8 *)&nullcmd, 0, sizeof(nullcmd));
+            memset(&nullcmd, 0, sizeof(nullcmd));
             SV_ClientEnterWorld(dropb, &nullcmd);
             return (gentity_s *)((char *)sv.gentities + i * sv.gentitySize);
         }
@@ -3361,7 +3361,7 @@ char __cdecl SV_AddDemoClient()
             "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
             5166);
         SV_SendClientGameState(client);
-        memset((unsigned __int8 *)&nullcmd, 0, sizeof(nullcmd));
+        memset(&nullcmd, 0, sizeof(nullcmd));
         SV_ClientEnterWorld(client, &nullcmd);
         Com_Printf(15, "SV_AddDemoClient: democlient added.\n");
         return 1;

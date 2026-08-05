@@ -39,7 +39,7 @@ void __cdecl SND_DebugDrawWorldSounds(int debugDrawStyle)
     {
         closestId = -1;
         closestIdDotProd = -2.0f;
-        memset((unsigned __int8 *)dst, 0, sizeof(dst));
+        memset(dst, 0, sizeof(dst));
         for (idx = 0; idx < 74; ++idx)
         {
             if (g_snd.voiceAliasHash[idx])
@@ -301,7 +301,7 @@ int __cdecl SND_GetSoundOverlay(snd_overlay_info *info, int start, int count)
     {
         __debugbreak();
     }
-    memset((unsigned __int8 *)info, 0, 240 * count);
+    memset(info, 0, 240 * count);
     for (i = 0; i < count; ++i)
     {
         voice = &g_snd.voice[start + i];

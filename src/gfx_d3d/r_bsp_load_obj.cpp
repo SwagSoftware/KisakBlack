@@ -445,8 +445,8 @@ GfxWorld *__cdecl R_LoadWorldInternal(const char *name)
     unsigned int drawType; // [esp+88h] [ebp-8h]
     DynEntityCollType collType; // [esp+8Ch] [ebp-4h]
 
-    memset((unsigned __int8 *)&s_world, 0, sizeof(s_world));
-    memset((unsigned __int8 *)&rgl, 0, sizeof(rgl));
+    memset(&s_world, 0, sizeof(s_world));
+    memset(&rgl, 0, sizeof(rgl));
     ProfLoad_Begin("Load world initialization");
     rgl.load.bspVersion = Com_GetBspVersion();
     s_world.name = (const char *)Hunk_Alloc(strlen(name) + 1, "R_LoadWorldInternal", 21);
@@ -583,7 +583,7 @@ GfxWorld *__cdecl R_LoadWorldInternal(const char *name)
     R_LoadWorldRuntime();
     R_LoadInitSkyIntensity();
     R_AssignSModelCacheResources(&s_world);
-    memset((unsigned __int8 *)&rgl, 0, sizeof(rgl));
+    memset(&rgl, 0, sizeof(rgl));
     return &s_world;
 }
 
@@ -1098,8 +1098,8 @@ unsigned int __cdecl R_DetermineLightmapCoupling(GfxBspLoad *load, int (*couplin
     }
     if ( diskLmapCount && diskLmapCount != origLmapCount )
         Com_Error(ERR_DROP, "LoadMap: funny lump size in %s", s_world.name);
-    memset((unsigned __int8 *)lmapVertCount, 0, sizeof(lmapVertCount));
-    memset((unsigned __int8 *)coupling, 0, 0x400u);
+    memset(lmapVertCount, 0, sizeof(lmapVertCount));
+    memset(coupling, 0, 0x400u);
     for ( materialIndex = 0; materialIndex < load->materialCount; ++materialIndex )
     {
         for ( triSurfIndex = 0; triSurfIndex < triSurfCount; ++triSurfIndex )
@@ -1320,7 +1320,7 @@ void __cdecl R_LoadLightGridPoints_Version15(unsigned int bspVersion)
         s_world.lightGrid.maxs[2] = 0;
         points = (AnnotatedLightGridPoint *)Hunk_AllocateTempMemory(10 * entryCount, "R_LoadLightGridPoints_Version15");
         defaultScore = Hunk_AllocateTempMemory(4 * s_world.lightGrid.colorCount, "R_LoadLightGridPoints_Version15");
-        memset((unsigned __int8 *)defaultScore, 0, 4 * s_world.lightGrid.colorCount);
+        memset(defaultScore, 0, 4 * s_world.lightGrid.colorCount);
         dstEntryIndex = 0;
         for ( entryIndex = 0; entryIndex < entryCount; ++entryIndex )
         {
@@ -1435,7 +1435,7 @@ void __cdecl R_LoadLightGridPoints_Version15(unsigned int bspVersion)
                              - s_world.lightGrid.mins[s_world.lightGrid.rowAxis]
                              + 1;
             s_world.lightGrid.rowDataStart = (unsigned __int16 *)Hunk_Alloc(2 * rowCount, "R_LoadLightGridHeader", 21);
-            memset((unsigned __int8 *)s_world.lightGrid.rowDataStart, 0xFFu, 2 * rowCount);
+            memset(s_world.lightGrid.rowDataStart, 0xFFu, 2 * rowCount);
             s_world.lightGrid.rawRowData = Hunk_Alloc(0x40000u, "R_LoadLightGridRowData", 21);
             s_world.lightGrid.rawRowDataSize = 0;
             s_world.lightGrid.entries = (GfxLightGridEntry *)Hunk_Alloc(8 * entryCount, "R_LoadLightGridPoints", 21);

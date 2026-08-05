@@ -42,7 +42,7 @@ void __cdecl BG_WeaponNameToComponentList(const char *name, WeaponComponentList 
 {
     int charIdx; // [esp+0h] [ebp-8h]
 
-    memset((unsigned __int8 *)componentList, 0, sizeof(WeaponComponentList));
+    memset(componentList, 0, sizeof(WeaponComponentList));
     charIdx = 0;
     while ( *name )
     {
@@ -154,7 +154,7 @@ void __cdecl BG_WeaponComponentListRemove(
     int compIdx; // [esp+18h] [ebp-Ch]
     bool found; // [esp+23h] [ebp-1h]
 
-    memset((unsigned __int8 *)componentListOut, 0, sizeof(WeaponComponentList));
+    memset(componentListOut, 0, sizeof(WeaponComponentList));
     for ( compIdx = 0; compIdx < componentListIn->numComponents; ++compIdx )
     {
         found = 0;
@@ -206,7 +206,7 @@ void __cdecl BG_WeaponComponentListNthAttachment(
     bool found; // [esp+1Fh] [ebp-1h]
 
     count = 0;
-    memset((unsigned __int8 *)componentListOut, 0, sizeof(WeaponComponentList));
+    memset(componentListOut, 0, sizeof(WeaponComponentList));
     for ( compIdx = 0; compIdx < componentListIn->numComponents; ++compIdx )
     {
         found = 0;

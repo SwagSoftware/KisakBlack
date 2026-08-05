@@ -164,10 +164,10 @@ void __cdecl Playlist_ParsePlaylists(const char *buffer)
     categoryCount = -1;
     foundLocalizedName = 0;
     foundLocalizedDesc = 0;
-    memset((unsigned __int8 *)playlists, 0, sizeof(playlists));
-    memset((unsigned __int8 *)gametypes, 0, sizeof(gametypes));
-    memset((unsigned __int8 *)categories, 0, sizeof(categories));
-    memset((unsigned __int8 *)prevPlaylist, 0, sizeof(prevPlaylist));
+    memset(playlists, 0, sizeof(playlists));
+    memset(gametypes, 0, sizeof(gametypes));
+    memset(categories, 0, sizeof(categories));
+    memset(prevPlaylist, 0, sizeof(prevPlaylist));
     *(unsigned int *)categoryFilter = 0;
     *(unsigned int *)&categoryFilter[4] = 0;
     *(unsigned int *)&categoryFilter[8] = 0;

@@ -29,14 +29,14 @@ CompassGuidedMissile s_compassGuidedMissiles[1][32];
 
 void __cdecl CG_ClearCompassPingData()
 {
-    memset((unsigned __int8 *)s_compassActors, 0, sizeof(s_compassActors));
-    memset((unsigned __int8 *)s_compassFakeFire, 0, sizeof(s_compassFakeFire));
-    memset((unsigned __int8 *)s_compassVehicles, 0, sizeof(s_compassVehicles));
-    memset((unsigned __int8 *)s_compassDogs, 0, sizeof(s_compassDogs));
-    memset((unsigned __int8 *)s_compassTurrets, 0, sizeof(s_compassTurrets));
-    memset((unsigned __int8 *)s_compassArtillery, 0, sizeof(s_compassArtillery));
-    memset((unsigned __int8 *)s_compassHelicopter, 0, sizeof(s_compassHelicopter));
-    memset((unsigned __int8 *)s_compassGuidedMissiles, 0, sizeof(s_compassGuidedMissiles));
+    memset(s_compassActors, 0, sizeof(s_compassActors));
+    memset(s_compassFakeFire, 0, sizeof(s_compassFakeFire));
+    memset(s_compassVehicles, 0, sizeof(s_compassVehicles));
+    memset(s_compassDogs, 0, sizeof(s_compassDogs));
+    memset(s_compassTurrets, 0, sizeof(s_compassTurrets));
+    memset(s_compassArtillery, 0, sizeof(s_compassArtillery));
+    memset(s_compassHelicopter, 0, sizeof(s_compassHelicopter));
+    memset(s_compassGuidedMissiles, 0, sizeof(s_compassGuidedMissiles));
 }
 
 void __cdecl RadarPingEnemyPlayer(CompassActor *actor, int time, unsigned int PerkToIgnore)
@@ -698,7 +698,7 @@ CompassDogs *__cdecl GetDogs(int localClientNum, int entityNum, int time)
     int oldest; // [esp+8h] [ebp-4h]
 
     if ( time - lastUpdateTime > 1000 )
-        memset((unsigned __int8 *)s_compassDogs, 0, sizeof(s_compassDogs));
+        memset(s_compassDogs, 0, sizeof(s_compassDogs));
     lastUpdateTime = time;
     for ( dog = 0; dog < 8; ++dog )
     {
@@ -780,7 +780,7 @@ CompassTurrets *__cdecl GetCompassTurrets(int localClientNum, int entityNum, int
     int oldest; // [esp+8h] [ebp-4h]
 
     if ( time - lastUpdateTime_0 > 1000 )
-        memset((unsigned __int8 *)s_compassDogs, 0, sizeof(s_compassDogs));
+        memset(s_compassDogs, 0, sizeof(s_compassDogs));
     lastUpdateTime_0 = time;
     for ( turret = 0; turret < 32; ++turret )
     {

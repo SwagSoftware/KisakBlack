@@ -11,8 +11,8 @@
 
 void __cdecl SND_InitCommands()
 {
-    memset((unsigned __int8 *)g_snd.commands, 0, sizeof(g_snd.commands));
-    memset((unsigned __int8 *)g_snd.command_q, 0, sizeof(g_snd.command_q));
+    memset(g_snd.commands, 0, sizeof(g_snd.commands));
+    memset(g_snd.command_q, 0, sizeof(g_snd.command_q));
     g_snd.command_q_head = 0;
     g_snd.command_q_tail = 0;
     g_snd.command_init = 1;
@@ -134,7 +134,7 @@ unsigned int __cdecl SND_CommandPush(snd_command *cmd)
     if ( SND_NextCommandIndex(g_snd.command_q_head) == g_snd.command_q_tail )
     {
         Com_PrintError(9, "Failed to push sound command: queue is full\n");
-        memset((unsigned __int8 *)cmd, 0, sizeof(snd_command));
+        memset(cmd, 0, sizeof(snd_command));
         id = 0;
     }
     else

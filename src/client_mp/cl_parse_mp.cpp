@@ -461,7 +461,7 @@ void __cdecl CL_ParseGamestate(int localClientNum, msg_t *msg)
                 newnum = MSG_ReadEntityIndex(msg, 0xAu);
                 if ( newnum >= 0x400 )
                     Com_Error(ERR_DROP, "Baseline number out of range: %i", newnum);
-                memset((unsigned __int8 *)&nullstate, 0, sizeof(nullstate));
+                memset(&nullstate, 0, sizeof(nullstate));
                 to = &LocalClientGlobals->entityBaselines[newnum];
                 MSG_ReadDeltaEntity(msg, 0, &nullstate, to, newnum);
                 break;
@@ -681,7 +681,7 @@ void __cdecl CL_ParseSnapshot(int localClientNum, msg_t *msg)
 
     LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
     clc = CL_GetLocalClientConnection(localClientNum);
-    memset((unsigned __int8 *)&newSnap, 0, sizeof(newSnap));
+    memset(&newSnap, 0, sizeof(newSnap));
     newSnap.serverCommandNum = clc->serverCommandSequence;
     newSnap.serverTime = MSG_ReadLong(msg);
     newSnap.physicsTime = MSG_ReadLong(msg);
@@ -1054,7 +1054,7 @@ void __cdecl CL_ParsePacketClients(
             }
             if ( cl_shownet->current.integer == 3 )
                 Com_Printf(14, "%3i:    baseline: %i\n", msg->readcount, newnum);
-            memset((unsigned __int8 *)&dummy, 0, sizeof(dummy));
+            memset(&dummy, 0, sizeof(dummy));
             CL_DeltaClient(cl, msg, time, newframe, newnum, &dummy, 0);
         }
     }

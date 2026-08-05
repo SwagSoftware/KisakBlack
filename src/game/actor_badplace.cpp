@@ -92,7 +92,7 @@ void __cdecl Path_UpdateBadPlaces()
             updateFlee = 1;
         }
     }
-    memset((unsigned __int8 *)gFreePendingBadPlaces, 0, sizeof(gFreePendingBadPlaces));
+    memset(gFreePendingBadPlaces, 0, sizeof(gFreePendingBadPlaces));
     pendedBP = gPendendBadPlaces;
     for (ia = 0; ia < gPendedBadPlaceCount; ++ia)
     {
@@ -348,7 +348,7 @@ void __cdecl Path_DrawBadPlace(badplace_t *place)
 
 void __cdecl Path_InitBadPlaces()
 {
-    memset((unsigned __int8 *)g_badplaces, 0, sizeof(g_badplaces));
+    memset(g_badplaces, 0, sizeof(g_badplaces));
 }
 
 void __cdecl Path_ShutdownBadPlaces()
@@ -357,7 +357,7 @@ void __cdecl Path_ShutdownBadPlaces()
 
     for (i = 0; i < 0x100; ++i)
         Scr_SetString(&g_badplaces[i].name, 0, SCRIPTINSTANCE_SERVER);
-    memset((unsigned __int8 *)g_badplaces, 0, sizeof(g_badplaces));
+    memset(g_badplaces, 0, sizeof(g_badplaces));
 }
 
 bool __cdecl Actor_IsInAnyBadPlace(actor_s *self)

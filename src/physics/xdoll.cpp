@@ -374,7 +374,7 @@ int __cdecl XDoll_GetUnusedBody()
 
 void __cdecl XDoll_InitBody(XDollBody *body)
 {
-    memset((unsigned __int8 *)body, 0, sizeof(XDollBody));
+    memset(body, 0, sizeof(XDollBody));
 }
 
 char __cdecl XDoll_CreatePhysObj(

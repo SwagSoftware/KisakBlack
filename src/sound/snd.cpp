@@ -233,7 +233,7 @@ void __cdecl SND_ResetVoiceInfo(int index)
     voice = &g_snd.voice[index];
     if ( voice->playback )
         SND_FreePlaybackNotify(voice->playback);
-    memset((unsigned __int8 *)voice, 0xFFu, sizeof(snd_voice_t));
+    memset(voice, 0xFFu, sizeof(snd_voice_t));
     g_snd.voiceAliasHash[index] = 0;
     voice->soundFileInfo.loadingState = SFLS_UNLOADED;
     voice->alias = 0;
@@ -1384,7 +1384,7 @@ unsigned int __cdecl SND_PlaySoundAlias(
         return -1;
     if ( !SND_LimitVoice(alias, sndEnt) )
         return -1;
-    memset((unsigned __int8 *)&startAliasInfo, 0xFFu, sizeof(startAliasInfo));
+    memset(&startAliasInfo, 0xFFu, sizeof(startAliasInfo));
 
     iassert(SND_AliasGetVolMin(alias) <= 1.0f);
     iassert(SND_AliasGetVolMin(alias) >= 0.0f);

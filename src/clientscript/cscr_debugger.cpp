@@ -1652,7 +1652,7 @@ void __thiscall Scr_ScriptWatch::EvaluateWatchChildren(
                 inst,
                 100 * count,
                 "Scr_ScriptWatch::EvaluateWatchChildren3");
-            memset((unsigned __int8 *)&newElements->expr.parseData, 0, 100 * count);
+            memset(&newElements->expr.parseData, 0, 100 * count);
             newElementOldRef = (Scr_WatchElement_s **)Scr_AllocDebugMem(
                 inst,
                 4 * count,
@@ -2609,7 +2609,7 @@ Scr_WatchElement_s *__cdecl Scr_CreateWatchElement(
     Scr_WatchElement_s *element; // [esp+0h] [ebp-4h]
 
     element = (Scr_WatchElement_s *)Scr_AllocDebugMem(inst, 100, name);
-    memset((unsigned __int8 *)&element->expr.parseData, 0, sizeof(Scr_WatchElement_s));
+    memset(&element->expr.parseData, 0, sizeof(Scr_WatchElement_s));
     element->valueText = CopyString((char *)"", "Scr_CreateWatchElement", 0, inst);
     element->refText = CopyString(text, "Scr_CreateWatchElement", 0, inst);
     element->next = *prevElem;
@@ -3418,7 +3418,7 @@ void __cdecl Scr_InitDebuggerMain(scriptInstance_t inst)
                                                                                                                                                                         1179640,
                                                                                                                                                                         4,
                                                                                                                                                                         "gScrDebuggerGlob[inst].variableBreakpoints");
-        memset((unsigned __int8 *)gScrDebuggerGlob[inst].variableBreakpoints, 0, 0x11FFF8u);
+        memset(gScrDebuggerGlob[inst].variableBreakpoints, 0, 0x11FFF8u);
         gScrDebuggerGlob[inst].assignHead = 0;
         gScrDebuggerGlob[inst].assignHeadCodePos = 0;
         if ( inst )
@@ -3483,7 +3483,7 @@ void __cdecl Scr_InitDebugger(scriptInstance_t inst)
                                                                                                      gScrCompilePub[inst].programLen,
                                                                                                      4,
                                                                                                      "gScrDebuggerGlob[inst].breakpoints");
-        memset((unsigned __int8 *)gScrDebuggerGlob[inst].breakpoints, 0x7Fu, gScrCompilePub[inst].programLen);
+        memset(gScrDebuggerGlob[inst].breakpoints, 0x7Fu, gScrCompilePub[inst].programLen);
         gScrDebuggerGlob[inst].scriptList.Init(inst);
         gScrDebuggerGlob[inst].openScriptList.Init(inst);
         gScrDebuggerGlob[inst].debugger_inited = 1;

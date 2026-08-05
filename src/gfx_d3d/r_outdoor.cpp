@@ -189,7 +189,7 @@ double __cdecl Outdoor_TraceHeightInWorld(float worldX, float worldY)
     traceEnd[0] = worldX;
     traceEnd[1] = worldY;
     traceEnd[2] = outdoorGlob.bbox[0][2] - 1.0;
-    memset((unsigned __int8 *)&results, 0, sizeof(results));
+    memset(&results, 0, sizeof(results));
     results.fraction = 1.0f;
     CM_BoxTrace(&results, traceStart, traceEnd, vec3_origin, vec3_origin, 8241, &context);
     return (traceEndHeight - traceStartHeight) * results.fraction + traceStartHeight;

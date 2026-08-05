@@ -920,7 +920,7 @@ void __cdecl G_UnlinkPlayerToRocket(gentity_s *ent)
 
 void __cdecl Missile_InitAttractors()
 {
-    memset((unsigned __int8 *)&attrGlob, 0, sizeof(attrGlob));
+    memset(&attrGlob, 0, sizeof(attrGlob));
 }
 
 void __cdecl Missile_FreeAttractorRefs(gentity_s *ent)
