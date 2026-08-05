@@ -26,12 +26,12 @@ void __cdecl Snd_StreamBufferInit(snd_buffer *buffer, char *data)
 void __cdecl Snd_StreamReset(snd_stream *stream)
 {
     int Target[5]; // [esp+4h] [ebp-18h] BYREF
-    unsigned int i; // [esp+18h] [ebp-4h]
 
     //tlAtomicMutex::Lock(&stream->mutex);
     stream->mutex.Lock();
+
     stream->filename[0] = 0;
-    for ( i = 0; i < 3; ++i )
+    for ( int i = 0; i < 3; ++i )
         stream->window_return[i] = 0;
     stream->head = 2096;
     stream->read = 0;
@@ -59,14 +59,9 @@ void __cdecl Snd_StreamReset(snd_stream *stream)
 void __cdecl Snd_StreamInit()
 {
     tlAtomicMutex *p_mutex; // [esp+0h] [ebp-Ch]
-    unsigned int j; // [esp+4h] [ebp-8h]
-    unsigned int i; // [esp+8h] [ebp-4h]
 
-    if ( !Sys_IsMainThread()
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp", 238, 0, "%s", "Sys_IsMainThread()") )
-    {
-        __debugbreak();
-    }
+    iassert(Sys_IsMainThread());
+
     if (!g_snd_stream_buffer)
     {
         g_snd_stream_buffer = (char *)_PMem_Alloc(
@@ -96,7 +91,7 @@ void __cdecl Snd_StreamInit()
         *(_DWORD *)g_snd_streams->filename = 0;
     }
 
-    for ( i = 0; i < 10; ++i )
+    for ( int i = 0; i < 10; ++i )
     {
         p_mutex = &g_snd_streams[i].mutex;
         g_snd_streams[i].mutex.ThisPtr = p_mutex;
@@ -105,7 +100,7 @@ void __cdecl Snd_StreamInit()
         Snd_StreamReset(&g_snd_streams[i]);
     }
 
-    for ( j = 0; j < 20; ++j )
+    for ( int j = 0; j < 20; ++j )
         Snd_StreamBufferInit(&g_snd_buffers[j], &g_snd_stream_buffer[536576 * j]);
 
     g_snd_stream_time = 0;
@@ -122,34 +117,16 @@ void __cdecl Snd_StreamFini()
 
     if ( g_snd_streams )
     {
-        for ( i = 0; i < 0xA; ++i )
+        for ( i = 0; i < 10; ++i )
         {
-            if ( g_snd_streams[i].in_use
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
-                            293,
-                            0,
-                            "%s",
-                            "!g_snd_streams[i].in_use") )
-            {
-                __debugbreak();
-            }
+            iassert(!g_snd_streams[i].in_use);
             p_mutex = &g_snd_streams[i].mutex;
             p_mutex->ThreadId = 0;
             p_mutex->ThisPtr = 0;
         }
-        for ( j = 0; j < 0x14; ++j )
+        for ( j = 0; j < 20; ++j )
         {
-            if ( g_snd_buffers[j].reference_count
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
-                            299,
-                            0,
-                            "%s",
-                            "g_snd_buffers[i].reference_count == 0") )
-            {
-                __debugbreak();
-            }
+            iassert(g_snd_buffers[i].reference_count == 0);
         }
         for ( k = 0; k < 0xA; ++k )
         {
@@ -172,17 +149,17 @@ void __cdecl SND_StreamCloseFiles()
 
     if ( SND_Active() )
     {
-        for (i = 0; i < 0xA; ++i)
+        for (i = 0; i < 10; ++i)
         {
             //tlAtomicMutex::Lock(&g_snd_streams[i].mutex);
             g_snd_streams[i].mutex.Lock();
         }
-        for ( j = 0; j < 0xA; ++j )
+        for ( j = 0; j < 10; ++j )
         {
             if ( g_snd_stream_files[j].handle )
                 Snd_FileClose(&g_snd_stream_files[j]);
         }
-        for ( k = 0; k < 0xA; ++k )
+        for ( k = 0; k < 10; ++k )
         {
             p_mutex = &g_snd_streams[k].mutex;
 
@@ -211,7 +188,7 @@ void __cdecl Snd_StreamOpen(
     scoped_performance_error pe; // [esp+24h] [ebp-20h] BYREF
     snd_stream *s; // [esp+40h] [ebp-4h]
 
-    pe.threshold = 0.0003000000142492354;
+    pe.threshold = 0.0003f;
     pe.what = "Snd_StreamOpen";
     pe.start = tlPcGetTick().QuadPart;
     if ( !g_snd_streams
@@ -328,7 +305,7 @@ void __cdecl Snd_StreamClose(unsigned int index)
     scoped_performance_error pe; // [esp+2Ch] [ebp-20h] BYREF
     snd_stream *s; // [esp+48h] [ebp-4h]
 
-    pe.threshold = 0.0003000000142492354;
+    pe.threshold = 0.0003f;
     pe.what = "Snd_StreamClose";
     pe.start = tlPcGetTick().QuadPart;
     if ( index >= 0xA
@@ -416,7 +393,7 @@ snd_stream_status __cdecl Snd_StreamStatus(unsigned int index)
     snd_stream_status status; // [esp+40h] [ebp-8h]
     snd_stream *s; // [esp+44h] [ebp-4h]
 
-    pe.threshold = 0.0003000000142492354;
+    pe.threshold = 0.0003f;
     pe.what = "Snd_StreamStatus";
     pe.start = tlPcGetTick().QuadPart;
     if ( index >= 0xA
@@ -1263,16 +1240,9 @@ void __cdecl Snd_StreamUpdate()
                 }
             }
         }
-        if ( greatest_need_index < 0
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
-                        1234,
-                        0,
-                        "%s",
-                        "greatest_need_index >= 0") )
-        {
-            __debugbreak();
-        }
+
+        iassert(greatest_need_index >= 0);
+
         if ( !Snd_LoadBuffer(
                         greatest_need_index,
                         requests[greatest_need_index].filename,
@@ -1321,7 +1291,7 @@ void __cdecl Snd_StreamGetRequest(snd_stream *s, snd_stream_request *r)
     loaded1 = v3;
     if ( active && need && valid && !loaded0 && !loaded1 )
     {
-        pe.threshold = 0.0003000000142492354;
+        pe.threshold = 0.0003f;
         pe.what = "Snd_StreamSetRequest_if1";
         pe.start = tlPcGetTick().QuadPart;
         strncpy((char *)r, (char *)s, 0x104u);
@@ -1367,16 +1337,14 @@ bool __cdecl Snd_StreamSetRequest(snd_stream *s, snd_stream_request *r)
     bool used_buffer; // [esp+6Eh] [ebp-2h]
     bool same_file; // [esp+6Fh] [ebp-1h]
 
-    pe.threshold = 0.0003000000142492354;
+    pe.threshold = 0.0003f;
     pe.what = "Snd_StreamSetRequest";
     pe.start = tlPcGetTick().QuadPart;
     //tlAtomicMutex::Lock(&s->mutex);
     s->mutex.Lock();
-    if ( !r->buffer
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp", 1050, 0, "%s", "r->buffer") )
-    {
-        __debugbreak();
-    }
+
+    iassert(r->buffer);
+
     used_buffer = 0;
     same_file = _stricmp(r->buffer->filename, s->filename) == 0;
     if ( s->read < s->stream_length )
@@ -1387,25 +1355,13 @@ bool __cdecl Snd_StreamSetRequest(snd_stream *s, snd_stream_request *r)
     if ( same_file && same_offset )
     {
         used_buffer = 1;
-        v6.threshold = 0.0003000000142492354;
+        v6.threshold = 0.0003f;
         v6.what = "Snd_StreamSetRequest_if1";
         v6.start = tlPcGetTick().QuadPart;
-        if ( !s->in_use
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp", 1063, 0, "%s", "s->in_use") )
-        {
-            __debugbreak();
-        }
-        if ( s->buffers[0]
-            && s->buffers[1]
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
-                        1065,
-                        0,
-                        "%s",
-                        "!s->buffers[0] || !s->buffers[1]") )
-        {
-            __debugbreak();
-        }
+
+        iassert(s->in_use);
+        iassert(!s->buffers[0] || !s->buffers[1]);
+
         if ( s->buffers[0] )
             s->buffers[1] = r->buffer;
         else
@@ -1435,10 +1391,10 @@ snd_buffer *__cdecl Snd_FindBuffer(const char *filename, unsigned int offset)
     unsigned int i; // [esp+24h] [ebp-1Ch]
     scoped_performance_error pe; // [esp+28h] [ebp-18h] BYREF
 
-    pe.threshold = 0.0003000000142492354;
+    pe.threshold = 0.0003f;
     pe.what = "Snd_FindBuffer";
     pe.start = tlPcGetTick().QuadPart;
-    for ( i = 0; ; ++i )
+    for ( int i = 0; ; ++i )
     {
         if ( i >= 0x14 )
         {
@@ -1450,28 +1406,11 @@ snd_buffer *__cdecl Snd_FindBuffer(const char *filename, unsigned int offset)
         if ( !_stricmp(filename, buffer->filename) && buffer->offset_in_file == offset )
             break;
     }
-    if ( !buffer->file_size
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
-                    1115,
-                    0,
-                    "%s",
-                    "buffer->file_size > 0") )
-    {
-        __debugbreak();
-    }
+
+    iassert(buffer->file_size > 0);
     _InterlockedExchangeAdd(&buffer->reference_count, 1u);
-    if ( buffer->reference_count > 0xAu
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
-                    1117,
-                    0,
-                    "%s\n\t(buffer->reference_count) = %i",
-                    "(buffer->reference_count >= 0 && buffer->reference_count <= SND_STREAM_COUNT)",
-                    buffer->reference_count) )
-    {
-        __debugbreak();
-    }
+    iassert(buffer->reference_count >= 0 && buffer->reference_count <= SND_STREAM_COUNT);
+
     //scoped_performance_error::test(&pe, "");
     pe.test("");
     return buffer;
@@ -1563,8 +1502,7 @@ LABEL_31:
     else
         v6 = 536576;
     read_size = v6;
-    if ( !v6 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp", 1410, 0, "%s", "read_size") )
-        __debugbreak();
+    iassert(read_size);
     if ( !Snd_FileRead(file, start_offset, read_size, (unsigned __int8 *)buffer->data) )
         return 0;
     v5 = _InterlockedExchangeAdd(&g_snd_stream_time, 1u);

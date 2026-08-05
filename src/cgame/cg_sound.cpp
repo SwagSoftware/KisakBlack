@@ -11,6 +11,7 @@
 #include <bgame/bg_misc.h>
 #include <universal/com_math_anglevectors.h>
 #include <bgame/bg_weapons.h>
+#include <sound/snd_occlusion.h>
 
 const char *g_snd_fire_names[8] =
 {
@@ -502,7 +503,7 @@ void __cdecl CG_SndUpdateFire()
             fire = &g_snd_fires[localClientNum][f];
             if ( fire->active )
             {
-                if ( fire->level >= 0.0000152879 )
+                if ( fire->level >= SND_EPSILON )
                 {
                     AliasId = SND_FindAliasId((char *)g_snd_fire_names[f % 8]);
                     CG_PlaySound(localClientNum, cgameGlob->clientNum, fire->location, 0, 0, fire->level, AliasId);

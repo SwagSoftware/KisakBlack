@@ -55,7 +55,7 @@ double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listen
         to[0] = *listener - *playback;
         to[1] = listener[1] - playback[1];
         to[2] = listener[2] - playback[2];
-        if ( Vec3Normalize(to) >= 0.0000152879 )
+        if ( Vec3Normalize(to) >= SND_EPSILON )
         {
             side[0] = to[1];
             side[1] = -to[0];
@@ -236,7 +236,7 @@ void __cdecl Vec3ScaleAdd(const float *base, const float *dir, float scale, floa
 //    __libm_sse2_cos(v8);
 //    v28 = v31;
 //    *(float *)&i = v31 - front[1];
-//    if ( fabs(i) >= 0.0000152879
+//    if ( fabs(i) >= SND_EPSILON
 //        && !Assert_MyHandler(
 //                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_occlusion.cpp",
 //                    209,
@@ -249,7 +249,7 @@ void __cdecl Vec3ScaleAdd(const float *base, const float *dir, float scale, floa
 //    __libm_sse2_sin(v9);
 //    quadT = v29;
 //    distance = v29 - *front;
-//    if ( fabs(distance) >= 0.0000152879
+//    if ( fabs(distance) >= SND_EPSILON
 //        && !Assert_MyHandler(
 //                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_occlusion.cpp",
 //                    210,

@@ -47,7 +47,7 @@ struct snd_rv_params
 
 struct __declspec(align(128)) snd_rv_state // sizeof=0x80280
 {                                       // XREF: SDXA2RadverbEffect/r
-    float delayLine[131072];            // XREF: .data:00E1F218/o
+    float delayLine[0x20000];            // XREF: .data:00E1F218/o
                                         // .data:00E1F42C/o ...
     float earlyReflectionCoefs[4][4];
     unsigned int earlyReflectionDelays[4][4];
@@ -61,94 +61,6 @@ struct __declspec(align(128)) snd_rv_state // sizeof=0x80280
     unsigned int earlyReflectionDelayBase[4][4];
     unsigned int lateReflectionDelayBase[4][4];
     unsigned int delayIndex;
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
 };
 
 

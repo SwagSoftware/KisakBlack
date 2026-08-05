@@ -34,37 +34,10 @@ void __cdecl SND_RvParamsDefault(snd_rv_params *params)
 
 double __cdecl SND_RvValidateRange(float value, float min, float max)
 {
-    float v3; // xmm0_4
+    iassert(!IS_NAN(value));
+    iassert(value >= min);
+    iassert(value <= max);
 
-    if ( IS_NAN(value)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_radverb.cpp", 122, 0, "%s", "!IS_NAN(value)") )
-    {
-        __debugbreak();
-    }
-    v3 = value;
-    if ( value < min )
-    {
-        if ( !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_radverb.cpp",
-                        123,
-                        0,
-                        "%s\n\t(value) = %g",
-                        "(value >= min)",
-                        value) )
-            __debugbreak();
-        v3 = value;
-    }
-    if ( max < v3
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_radverb.cpp",
-                    124,
-                    0,
-                    "%s\n\t(value) = %g",
-                    "(value <= max)",
-                    v3) )
-    {
-        __debugbreak();
-    }
     return I_fclamp(value, min, max);
 }
 
@@ -107,16 +80,8 @@ void __cdecl SND_RvParamsValidate(snd_rv_params *params)
     params->earlySize = SND_RvValidateRange(params->earlySize, 0.1, 16.0);
     params->lateSize = SND_RvValidateRange(params->lateSize, 0.1, 16.0);
     params->diffusion = SND_RvValidateRange(params->diffusion, 0.0, 1.0);
-    if ( IS_NAN(params->angle) )
-    {
-        if ( !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_radverb.cpp",
-                        153,
-                        0,
-                        "%s",
-                        "!IS_NAN(params->angle)") )
-            __debugbreak();
-    }
+
+    iassert(!IS_NAN(params->angle));
 }
 
 // aislop

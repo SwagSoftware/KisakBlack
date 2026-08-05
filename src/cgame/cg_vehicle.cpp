@@ -1155,7 +1155,7 @@ void __cdecl CG_CrossFadeVehicleMaterialEffects(
         __debugbreak();
     }
     wheelEffect = &cent->vehicle->wheelEffects[groundEffectIndex];
-    if ( ratio < 0.0000152879 )
+    if ( ratio < SND_EPSILON )
         ratio = 0.0f;
     soundAlias = info->sndMaterialNames[groundEffectIndex];
     if ( *soundAlias )

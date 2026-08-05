@@ -194,19 +194,9 @@ void __thiscall SDXA2SourceEffect::Process(
                 unsigned int frameCount,
                 float *data)
 {
-    unsigned int i; // [esp+4h] [ebp-4h]
+    iassert(channelCount <= SDXA2_MAX_SOURCE_CHANNELS);
 
-    if ( channelCount > 2
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    174,
-                    0,
-                    "%s",
-                    "channelCount <= SDXA2_MAX_SOURCE_CHANNELS") )
-    {
-        __debugbreak();
-    }
-    for ( i = 0; i < channelCount; ++i )
+    for ( int i = 0; i < channelCount; ++i )
         SND_DspFxSourceMono(
             (const snd_dsp_futz_param *)&this->params,
             &this->state[i],
@@ -237,15 +227,11 @@ void __thiscall SDXA2MasterNoVoiceBusEffect::Process(
                 unsigned int frameCount,
                 float *data)
 {
-    float frameRate; // [esp+0h] [ebp-24h]
-    unsigned int i; // [esp+20h] [ebp-4h]
-
-    for ( i = 0; i < channelCount; ++i )
+    for ( int i = 0; i < channelCount; ++i )
     {
-        frameRate = (float)this->frameRate;
         SND_DspFxMasterNoVoiceSingleChannel(
             frameCount,
-            frameRate,
+            this->frameRate,
             &data[frameCount * i],
             &this->params,
             &this->state[i],

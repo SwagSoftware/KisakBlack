@@ -1,6 +1,7 @@
 #include "snd_dsp.h"
 #include <universal/com_math.h>
 #include "snd.h"
+#include "snd_occlusion.h"
 
 void __cdecl SND_DspMul(unsigned int count, const float *a, const float *b, float *c)
 {
@@ -23,16 +24,9 @@ void __cdecl SND_DspScale(unsigned int count, float a, float *c)
     float *v3; // eax
     unsigned int v4; // ecx
 
-    if ( (count & 3) != 0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 160, 0, "%s", "(count&3) == 0") )
-    {
-        __debugbreak();
-    }
-    if ( ((unsigned __int8)c & 0xF) != 0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 161, 0, "%s", "(((int)c)&15) == 0") )
-    {
-        __debugbreak();
-    }
+    iassert((count & 3) == 0);
+    iassert((((int)c) & 15) == 0);
+
     if ( count )
     {
         v3 = c + 2;
@@ -96,16 +90,9 @@ void __cdecl SND_DspScale(unsigned int count, float a, const float *b, float *c)
     const float *v6; // ecx
 
     v4 = c;
-    if ( (count & 3) != 0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 200, 0, "%s", "(count&3) == 0") )
-    {
-        __debugbreak();
-    }
-    if ( ((unsigned __int8)c & 0xF) != 0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 201, 0, "%s", "(((int)c)&15) == 0") )
-    {
-        __debugbreak();
-    }
+
+    iassert((count & 3) == 0);
+    iassert((((int)c) & 15) == 0);
     v5 = b;
     v6 = &b[count];
     if ( b < v6 )
@@ -175,21 +162,9 @@ void __cdecl SND_OcclusionLpfCoef(float occlusionLevel, float occlusionRatio, fl
     float x; // [esp+20h] [ebp-4h]
     float sampleRatea; // [esp+34h] [ebp+10h]
 
-    if ( sampleRate <= 100.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 424, 0, "%s", "sampleRate > 100.0f") )
-    {
-        __debugbreak();
-    }
-    if ( sampleRate >= 100000.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp",
-                    425,
-                    0,
-                    "%s",
-                    "sampleRate < 100000.0f") )
-    {
-        __debugbreak();
-    }
+    iassert(sampleRate > 100.0f);
+    iassert(sampleRate < 100000.0f);
+
     x = I_fclamp(occlusionLevel, -80.0, 0.0);
     if ( x >= -0.000001 )
     {
@@ -215,16 +190,8 @@ void __cdecl SND_OcclusionLpfCoef(float occlusionLevel, float occlusionRatio, fl
         *b0 = (1.0 - v9) * k;
         *a1 = -v9;
     }
-    if ( IS_NAN(*v7)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 449, 0, "%s", "!IS_NAN(*b0)") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(*v8) )
-    {
-        if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 450, 0, "%s", "!IS_NAN(*a1)") )
-            __debugbreak();
-    }
+    iassert(!IS_NAN(*b0));
+    iassert(!IS_NAN(*a1));
 }
 
 double __cdecl I_fclamp(float val, float min, float max)
@@ -301,354 +268,225 @@ void __cdecl SND_DspBiquadInPlace(
 
 void __cdecl SND_DspBiquadNormalize(float *a, float *b, snd_dsp_biquad_coef *coef)
 {
-    if ( IS_NAN(*b)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 838, 0, "%s", "!IS_NAN(b[0])") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(b[1])
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 839, 0, "%s", "!IS_NAN(b[1])") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(b[2])
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 840, 0, "%s", "!IS_NAN(b[2])") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(*a)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 841, 0, "%s", "!IS_NAN(a[0])") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(a[1])
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 842, 0, "%s", "!IS_NAN(a[1])") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(a[2])
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 843, 0, "%s", "!IS_NAN(a[2])") )
-    {
-        __debugbreak();
-    }
-    coef->s[0] = *b / *a;
-    coef->s[1] = b[1] / *a;
-    coef->s[2] = b[2] / *a;
-    coef->s[3] = a[1] / *a;
-    coef->s[4] = a[2] / *a;
-    if ( IS_NAN(coef->s[0])
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 856, 0, "%s", "!IS_NAN(coef->s[0])") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(coef->s[1])
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 857, 0, "%s", "!IS_NAN(coef->s[1])") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(coef->s[2])
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 858, 0, "%s", "!IS_NAN(coef->s[2])") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(coef->s[3])
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 859, 0, "%s", "!IS_NAN(coef->s[3])") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(coef->s[4]) )
-    {
-        if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 860, 0, "%s", "!IS_NAN(coef->s[4])") )
-            __debugbreak();
-    }
+    iassert(!IS_NAN(b[0]));
+    iassert(!IS_NAN(b[1]));
+    iassert(!IS_NAN(b[2]));
+    iassert(!IS_NAN(a[0]));
+    iassert(!IS_NAN(a[1]));
+    iassert(!IS_NAN(a[2]));
+
+    coef->s[0] = b[0] / a[0];
+    coef->s[1] = b[1] / a[0];
+    coef->s[2] = b[2] / a[0];
+    coef->s[3] = a[1] / a[0];
+    coef->s[4] = a[2] / a[0];
+
+    iassert(!IS_NAN(coef->s[0]));
+    iassert(!IS_NAN(coef->s[1]));
+    iassert(!IS_NAN(coef->s[2]));
+    iassert(!IS_NAN(coef->s[3]));
+    iassert(!IS_NAN(coef->s[4]));
 }
 
 void __cdecl SND_DspBiquadHShelve(float Fs, float db, float Fhz, float q, snd_dsp_biquad_coef *coef)
 {
-    float v5; // xmm1_4
-    float v6; // xmm3_4
-    float v7; // xmm2_4
-    float a[3]; // [esp+14h] [ebp-18h] BYREF
-    float b[3]; // [esp+20h] [ebp-Ch] BYREF
-    float alpha; // [esp+34h] [ebp+8h]
-    float alphaa; // [esp+34h] [ebp+8h]
-    float alphab; // [esp+34h] [ebp+8h]
-    float w0; // [esp+38h] [ebp+Ch]
-    float w0a; // [esp+38h] [ebp+Ch]
-    float A; // [esp+3Ch] [ebp+10h]
-    float sqrtA; // [esp+40h] [ebp+14h]
+    float a[3];
+    float b[3];
+    float f0;
+    float A;
+    float w0;
+    float sinW0;
+    float cosW0;
+    float alpha;
+    float sqrtA;
+    float twoSqrtAAlpha;
+    float Ap1;
+    float Am1;
 
-    if ( Fs <= 1000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 871, 0, "%s", "Fs > 1000") )
-    {
-        __debugbreak();
-    }
-    if ( Fs >= 100000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 872, 0, "%s", "Fs < 100000") )
-    {
-        __debugbreak();
-    }
-    alpha = (float)(Fhz / Fs) * 2.0;
-    if ( alpha < 0.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 876, 0, "%s", "f0 >= 0.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(alpha)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 877, 0, "%s", "!IS_NAN(f0)") )
-    {
-        __debugbreak();
-    }
-    if ( q <= 0.0 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 878, 0, "%s", "q > 0.0f") )
-        __debugbreak();
-    if ( q >= 32.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 879, 0, "%s", "q < 32.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(q)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 880, 0, "%s", "!IS_NAN(q)") )
-    {
-        __debugbreak();
-    }
-    if ( db >= 50.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 881, 0, "%s", "db < 50.0f") )
-    {
-        __debugbreak();
-    }
-    if ( db <= -1000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 882, 0, "%s", "db > -1000.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(db)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 883, 0, "%s", "!IS_NAN(db)") )
-    {
-        __debugbreak();
-    }
-    alphaa = I_fmax(alpha, 0.000001);
-    A = powf(10.0, db * 0.025);
-    w0 = alphaa * 3.1415927;
-    alphab = sinf(w0) / (q + q);
-    w0a = cosf(w0);
+    iassert(Fs > 1000.0f);
+    iassert(Fs < 100000.0f);
+
+    f0 = (Fhz / Fs) * 2.0f;
+
+    iassert(f0 >= 0.0f);
+    iassert(!IS_NAN(f0));
+    iassert(q > 0.0f);
+    iassert(q < 32.0f);
+    iassert(!IS_NAN(q));
+    iassert(db < 50.0f);
+    iassert(db > -1000.0f);
+    iassert(!IS_NAN(db));
+
+    f0 = I_fmax(f0, 0.000001f);
+
+    A = powf(10.0f, db * 0.025f);
+    w0 = f0 * 3.1415927f;
+    sinW0 = sinf(w0);
+    cosW0 = cosf(w0);
+    alpha = sinW0 / (q + q);
     sqrtA = sqrtf(A);
-    v5 = (float)(sqrtA * alphab) * 2.0;
-    v6 = (float)(A - 1.0) * w0a;
-    b[0] = (float)((float)((float)(A + 1.0) + v5) + v6) * A;
-    b[1] = (float)((float)((float)((float)(A + 1.0) * w0a) + (float)(A - 1.0)) * A) * -2.0;
-    v7 = (float)(A + 1.0) - v6;
-    b[2] = (float)((float)((float)(A + 1.0) + v6) - v5) * A;
-    a[0] = v7 + v5;
-    a[1] = (float)((float)(A - 1.0) - (float)((float)(A + 1.0) * w0a)) * 2.0;
-    a[2] = v7 - v5;
+
+    twoSqrtAAlpha = 2.0f * sqrtA * alpha;
+    Ap1 = A + 1.0f;
+    Am1 = A - 1.0f;
+
+    b[0] = A * (Ap1 + Am1 * cosW0 + twoSqrtAAlpha);
+    b[1] = -2.0f * A * (Am1 + Ap1 * cosW0);
+    b[2] = A * (Ap1 + Am1 * cosW0 - twoSqrtAAlpha);
+
+    a[0] = Ap1 - Am1 * cosW0 + twoSqrtAAlpha;
+    a[1] = 2.0f * (Am1 - Ap1 * cosW0);
+    a[2] = Ap1 - Am1 * cosW0 - twoSqrtAAlpha;
+
     SND_DspBiquadNormalize(a, b, coef);
 }
 
-void __cdecl SND_DspBiquadLShelve(float Fs, float db, float Fhz, float q, snd_dsp_biquad_coef *coef)
+void __cdecl SND_DspBiquadLShelve(
+    float Fs,
+    float db,
+    float Fhz,
+    float q,
+    snd_dsp_biquad_coef *coef)
 {
-    float v5; // xmm2_4
-    float v6; // xmm1_4
-    float v7; // xmm3_4
-    float v8; // xmm0_4
-    float a[3]; // [esp+14h] [ebp-18h] BYREF
-    float b[3]; // [esp+20h] [ebp-Ch] BYREF
-    float sqrtA; // [esp+34h] [ebp+8h]
-    float sqrtAa; // [esp+34h] [ebp+8h]
-    float sqrtAb; // [esp+34h] [ebp+8h]
-    float sqrtAc; // [esp+34h] [ebp+8h]
-    float A; // [esp+38h] [ebp+Ch]
-    float alpha; // [esp+3Ch] [ebp+10h]
-    float cosw0; // [esp+40h] [ebp+14h]
+    float a[3];
+    float b[3];
+    float f0;
+    float A;
+    float w0;
+    float alpha;
+    float cosW0;
+    float sqrtA;
+    float twoSqrtAAlpha;
+    float Ap1;
+    float Am1;
 
-    if ( Fs <= 1000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 914, 0, "%s", "Fs > 1000") )
-    {
-        __debugbreak();
-    }
-    if ( Fs >= 100000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 915, 0, "%s", "Fs < 100000") )
-    {
-        __debugbreak();
-    }
-    sqrtA = (float)(Fhz / Fs) * 2.0;
-    if ( sqrtA < 0.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 919, 0, "%s", "f0 >= 0.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(sqrtA)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 920, 0, "%s", "!IS_NAN(f0)") )
-    {
-        __debugbreak();
-    }
-    if ( q <= 0.0 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 921, 0, "%s", "q > 0.0f") )
-        __debugbreak();
-    if ( q >= 32.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 922, 0, "%s", "q < 32.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(q)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 923, 0, "%s", "!IS_NAN(q)") )
-    {
-        __debugbreak();
-    }
-    if ( db >= 50.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 924, 0, "%s", "db < 50.0f") )
-    {
-        __debugbreak();
-    }
-    if ( db <= -1000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 925, 0, "%s", "db > -1000.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(db)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 926, 0, "%s", "!IS_NAN(db)") )
-    {
-        __debugbreak();
-    }
-    sqrtAa = I_fmax(sqrtA, 0.000001);
-    A = powf(10.0, db * 0.025);
-    sqrtAb = sqrtAa * 3.1415927;
-    alpha = sinf(sqrtAb) / (q + q);
-    cosw0 = cosf(sqrtAb);
-    sqrtAc = sqrtf(A);
-    v5 = (float)(sqrtAc * alpha) * 2.0;
-    v6 = (float)(A - 1.0) * cosw0;
-    v7 = (float)(A + 1.0) - v6;
-    b[0] = (float)(v5 + v7) * A;
-    b[2] = (float)(v7 - v5) * A;
-    v8 = (float)(A + 1.0) * cosw0;
-    b[1] = (float)((float)((float)(A - 1.0) - v8) * A) * 2.0;
-    a[0] = (float)(v5 + v6) + (float)(A + 1.0);
-    a[1] = (float)(v8 + (float)(A - 1.0)) * -2.0;
-    a[2] = (float)(v6 + (float)(A + 1.0)) - v5;
-    SND_DspBiquadNormalize(a, b, coef);
-}
+    iassert(Fs > 1000.0f);
+    iassert(Fs < 100000.0f);
 
-void __cdecl SND_DspBiquadPeak(float Fs, float db, float Fhz, float q, snd_dsp_biquad_coef *coef)
-{
-    float a[3]; // [esp+14h] [ebp-18h] BYREF
-    float b[3]; // [esp+20h] [ebp-Ch] BYREF
-    float f0; // [esp+34h] [ebp+8h]
-    float f0a; // [esp+34h] [ebp+8h]
-    float w0; // [esp+38h] [ebp+Ch]
-    float w0a; // [esp+38h] [ebp+Ch]
-    float A; // [esp+3Ch] [ebp+10h]
-    float alpha; // [esp+40h] [ebp+14h]
+    f0 = (Fhz / Fs) * 2.0f;
 
-    if ( Fs <= 1000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 957, 0, "%s", "Fs > 1000") )
-    {
-        __debugbreak();
-    }
-    if ( Fs >= 100000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 958, 0, "%s", "Fs < 100000") )
-    {
-        __debugbreak();
-    }
-    f0 = (float)(Fhz / Fs) * 2.0;
-    if ( f0 < 0.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 962, 0, "%s", "f0 >= 0.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(f0)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 963, 0, "%s", "!IS_NAN(f0)") )
-    {
-        __debugbreak();
-    }
-    if ( q <= 0.0 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 964, 0, "%s", "q > 0.0f") )
-        __debugbreak();
-    if ( q >= 32.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 965, 0, "%s", "q < 32.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(q)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 966, 0, "%s", "!IS_NAN(q)") )
-    {
-        __debugbreak();
-    }
-    if ( db >= 50.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 967, 0, "%s", "db < 50.0f") )
-    {
-        __debugbreak();
-    }
-    if ( db <= -1000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 968, 0, "%s", "db > -1000.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(db)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 969, 0, "%s", "!IS_NAN(db)") )
-    {
-        __debugbreak();
-    }
-    f0a = I_fmax(f0, 0.000001);
-    A = powf(10.0, db * 0.025);
-    w0 = f0a * 3.1415927;
+    iassert(f0 >= 0.0f);
+    iassert(!IS_NAN(f0));
+    iassert(q > 0.0f);
+    iassert(q < 32.0f);
+    iassert(!IS_NAN(q));
+    iassert(db < 50.0f);
+    iassert(db > -1000.0f);
+    iassert(!IS_NAN(db));
+
+    f0 = I_fmax(f0, 0.000001f);
+
+    A = powf(10.0f, db * 0.025f);
+    w0 = f0 * 3.1415927f;
     alpha = sinf(w0) / (q + q);
-    w0a = cosf(w0);
-    b[0] = (float)(alpha * A) + 1.0;
-    b[1] = w0a * -2.0;
-    b[2] = 1.0 - (float)(alpha * A);
-    a[0] = (float)(alpha / A) + 1.0;
-    a[1] = w0a * -2.0;
-    a[2] = 1.0 - (float)(alpha / A);
+    cosW0 = cosf(w0);
+    sqrtA = sqrtf(A);
+
+    twoSqrtAAlpha = 2.0f * sqrtA * alpha;
+    Ap1 = A + 1.0f;
+    Am1 = A - 1.0f;
+
+    b[0] = A * (Ap1 - Am1 * cosW0 + twoSqrtAAlpha);
+    b[1] = 2.0f * A * (Am1 - Ap1 * cosW0);
+    b[2] = A * (Ap1 - Am1 * cosW0 - twoSqrtAAlpha);
+
+    a[0] = Ap1 + Am1 * cosW0 + twoSqrtAAlpha;
+    a[1] = -2.0f * (Am1 + Ap1 * cosW0);
+    a[2] = Ap1 + Am1 * cosW0 - twoSqrtAAlpha;
+
     SND_DspBiquadNormalize(a, b, coef);
 }
 
-void __cdecl SND_DspBiquadBpf(float Fs, float Fhz, float q, snd_dsp_biquad_coef *coef)
+void __cdecl SND_DspBiquadPeak(
+    float Fs,
+    float db,
+    float Fhz,
+    float q,
+    snd_dsp_biquad_coef *coef)
 {
-    float a[3]; // [esp+14h] [ebp-18h] BYREF
-    float b[3]; // [esp+20h] [ebp-Ch] BYREF
-    float f0; // [esp+34h] [ebp+8h]
-    float f0a; // [esp+34h] [ebp+8h]
-    float alpha; // [esp+3Ch] [ebp+10h]
+    float a[3];
+    float b[3];
+    float f0;
+    float A;
+    float w0;
+    float alpha;
+    float cosW0;
+    float alphaA;
+    float alphaOverA;
 
-    if ( Fs <= 1000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1000, 0, "%s", "Fs > 1000") )
-    {
-        __debugbreak();
-    }
-    if ( Fs >= 100000.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1001, 0, "%s", "Fs < 100000") )
-    {
-        __debugbreak();
-    }
-    f0 = (float)(Fhz / Fs) * 2.0;
-    if ( f0 < 0.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1005, 0, "%s", "f0 >= 0.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(f0)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1006, 0, "%s", "!IS_NAN(f0)") )
-    {
-        __debugbreak();
-    }
-    if ( q <= 0.0 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1007, 0, "%s", "q > 0.0f") )
-        __debugbreak();
-    if ( q > 32.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1008, 0, "%s", "q <= 32.0f") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(q)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1009, 0, "%s", "!IS_NAN(q)") )
-    {
-        __debugbreak();
-    }
-    f0a = I_fmax(f0, 0.000001) * 3.1415927;
-    alpha = sinf(f0a) / (q + q);
+    iassert(Fs > 1000.0f);
+    iassert(Fs < 100000.0f);
+
+    f0 = (Fhz / Fs) * 2.0f;
+
+    iassert(f0 >= 0.0f);
+    iassert(!IS_NAN(f0));
+    iassert(q > 0.0f);
+    iassert(q < 32.0f);
+    iassert(!IS_NAN(q));
+    iassert(db < 50.0f);
+    iassert(db > -1000.0f);
+    iassert(!IS_NAN(db));
+
+    f0 = I_fmax(f0, 0.000001f);
+
+    A = powf(10.0f, db * 0.025f);
+    w0 = f0 * 3.1415927f;
+    alpha = sinf(w0) / (q + q);
+    cosW0 = cosf(w0);
+
+    alphaA = alpha * A;
+    alphaOverA = alpha / A;
+
+    b[0] = 1.0f + alphaA;
+    b[1] = -2.0f * cosW0;
+    b[2] = 1.0f - alphaA;
+
+    a[0] = 1.0f + alphaOverA;
+    a[1] = -2.0f * cosW0;
+    a[2] = 1.0f - alphaOverA;
+
+    SND_DspBiquadNormalize(a, b, coef);
+}
+
+void __cdecl SND_DspBiquadBpf(
+    float Fs,
+    float Fhz,
+    float q,
+    snd_dsp_biquad_coef *coef)
+{
+    float a[3];
+    float b[3];
+    float f0;
+    float w0;
+    float alpha;
+    float cosW0;
+
+    iassert(Fs > 1000.0f);
+    iassert(Fs < 100000.0f);
+
+    f0 = (Fhz / Fs) * 2.0f;
+
+    iassert(f0 >= 0.0f);
+    iassert(!IS_NAN(f0));
+    iassert(q > 0.0f);
+    iassert(q <= 32.0f);
+    iassert(!IS_NAN(q));
+
+    f0 = I_fmax(f0, 0.000001f);
+
+    w0 = f0 * 3.1415927f;
+    alpha = sinf(w0) / (q + q);
+    cosW0 = cosf(w0);
+
     b[0] = alpha;
+    b[1] = 0.0f;
     b[2] = -alpha;
-    b[1] = 0.0;
-    a[0] = alpha + 1.0;
-    a[1] = cosf(f0a) * -2.0;
-    a[2] = 1.0 - alpha;
+
+    a[0] = 1.0f + alpha;
+    a[1] = -2.0f * cosW0;
+    a[2] = 1.0f - alpha;
+
     SND_DspBiquadNormalize(a, b, coef);
 }
 
@@ -757,11 +595,6 @@ double __cdecl SND_DspDecayConstant(float time, float dt, float targetAmplitude)
         return 0.0;
 }
 
-//double __cdecl logf(float _X)
-//{
-//    return (float)log(_X);
-//}
-
 void __cdecl SND_DspFutzMono(
                 const snd_dsp_futz_param *param,
                 snd_dsp_futz_state *state,
@@ -774,28 +607,11 @@ void __cdecl SND_DspFutzMono(
     snd_dsp_biquad_coef ls; // [esp+20h] [ebp-28h] BYREF
     snd_dsp_biquad_coef bpf; // [esp+34h] [ebp-14h] BYREF
 
-    if ( param->blend >= 0.0000152879 )
+    if ( param->blend >= SND_EPSILON )
     {
-        if ( param->blend < 0.0
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp",
-                        1168,
-                        0,
-                        "%s",
-                        "param->blend >= 0.0f") )
-        {
-            __debugbreak();
-        }
-        if ( param->blend > 1.0
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp",
-                        1169,
-                        0,
-                        "%s",
-                        "param->blend <= 1.0f") )
-        {
-            __debugbreak();
-        }
+        iassert(param->blend >= 0.0f);
+        iassert(param->blend <= 1.0f);
+
         SND_DspScale(count, param->pregain, input, tempa);
         SND_DspPolyDistortion(count, param->distortion, tempa, tempb);
         //SND_DspClip(count, tempa, COERCE_FLOAT(LODWORD(param->preclip) ^ _mask__NegFloat_), param->preclip);
@@ -843,29 +659,36 @@ void __cdecl SND_DspUninterleave(unsigned int channel_count, unsigned int frame_
     }
 }
 
-double __cdecl SND_DspLog(float m)
+float SND_DspLog(float m)
 {
-    double v1; // st7
+    float x = (m - 1.0f) / (m + 1.0f);
+    float x3 = x * x * x;
 
-    v1 = (m - 1.0) / (m + 1.0);
-    return v1 + v1 * v1 * v1 * 0.33333334;
+    return x + x3 * (1.0f / 3.0f);
 }
 
-double __cdecl SND_DspExp(float x)
+float SND_DspExp(float x)
 {
-    return (float)((float)((float)(x * x) * x) * x) * 0.041666668
-             + (float)((float)((float)((float)(x * x) * x) * 0.16666667)
-                             + (float)((float)((float)(x * x) * 0.5) + (float)(x + 1.0)))
-             + (float)((float)((float)(x * x) * x) * x) * x * 0.0083333338;
+    float x2 = x * x;
+    float x3 = x2 * x;
+    float x4 = x3 * x;
+    float x5 = x4 * x;
+
+    return 1.0f
+        + x
+        + x2 / 2.0f
+        + x3 / 6.0f
+        + x4 / 24.0f
+        + x5 / 120.0f;
 }
 
 void __cdecl SND_DspDynamoDenormal(snd_dsp_dynamo_state *state)
 {
-    if ( state->yfilter < 0.0000152879 )
+    if ( state->yfilter < SND_EPSILON )
         state->yfilter = 0.0;
-    if ( state->gfilter < 0.0000152879 )
+    if ( state->gfilter < SND_EPSILON )
         state->gfilter = 0.0;
-    if ( state->g < 0.0000152879 )
+    if ( state->g < SND_EPSILON )
         state->g = 0.0;
 }
 
@@ -905,96 +728,36 @@ void __cdecl SND_DspDynamo(
     float Ma; // [esp+64h] [ebp+24h]
     float M; // [esp+64h] [ebp+24h]
 
-    if ( 0x3C0 % frameCount
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp",
-                    1404,
-                    0,
-                    "%s",
-                    "SND_DSP_DYNAMO_LOOKAHEAD_FRAMES%frameCount == 0") )
-    {
-        __debugbreak();
-    }
+    iassert(SND_DSP_DYNAMO_LOOKAHEAD_FRAMES % frameCount == 0);
+
     T = frameCount;
-    if ( ((4 * (_BYTE)frameCount) & 0x7F) != 0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp",
-                    1405,
-                    0,
-                    "%s",
-                    "(frameCount*sizeof(float))%128 == 0") )
-    {
-        __debugbreak();
-    }
+    
+    iassert((frameCount * sizeof(float)) % 128 == 0);
+
     p_offset = &state->offset;
     output = input;
     lookahead = &state->lookahead[state->offset];
-    if ( lookahead >= (float *)p_offset
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp",
-                    1410,
-                    0,
-                    "%s",
-                    "lookahead < state->lookahead+SND_DSP_DYNAMO_LOOKAHEAD_FRAMES") )
-    {
-        __debugbreak();
-    }
-    if ( lookahead < (float *)state
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp",
-                    1411,
-                    0,
-                    "%s",
-                    "lookahead >= state->lookahead") )
-    {
-        __debugbreak();
-    }
+
+    iassert(lookahead < state->lookahead + SND_DSP_DYNAMO_LOOKAHEAD_FRAMES);
+    iassert(lookahead >= state->lookahead);
+
     memcpy((unsigned __int8 *)lookahead, (unsigned __int8 *)input, T * 4);
     v11 = (frameCount + *p_offset) % 0x3C0;
     *p_offset = v11;
     v12 = &state->lookahead[v11];
-    if ( TH == 0.0 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1417, 0, "%s", "TH != 0") )
-        __debugbreak();
+    iassert(TH != 0);
     Ma = 1.0 / sampleRate;
     iR = 1.0 / R;
     SR = SND_DspDecayConstant(TR, Ma, 0.0056234132);
     SA = SND_DspDecayConstant(TA, Ma, 0.0056234132);
     dt_4 = SND_DspLog(TH) * (iR - 1.0);
     M = SND_DspExp(dt_4);
-    if ( IS_NAN(iR)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1427, 0, "%s", "!IS_NAN(iR)") )
-    {
-        __debugbreak();
-    }
-    if ( IS_NAN(M)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp", 1428, 0, "%s", "!IS_NAN(M)") )
-    {
-        __debugbreak();
-    }
-    if ( (SA < 0.0 || SA > 1.0)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp",
-                    1429,
-                    0,
-                    "SA not in [0.0f, 1.0f]\n\t%g not in [%g, %g]",
-                    SA,
-                    0.0,
-                    1.0) )
-    {
-        __debugbreak();
-    }
-    if ( (SR < 0.0 || SR > 1.0)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_dsp.cpp",
-                    1430,
-                    0,
-                    "SR not in [0.0f, 1.0f]\n\t%g not in [%g, %g]",
-                    SR,
-                    0.0,
-                    1.0) )
-    {
-        __debugbreak();
-    }
+
+    iassert(!IS_NAN(iR));
+    iassert(!IS_NAN(M));
+    rangeassert(SA, 0.0f, 1.0f);
+    rangeassert(SR, 0.0f, 1.0f);
+
     *gain = M;
     for ( end = &v12[T]; v12 != end; output += 2 )
     {
@@ -1048,7 +811,7 @@ void __cdecl SND_DspFxSourceMono(
 
     v6 = state;
     v7 = (const snd_dsp_source_params *)params;
-    if ( params->bpfF < -0.0000152879 )
+    if ( params->bpfF < -SND_EPSILON )
     {
         PROF_SCOPED("lpf");
         SND_OcclusionLpfCoef(v7->lpfAttenuation, v7->lpfRatio, v7->frameRate, &b0, (float *)&params);
@@ -1056,7 +819,7 @@ void __cdecl SND_DspFxSourceMono(
     }
     blend = v7->futz.blend;
     params = &v7->futz;
-    if ( blend > 0.0000152879 )
+    if ( blend > SND_EPSILON )
     {
         PROF_SCOPED("futz");
         SND_DspFutzMono(params, &v6->futz, v7->frameRate, frameCount, frames, tempa, tempb);
@@ -1111,9 +874,9 @@ void __cdecl SND_DspFxMasterNoVoiceSingleChannel(
 {
     PROF_SCOPED("comp");
 
-    if ( params->compE > 0.0000152879 )
+    if ( params->compE > SND_EPSILON )
     {
-        if ( fabs(params->compPG - 1.0) > 0.0000152879 )
+        if ( fabs(params->compPG - 1.0) > SND_EPSILON )
             SND_DspScale(frameCount, params->compPG, frames);
         SND_DspDynamo(
             frameCount,
@@ -1125,7 +888,7 @@ void __cdecl SND_DspFxMasterNoVoiceSingleChannel(
             &state->comp,
             frames,
             meters != 0 ? &meters->dyn1Gain : 0);
-        if ( fabs(params->compMG - 1.0) > 0.0000152879 )
+        if ( fabs(params->compMG - 1.0) > SND_EPSILON )
             SND_DspScale(frameCount, params->compMG, frames);
     }
 }
@@ -1149,7 +912,7 @@ void __cdecl SND_DspFxMasterSingleChannel(
     {
         PROF_SCOPED("eq");
 
-        if (params->lowE <= 0.0000152879)
+        if (params->lowE <= SND_EPSILON)
         {
             memset(state, 0, 0x20u);
         }
@@ -1161,7 +924,7 @@ void __cdecl SND_DspFxMasterSingleChannel(
             SND_DspBiquadNanCheck(&state->low);
         }
 
-        if (params->peak1E <= 0.0000152879)
+        if (params->peak1E <= SND_EPSILON)
         {
             memset(&state->peak1, 0, sizeof(state->peak1));
         }
@@ -1172,7 +935,7 @@ void __cdecl SND_DspFxMasterSingleChannel(
             SND_DspBiquadDenormal(&state->peak1);
             SND_DspBiquadNanCheck(&state->peak1);
         }
-        if (params->peak2E <= 0.0000152879)
+        if (params->peak2E <= SND_EPSILON)
         {
             memset(&state->peak2, 0, sizeof(state->peak2));
         }
@@ -1183,7 +946,7 @@ void __cdecl SND_DspFxMasterSingleChannel(
             SND_DspBiquadDenormal(&state->peak2);
             SND_DspBiquadNanCheck(&state->peak2);
         }
-        if (params->hiE <= 0.0000152879)
+        if (params->hiE <= SND_EPSILON)
         {
             memset(&state->hi, 0, sizeof(state->hi));
         }
@@ -1198,9 +961,9 @@ void __cdecl SND_DspFxMasterSingleChannel(
     
     {
         PROF_SCOPED("limit");
-        if (params->limitE > 0.0000152879)
+        if (params->limitE > SND_EPSILON)
         {
-            if (fabs(params->limitPG - 1.0) > 0.0000152879)
+            if (fabs(params->limitPG - 1.0) > SND_EPSILON)
                 SND_DspScale(frameCount, params->limitPG, frames);
             SND_DspDynamo(
                 frameCount,
@@ -1212,7 +975,7 @@ void __cdecl SND_DspFxMasterSingleChannel(
                 &state->limit,
                 frames,
                 meters != 0 ? &meters->dyn2Gain : 0);
-            if (fabs(params->limitMG - 1.0) > 0.0000152879)
+            if (fabs(params->limitMG - 1.0) > SND_EPSILON)
                 SND_DspScale(frameCount, params->limitMG, frames);
         }
     }

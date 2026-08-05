@@ -6,6 +6,7 @@
 #include "snd_radverb.h"
 
 #define SDXA2_MAX_FRAME_COUNT 480
+#define SDXA2_MAX_SOURCE_CHANNELS 2
 
 static const GUID HACK_IID_IXAPOParameters = { 0xA90BC001, 0xE897, 0xE897, { 0x55, 0xE4, 0x9E, 0x47, 0x00, 0x00, 0x00, 0x01 } };
 

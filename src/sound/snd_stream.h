@@ -4,6 +4,7 @@
 #include <tl/jobqueue/jobqueue_all.h>
 #include "snd_driver_xaudio2.h"
 
+#define SND_STREAM_COUNT 10
 
 struct snd_buffer // sizeof=0x118
 {

@@ -7,11 +7,11 @@
 
 void __cdecl SND_InitLog()
 {
-    memset((unsigned __int8 *)g_snd.logSkipPlayedHash, 0, sizeof(g_snd.logSkipPlayedHash));
-    memset((unsigned __int8 *)g_snd.logSkipPlayedTimestamp, 0, sizeof(g_snd.logSkipPlayedTimestamp));
-    memset((unsigned __int8 *)g_snd.logSkipMissingHash, 0, sizeof(g_snd.logSkipMissingHash));
-    memset((unsigned __int8 *)g_snd.logSkipMissingTimestamp, 0, sizeof(g_snd.logSkipMissingTimestamp));
-    memset((unsigned __int8 *)g_snd.logReverseHash, 0, sizeof(g_snd.logReverseHash));
+    memset(g_snd.logSkipPlayedHash, 0, sizeof(g_snd.logSkipPlayedHash));
+    memset(g_snd.logSkipPlayedTimestamp, 0, sizeof(g_snd.logSkipPlayedTimestamp));
+    memset(g_snd.logSkipMissingHash, 0, sizeof(g_snd.logSkipMissingHash));
+    memset(g_snd.logSkipMissingTimestamp, 0, sizeof(g_snd.logSkipMissingTimestamp));
+    memset(g_snd.logReverseHash, 0, sizeof(g_snd.logReverseHash));
     g_snd.logTimestamp = 1;
 }
 
@@ -105,16 +105,7 @@ void __cdecl SND_LogMissingAliasId(unsigned int hash)
 {
     char reverse[48]; // [esp+0h] [ebp-34h] BYREF
 
-    if ( !hash
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_log.cpp",
-                    147,
-                    0,
-                    "%s",
-                    "hash != SND_INVALID_HASH") )
-    {
-        __debugbreak();
-    }
+    iassert(hash != SND_INVALID_HASH);
     SND_LogSkip(hash, 0x80u, g_snd.logSkipMissingHash, g_snd.logSkipMissingTimestamp);
     if ( !SND_LogSkip(hash, 0x80u, g_snd.logSkipMissingHash, g_snd.logSkipMissingTimestamp) )
     {
@@ -125,16 +116,7 @@ void __cdecl SND_LogMissingAliasId(unsigned int hash)
 
 void __cdecl SND_LogPlayedAliasId(unsigned int hash)
 {
-    if ( !hash
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_log.cpp",
-                    176,
-                    0,
-                    "%s",
-                    "hash != SND_INVALID_HASH") )
-    {
-        __debugbreak();
-    }
+    iassert(hash != SND_INVALID_HASH);
     SND_LogSkip(hash, 0x200u, g_snd.logSkipPlayedHash, g_snd.logSkipPlayedTimestamp);
 }
 

@@ -1,6 +1,8 @@
 #pragma once
 #include "snd_driver_xaudio2_dsp.h"
 
+#define SND_DSP_DYNAMO_LOOKAHEAD_FRAMES 960
+
 struct snd_dsp_meters // sizeof=0x18
 {                                                                             // XREF: snd_local_t/r
     float p;
@@ -49,8 +51,8 @@ void __cdecl SND_DspFutzMono(
                 float *tempb);
 void __cdecl SND_DspInterleave(unsigned int channel_count, unsigned int frame_count, float *in, float *out);
 void __cdecl SND_DspUninterleave(unsigned int channel_count, unsigned int frame_count, float *in, float *out);
-double __cdecl SND_DspLog(float m);
-double __cdecl SND_DspExp(float x);
+float SND_DspLog(float m);
+float SND_DspExp(float x);
 void __cdecl SND_DspDynamoDenormal(snd_dsp_dynamo_state *state);
 void __cdecl SND_DspDynamo(
                 unsigned int frameCount,

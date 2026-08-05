@@ -33,6 +33,41 @@ unsigned int occlusionLevelHits;
 unsigned int cache_misses;
 unsigned int cache_total;
 
+bool SND_IsAliasSpatial(const snd_alias_t *alias)
+{
+    return (alias->flags & 2) != 0;
+}
+
+float SND_AliasGetMinPriorityThreshold(const snd_alias_t *alias)
+{
+    return (float)alias->minPriorityThreshold / 255.0f;
+}
+
+float SND_AliasGetMaxPriority(const snd_alias_t *alias)
+{
+    return alias->maxPriority;
+}
+
+float SND_AliasGetMinPriority(const snd_alias_t *alias)
+{
+    return alias->minPriority;
+}
+
+float SND_AliasGetMaxPriorityThreshold(const snd_alias_t *alias)
+{
+    return (float)alias->maxPriorityThreshold / 255.0f;
+}
+
+float SND_AliasGetVolMin(const snd_alias_t *alias)
+{
+    return (float)alias->volMin / 65535.0f;
+}
+
+float SND_AliasGetVolMax(const snd_alias_t *alias)
+{
+    return (float)alias->volMax / 65535.0f;
+}
+
 bool __cdecl SND_ShouldInit()
 {
     if ( PC_StartWithNoSounds() )
@@ -49,15 +84,13 @@ void __cdecl SND_SetPosition(unsigned int index, float *org)
 
 unsigned int __cdecl SND_ActiveListenerCount()
 {
-    unsigned int i; // [esp+0h] [ebp-8h]
-    unsigned int count; // [esp+4h] [ebp-4h]
-
-    count = 0;
-    for ( i = 0; i < 1; i++ )
+    int count = 0;
+    for ( int i = 0; i < 1; i++ )
     {
         if ( g_snd.listeners[0].active )
             ++count;
     }
+
     return count;
 }
 
@@ -96,14 +129,8 @@ int __cdecl SND_GetListenerIndexNearestToOrigin(const float *origin)
 
 void __cdecl SND_GetNearestListenerPosition(const float *position, float *listener)
 {
-    snd_listener *v3; // edx
-    int idx; // [esp+4h] [ebp-4h]
-
-    idx = SND_GetListenerIndexNearestToOrigin(position);
-    listener[0] = g_snd.listeners[idx].orient.origin[0];
-    v3 = &g_snd.listeners[idx];
-    listener[1] = v3->orient.origin[1];
-    listener[2] = v3->orient.origin[2];
+    int idx = SND_GetListenerIndexNearestToOrigin(position);
+    Vec3Copy(g_snd.listeners[idx].orient.origin, listener);
 }
 
 int __cdecl SND_SetPlaybackIdNotPlayed(unsigned int index)
@@ -123,17 +150,8 @@ char __cdecl SND_AddLengthNotify(int playbackId, const char *lengthNotifyData, s
     snd_voice_t *voice; // [esp+0h] [ebp-8h]
     int lengthNotifyIndex; // [esp+4h] [ebp-4h]
 
-    if ( (unsigned int)id >= SND_LENGTH_NOTIFY_COUNT
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    253,
-                    0,
-                    "id doesn't index SND_LENGTH_NOTIFY_COUNT\n\t%i not in [0, %i)",
-                    id,
-                    3) )
-    {
-        __debugbreak();
-    }
+    bcassert(id, SND_LENGTH_NOTIFY_COUNT);
+
     if ( playbackId == -1 )
     {
         DoLengthNotify(0, lengthNotifyData, id);
@@ -158,17 +176,7 @@ char __cdecl SND_AddLengthNotify(int playbackId, const char *lengthNotifyData, s
                         return 1;
                     }
                 }
-                if ( (unsigned int)lengthNotifyIndex >= 4
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                276,
-                                0,
-                                "lengthNotifyIndex doesn't index SND_LENGTHNOTIFY_COUNT\n\t%i not in [0, %i)",
-                                lengthNotifyIndex,
-                                4) )
-                {
-                    __debugbreak();
-                }
+                bcassert(lengthNotifyIndex, SND_LENGTH_NOTIFY_COUNT);
                 ++voice->lengthNotifyInfo.count;
                 voice->lengthNotifyInfo.id[lengthNotifyIndex] = id;
                 voice->lengthNotifyInfo.data[lengthNotifyIndex] = (void *)lengthNotifyData;
@@ -184,8 +192,6 @@ char __cdecl SND_AddLengthNotify(int playbackId, const char *lengthNotifyData, s
 
 void __cdecl DoLengthNotify(unsigned int msec, const char *lengthNotifyData, snd_length_type id)
 {
-    const char *v3; // eax
-
     if ( id == SND_LENGTH_NOTIFY_SCRIPT )
     {
         SND_LengthNotify((unsigned int)lengthNotifyData, msec);
@@ -196,9 +202,9 @@ void __cdecl DoLengthNotify(unsigned int msec, const char *lengthNotifyData, snd
     }
     else
     {
-        v3 = va("Unknown snd length notify id: %i\n", id);
-        if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 239, 0, v3) )
-            __debugbreak();
+        iassert(0);
+        //if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 239, 0, va("Unknown snd length notify id: %i\n", id)) )
+        //    __debugbreak();
     }
 }
 
@@ -208,31 +214,13 @@ void __cdecl SND_StartLengthNotify(unsigned int index, unsigned int totalMsec)
     int lengthNotifyIndex; // [esp+4h] [ebp-8h]
     snd_length_type id; // [esp+8h] [ebp-4h]
 
-    if ( index >= SND_MAX_VOICES
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    296,
-                    0,
-                    "%s",
-                    "index >= 0 && index < SND_MAX_VOICES") )
-    {
-        __debugbreak();
-    }
+    iassert(index >= 0 && index < SND_MAX_VOICES);
+
     voice = &g_snd.voice[index];
     for ( lengthNotifyIndex = 0; lengthNotifyIndex < voice->lengthNotifyInfo.count; ++lengthNotifyIndex )
     {
         id = voice->lengthNotifyInfo.id[lengthNotifyIndex];
-        if ( (unsigned int)id >= SND_LENGTH_NOTIFY_COUNT
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        304,
-                        0,
-                        "id doesn't index SND_LENGTH_NOTIFY_COUNT\n\t%i not in [0, %i)",
-                        id,
-                        3) )
-        {
-            __debugbreak();
-        }
+        bcassert(id, SND_LENGTH_NOTIFY_COUNT);
         DoLengthNotify(totalMsec, (const char *)voice->lengthNotifyInfo.data[lengthNotifyIndex], id);
     }
     voice->lengthNotifyInfo.count = 0;
@@ -252,7 +240,7 @@ void __cdecl SND_ResetVoiceInfo(int index)
     voice->playback = 0;
 }
 
-unsigned int keys[148] =
+static unsigned int keys[148] =
 {
   4294967295u,
   0u,
@@ -491,34 +479,18 @@ void __cdecl SND_SetVoiceStartInfo(unsigned int index, SndStartAliasInfo *SndSta
     float *v8; // [esp+3Ch] [ebp-40h]
     float *position; // [esp+48h] [ebp-34h]
     float *fluxVelocity; // [esp+50h] [ebp-2Ch]
-    float *direction; // [esp+60h] [ebp-1Ch]
     int cache; // [esp+6Ch] [ebp-10h] BYREF
     snd_voice_t *voice; // [esp+70h] [ebp-Ch]
     const snd_alias_t *alias; // [esp+74h] [ebp-8h]
     float occlusionGoal; // [esp+78h] [ebp-4h]
 
     alias = SndStartAliasInfo->alias;
-    if ( index >= SND_MAX_VOICES
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    708,
-                    0,
-                    "%s",
-                    "index >= 0 && index < SND_MAX_VOICES") )
-    {
-        __debugbreak();
-    }
-    if ( !SndStartAliasInfo->alias
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 709, 0, "%s", "SndStartAliasInfo->alias") )
-    {
-        __debugbreak();
-    }
+
+    iassert(index >= 0 && index < SND_MAX_VOICES);
+    iassert(SndStartAliasInfo->alias);
     voice = &g_snd.voice[index];
-    if ( g_snd.voiceAliasHash[index]
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 713, 0, "%s", "SND_IsVoiceFree(index)") )
-    {
-        __debugbreak();
-    }
+    iassert(SND_IsVoiceFree(index));
+
     g_snd.voiceAliasHash[index] = SndStartAliasInfo->alias->id;
     p_lengthNotifyInfo = &voice->lengthNotifyInfo;
     voice->lengthNotifyInfo.id[0] = SND_LENGTH_NOTIFY_NONE;
@@ -544,22 +516,12 @@ void __cdecl SND_SetVoiceStartInfo(unsigned int index, SndStartAliasInfo *SndSta
     voice->playbackId = SndStartAliasInfo->playbackId;
     voice->firstPlaybackId = SndStartAliasInfo->playbackId;
     voice->playback = SndStartAliasInfo->playback;
-    direction = voice->direction;
     voice->direction[0] = SndStartAliasInfo->dir[0];
-    direction[1] = SndStartAliasInfo->dir[1];
-    direction[2] = SndStartAliasInfo->dir[2];
-    if ( ((LODWORD(voice->direction[0]) & 0x7F800000) == 0x7F800000
-         || (LODWORD(voice->direction[1]) & 0x7F800000) == 0x7F800000
-         || (LODWORD(voice->direction[2]) & 0x7F800000) == 0x7F800000)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    732,
-                    0,
-                    "%s",
-                    "!IS_NAN((voice->direction)[0]) && !IS_NAN((voice->direction)[1]) && !IS_NAN((voice->direction)[2])") )
-    {
-        __debugbreak();
-    }
+    voice->direction[1] = SndStartAliasInfo->dir[1];
+    voice->direction[2] = SndStartAliasInfo->dir[2];
+
+    iassert(!IS_NAN((voice->direction)[0]) && !IS_NAN((voice->direction)[1]) && !IS_NAN((voice->direction)[2]));
+
     fluxVelocity = voice->fluxVelocity;
     voice->fluxVelocity[0] = 0.0f;
     fluxVelocity[1] = 0.0f;
@@ -571,8 +533,8 @@ void __cdecl SND_SetVoiceStartInfo(unsigned int index, SndStartAliasInfo *SndSta
     position[2] = SndStartAliasInfo->org[2];
     voice->voiceStartTime = Sys_Milliseconds();
     voice->pitchShift = 0;
-    if ( fabs((float)((float)alias->pitchMin / 32767.0) - 1.0) > 0.0000152879
-        || fabs((float)((float)alias->pitchMax / 32767.0) - 1.0) > 0.0000152879
+    if ( fabs((float)((float)alias->pitchMin / 32767.0) - 1.0) > SND_EPSILON
+        || fabs((float)((float)alias->pitchMax / 32767.0) - 1.0) > SND_EPSILON
         || (alias->flags & 0x10) >> 4 )
     {
         voice->pitchShift = 1;
@@ -589,7 +551,7 @@ void __cdecl SND_SetVoiceStartInfo(unsigned int index, SndStartAliasInfo *SndSta
     ++occlusionTotal;
     if ( snd_losOcclusion->current.enabled )
     {
-        if ( (float)((float)voice->alias->occlusionLevel / 255.0) >= 0.0000152879 )
+        if ( (float)((float)voice->alias->occlusionLevel / 255.0) >= SND_EPSILON )
         {
             if ( (voice->alias->flags & 2) >> 1 && SndStartAliasInfo->ocache && SndStartAliasInfo->ocache->valid )
             {
@@ -633,26 +595,9 @@ void __cdecl SND_SetVoiceStartInfo(unsigned int index, SndStartAliasInfo *SndSta
     SND_FaderSetGoal(&voice->losOcclusion, occlusionGoal);
     voice->losOcclusion.value = voice->losOcclusion.goal;
     SND_FaderSetRate(&voice->losOcclusion, snd_occlusion_rate->current.value);
-    if ( (LODWORD(voice->losOcclusion.goal) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    829,
-                    0,
-                    "%s",
-                    "!IS_NAN(SND_FaderGetGoal(&voice->losOcclusion))") )
-    {
-        __debugbreak();
-    }
-    if ( (LODWORD(voice->losOcclusion.value) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    830,
-                    0,
-                    "%s",
-                    "!IS_NAN(SND_FaderGetValue(&voice->losOcclusion))") )
-    {
-        __debugbreak();
-    }
+    iassert(!IS_NAN(SND_FaderGetGoal(&voice->losOcclusion)));
+    iassert(!IS_NAN(SND_FaderGetValue(&voice->losOcclusion)));
+
     if ( (voice->alias->flags & 2) >> 1 )
     {
         ListenerIndexNearestToOrigin = SND_GetListenerIndexNearestToOrigin(voice->position);
@@ -665,15 +610,22 @@ void __cdecl SND_SetVoiceStartInfo(unsigned int index, SndStartAliasInfo *SndSta
     voice->doppler.value = voice->doppler.goal;
 }
 
+
+float SND_FaderGetGoal(snd_fader_t *fader)
+{
+    return fader->goal;
+}
+
+float SND_FaderGetValue(snd_fader_t *fader)
+{
+    return fader->value;
+}
+
 void __cdecl SND_FaderSetRate(snd_fader_t *fader, float r)
 {
-    if ( r < 0.0 && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_utils.h", 33, 0, "%s", "r >= 0.0f") )
-        __debugbreak();
-    if ( (LODWORD(r) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_utils.h", 34, 0, "%s", "!IS_NAN(r)") )
-    {
-        __debugbreak();
-    }
+    iassert(r >= 0.0f);
+    iassert(!IS_NAN(r));
+
     fader->rate = r;
 }
 
@@ -692,8 +644,7 @@ void __cdecl SND_FaderSetGoal(snd_fader_t *fader, float g)
 
 bool __cdecl SND_IsAliasPausable(const snd_alias_t *alias)
 {
-    if ( !alias && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_alias_db.h", 470, 0, "%s", "alias") )
-        __debugbreak();
+    iassert(alias);
     return (alias->flags & 0x80) >> 7 != 0;
 }
 
@@ -710,10 +661,8 @@ void __cdecl SND_SetVoiceStartFlux(snd_voice_t *voice, float *player)
     Z[1] = 0.0f;
     Z[2] = 1.0f;
     alias = voice->alias;
-    if ( !player && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 427, 0, "%s", "player") )
-        __debugbreak();
-    if ( !voice && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 428, 0, "%s", "voice") )
-        __debugbreak();
+    iassert(player);
+    iassert(voice);
     move_type = (snd_flux_type_t)((voice->alias->flags & 0x1C00000) >> 22);
     if ( move_type )
     {
@@ -724,50 +673,33 @@ void __cdecl SND_SetVoiceStartFlux(snd_voice_t *voice, float *player)
             Com_PrintError(9, "Alias %s has move_type but is not 3d\n", alias->name);
             return;
         }
-        if ( (float)((float)((float)(voice->direction[0] * voice->direction[0])
-                                             + (float)(voice->direction[1] * voice->direction[1]))
-                             + (float)(voice->direction[2] * voice->direction[2])) <= 0.0000152879
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        448,
-                        0,
-                        "%s",
-                        "Vec3LengthSq(voice->direction) > SND_EPSILON") )
-        {
-            __debugbreak();
-        }
+
+        iassert(Vec3LengthSq(voice->direction) > SND_EPSILON);
+
         if ( move_type == SND_FLUX_TYPE_LEFT_OF_SHOT
             || move_type == SND_FLUX_TYPE_CENTER_OF_SHOT
             || move_type == SND_FLUX_TYPE_RIGHT_OF_SHOT )
         {
-            if ( ((LODWORD(voice->direction[0]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->direction[1]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->direction[2]) & 0x7F800000) == 0x7F800000)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            454,
-                            0,
-                            "%s",
-                            "!IS_NAN((voice->direction)[0]) && !IS_NAN((voice->direction)[1]) && !IS_NAN((voice->direction)[2])") )
-            {
-                __debugbreak();
-            }
+            iassert(!IS_NAN((voice->direction)[0]) && !IS_NAN((voice->direction)[1]) && !IS_NAN((voice->direction)[2]));
+
             if ( (float)((float)((float)(voice->direction[0] * voice->direction[0])
                                                  + (float)(voice->direction[1] * voice->direction[1]))
-                                 + (float)(voice->direction[2] * voice->direction[2])) < 0.0000152879 )
+                                 + (float)(voice->direction[2] * voice->direction[2])) < SND_EPSILON )
             {
                 Com_PrintError(9, "Alias %s has move_type of shot but has no direction\n", alias->name);
                 return;
             }
-            *(_QWORD *)&moveBasis[0][0] = *(_QWORD *)voice->direction;
+            moveBasis[0][0] = voice->direction[0];
+            moveBasis[0][1] = voice->direction[1];
             moveBasis[0][2] = voice->direction[2];
         }
         else
         {
-            moveBasis[0][0] = *player - voice->position[0];
+            moveBasis[0][0] = player[0] - voice->position[0];
             moveBasis[0][1] = player[1] - voice->position[1];
             moveBasis[0][2] = player[2] - voice->position[2];
         }
+
         Vec3Normalize(moveBasis[0]);
         if ( move_type == SND_FLUX_TYPE_LEFT_OF_SHOT || move_type == SND_FLUX_TYPE_LEFT_OF_PLAYER )
             Z[2] = -1.0f;
@@ -777,25 +709,15 @@ void __cdecl SND_SetVoiceStartFlux(snd_voice_t *voice, float *player)
         Vec3Cross(moveBasis[0], Z, moveBasis[1]);
         Vec3Lerp(moveBasis[0], moveBasis[1], *(float *)&separation, voice->fluxVelocity);
         Vec3Normalize(voice->fluxVelocity);
-        if ( (float)((float)alias->fluxTime / 1000.0) <= 0.0000152879 )
+        if ( (float)((float)alias->fluxTime / 1000.0) <= SND_EPSILON )
             speed = 0.0f;
         else
             speed = (float)alias->distReverbMax / (float)((float)alias->fluxTime / 1000.0);
         voice->fluxVelocity[0] = speed * voice->fluxVelocity[0];
         voice->fluxVelocity[1] = speed * voice->fluxVelocity[1];
         voice->fluxVelocity[2] = speed * voice->fluxVelocity[2];
-        if ( ((LODWORD(voice->fluxVelocity[0]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->fluxVelocity[1]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->fluxVelocity[2]) & 0x7F800000) == 0x7F800000)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        497,
-                        0,
-                        "%s",
-                        "!IS_NAN((voice->fluxVelocity)[0]) && !IS_NAN((voice->fluxVelocity)[1]) && !IS_NAN((voice->fluxVelocity)[2])") )
-        {
-            __debugbreak();
-        }
+
+        nanassertvec3(voice->fluxVelocity);
     }
 }
 
@@ -814,61 +736,18 @@ void __cdecl SND_SetVoiceStartSeeds(const snd_alias_t *alias, snd_voice_t *voice
         voice->pitchModSeed = SND_GetSeed(baseHash & 0x7FFFFFFF, g_snd.time);
     else
         voice->pitchModSeed = random();
-    if ( voice->volModSeed < 0.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 527, 0, "%s", "voice->volModSeed >= 0.0f") )
-    {
-        __debugbreak();
-    }
-    if ( voice->volModSeed > 1.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 528, 0, "%s", "voice->volModSeed <= 1.0f") )
-    {
-        __debugbreak();
-    }
-    if ( (LODWORD(voice->volModSeed) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    529,
-                    0,
-                    "%s",
-                    "!IS_NAN(voice->volModSeed)") )
-    {
-        __debugbreak();
-    }
-    if ( voice->pitchModSeed < 0.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    530,
-                    0,
-                    "%s",
-                    "voice->pitchModSeed >= 0.0f") )
-    {
-        __debugbreak();
-    }
-    if ( voice->pitchModSeed > 1.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    531,
-                    0,
-                    "%s",
-                    "voice->pitchModSeed <= 1.0f") )
-    {
-        __debugbreak();
-    }
-    if ( (LODWORD(voice->pitchModSeed) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    532,
-                    0,
-                    "%s",
-                    "!IS_NAN(voice->pitchModSeed)") )
-    {
-        __debugbreak();
-    }
+
+    iassert(voice->volModSeed >= 0.0f);
+    iassert(voice->volModSeed <= 1.0f);
+    iassert(!IS_NAN(voice->volModSeed));
+    iassert(voice->pitchModSeed >= 0.0f);
+    iassert(voice->pitchModSeed <= 1.0f);
+    iassert(!IS_NAN(voice->pitchModSeed));
 }
 
 void __cdecl SND_SetVoiceStartFades(float fadetime, snd_voice_t *voice)
 {
-    if ( fadetime <= 0.0000152879 )
+    if ( fadetime <= SND_EPSILON )
     {
         SND_FaderSetValue(&voice->fade, 1.0);
         SND_FaderSetRate(&voice->fade, 5.0);
@@ -897,77 +776,54 @@ void __cdecl SND_SetVoiceStartFades(float fadetime, snd_voice_t *voice)
 
 void __cdecl SND_FaderSetRateTime(snd_fader_t *fader, float time)
 {
-    float v2; // [esp+0h] [ebp-4h]
+    iassert(time >= 0.0f);
 
-    if ( time < 0.0
-        && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_utils.h", 41, 0, "%s", "time >= 0.0f") )
-    {
-        __debugbreak();
-    }
-    if ( (float)(time - 0.0000099999997) < 0.0 )
-        v2 = 0.0f;
+    if ( (time - 0.00001f) < 0.0f )
+        fader->rate = 0.0f;
     else
-        v2 = 1.0 / time;
-    fader->rate = v2;
+        fader->rate = 1.0f / time;
 }
 
 void __cdecl SND_FaderSetValue(snd_fader_t *fader, float v)
 {
-    if ( (LODWORD(v) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_utils.h", 55, 0, "%s", "!IS_NAN(v)") )
-    {
-        __debugbreak();
-    }
+    iassert(!IS_NAN(v));
+
     fader->goal = v;
     fader->value = v;
 }
 
 void __cdecl SND_FaderUpdate(snd_fader_t *fader, float dt)
 {
-    float v2; // [esp+0h] [ebp-2Ch]
-    float v3; // [esp+4h] [ebp-28h]
-    float v4; // [esp+8h] [ebp-24h]
-    float rate; // [esp+1Ch] [ebp-10h]
-    float value; // [esp+24h] [ebp-8h]
-    float goal; // [esp+28h] [ebp-4h]
+    float delta;
+    float step;
+    float value;
 
-    if ( (LODWORD(dt) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_utils.h", 88, 0, "%s", "!IS_NAN(dt)") )
+    iassert(!IS_NAN(dt));
+
+    if (fader->rate > 0.0f)
     {
-        __debugbreak();
+        delta = fader->goal - fader->value;
+        step = fader->rate * dt;
+
+        if (step >= fabs(delta))
+            value = fader->goal;
+        else if (delta < 0.0f)
+            value = fader->value - step;
+        else
+            value = fader->value + step;
     }
-    rate = fader->rate;
-    value = fader->value;
-    goal = fader->goal;
-    if ( (float)(goal - fader->value) < 0.0 )
-        v4 = -1.0f;
     else
-        v4 = 1.0f;
-    if ( (float)(fabs(goal - value) - (float)(rate * dt)) < 0.0 )
-        v3 = fabs(goal - value);
-    else
-        v3 = rate * dt;
-    if ( (float)(0.0 - rate) < 0.0 )
-        v2 = (float)(v4 * v3) + value;
-    else
-        v2 = fader->goal;
-    if ( (LODWORD(v2) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_utils.h", 96, 0, "%s", "!IS_NAN(value)") )
     {
-        __debugbreak();
+        value = fader->goal;
     }
-    fader->value = v2;
+
+    iassert(!IS_NAN(value));
+    fader->value = value;
 }
 
 void __cdecl SND_UpdateVoicePosition(snd_voice_t *voice, const float *startPosition)
 {
-    float *v2; // [esp+0h] [ebp-118h]
-    float v3; // [esp+4Ch] [ebp-CCh]
-    float v4; // [esp+5Ch] [ebp-BCh]
-    float v5; // [esp+6Ch] [ebp-ACh]
     float origin[3]; // [esp+F4h] [ebp-24h] BYREF
-    //float v7; // [esp+F8h] [ebp-20h]
-    //float v8; // [esp+FCh] [ebp-1Ch]
     float offset[3]; // [esp+100h] [ebp-18h]
     float entityOrigin[3]; // [esp+10Ch] [ebp-Ch] BYREF
 
@@ -979,15 +835,9 @@ void __cdecl SND_UpdateVoicePosition(snd_voice_t *voice, const float *startPosit
         {
             voice->entity_update = SND_ENTITY_UPDATE_NEVER;
             voice->positionUpdated = 1;
-            voice->position[0] = 0.0f;
-            voice->position[1] = 0.0f;
-            voice->position[2] = 0.0f;
-            voice->offset[0] = 0.0f;
-            voice->offset[1] = 0.0f;
-            voice->offset[2] = 0.0f;
-            voice->velocity[0] = 0.0f;
-            voice->velocity[1] = 0.0f;
-            voice->velocity[2] = 0.0f;
+            Vec3Clear(voice->position);
+            Vec3Clear(voice->offset);
+            Vec3Clear(voice->velocity);
             AxisClear(voice->orientation);
             return;
         }
@@ -997,151 +847,47 @@ void __cdecl SND_UpdateVoicePosition(snd_voice_t *voice, const float *startPosit
         {
             voice->entity_update = SND_ENTITY_UPDATE_NEVER;
             voice->positionUpdated = 1;
-            voice->position[0] = *startPosition;
-            voice->position[1] = startPosition[1];
-            voice->position[2] = startPosition[2];
-            voice->offset[0] = 0.0f;
-            voice->offset[1] = 0.0f;
-            voice->offset[2] = 0.0f;
-            voice->velocity[0] = 0.0f;
-            voice->velocity[1] = 0.0f;
-            voice->velocity[2] = 0.0f;
+            Vec3Copy(startPosition, voice->position);
+            Vec3Clear(voice->offset);
+            Vec3Clear(voice->velocity);
             AxisClear(voice->orientation);
             return;
         }
         voice->entity_update = SND_ENTITY_UPDATE_ALWAYS;
-        voice->position[0] = *startPosition;
-        voice->position[1] = startPosition[1];
-        voice->position[2] = startPosition[2];
-        voice->offset[0] = 0.0f;
-        voice->offset[1] = 0.0f;
-        voice->offset[2] = 0.0f;
+        Vec3Copy(startPosition, voice->position);
+        Vec3Clear(voice->offset);
         AxisClear(voice->orientation);
-        voice->velocity[0] = 0.0f;
-        voice->velocity[1] = 0.0f;
-        voice->velocity[2] = 0.0f;
+        Vec3Clear(voice->velocity);
     }
     if ( voice->entity_update != SND_ENTITY_UPDATE_NEVER )
     {
-        if ( !((voice->alias->flags & 2) >> 1)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        614,
-                        0,
-                        "%s",
-                        "SND_IsAliasSpatial( voice->alias )") )
-        {
-            __debugbreak();
-        }
-        if ( (voice->sndEnt.handle & 0xFFF) == 0xFFF
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        615,
-                        0,
-                        "%s",
-                        "voice->sndEnt.field.entIndex != SND_ENT_NONE") )
-        {
-            __debugbreak();
-        }
-        if ( (((unsigned int)voice->sndEnt.handle >> 21) & 1) != 0
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        616,
-                        0,
-                        "%s",
-                        "!voice->sndEnt.field.isStationary") )
-        {
-            __debugbreak();
-        }
-        if ( voice->entity_update
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        617,
-                        0,
-                        "%s",
-                        "voice->entity_update == SND_ENTITY_UPDATE_ALWAYS") )
-        {
-            __debugbreak();
-        }
+        iassert(SND_IsAliasSpatial(voice->alias));
+        iassert(voice->sndEnt.field.entIndex != SND_ENT_NONE);
+        iassert(!voice->sndEnt.field.isStationary);
+        iassert(voice->entity_update == SND_ENTITY_UPDATE_ALWAYS);
+
         if ( voice->positionUpdated )
         {
             if ( !SND_GetEntState(voice->sndEnt, origin, voice->velocity, voice->orientation) )
                 return;
-            if ( ((LODWORD(origin[0]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(origin[1]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(origin[2]) & 0x7F800000) == 0x7F800000)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            650,
-                            0,
-                            "%s",
-                            "!IS_NAN((entityOrigin)[0]) && !IS_NAN((entityOrigin)[1]) && !IS_NAN((entityOrigin)[2])") )
-            {
-                __debugbreak();
-            }
-            if ( ((LODWORD(voice->orientation[0][0]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->orientation[0][1]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->orientation[0][2]) & 0x7F800000) == 0x7F800000)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            651,
-                            0,
-                            "%s",
-                            "!IS_NAN((voice->orientation[0])[0]) && !IS_NAN((voice->orientation[0])[1]) && !IS_NAN((voice->orientation[0])[2])") )
-            {
-                __debugbreak();
-            }
-            if ( ((LODWORD(voice->orientation[1][0]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->orientation[1][1]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->orientation[1][2]) & 0x7F800000) == 0x7F800000)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            652,
-                            0,
-                            "%s",
-                            "!IS_NAN((voice->orientation[1])[0]) && !IS_NAN((voice->orientation[1])[1]) && !IS_NAN((voice->orientation[1])[2])") )
-            {
-                __debugbreak();
-            }
-            if ( ((LODWORD(voice->orientation[2][0]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->orientation[2][1]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->orientation[2][2]) & 0x7F800000) == 0x7F800000)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            653,
-                            0,
-                            "%s",
-                            "!IS_NAN((voice->orientation[2])[0]) && !IS_NAN((voice->orientation[2])[1]) && !IS_NAN((voice->orientation[2])[2])") )
-            {
-                __debugbreak();
-            }
-            if ( ((LODWORD(voice->velocity[0]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->velocity[1]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->velocity[2]) & 0x7F800000) == 0x7F800000)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            654,
-                            0,
-                            "%s",
-                            "!IS_NAN((voice->velocity)[0]) && !IS_NAN((voice->velocity)[1]) && !IS_NAN((voice->velocity)[2])") )
-            {
-                __debugbreak();
-            }
-            voice->position[0] = origin[0];
-            voice->position[1] = origin[1];
-            voice->position[2] = origin[2];
-            v5 = voice->offset[0];
-            voice->position[0] = (float)(v5 * voice->orientation[0][0]) + voice->position[0];
-            voice->position[1] = (float)(v5 * voice->orientation[0][1]) + voice->position[1];
-            voice->position[2] = (float)(v5 * voice->orientation[0][2]) + voice->position[2];
-            v4 = voice->offset[1];
-            voice->position[0] = (float)(v4 * voice->orientation[1][0]) + voice->position[0];
-            voice->position[1] = (float)(v4 * voice->orientation[1][1]) + voice->position[1];
-            voice->position[2] = (float)(v4 * voice->orientation[1][2]) + voice->position[2];
-            v3 = voice->offset[2];
-            voice->position[0] = (float)(v3 * voice->orientation[2][0]) + voice->position[0];
-            voice->position[1] = (float)(v3 * voice->orientation[2][1]) + voice->position[1];
-            voice->position[2] = (float)(v3 * voice->orientation[2][2]) + voice->position[2];
+
+            nanassertvec3(origin); // should be 'entityOrigin'
+            nanassertvec3(voice->orientation[0]);
+            nanassertvec3(voice->orientation[1]);
+            nanassertvec3(voice->orientation[2]);
+            nanassertvec3(voice->velocity);
+
+            Vec3Copy(origin, voice->position);
+
+            voice->position[0] = (float)(voice->offset[0] * voice->orientation[0][0]) + voice->position[0];
+            voice->position[1] = (float)(voice->offset[0] * voice->orientation[0][1]) + voice->position[1];
+            voice->position[2] = (float)(voice->offset[0] * voice->orientation[0][2]) + voice->position[2];
+            voice->position[0] = (float)(voice->offset[1] * voice->orientation[1][0]) + voice->position[0];
+            voice->position[1] = (float)(voice->offset[1] * voice->orientation[1][1]) + voice->position[1];
+            voice->position[2] = (float)(voice->offset[1] * voice->orientation[1][2]) + voice->position[2];
+            voice->position[0] = (float)(voice->offset[2] * voice->orientation[2][0]) + voice->position[0];
+            voice->position[1] = (float)(voice->offset[2] * voice->orientation[2][1]) + voice->position[1];
+            voice->position[2] = (float)(voice->offset[2] * voice->orientation[2][2]) + voice->position[2];
         }
         else
         {
@@ -1161,70 +907,13 @@ void __cdecl SND_UpdateVoicePosition(snd_voice_t *voice, const float *startPosit
                                              + (float)(offset[2] * voice->orientation[2][2]);
             voice->positionUpdated = 1;
         }
-        if ( ((LODWORD(voice->position[0]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->position[1]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->position[2]) & 0x7F800000) == 0x7F800000)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        663,
-                        0,
-                        "%s",
-                        "!IS_NAN((voice->position)[0]) && !IS_NAN((voice->position)[1]) && !IS_NAN((voice->position)[2])") )
-        {
-            __debugbreak();
-        }
-        if ( ((LODWORD(voice->orientation[0][0]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->orientation[0][1]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->orientation[0][2]) & 0x7F800000) == 0x7F800000)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        664,
-                        0,
-                        "%s",
-                        "!IS_NAN((voice->orientation[0])[0]) && !IS_NAN((voice->orientation[0])[1]) && !IS_NAN((voice->orientation[0])[2])") )
-        {
-            __debugbreak();
-        }
-        if ( ((LODWORD(voice->orientation[1][0]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->orientation[1][1]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->orientation[1][2]) & 0x7F800000) == 0x7F800000)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        665,
-                        0,
-                        "%s",
-                        "!IS_NAN((voice->orientation[1])[0]) && !IS_NAN((voice->orientation[1])[1]) && !IS_NAN((voice->orientation[1])[2])") )
-        {
-            __debugbreak();
-        }
-        if ( ((LODWORD(voice->orientation[2][0]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->orientation[2][1]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->orientation[2][2]) & 0x7F800000) == 0x7F800000)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        666,
-                        0,
-                        "%s",
-                        "!IS_NAN((voice->orientation[2])[0]) && !IS_NAN((voice->orientation[2])[1]) && !IS_NAN((voice->orientation[2])[2])") )
-        {
-            __debugbreak();
-        }
-        if ( ((LODWORD(voice->velocity[0]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->velocity[1]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(voice->velocity[2]) & 0x7F800000) == 0x7F800000)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        667,
-                        0,
-                        "%s",
-                        "!IS_NAN((voice->velocity)[0]) && !IS_NAN((voice->velocity)[1]) && !IS_NAN((voice->velocity)[2])") )
-        {
-            __debugbreak();
-        }
-        v2 = g_snd.voicePositionCache[voice - g_snd.voice];
-        *v2 = voice->position[0];
-        v2[1] = voice->position[1];
-        v2[2] = voice->position[2];
+        nanassertvec3(voice->position);
+        nanassertvec3(voice->orientation[0]);
+        nanassertvec3(voice->orientation[1]);
+        nanassertvec3(voice->orientation[2]);
+        nanassertvec3(voice->velocity);
+
+        Vec3Copy(voice->position, g_snd.voicePositionCache[voice - g_snd.voice]);
     }
 }
 
@@ -1236,24 +925,14 @@ void __cdecl SND_SetSoundFileVoiceInfo(
                 int start_msec,
                 SndFileLoadingState loadingState)
 {
-    snd_voice_t *voice; // [esp+0h] [ebp-4h]
+    iassert(voiceIndex >= 0 && voiceIndex < SND_MAX_VOICES);
 
-    if ( voiceIndex >= SND_MAX_VOICES
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    852,
-                    0,
-                    "%s",
-                    "voiceIndex >= 0 && voiceIndex < SND_MAX_VOICES") )
-    {
-        __debugbreak();
-    }
-    voice = &g_snd.voice[voiceIndex];
-    if ( voice->soundFileInfo.loadingState == SFLS_LOADING && loadingState == SFLS_LOADED )
-    {
-        Sys_Milliseconds();
-        //BLOPS_NULLSUB();
-    }
+    snd_voice_t *voice = &g_snd.voice[voiceIndex];
+    //if ( voice->soundFileInfo.loadingState == SFLS_LOADING && loadingState == SFLS_LOADED )
+    //{
+    //    Sys_Milliseconds();
+    //    BLOPS_NULLSUB();
+    //}
     voice->soundFileInfo.loadingState = loadingState;
     voice->soundFileInfo.srcChannelCount = srcChannelCount;
     voice->soundFileInfo.baserate = baserate;
@@ -1301,224 +980,56 @@ unsigned int __cdecl SND_FindFreeVoice(SndStartAliasInfo *startAliasInfo)
     if ( replacedVoice >= 0 )
     {
         SND_StopVoice(replacedVoice);
-        if ( g_snd.voiceAliasHash[replacedVoice] )
-        {
-            if ( !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            1029,
-                            0,
-                            "%s",
-                            "SND_IsVoiceFree(replacedVoice)") )
-                __debugbreak();
-        }
+        iassert(SND_IsVoiceFree(replacedVoice));
     }
     return replacedVoice;
 }
 
 double __cdecl Snd_GetGlobalPriority(const snd_alias_t *alias, float volume)
 {
-    float t; // [esp+50h] [ebp-8h]
-    float p; // [esp+54h] [ebp-4h]
-
-    if ( !alias && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 874, 0, "%s", "alias") )
-        __debugbreak();
+    iassert(alias);
     iassert(!IS_NAN(alias->minPriority));
     iassert(!IS_NAN(alias->maxPriority));
 
-    // (KISAKTODO)
-   //if ( (COERCE_UNSIGNED_INT((float)alias->minPriorityThreshold / 255.0) & 0x7F800000) == 0x7F800000
-   //    && !Assert_MyHandler(
-   //                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-   //                877,
-   //                0,
-   //                "%s",
-   //                "!IS_NAN(SND_AliasGetMinPriorityThreshold(alias))") )
-   //{
-   //    __debugbreak();
-   //}
-   //if ( (COERCE_UNSIGNED_INT((float)alias->maxPriorityThreshold / 255.0) & 0x7F800000) == 0x7F800000
-   //    && !Assert_MyHandler(
-   //                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-   //                878,
-   //                0,
-   //                "%s",
-   //                "!IS_NAN(SND_AliasGetMaxPriorityThreshold(alias))") )
-   //{
-   //    __debugbreak();
-   //}
-   //if ( (float)((float)alias->minPriorityThreshold / 255.0) < 0.0
-   //    && !Assert_MyHandler(
-   //                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-   //                883,
-   //                0,
-   //                "%s\n\t(SND_AliasGetMinPriorityThreshold(alias)) = %g",
-   //                "(SND_AliasGetMinPriorityThreshold(alias) >= 0.0f)",
-   //                (float)((float)alias->minPriorityThreshold / 255.0)) )
-   //{
-   //    __debugbreak();
-   //}
-   //if ( (float)((float)alias->minPriorityThreshold / 255.0) > 1.0
-   //    && !Assert_MyHandler(
-   //                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-   //                884,
-   //                0,
-   //                "%s\n\t(SND_AliasGetMinPriorityThreshold(alias)) = %g",
-   //                "(SND_AliasGetMinPriorityThreshold(alias) <= 1.0f)",
-   //                (float)((float)alias->minPriorityThreshold / 255.0)) )
-   //{
-   //    __debugbreak();
-   //}
-   //if ( (float)((float)alias->maxPriorityThreshold / 255.0) < 0.0
-   //    && !Assert_MyHandler(
-   //                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-   //                885,
-   //                0,
-   //                "%s\n\t(SND_AliasGetMaxPriorityThreshold(alias)) = %g",
-   //                "(SND_AliasGetMaxPriorityThreshold(alias) >= 0.0f)",
-   //                (float)((float)alias->maxPriorityThreshold / 255.0)) )
-   //{
-   //    __debugbreak();
-   //}
-   //if ( (float)((float)alias->maxPriorityThreshold / 255.0) > 1.0
-   //    && !Assert_MyHandler(
-   //                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-   //                886,
-   //                0,
-   //                "%s\n\t(SND_AliasGetMaxPriorityThreshold(alias)) = %g",
-   //                "(SND_AliasGetMaxPriorityThreshold(alias) <= 1.0f)",
-   //                (float)((float)alias->maxPriorityThreshold / 255.0)) )
-   //{
-   //    __debugbreak();
-   //}
-    if ( volume < 0.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    887,
-                    0,
-                    "%s\n\t(volume) = %g",
-                    "(volume >= 0.0f)",
-                    volume) )
-    {
-        __debugbreak();
-    }
-    if ( volume > 1.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    888,
-                    0,
-                    "%s\n\t(volume) = %g",
-                    "(volume <= 1.0f)",
-                    volume) )
-    {
-        __debugbreak();
-    }
-    if ( (float)((float)alias->minPriorityThreshold / 255.0) >= volume )
+    iassert(!IS_NAN(SND_AliasGetMinPriorityThreshold(alias)));
+    iassert(!IS_NAN(SND_AliasGetMaxPriorityThreshold(alias)));
+    iassert(SND_AliasGetMinPriorityThreshold(alias) >= 0.0f);
+    iassert(SND_AliasGetMinPriorityThreshold(alias) <= 1.0f);
+    iassert(SND_AliasGetMaxPriorityThreshold(alias) >= 0.0f);
+    iassert(SND_AliasGetMaxPriorityThreshold(alias) <= 1.0f);
+    iassert(volume >= 0.0f);
+    iassert(volume <= 1.0f);
+    
+    if ( SND_AliasGetMinPriorityThreshold(alias) >= volume )
         return (double)alias->minPriority;
-    if ( volume >= (float)((float)alias->maxPriorityThreshold / 255.0) )
+
+    if ( volume >= SND_AliasGetMaxPriorityThreshold(alias) )
         return (double)alias->maxPriority;
-    if ( (float)((float)alias->maxPriorityThreshold / 255.0) < (float)((float)alias->minPriorityThreshold / 255.0)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    900,
-                    0,
-                    "%s",
-                    "SND_AliasGetMaxPriorityThreshold(alias) >= SND_AliasGetMinPriorityThreshold(alias)") )
-    {
-        __debugbreak();
-    }
-    t = 0.5f;
-    if ( (float)((float)alias->maxPriorityThreshold / 255.0) != (float)((float)alias->minPriorityThreshold / 255.0) )
-        t = (float)(volume - (float)((float)alias->minPriorityThreshold / 255.0))
-            / (float)((float)((float)alias->maxPriorityThreshold / 255.0) - (float)((float)alias->minPriorityThreshold / 255.0));
-    if ( t < -0.00001
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    908,
-                    0,
-                    "%s\n\t(t) = %g",
-                    "(t >= -1e-5)",
-                    t) )
-    {
-        __debugbreak();
-    }
-    if ( t > 1.00001
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    909,
-                    0,
-                    "%s\n\t(t) = %g",
-                    "(t <= 1.0f+1e-5)",
-                    t) )
-    {
-        __debugbreak();
-    }
-    p = (float)(t * (float)alias->maxPriority) + (float)((float)(1.0 - t) * (float)alias->minPriority);
-    if ( p < -0.00001
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    913,
-                    0,
-                    "%s\n\t(p) = %g",
-                    "(p >= -1e-5)",
-                    p) )
-    {
-        __debugbreak();
-    }
-    if ( p > 200.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 914, 0, "%s\n\t(p) = %g", "(p <= 200)", p) )
-    {
-        __debugbreak();
-    }
+
+    iassert(SND_AliasGetMaxPriorityThreshold(alias) >= SND_AliasGetMinPriorityThreshold(alias));
+
+    float t = 0.5f;
+    if ( SND_AliasGetMaxPriorityThreshold(alias) != SND_AliasGetMinPriorityThreshold(alias) )
+        t = (float)(volume - SND_AliasGetMinPriorityThreshold(alias)) / (float)(SND_AliasGetMaxPriorityThreshold(alias) - SND_AliasGetMinPriorityThreshold(alias));
+
+    iassert(t >= -1e-5);
+    iassert(t <= 1.0f + 1e-5);
+
+    float p = (float)(t * (float)alias->maxPriority) + (float)((float)(1.0 - t) * (float)alias->minPriority);
+    iassert(p >= -1e-5);
+    iassert(p <= 200);
+
     if ( (float)alias->maxPriority <= (float)alias->minPriority )
     {
-        if ( (float)alias->minPriority < p - 0.00001
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        923,
-                        0,
-                        "%s\n\t(p) = %g",
-                        "(p-1e-5 <= SND_AliasGetMinPriority(alias))",
-                        p) )
-        {
-            __debugbreak();
-        }
-        if ( p + 0.00001 < (float)alias->maxPriority
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        924,
-                        0,
-                        "%s\n\t(p) = %g",
-                        "(p+1e-5 >= SND_AliasGetMaxPriority(alias))",
-                        p) )
-        {
-            __debugbreak();
-        }
+        iassert(p - 1e-5 <= SND_AliasGetMinPriority(alias));
+        iassert(p + 1e-5 >= SND_AliasGetMaxPriority(alias));
     }
     else
     {
-        if ( p + 0.00001 < (float)alias->minPriority
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        918,
-                        0,
-                        "%s\n\t(p) = %g",
-                        "(p+1e-5 >= SND_AliasGetMinPriority(alias))",
-                        p) )
-        {
-            __debugbreak();
-        }
-        if ( (float)alias->maxPriority < p - 0.00001
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        919,
-                        0,
-                        "%s\n\t(p) = %g",
-                        "(p-1e-5 <= SND_AliasGetMaxPriority(alias))",
-                        p) )
-        {
-            __debugbreak();
-        }
+        iassert(p + 1e-5 >= SND_AliasGetMinPriority(alias));
+        iassert(p - 1e-5 <= SND_AliasGetMaxPriority(alias));
     }
+
     return p;
 }
 
@@ -1542,54 +1053,27 @@ double __cdecl Snd_GetGlobalPriorityVolume(const snd_alias_t *alias, const float
 
 void __cdecl Snd_GetLowestPriority(float *priority, int *channel, unsigned int start, unsigned int count)
 {
-    int i; // [esp+8h] [ebp-Ch]
-    float p; // [esp+Ch] [ebp-8h]
-    unsigned int c; // [esp+10h] [ebp-4h]
-
     *priority = 1.0e10;
     *channel = -1;
-    for ( c = 0; c < count; ++c )
+
+    for ( unsigned int c = 0; c < count; ++c )
     {
-        i = start + c;
-        if ( !g_snd.voiceAliasHash[start + c]
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 961, 0, "%s", "!SND_IsVoiceFree(i)") )
-        {
-            __debugbreak();
-        }
-        p = g_snd.voice[i].globalPriority;
-        if ( p < -0.00001
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        965,
-                        0,
-                        "%s\n\t(p) = %g",
-                        "(p >= -1e-5)",
-                        p) )
-        {
-            __debugbreak();
-        }
-        if ( p > 200.0
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        966,
-                        0,
-                        "%s\n\t(p) = %g",
-                        "(p <= 200)",
-                        p) )
-        {
-            __debugbreak();
-        }
+        int i = start + c;
+        iassert(!SND_IsVoiceFree(i));
+
+        float p = g_snd.voice[i].globalPriority;
+
+        iassert(p >= -1e-5);
+        iassert(p <= 200);
+
         if ( *priority > p )
         {
             *channel = i;
             *priority = p;
         }
     }
-    if ( *channel < 0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 974, 0, "%s", "*channel >= 0") )
-    {
-        __debugbreak();
-    }
+
+    iassert(*channel >= 0);
 }
 
 unsigned int __cdecl SND_ContinueLoopingSound(
@@ -1600,11 +1084,9 @@ unsigned int __cdecl SND_ContinueLoopingSound(
                 int fadeTime,
                 snd_playback *playback)
 {
-    signed int i; // [esp+40h] [ebp-4h]
-
     PROF_SCOPED("SND_ContinueLoopingSound");
 
-    for (i = 0; i < 74; ++i)
+    for (int i = 0; i < SND_MAX_VOICES; ++i)
     {
         if (g_snd.voiceAliasHash[i]
             && g_snd.voice[i].sndEnt.handle == sndEnt.handle
@@ -1630,17 +1112,8 @@ void __cdecl SND_ContinueLoopingSound_Internal(
 {
     snd_voice_t *voice; // [esp+2Ch] [ebp-4h]
 
-    if ( voiceIndex >= SND_MAX_VOICES
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    1072,
-                    0,
-                    "voiceIndex doesn't index SND_MAX_VOICES\n\t%i not in [0, %i)",
-                    voiceIndex,
-                    74) )
-    {
-        __debugbreak();
-    }
+    bcassert(voiceIndex, SND_MAX_VOICES);
+
     voice = &g_snd.voice[voiceIndex];
     if ( fadeTime < 0 && voice->fade.goal != 0.0 )
     {
@@ -1695,20 +1168,14 @@ snd_alias_t *__cdecl SND_PickSoundAliasFromList(snd_alias_list_t *aliasList, int
         return 0;
     if ( !aliasList->count )
         return 0;
-    if ( aliasList->count >= 0x40u
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    1180,
-                    0,
-                    "%s",
-                    "aliasList->count < MAX_VARIANTS") )
-    {
-        __debugbreak();
-    }
-    if ( aliasList->count >= 0x40u )
-        count = 64;
+
+    iassert(aliasList->count < MAX_VARIANTS);
+
+    if ( aliasList->count >= MAX_VARIANTS)
+        count = MAX_VARIANTS;
     else
         count = aliasList->count;
+
     totalCount = count;
     actualCount = 0;
     for ( i = 0; i < totalCount; ++i )
@@ -1728,11 +1195,7 @@ snd_alias_t *__cdecl SND_PickSoundAliasFromList(snd_alias_list_t *aliasList, int
         return 0;
     if ( actualCount == 1 )
     {
-        if ( !selectionArray[0]
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 1210, 0, "%s", "selectionArray[0]") )
-        {
-            __debugbreak();
-        }
+        iassert(selectionArray[0]);
         return selectionArray[0];
     }
     else
@@ -1761,40 +1224,18 @@ snd_alias_t *__cdecl SND_PickSoundAliasFromList(snd_alias_list_t *aliasList, int
 
 snd_alias_t *__cdecl SND_PickSoundAlias(const char *name, int objectid)
 {
-    snd_alias_list_t *Alias; // eax
-
-    if ( !name && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 1245, 0, "%s", "name") )
-        __debugbreak();
-    Alias = SND_FindAlias(name);
-    return SND_PickSoundAliasFromList(Alias, objectid);
+    iassert(name);
+    return SND_PickSoundAliasFromList(SND_FindAlias(name), objectid);
 }
 
 void __cdecl SND_AssertValidData(const snd_alias_t *alias)
 {
-    if ( !alias && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 1417, 0, "%s", "alias") )
-        __debugbreak();
-    if ( (alias->flags & 2) >> 1 )
+    iassert(alias);
+
+    if (SND_IsAliasSpatial(alias))
     {
-        if ( alias->distMin > (int)alias->distMax
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        1421,
-                        0,
-                        "%s",
-                        "alias->distMin <= alias->distMax") )
-        {
-            __debugbreak();
-        }
-        if ( alias->distMax > (int)alias->distReverbMax
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                        1422,
-                        0,
-                        "%s",
-                        "alias->distMax <= alias->distReverbMax") )
-        {
-            __debugbreak();
-        }
+        iassert(alias->distMin <= alias->distMax);
+        iassert(alias->distMax <= alias->distReverbMax);
     }
 }
 
@@ -1809,7 +1250,6 @@ unsigned int __cdecl SND_PlaySoundAlias(
                 snd_playback *playback,
                 snd_occlusion_start_cache *ocache)
 {
-    unsigned int v10; // eax
     float volume; // [esp+1Ch] [ebp-F0h]
     float v12; // [esp+5Ch] [ebp-B0h]
     snd_listener *v13; // [esp+74h] [ebp-98h]
@@ -1825,25 +1265,17 @@ unsigned int __cdecl SND_PlaySoundAlias(
     int group; // [esp+F8h] [ebp-14h]
     const snd_alias_t *alias; // [esp+FCh] [ebp-10h]
     float playerPosition[3]; // [esp+100h] [ebp-Ch] BYREF
-
-    if ( !org && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 1441, 0, "%s", "org") )
-        __debugbreak();
-
-    nanassertvec3(org);
     
-    if ( (((unsigned int)sndEnt.handle >> 19) & 3) != 0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    1443,
-                    0,
-                    "%s",
-                    "sndEnt.field.localClientNum < MAX_LOCAL_CLIENTS") )
-    {
-        __debugbreak();
-    }
+    iassert(org);
+    nanassertvec3(org);
+    iassert(sndEnt.field.localClientNum < MAX_LOCAL_CLIENTS);
+
     if ( !aliasList )
         return -1;
+
     SND_LogPlayedAliasId(aliasList->id);
+
+#ifdef _DEBUG
     if ( snd_assert_on_play
         && snd_assert_on_play->current.integer
         && *(_BYTE *)snd_assert_on_play->current.integer
@@ -1857,10 +1289,11 @@ unsigned int __cdecl SND_PlaySoundAlias(
     {
         __debugbreak();
     }
+#endif
+
     if ( aliasList->head->secondaryname )
     {
-        v10 = SND_HashName(aliasList->head->secondaryname);
-        secondaryList = SND_FindAliasFromId(v10);
+        secondaryList = SND_FindAliasFromId(SND_HashName(aliasList->head->secondaryname));
         if ( secondaryList )
         {
             if ( SND_CheckValidSecondary(aliasList->head, secondaryList->head) )
@@ -1889,11 +1322,11 @@ unsigned int __cdecl SND_PlaySoundAlias(
     {
         __debugbreak();
     }
-    if ( (float)((float)alias->volMin / 65535.0) < 0.0000152879 && (float)((float)alias->volMax / 65535.0) < 0.0000152879 )
+    if ( (float)((float)alias->volMin / 65535.0) < SND_EPSILON && (float)((float)alias->volMax / 65535.0) < SND_EPSILON )
         return -1;
     group = (alias->flags & 0x3F0000) >> 16;
     if ( snd_skip_muted_sounds->current.enabled
-        && (float)((float)SND_GetGroupByIndex(group)->attenuationMp / 65535.0) < 0.0000152879 )
+        && (float)((float)SND_GetGroupByIndex(group)->attenuationMp / 65535.0) < SND_EPSILON )
     {
         return -1;
     }
@@ -1952,52 +1385,18 @@ unsigned int __cdecl SND_PlaySoundAlias(
     if ( !SND_LimitVoice(alias, sndEnt) )
         return -1;
     memset((unsigned __int8 *)&startAliasInfo, 0xFFu, sizeof(startAliasInfo));
-    if ( (float)((float)alias->volMin / 65535.0) > 1.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    1578,
-                    0,
-                    "%s",
-                    "SND_AliasGetVolMin(alias) <= 1.0f") )
-    {
-        __debugbreak();
-    }
-    if ( (float)((float)alias->volMin / 65535.0) < 0.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    1579,
-                    0,
-                    "%s",
-                    "SND_AliasGetVolMin(alias) >= 0.0f") )
-    {
-        __debugbreak();
-    }
-    if ( (float)((float)alias->volMax / 65535.0) > 1.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    1580,
-                    0,
-                    "%s",
-                    "SND_AliasGetVolMax(alias) <= 1.0f") )
-    {
-        __debugbreak();
-    }
-    if ( (float)((float)alias->volMax / 65535.0) < 0.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                    1581,
-                    0,
-                    "%s",
-                    "SND_AliasGetVolMax(alias) >= 0.0f") )
-    {
-        __debugbreak();
-    }
+
+    iassert(SND_AliasGetVolMin(alias) <= 1.0f);
+    iassert(SND_AliasGetVolMin(alias) >= 0.0f);
+    iassert(SND_AliasGetVolMax(alias) <= 1.0f);
+    iassert(SND_AliasGetVolMax(alias) >= 0.0f);
+
     startAliasInfo.volModStart = volumeScale;
     startAliasInfo.alias = alias;
     startAliasInfo.sndEnt = sndEnt;
-    startAliasInfo.org[0] = *org;
-    startAliasInfo.org[1] = org[1];
-    startAliasInfo.org[2] = org[2];
+
+    Vec3Copy(org, startAliasInfo.org);
+
     if ( direction )
     {
         startAliasInfo.dir[0] = *direction;
@@ -2008,6 +1407,7 @@ unsigned int __cdecl SND_PlaySoundAlias(
     {
         memset(startAliasInfo.dir, 0, sizeof(startAliasInfo.dir));
     }
+
     startAliasInfo.timeshift = timeshift;
     startAliasInfo.startDelay = alias->startDelay;
     startAliasInfo.fadetime = (float)fadeTime;
@@ -2145,16 +1545,9 @@ void __cdecl SND_GetPlayingInfo(
     oldest = -1;
     oldTime = 0x7FFFFFFF;
     leastPriority = 1000000.0f;
-    if (!aliasHash
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-            1302,
-            0,
-            "%s",
-            "aliasHash != SND_INVALID_HASH"))
-    {
-        __debugbreak();
-    }
+
+    iassert(aliasHash != SND_INVALID_HASH);
+
     for (i = 0; i < SND_MAX_VOICES; ++i)
     {
         if (g_snd.voiceAliasHash[i] == aliasHash && (!useEnt || g_snd.voice[i].sndEnt.handle == ent.handle))
@@ -2207,8 +1600,7 @@ char __cdecl SND_LimitVoice(const snd_alias_t *alias, SndEntHandle ent)
 
 bool __cdecl SND_IsAliasVoice(const snd_alias_t *alias)
 {
-    if ( !alias && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_alias_db.h", 429, 0, "%s", "alias") )
-        __debugbreak();
+    iassert(alias);
     return (alias->flags & 0x800) >> 11 != 0;
 }
 
@@ -2334,9 +1726,7 @@ void SND_UpdatePause()
 
 void SND_PauseSounds()
 {
-    int i; // [esp+0h] [ebp-4h]
-
-    for ( i = 0; i < 74; ++i )
+    for ( int i = 0; i < SND_MAX_VOICES; ++i )
     {
         if ( g_snd.voiceAliasHash[i] )
         {
@@ -2351,11 +1741,9 @@ void SND_PauseSounds()
 
 void SND_UnpauseSounds()
 {
-    int i; // [esp+0h] [ebp-8h]
-    int timeshift; // [esp+4h] [ebp-4h]
+    int timeshift = g_snd.time - g_snd.pausetime;
 
-    timeshift = g_snd.time - g_snd.pausetime;
-    for (i = 0; i < 74; ++i)
+    for (int i = 0; i < SND_MAX_VOICES; ++i)
     {
         if (g_snd.voiceAliasHash[i])
         {
@@ -2372,12 +1760,10 @@ void SND_UnpauseSounds()
 
 void __cdecl SND_UpdateMasterVolumes(float dt)
 {
-    unsigned int i; // [esp+30h] [ebp-4h]
-
     SND_FaderUpdate(&g_snd.volume, dt);
-    if (g_snd.volume.value < 0.0000152879 && g_snd.volume.goal < 0.0000152879)
+    if (g_snd.volume.value < SND_EPSILON && g_snd.volume.goal < SND_EPSILON)
     {
-        for (i = 0; i < SND_MAX_VOICES; ++i)
+        for (int i = 0; i < SND_MAX_VOICES; ++i)
         {
             if (g_snd.voiceAliasHash[i]
                 && (SND_GroupCategory((g_snd.voice[i].alias->flags & 0x3F0000) >> 16) != SND_CATEGORY_UI
@@ -2606,6 +1992,7 @@ void __cdecl SND_StopVoice(int voiceIndex)
 {
     if (g_snd.voiceAliasHash[voiceIndex])
     {
+#ifdef _DEBUG
         if (g_snd.voice[voiceIndex].alias
             && snd_assert_on_stop
             && snd_assert_on_stop->current.integer
@@ -2620,18 +2007,12 @@ void __cdecl SND_StopVoice(int voiceIndex)
         {
             __debugbreak();
         }
+#endif
+
         SD_StopVoice(voiceIndex);
         SND_ResetVoiceInfo(voiceIndex);
-        if (g_snd.voiceAliasHash[voiceIndex])
-        {
-            if (!Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                2090,
-                0,
-                "%s",
-                "SND_IsVoiceFree(voiceIndex)"))
-                __debugbreak();
-        }
+
+        iassert(SND_IsVoiceFree(voiceIndex));
     }
 }
 
@@ -2754,31 +2135,27 @@ void __cdecl SND_ShutdownVoices()
 
 void __cdecl SND_InitSnapshot()
 {
-    unsigned int i; // [esp+Ch] [ebp-14h]
-    snd_snapshot_category *v2; // [esp+10h] [ebp-10h]
-    unsigned int j; // [esp+14h] [ebp-Ch]
-    unsigned int c; // [esp+1Ch] [ebp-4h]
-
-    for (c = 0; c < 0xB; ++c)
+    for (int c = 0; c < SND_SNAPSHOT_COUNT; ++c)
     {
         g_snd.snapshotCategories[c].length = 0.0f;
         g_snd.snapshotCategories[c].snapshot = g_snd.defaultHash;
     }
+
     SND_UpdateSnapshot(0.0);
-    for (j = 0; j < 0xB; ++j)
+
+    for (int j = 0; j < SND_SNAPSHOT_COUNT; ++j)
     {
-        v2 = &g_snd.snapshotCategories[j];
-        for (i = 0; i < g_snd.global_constants->groupCount; ++i)
+        snd_snapshot_category *category = &g_snd.snapshotCategories[j];
+        for (int i = 0; i < g_snd.global_constants->groupCount; ++i)
         {
-            v2->attenuation[i].value = v2->attenuation[i].goal;
-            v2->occlusion[i].value = v2->occlusion[i].goal;
+            category->attenuation[i].value = category->attenuation[i].goal;
+            category->occlusion[i].value = category->occlusion[i].goal;
         }
     }
 }
 
 void __cdecl SND_UpdateSnapshot(float dt)
 {
-    unsigned int v2; // eax
     int v3; // edx
     float v4; // [esp+Ch] [ebp-390h]
     float value; // [esp+10h] [ebp-38Ch]
@@ -2819,10 +2196,9 @@ void __cdecl SND_UpdateSnapshot(float dt)
     defaultCurve = g_snd.defaultCurve;
     if (snd_debug_snapshot && snd_debug_snapshot->current.integer && *(_BYTE *)snd_debug_snapshot->current.integer)
     {
-        v2 = SND_HashName(snd_debug_snapshot->current.string);
-        SNDL_SetSnapshot(SND_SNAPSHOT_DEBUG, v2, 0.0, 1.0);
+        SNDL_SetSnapshot(SND_SNAPSHOT_DEBUG, SND_HashName(snd_debug_snapshot->current.string), 0.0, 1.0);
     }
-    for (c = 0; c < 0xB; ++c)
+    for (c = 0; c < SND_SNAPSHOT_COUNT; ++c)
     {
         category = &g_snd.snapshotCategories[c];
         if (category->length > 0.0)
@@ -2879,16 +2255,7 @@ void __cdecl SND_UpdateSnapshot(float dt)
                                     lerp = timePlayed / SnapshotById->fadeIn;
                                     lerp = Snd_CurveEvalOverRange(fadeInCurve, lerp, 0.0, 1.0);
                                 }
-                                if ((LODWORD(lerp) & 0x7F800000) == 0x7F800000
-                                    && !Assert_MyHandler(
-                                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                        2418,
-                                        0,
-                                        "%s",
-                                        "!IS_NAN(lerp)"))
-                                {
-                                    __debugbreak();
-                                }
+                                iassert(!IS_NAN(lerp));
                                 if (SnapshotById->distance >= 1.0 && (voice->alias->flags & 2) >> 1)
                                 {
                                     SND_GetNearestListenerPosition(voice->position, listner);
@@ -2932,7 +2299,7 @@ void __cdecl SND_UpdateSnapshot(float dt)
         SND_FaderSetRate(&aliasCategory->occlusion[m], 30.0);
         SND_FaderUpdate(&aliasCategory->occlusion[m], dt);
     }
-    for (n = 0; n < 0xB; ++n)
+    for (n = 0; n < SND_SNAPSHOT_COUNT; ++n)
     {
         if (n)
         {
@@ -2956,7 +2323,7 @@ void __cdecl SND_UpdateSnapshot(float dt)
     {
         g_snd.snapshotAttenuation[jj] = 1.0f;
         g_snd.snapshotOcclusion[jj] = 1.0f;
-        for (kk = 0; kk < 0xB; ++kk)
+        for (kk = 0; kk < SND_SNAPSHOT_COUNT; ++kk)
         {
             if ((float)(g_snd.snapshotCategories[kk].attenuation[jj].value - g_snd.snapshotAttenuation[jj]) < 0.0)
                 value = g_snd.snapshotCategories[kk].attenuation[jj].value;
@@ -3012,9 +2379,9 @@ double __cdecl SND_GetPitch(snd_voice_t *voice)
 
     pitch *= snd_global_pitch->current.value;
 
-    if ((fabs(pitch - 1.0)) > 0.0000152879)
+    if ((fabs(pitch - 1.0)) > SND_EPSILON)
         voice->pitchShift = 1;
-    if ((fabs(pitch - 1.0) ) < 0.0000152879)
+    if ((fabs(pitch - 1.0) ) < SND_EPSILON)
         pitch = 1.0f;
     if ((float)(pitch - 1.9) < 0.0)
         v3 = pitch;
@@ -3028,8 +2395,7 @@ double __cdecl SND_GetPitch(snd_voice_t *voice)
 
 bool __cdecl SND_IsAliasTimescale(const snd_alias_t *alias)
 {
-    if ( !alias && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_alias_db.h", 423, 0, "%s", "alias") )
-        __debugbreak();
+    iassert(alias);
     return (alias->flags & 0x400) >> 10 != 0;
 }
 
@@ -3044,29 +2410,21 @@ bool __cdecl SND_IsOnSameTeam(unsigned int listenerIndex, SndEntHandle entNum)
 
 double __cdecl SND_GetBaseLevel(const snd_voice_t *voice)
 {
-    const char *v2; // eax
-    const char *v4; // eax
     float v6; // [esp+8h] [ebp-70h]
     unsigned int i; // [esp+64h] [ebp-14h]
     float attenuation; // [esp+68h] [ebp-10h]
-    float attenuationa; // [esp+68h] [ebp-10h]
-    float attenuationb; // [esp+68h] [ebp-10h]
-    float attenuationc; // [esp+68h] [ebp-10h]
-    float attenuationd; // [esp+68h] [ebp-10h]
-    float attenuatione; // [esp+68h] [ebp-10h]
     bool looping; // [esp+6Eh] [ebp-Ah]
     unsigned int group; // [esp+70h] [ebp-8h]
     const snd_alias_t *alias; // [esp+74h] [ebp-4h]
 
     alias = voice->alias;
-    if (!alias && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2560, 0, "%s", "alias"))
-        __debugbreak();
+    iassert(alias);
+
     if (snd_solo_alias_substring->current.integer)
     {
         if (*(_BYTE *)snd_solo_alias_substring->current.integer)
         {
-            v2 = strstr(alias->name, snd_solo_alias_substring->current.string);
-            if (!v2)
+            if (!strstr(alias->name, snd_solo_alias_substring->current.string))
                 return 0.0;
         }
     }
@@ -3074,106 +2432,76 @@ double __cdecl SND_GetBaseLevel(const snd_voice_t *voice)
     {
         if (*(_BYTE *)snd_mute_alias_substring->current.integer)
         {
-            v4 = strstr(alias->name, snd_mute_alias_substring->current.string);
-            if (v4)
+            if (strstr(alias->name, snd_mute_alias_substring->current.string))
                 return 0.0;
         }
     }
     attenuation = (float)((float)((float)(1.0 - voice->volModSeed) * (float)((float)alias->volMin / 65535.0))
         + (float)((float)((float)alias->volMax / 65535.0) * voice->volModSeed))
         * 1.0;
-    if ((LODWORD(attenuation) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2581, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    attenuationa = attenuation * voice->volModStart;
-    if ((LODWORD(attenuationa) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2584, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
+
+    iassert(!IS_NAN(attenuation));
+
+    attenuation = attenuation * voice->volModStart;
+    iassert(!IS_NAN(attenuation));
+
     group = voice->group;
     for (i = 0; group != -1 && i < 0x64; ++i)
     {
-        attenuationa = (float)((float)SND_GetGroupByIndex(group)->attenuationMp / 65535.0) * attenuationa;
-        if ((LODWORD(attenuationa) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2591, 0, "%s", "!IS_NAN(attenuation)"))
-        {
-            __debugbreak();
-        }
+        attenuation = (float)((float)SND_GetGroupByIndex(group)->attenuationMp / 65535.0) * attenuation;
+        iassert(!IS_NAN(attenuation));
+
         group = SND_GetGroupByIndex(group)->parentIndex;
     }
-    attenuationb = attenuationa * g_snd.snapshotAttenuation[alias->snapshotGroup];
-    if ((LODWORD(attenuationb) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2596, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    attenuationc = (float)(voice->fade.value * voice->fade.value) * attenuationb;
-    if ((LODWORD(attenuationc) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2599, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
+    attenuation = attenuation * g_snd.snapshotAttenuation[alias->snapshotGroup];
+    iassert(!IS_NAN(attenuation));
+
+    attenuation = (float)(voice->fade.value * voice->fade.value) * attenuation;
+    iassert(!IS_NAN(attenuation));
+
     looping = (voice->alias->flags & 1) != 0;
     if (SND_GroupCategory((voice->alias->flags & 0x3F0000) >> 16) != SND_CATEGORY_UI || looping)
-        attenuationc = (float)(g_snd.volume.value * g_snd.volume.value) * attenuationc;
-    if ((LODWORD(attenuationc) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2608, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    attenuationd = attenuationc * voice->script_fade.value;
-    if ((LODWORD(attenuationd) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2611, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
+        attenuation = (float)(g_snd.volume.value * g_snd.volume.value) * attenuation;
+    iassert(!IS_NAN(attenuation));
+
+    attenuation = attenuation * voice->script_fade.value;
+    iassert(!IS_NAN(attenuation));
+
     if (SND_GroupCategory((voice->alias->flags & 0x3F0000) >> 16) == SND_CATEGORY_UI
         && (alias->flags & 2) >> 1
         && SND_IsOnSameTeam(voice->closestListenerIndex, voice->sndEnt))
     {
-        attenuationd = (float)((float)voice->alias->teamVolMod / 65535.0) * attenuationd;
+        attenuation = (float)((float)voice->alias->teamVolMod / 65535.0) * attenuation;
     }
-    if ((LODWORD(attenuationd) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2619, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
+    iassert(!IS_NAN(attenuation));
+
     switch (SND_GroupCategory(voice->group))
     {
     case SND_CATEGORY_SFX:
     case SND_CATEGORY_UI:
-        attenuationd = (float)(snd_menu_sfx->current.value * snd_menu_sfx->current.value) * attenuationd;
+        attenuation = (float)(snd_menu_sfx->current.value * snd_menu_sfx->current.value) * attenuation;
         break;
     case SND_CATEGORY_MUSIC:
-        attenuationd = (float)(snd_menu_music->current.value * snd_menu_music->current.value) * attenuationd;
+        attenuation = (float)(snd_menu_music->current.value * snd_menu_music->current.value) * attenuation;
         break;
     case SND_CATEGORY_VOICE:
-        attenuationd = (float)(snd_menu_voice->current.value * snd_menu_voice->current.value) * attenuationd;
+        attenuation = (float)(snd_menu_voice->current.value * snd_menu_voice->current.value) * attenuation;
         break;
     default:
         break;
     }
-    attenuatione = (float)(snd_menu_master->current.value * snd_menu_master->current.value) * attenuationd;
-    if ((LODWORD(attenuatione) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2636, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    if (attenuatione < 0.0000152879)
-        attenuatione = 0.0f;
-    if ((LODWORD(attenuatione) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2644, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    if ((float)(attenuatione - 1.0) < 0.0)
-        v6 = attenuatione;
+    attenuation = (float)(snd_menu_master->current.value * snd_menu_master->current.value) * attenuation;
+    iassert(!IS_NAN(attenuation));
+
+    if (attenuation < SND_EPSILON)
+        attenuation = 0.0f;
+    iassert(!IS_NAN(attenuation));
+
+    if ((float)(attenuation - 1.0) < 0.0)
+        v6 = attenuation;
     else
         v6 = 1.0f;
-    if ((float)(0.0 - attenuatione) < 0.0)
+    if ((float)(0.0 - attenuation) < 0.0)
         return v6;
     else
         return 0.0f;
@@ -3184,24 +2512,16 @@ double __cdecl SND_GetDryLevel(const snd_voice_t *voice)
     float v4; // [esp+4h] [ebp-38h]
     float v5; // [esp+8h] [ebp-34h]
     float v6; // [esp+24h] [ebp-18h]
-    float attenuationd; // [esp+30h] [ebp-Ch]
     float attenuation; // [esp+30h] [ebp-Ch]
-    float attenuationa; // [esp+30h] [ebp-Ch]
-    float attenuationb; // [esp+30h] [ebp-Ch]
-    float attenuationc; // [esp+30h] [ebp-Ch]
     const snd_alias_t *alias; // [esp+34h] [ebp-8h]
     float change; // [esp+38h] [ebp-4h]
 
     alias = voice->alias;
-    if (!alias && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2653, 0, "%s", "alias"))
-        __debugbreak();
-    attenuationd = SND_GetBaseLevel(voice);
-    attenuation = attenuationd * voice->distanceAttenuation;
-    if ((LODWORD(attenuation) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2658, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
+    iassert(alias);
+    attenuation = SND_GetBaseLevel(voice);
+    attenuation = attenuation * voice->distanceAttenuation;
+    iassert(!IS_NAN(attenuation));
+
     change = (float)(1.0
         - (float)((float)((float)alias->occlusionLevel / 255.0) * (float)((float)alias->occlusionWetDry / 255.0)))
         + 0.25;
@@ -3215,38 +2535,27 @@ double __cdecl SND_GetDryLevel(const snd_voice_t *voice)
         v4 = v6;
     else
         v4 = 0.0f;
-    attenuationa = (float)((float)((float)(1.0 - (float)(1.0 - voice->losOcclusion.value)) * 1.0)
+    attenuation = (float)((float)((float)(1.0 - (float)(1.0 - voice->losOcclusion.value)) * 1.0)
         + (float)(v4 * (float)(1.0 - voice->losOcclusion.value)))
         * attenuation;
-    if ((LODWORD(attenuationa) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2663, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    attenuationb = attenuationa * g_snd.effect->drylevel;
-    if ((LODWORD(attenuationb) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2666, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    attenuationc = attenuationb * snd_dry_scale->current.value;
-    if ((LODWORD(attenuationc) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2669, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    if (attenuationc < 0.0000152879)
-        attenuationc = 0.0f;
-    if ((LODWORD(attenuationc) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2676, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    if ((float)(attenuationc - 1.0) < 0.0)
-        v5 = attenuationc;
+    iassert(!IS_NAN(attenuation));
+
+    attenuation = attenuation * g_snd.effect->drylevel;
+    iassert(!IS_NAN(attenuation));
+
+    attenuation = attenuation * snd_dry_scale->current.value;
+    iassert(!IS_NAN(attenuation));
+
+    if (attenuation < SND_EPSILON)
+        attenuation = 0.0f;
+
+    iassert(!IS_NAN(attenuation));
+
+    if ((float)(attenuation - 1.0) < 0.0)
+        v5 = attenuation;
     else
         v5 = 1.0f;
-    if ((float)(0.0 - attenuationc) < 0.0)
+    if ((float)(0.0 - attenuation) < 0.0)
         return v5;
     else
         return 0.0f;
@@ -3261,21 +2570,13 @@ double __cdecl SND_GetWetLevel(const snd_voice_t *voice)
     float baseDistance; // [esp+14h] [ebp-30h]
     float value; // [esp+18h] [ebp-2Ch]
     float v10; // [esp+2Ch] [ebp-18h]
-    float attenuationd; // [esp+38h] [ebp-Ch]
     float attenuation; // [esp+38h] [ebp-Ch]
-    float attenuationa; // [esp+38h] [ebp-Ch]
-    float attenuationb; // [esp+38h] [ebp-Ch]
-    float attenuationc; // [esp+38h] [ebp-Ch]
     float dm; // [esp+3Ch] [ebp-8h]
     float change; // [esp+40h] [ebp-4h]
 
-    if (!voice->alias
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2684, 0, "%s", "voice->alias"))
-    {
-        __debugbreak();
-    }
-    attenuationd = SND_GetBaseLevel(voice);
-    attenuation = attenuationd * voice->reverbAttenuation;
+    iassert(voice->alias);
+    attenuation = SND_GetBaseLevel(voice);
+    attenuation = attenuation * voice->reverbAttenuation;
     if ((LODWORD(attenuation) & 0x7F800000) == 0x7F800000
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2689, 0, "%s", "!IS_NAN(attenuation)"))
     {
@@ -3296,28 +2597,19 @@ double __cdecl SND_GetWetLevel(const snd_voice_t *voice)
         v6 = v10;
     else
         v6 = 0.0f;
-    attenuationa = (float)((float)((float)(1.0 - voice->losOcclusion.value) * 1.0)
+    attenuation = (float)((float)((float)(1.0 - voice->losOcclusion.value) * 1.0)
         + (float)(v6 * voice->losOcclusion.value))
         * attenuation;
-    if ((LODWORD(attenuationa) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2695, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    attenuationb = attenuationa * g_snd.effect->wetlevel;
-    if ((LODWORD(attenuationb) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2698, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    attenuationc = attenuationb * snd_wet_scale->current.value;
-    if ((LODWORD(attenuationc) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2702, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
+    iassert(!IS_NAN(attenuation));
+
+    attenuation = attenuation * g_snd.effect->wetlevel;
+    iassert(!IS_NAN(attenuation));
+
+    attenuation = attenuation * snd_wet_scale->current.value;
+    iassert(!IS_NAN(attenuation));
+
     dm = snd_reverb_proximity_distance->current.value;
-    if ((voice->alias->flags & 2) >> 1 && dm > 0.0000152879)
+    if ((voice->alias->flags & 2) >> 1 && dm > SND_EPSILON)
     {
         baseDistance = voice->baseDistance;
         if ((float)(baseDistance - dm) < 0.0)
@@ -3330,18 +2622,15 @@ double __cdecl SND_GetWetLevel(const snd_voice_t *voice)
             v5 = 0.0f;
         //v2 = __libm_sse2_sin((float)((float)(v5 / dm) * 1.5707964));
         v2 = sin((float)((float)(v5 / dm) * 1.5707964));
-        attenuationc = v2 * attenuationc;
+        attenuation = v2 * attenuation;
     }
-    if ((LODWORD(attenuationc) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2711, 0, "%s", "!IS_NAN(attenuation)"))
-    {
-        __debugbreak();
-    }
-    if ((float)(attenuationc - 1.0) < 0.0)
-        v7 = attenuationc;
+    iassert(!IS_NAN(attenuation));
+
+    if ((float)(attenuation - 1.0) < 0.0)
+        v7 = attenuation;
     else
         v7 = 1.0f;
-    if ((float)(0.0 - attenuationc) < 0.0)
+    if ((float)(0.0 - attenuation) < 0.0)
         return v7;
     else
         return 0.0f;
@@ -3412,11 +2701,8 @@ double __cdecl I_fmap(float minx, float maxx, float miny, float maxy, float x)
     float v6; // [esp+0h] [ebp-14h]
     float v7; // [esp+10h] [ebp-4h]
 
-    if ( maxx == minx
-        && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\universal\\com_math.h", 539, 0, "%s", "maxx != minx") )
-    {
-        __debugbreak();
-    }
+    iassert(maxx != minx);
+
     if ( (float)((float)(x - minx) - (float)(maxx - minx)) < 0.0 )
         v7 = x - minx;
     else
@@ -3430,63 +2716,40 @@ double __cdecl I_fmap(float minx, float maxx, float miny, float maxy, float x)
 
 unsigned int __cdecl SND_GetVoiceLength(unsigned int voiceIndex)
 {
-    if (voiceIndex >= SND_MAX_VOICES
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-            2777,
-            0,
-            "voiceIndex doesn't index SND_MAX_VOICES\n\t%i not in [0, %i)",
-            voiceIndex,
-            74))
-    {
-        __debugbreak();
-    }
+    bcassert(voiceIndex, SND_MAX_VOICES);
     return g_snd.voice[voiceIndex].soundFileInfo.totalMsec;
 }
 
 void __cdecl SND_FixupStereoPan(snd_speaker_map *pan)
 {
-    float volume; // [esp+0h] [ebp-4h]
-    float volumea; // [esp+0h] [ebp-4h]
-    float volumeb; // [esp+0h] [ebp-4h]
-    float volumec; // [esp+0h] [ebp-4h]
-    float volumed; // [esp+0h] [ebp-4h]
-    float volumee; // [esp+0h] [ebp-4h]
+    float volume;
 
-    if (pan->input_channel_count != 2
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-            2783,
-            0,
-            "%s",
-            "pan->input_channel_count == 2"))
-    {
-        __debugbreak();
-    }
+    iassert(pan->input_channel_count == 2);
+
     if (pan->output_channel_count >= 2)
     {
         volume = Snd_SpeakerMapGetVolume(pan, 0, 0);
         Snd_SpeakerMapSetVolume(pan, 0, 0, volume);
-        volumea = Snd_SpeakerMapGetVolume(pan, 0, 1);
-        Snd_SpeakerMapSetVolume(pan, 1, 1, volumea);
+        volume = Snd_SpeakerMapGetVolume(pan, 0, 1);
+        Snd_SpeakerMapSetVolume(pan, 1, 1, volume);
         Snd_SpeakerMapSetVolume(pan, 1, 0, 0.0);
         Snd_SpeakerMapSetVolume(pan, 0, 1, 0.0);
     }
     if (pan->output_channel_count >= 6)
     {
-        volumeb = Snd_SpeakerMapGetVolume(pan, 0, 4);
-        Snd_SpeakerMapSetVolume(pan, 1, 4, volumeb);
-        volumec = Snd_SpeakerMapGetVolume(pan, 0, 5);
-        Snd_SpeakerMapSetVolume(pan, 0, 5, volumec);
+        volume = Snd_SpeakerMapGetVolume(pan, 0, 4);
+        Snd_SpeakerMapSetVolume(pan, 1, 4, volume);
+        volume = Snd_SpeakerMapGetVolume(pan, 0, 5);
+        Snd_SpeakerMapSetVolume(pan, 0, 5, volume);
         Snd_SpeakerMapSetVolume(pan, 0, 4, 0.0);
         Snd_SpeakerMapSetVolume(pan, 1, 5, 0.0);
     }
     if (pan->output_channel_count == 8)
     {
-        volumed = Snd_SpeakerMapGetVolume(pan, 0, 7);
-        Snd_SpeakerMapSetVolume(pan, 1, 7, volumed);
-        volumee = Snd_SpeakerMapGetVolume(pan, 0, 6);
-        Snd_SpeakerMapSetVolume(pan, 0, 6, volumee);
+        volume = Snd_SpeakerMapGetVolume(pan, 0, 7);
+        Snd_SpeakerMapSetVolume(pan, 1, 7, volume);
+        volume = Snd_SpeakerMapGetVolume(pan, 0, 6);
+        Snd_SpeakerMapSetVolume(pan, 0, 6, volume);
         Snd_SpeakerMapSetVolume(pan, 1, 6, 0.0);
         Snd_SpeakerMapSetVolume(pan, 0, 7, 0.0);
     }
@@ -3505,26 +2768,9 @@ void __cdecl SND_UpdatePanFilter(float dt, snd_voice_t *voice)
     count = voice->pan.output_channel_count * voice->pan.input_channel_count;
     for (i = 0; i < count; ++i)
     {
-        if ((LODWORD(voice->panGoal.volumes[i]) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                2893,
-                0,
-                "%s",
-                "!IS_NAN(voice->panGoal.volumes[i])"))
-        {
-            __debugbreak();
-        }
-        if ((LODWORD(voice->pan.volumes[i]) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                2894,
-                0,
-                "%s",
-                "!IS_NAN(voice->pan.volumes[i])"))
-        {
-            __debugbreak();
-        }
+        iassert(!IS_NAN(voice->panGoal.volumes[i]));
+        iassert(!IS_NAN(voice->pan.volumes[i]));
+  
         v4 = snd_pan_filter->current.value * dt;
         if ((float)(v4 - 1.0) < 0.0)
             v5 = snd_pan_filter->current.value * dt;
@@ -3535,16 +2781,7 @@ void __cdecl SND_UpdatePanFilter(float dt, snd_voice_t *voice)
         else
             v3 = 0.0f;
         voice->pan.volumes[i] = (float)((float)(1.0 - v3) * voice->panGoal.volumes[i]) + (float)(voice->pan.volumes[i] * v3);
-        if ((LODWORD(voice->pan.volumes[i]) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                2899,
-                0,
-                "%s",
-                "!IS_NAN(voice->pan.volumes[i])"))
-        {
-            __debugbreak();
-        }
+        iassert(!IS_NAN(voice->pan.volumes[i]));
     }
 }
 
@@ -3585,7 +2822,6 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
     float value; // [esp+1Ch] [ebp-354h]
     bool v35; // [esp+20h] [ebp-350h]
     bool v36; // [esp+24h] [ebp-34Ch]
-    int v37; // [esp+28h] [ebp-348h]
     float v38; // [esp+44h] [ebp-32Ch]
     float v39; // [esp+50h] [ebp-320h]
     float v40; // [esp+7Ch] [ebp-2F4h]
@@ -3632,13 +2868,14 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
     const snd_alias_t *alias; // [esp+36Ch] [ebp-4h]
 
     alias = voice->alias;
-    if ( !alias && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2907, 0, "%s", "alias") )
-        __debugbreak();
+
+    iassert(alias);
+
     if ( dt <= 0.0
         || voice->startDelay > 0
         || voice->soundFileInfo.loadingState == SFLS_LOADING
-        || (SND_FaderUpdate(&voice->fade, dt), voice->fade.value >= 0.0000152879)
-        || voice->fade.goal >= 0.0000152879 )
+        || (SND_FaderUpdate(&voice->fade, dt), voice->fade.value >= SND_EPSILON)
+        || voice->fade.goal >= SND_EPSILON )
     {
         if ( !voice->totalMsec && (voice->alias->flags & 1) == 0 )
         {
@@ -3648,30 +2885,18 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
         }
         if ( voice->playback )
         {
-            if ( voice->playback->id != voice->playbackId
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            2933,
-                            0,
-                            "%s",
-                            "voice->playback->id == voice->playbackId") )
-            {
-                __debugbreak();
-            }
+            iassert(voice->playback->id == voice->playbackId);
             voice->playback->playedMs = SNDL_GetPlaybackTime(voice->playbackId);
         }
-        if ( voice->startDelay < 0
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2937, 0, "%s", "voice->startDelay >= 0") )
-        {
-            __debugbreak();
-        }
+
+        iassert(voice->startDelay >= 0);
+
         if ( voice->startDelay && !g_snd.pausetime )
         {
             if ( voice->startDelay - (int)(float)(dt * 1000.0) > 0 )
-                v37 = voice->startDelay - (int)(float)(dt * 1000.0);
+                voice->startDelay = voice->startDelay - (int)(float)(dt * 1000.0);
             else
-                v37 = 0;
-            voice->startDelay = v37;
+                voice->startDelay = 0;
         }
         SND_FaderUpdate(&voice->script_fade, dt);
         SND_FaderUpdate(&voice->script_pitch, dt);
@@ -3681,67 +2906,22 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
         {
             if ( voice->entity_update != SND_ENTITY_UPDATE_NEVER )
             {
-                if ( ((LODWORD(voice->position[0]) & 0x7F800000) == 0x7F800000
-                     || (LODWORD(voice->position[1]) & 0x7F800000) == 0x7F800000
-                     || (LODWORD(voice->position[2]) & 0x7F800000) == 0x7F800000)
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                3017,
-                                0,
-                                "%s",
-                                "!IS_NAN((voice->position)[0]) && !IS_NAN((voice->position)[1]) && !IS_NAN((voice->position)[2])") )
-                {
-                    __debugbreak();
-                }
-                if ( ((LODWORD(voice->velocity[0]) & 0x7F800000) == 0x7F800000
-                     || (LODWORD(voice->velocity[1]) & 0x7F800000) == 0x7F800000
-                     || (LODWORD(voice->velocity[2]) & 0x7F800000) == 0x7F800000)
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                3018,
-                                0,
-                                "%s",
-                                "!IS_NAN((voice->velocity)[0]) && !IS_NAN((voice->velocity)[1]) && !IS_NAN((voice->velocity)[2])") )
-                {
-                    __debugbreak();
-                }
-                if ( ((LODWORD(g_snd.listeners[voice->closestListenerIndex].orient.origin[0]) & 0x7F800000) == 0x7F800000
-                     || (LODWORD(g_snd.listeners[voice->closestListenerIndex].orient.origin[1]) & 0x7F800000) == 0x7F800000
-                     || (LODWORD(g_snd.listeners[voice->closestListenerIndex].orient.origin[2]) & 0x7F800000) == 0x7F800000)
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                3019,
-                                0,
-                                "%s",
-                                "!IS_NAN((g_snd.listeners[voice->closestListenerIndex].orient.origin)[0]) && !IS_NAN((g_snd.listeners[voi"
-                                "ce->closestListenerIndex].orient.origin)[1]) && !IS_NAN((g_snd.listeners[voice->closestListenerIndex].or"
-                                "ient.origin)[2])") )
-                {
-                    __debugbreak();
-                }
+                nanassertvec3(voice->position);
+                nanassertvec3(voice->velocity);
+                nanassertvec3(g_snd.listeners[voice->closestListenerIndex].orient.origin);
+
                 v51 = &g_snd.listeners[voice->closestListenerIndex];
                 toListner[0] = v51->orient.origin[0] - voice->position[0];
                 toListner[1] = v51->orient.origin[1] - voice->position[1];
                 toListner[2] = v51->orient.origin[2] - voice->position[2];
                 if ( (float)((float)((float)(toListner[0] * toListner[0]) + (float)(toListner[1] * toListner[1]))
-                                     + (float)(toListner[2] * toListner[2])) > 0.0000152879 )
+                                     + (float)(toListner[2] * toListner[2])) > SND_EPSILON )
                 {
-                    if ( ((LODWORD(toListner[0]) & 0x7F800000) == 0x7F800000
-                         || (LODWORD(toListner[1]) & 0x7F800000) == 0x7F800000
-                         || (LODWORD(toListner[2]) & 0x7F800000) == 0x7F800000)
-                        && !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                    3024,
-                                    0,
-                                    "%s",
-                                    "!IS_NAN((toListner)[0]) && !IS_NAN((toListner)[1]) && !IS_NAN((toListner)[2])") )
-                    {
-                        __debugbreak();
-                    }
+                    nanassertvec3(toListner);
                     Vec3Normalize(toListner);
                     if ( (float)((float)((float)(voice->fluxVelocity[0] * voice->fluxVelocity[0])
                                                          + (float)(voice->fluxVelocity[1] * voice->fluxVelocity[1]))
-                                         + (float)(voice->fluxVelocity[2] * voice->fluxVelocity[2])) <= 0.0000152879 )
+                                         + (float)(voice->fluxVelocity[2] * voice->fluxVelocity[2])) <= SND_EPSILON )
                         SND_FaderSetGoal(
                             &voice->doppler,
                             (float)((float)((float)((float)(voice->velocity[0] * toListner[0])
@@ -3758,47 +2938,14 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
                                         / 13397.244)
                         * snd_dopplerScale->current.value);
                 }
-                if ( (LODWORD(voice->doppler.goal) & 0x7F800000) == 0x7F800000
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                3035,
-                                0,
-                                "%s",
-                                "!IS_NAN(SND_FaderGetGoal(&voice->doppler))") )
-                {
-                    __debugbreak();
-                }
-                if ( (LODWORD(voice->doppler.value) & 0x7F800000) == 0x7F800000
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                3036,
-                                0,
-                                "%s",
-                                "!IS_NAN(SND_FaderGetValue(&voice->doppler))") )
-                {
-                    __debugbreak();
-                }
+
+                iassert(!IS_NAN(SND_FaderGetGoal(&voice->doppler)));
+                iassert(!IS_NAN(SND_FaderGetValue(&voice->doppler)));
+    
                 SND_FaderUpdate(&voice->doppler, dt);
-                if ( (LODWORD(voice->doppler.goal) & 0x7F800000) == 0x7F800000
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                3038,
-                                0,
-                                "%s",
-                                "!IS_NAN(SND_FaderGetGoal(&voice->doppler))") )
-                {
-                    __debugbreak();
-                }
-                if ( (LODWORD(voice->doppler.value) & 0x7F800000) == 0x7F800000
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                3039,
-                                0,
-                                "%s",
-                                "!IS_NAN(SND_FaderGetValue(&voice->doppler))") )
-                {
-                    __debugbreak();
-                }
+
+                iassert(!IS_NAN(SND_FaderGetGoal(&voice->doppler)));
+                iassert(!IS_NAN(SND_FaderGetValue(&voice->doppler)));
             }
             if ( !voice->paused )
             {
@@ -3808,24 +2955,15 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
             }
             if ( (float)((float)((float)(voice->direction[0] * voice->direction[0])
                                                  + (float)(voice->direction[1] * voice->direction[1]))
-                                 + (float)(voice->direction[2] * voice->direction[2])) < 0.0000152879 )
+                                 + (float)(voice->direction[2] * voice->direction[2])) < SND_EPSILON )
             {
                 voice->direction[0] = voice->orientation[0][0];
                 voice->direction[1] = voice->orientation[0][1];
                 voice->direction[2] = voice->orientation[0][2];
             }
-            if ( ((LODWORD(voice->direction[0]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->direction[1]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->direction[2]) & 0x7F800000) == 0x7F800000)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            3052,
-                            0,
-                            "%s",
-                            "!IS_NAN((voice->direction)[0]) && !IS_NAN((voice->direction)[1]) && !IS_NAN((voice->direction)[2])") )
-            {
-                __debugbreak();
-            }
+
+            nanassertvec3(voice->direction);
+
             li = SND_GetListenerIndexNearestToOrigin(voice->position);
             voice->closestListenerIndex = li;
 
@@ -3857,18 +2995,8 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
             if ( voice->soundFileInfo.loadingState == SFLS_LOADED )
             {
                 inputChannelCount = voice->soundFileInfo.srcChannelCount;
-                if ( inputChannelCount != 1
-                    && inputChannelCount != 2
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                3100,
-                                0,
-                                "%s\n\t(src_channel_count) = %i",
-                                "(src_channel_count == 1 || src_channel_count == 2)",
-                                inputChannelCount) )
-                {
-                    __debugbreak();
-                }
+                iassert(inputChannelCount == 1 || inputChannelCount == 2); // should be 'src_channel_count'
+
                 PanByIndex = SND_GetPanByIndex(voice->alias->pan);
                 v7 = I_stricmp(PanByIndex->name, "default");
                 isDefault = v7 == 0;
@@ -3909,32 +3037,13 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
                         else
                             value = snd_futz_force->current.value;
                         ndist = value;
-                        if ( (LODWORD(value) & 0x7F800000) == 0x7F800000
-                            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 3146, 0, "%s", "!IS_NAN(ndist)") )
-                        {
-                            __debugbreak();
-                        }
+
+                        iassert(!IS_NAN(ndist));
+
                         SND_EqualPowerFadeCoefs(ndist, &a, &b);
-                        if ( (LODWORD(a) & 0x7F800000) == 0x7F800000
-                            && !Assert_MyHandler(
-                                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                        3149,
-                                        0,
-                                        "%s",
-                                        "!IS_NAN(blendL)") )
-                        {
-                            __debugbreak();
-                        }
-                        if ( (LODWORD(b) & 0x7F800000) == 0x7F800000
-                            && !Assert_MyHandler(
-                                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                        3150,
-                                        0,
-                                        "%s",
-                                        "!IS_NAN(blendR)") )
-                        {
-                            __debugbreak();
-                        }
+                        iassert(!IS_NAN(blendL));
+                        iassert(!IS_NAN(blendR));
+
                         for ( out = 0; out < voice->panGoal.output_channel_count; ++out )
                         {
                             Volume = Snd_SpeakerMapGetVolume(&voice->panGoal, 0, out);
@@ -3952,6 +3061,7 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
                             atten = v32;
                             Snd_SpeakerMapSetVolume(&voice->panGoal, 0, out, v32);
                         }
+
                         if ( ndist > 0.0 )
                             voice->distanceAttenuation = 1.0f;
                         voice->reverbAttenuation = voice->reverbAttenuation * a;
@@ -3984,17 +3094,7 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
                 }
                 else
                 {
-                    if ( isSpatialized
-                        && !is2dFalloff
-                        && !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                    3196,
-                                    0,
-                                    "%s",
-                                    "!isSpatialized || is2dFalloff") )
-                    {
-                        __debugbreak();
-                    }
+                    iassert(!isSpatialized || is2dFalloff);
                     gd = (float)alias->centerSend / 65535.0;
                     t_4d = SND_GetPanByIndex(voice->alias->pan);
                     v13 = Snd_GetMixChannelCount(snd_speakerConfiguration->current.unsignedInt);
@@ -4016,18 +3116,8 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
             if ( voice->soundFileInfo.loadingState == SFLS_LOADED )
             {
                 src_channel_count = voice->soundFileInfo.srcChannelCount;
-                if ( src_channel_count != 1
-                    && src_channel_count != 2
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                                2963,
-                                0,
-                                "%s\n\t(src_channel_count) = %i",
-                                "(src_channel_count == 1 || src_channel_count == 2)",
-                                src_channel_count) )
-                {
-                    __debugbreak();
-                }
+                iassert(src_channel_count == 1 || src_channel_count == 2);
+      
                 if ( (alias->flags & 0x40) >> 6 && src_channel_count == 2 )
                 {
                     g = (float)voice->alias->centerSend / 65535.0;
@@ -4124,7 +3214,7 @@ snd_voice_t *__cdecl SND_GetPlaybackVoice(int playbackId)
 
     if (playbackId == -1)
         return 0;
-    for (i = 0; i < 74; ++i)
+    for (i = 0; i < SND_MAX_VOICES; ++i)
     {
         if (g_snd.voice[i].playbackId == playbackId)
             return &g_snd.voice[i];

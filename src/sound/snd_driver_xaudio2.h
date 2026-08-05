@@ -174,7 +174,7 @@ void __cdecl SD_PauseVoice(int voiceIndex);
 void __cdecl SD_UnpauseVoice(int voiceIndex);
 void __cdecl SD_UpdateVoice(unsigned int voiceIndex);
 void __cdecl SDXA2_UpdateVoiceSends(int voiceIndex);
-
+bool SND_IsVoiceFree(int voiceIndex);
 
 int __cdecl SD_StartAlias(SndStartAliasInfo *startAliasInfo, unsigned int voice);
 int __cdecl SND_StartAliasRam(SndStartAliasInfo *startAliasInfo, int voiceIndex);

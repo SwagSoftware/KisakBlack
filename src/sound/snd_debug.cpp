@@ -308,7 +308,7 @@ int __cdecl SND_GetSoundOverlay(snd_overlay_info *info, int start, int count)
         info[i].channel = i;
         info[i].fGlobalPriority = -1.0f;
         info[i].pszSampleName[0] = 0;
-        if (g_snd.voiceAliasHash[i + start] && SND_GroupGetAttenuation(voice->group) >= 0.0000152879)
+        if (g_snd.voiceAliasHash[i + start] && SND_GroupGetAttenuation(voice->group) >= SND_EPSILON)
         {
             if (!voice->alias
                 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp", 301, 0, "%s", "voice->alias"))

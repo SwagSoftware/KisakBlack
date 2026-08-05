@@ -1,6 +1,14 @@
 #pragma once
 #include "snd.h"
 
+enum SND_ENVEFFECTPRIO : __int32
+{
+    SND_ENVEFFECTPRIO_NONE       = 0x0,
+    SND_ENVEFFECTPRIO_LEVEL      = 0x1,
+    SND_ENVEFFECTPRIO_SHELLSHOCK = 0x2,
+    SND_ENVEFFECTPRIO_COUNT      = 0x3,
+};
+
 void __cdecl SNDL_AliasName(char *name, unsigned int id);
 int __cdecl SNDL_Play(
                 unsigned int aliasHash,

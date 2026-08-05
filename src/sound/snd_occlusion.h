@@ -1,7 +1,5 @@
 #pragma once
 
-#define SND_EPSILON 0.0000152879
-
 double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listener, const float *playback);
 void __cdecl Snd_LosOcclusionMultiTrace(
                 int *global_cache,

@@ -3606,7 +3606,7 @@ void __cdecl Vec4Add(const float *a, const float *b, float *sum)
 
 void __cdecl Vec3Sub(const float *a, const float *b, float *diff)
 {
-    *diff = *a - *b;
+    diff[0] = a[0] - b[0];
     diff[1] = a[1] - b[1];
     diff[2] = a[2] - b[2];
 }

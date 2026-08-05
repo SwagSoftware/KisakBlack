@@ -3,6 +3,13 @@
 #include <game/teams.h>
 #include "snd_dsp.h"
 
+#define SND_ENT_NONE 0xFFF
+#define MAX_VARIANTS 64
+
+#define SND_INVALID_HASH 0
+
+#define SND_EPSILON 0.0000152879
+
 enum snd_flux_type_t : __int32
 {                                       // XREF: SND_SetVoiceStartFlux/r
     SND_FLUX_TYPE_NONE             = 0x0,
@@ -963,7 +970,7 @@ struct snd_local_t // sizeof=0x31730
         float maximumPriority;                            // XREF: SND_Init(void)+170/w
         snd_fader_t minimumPriority;                // XREF: SND_Init(void)+17E/o
                                                                                 // SND_Init(void)+194/o ...
-        snd_snapshot_category snapshotCategories[11];
+        snd_snapshot_category snapshotCategories[SND_SNAPSHOT_COUNT];
                                                                                 // XREF: SND_InitSnapshot(void)+27/o
                                                                                 // SND_InitSnapshot(void)+83/o ...
         float snapshotAttenuation[64];            // XREF: SND_UpdateSnapshot(float)+ADE/w
@@ -1067,6 +1074,8 @@ void __cdecl SND_StartLengthNotify(unsigned int index, unsigned int totalMsec);
 void __cdecl SND_ResetVoiceInfo(int index);
 double __cdecl SND_GetSeed(unsigned int key, unsigned int global_age);
 void __cdecl SND_SetVoiceStartInfo(unsigned int index, SndStartAliasInfo *SndStartAliasInfo);
+float SND_FaderGetGoal(snd_fader_t *fader);
+float SND_FaderGetValue(snd_fader_t *fader);
 void __cdecl SND_FaderSetRate(snd_fader_t *fader, float r);
 void __cdecl SND_FaderSetGoal(snd_fader_t *fader, float g);
 bool __cdecl SND_IsAliasPausable(const snd_alias_t *alias);
@@ -1173,6 +1182,14 @@ double __cdecl Snd_DistanceCurveEval(
 double __cdecl SND_GetOmni(const snd_voice_t *voice);
 snd_voice_t *__cdecl SND_GetPlaybackVoice(int playbackId);
 bool __cdecl SND_IsStream(unsigned int index);
+
+bool SND_IsAliasSpatial(const snd_alias_t *alias);
+float SND_AliasGetMinPriorityThreshold(const snd_alias_t *alias);
+float SND_AliasGetMaxPriorityThreshold(const snd_alias_t *alias);
+float SND_AliasGetMaxPriority(const snd_alias_t *alias);
+float SND_AliasGetMinPriority(const snd_alias_t *alias);
+float SND_AliasGetVolMin(const snd_alias_t *alias);
+float SND_AliasGetVolMax(const snd_alias_t *alias);
 
 
 extern snd_local_t g_snd;

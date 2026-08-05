@@ -1,5 +1,12 @@
 #pragma once
 
+#include <universal/q_shared.h>
+
+#define SND_2PI (2.0 * M_PI)
+
+#define SND_SPEAKER_CONFIG_COUNT 3
+#define SND_CHANNEL_MAP_VOLUME_COUNT 16
+
 enum snd_speaker_flag : __int32
 {                                       // XREF: snd_speaker_angle/r
                                         // snd_speaker_config/r ...
@@ -36,8 +43,8 @@ struct snd_pan;
 unsigned int __cdecl SND_GetSpeakerConfigCount();
 const snd_speaker_config *__cdecl Snd_GetSpeakerConfig(unsigned int index);
 unsigned int __cdecl Snd_GetMixChannelCount(unsigned int speakerConfig);
-double __cdecl Snd_PanMono(float angle);
-double __cdecl Snd_NormalizeAngle(float x);
+float __cdecl Snd_PanMono(float angle);
+float __cdecl Snd_NormalizeAngle(float x);
 void __cdecl Snd_PanStereo(float angle, float boost, float *left, float *right);
 void __cdecl Snd_Pan(unsigned int speakerCount, const float *angles, float toSound, float *levels);
 bool __cdecl Snd_AngleInInterval(float angle, float left, float right);
@@ -64,14 +71,14 @@ void __cdecl SND_GetNearestPointOnStrip(
 unsigned int __cdecl SND_HashAlias(const snd_alias_list_t *alias);
 const char *__cdecl SND_GetAliasName(const snd_alias_list_t *alias);
 float __cdecl SND_dBToLinear(float value);
-double __cdecl SND_LinearToDb(float linear);
-double __cdecl SND_LinearToDbSpl(float linear);
-double __cdecl SND_dBSPLToLinear(float value);
+float __cdecl SND_LinearToDb(float linear);
+float __cdecl SND_LinearToDbSpl(float linear);
+float __cdecl SND_dBSPLToLinear(float value);
 int __cdecl SND_HashName(const char *name);
 void __cdecl Snd_SpeakerMapSetVolume(snd_speaker_map *map, int in, int out, float volume);
 void __cdecl Snd_SpeakerMapZero(snd_speaker_map *map);
 int __cdecl Snd_SpeakerMapGetIndex(const snd_speaker_map *map, int in, int out);
-double __cdecl Snd_SpeakerMapGetVolume(const snd_speaker_map *map, int in, int out);
+float __cdecl Snd_SpeakerMapGetVolume(const snd_speaker_map *map, int in, int out);
 void __cdecl SND_PanToSpeakermap(
                 unsigned int inputChannelCount,
                 unsigned int outputChannelCount,

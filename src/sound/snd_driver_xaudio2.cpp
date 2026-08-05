@@ -942,33 +942,10 @@ void __cdecl SD_PreUpdate()
             g_sd.radverbParams.angle = 0.0f;
         }
     }
-    if (g_sd.radverbParams.frameRate <= 1000.0
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2.cpp",
-            1346,
-            0,
-            "%s",
-            "g_sd.radverbParams.frameRate > 1000.0f"))
-    {
-        __debugbreak();
-    }
-    if (g_sd.radverbParams.frameRate >= 100000.0
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2.cpp",
-            1347,
-            0,
-            "%s",
-            "g_sd.radverbParams.frameRate < 100000.0f"))
-    {
-        __debugbreak();
-    }
-    //((void(__thiscall *)(IXAudio2SubmixVoice *, IXAudio2SubmixVoice *, _DWORD, snd_rv_params *, int, _DWORD))g_sd.radverbBus->SetEffectParameters)(
-    //    g_sd.radverbBus,
-    //    g_sd.radverbBus,
-    //    0,
-    //    &g_sd.radverbParams,
-    //    100,
-    //    0);
+
+    iassert(g_sd.radverbParams.frameRate > 1000.0f);
+    iassert(g_sd.radverbParams.frameRate < 100000.0f);
+
     g_sd.radverbBus->SetEffectParameters(0, &g_sd.radverbParams, 100, 0);
     memset((unsigned __int8 *)&g_sd.masterParams, 0, sizeof(g_sd.masterParams));
     master = SND_GetMasterCurrent();
