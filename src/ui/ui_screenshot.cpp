@@ -298,7 +298,7 @@ void __cdecl UI_ScreenshotDraw(int localClientNum, int contextIndex, const rectD
 
     idx = Com_LocalClient_GetControllerIndex(localClientNum);
     zoom = GPad_GetButton(idx, GPAD_R_TRIG);
-    if ( zoom < 0.050000001 )
+    if ( zoom < 0.05f )
         zoom = s_screenshotZoom;
     uiInfo = UI_UIContext_GetInfo(contextIndex);
     size = 0.5 / (float)(zoom + 1.0);

@@ -1908,7 +1908,7 @@ double __cdecl Bot_UpdatePitch(float currentPitch, float targetPitch, bool force
     }
     else
         v4 = rate;
-    v6 = DiffTrackAngle(targetPitch, currentPitch, v4, 0.050000001);
+    v6 = DiffTrackAngle(targetPitch, currentPitch, v4, 0.05f);
     //if ( g_DXDeviceThread == GetCurrentThreadId() )
         //D3DPERF_EndEvent();
     return v6;
@@ -1958,7 +1958,7 @@ double __cdecl Bot_UpdateYaw(float currentYaw, float targetYaw, bool forceSlow, 
     else
         v4 = botInfo->flags | 0x10;
     botInfo->flags = v4;
-    v9 = DiffTrackAngle(targetYaw, currentYaw, rateb, 0.050000001);
+    v9 = DiffTrackAngle(targetYaw, currentYaw, rateb, 0.05f);
     //if ( g_DXDeviceThread == GetCurrentThreadId() )
         //D3DPERF_EndEvent();
     return v9;
@@ -2132,7 +2132,7 @@ void __cdecl Bot_UpdateStance(bot_info_t *botInfo, const client_t *bot, usercmd_
     if ( Path_Exists(&botInfo->path)
         && !Bot_IsAtNegotiationNode(botInfo, bot, &botInfo->path)
         && sv_botCrouchDistance->current.value > botInfo->path.fLookaheadDist
-        && random() < 0.050000001 )
+        && random() < 0.05f )
     {
         if ( svs.time >= botInfo->lastMoveTime )
             Bot_SetTimedAction(9u, &botInfo->crouchEndTime, sv_botMinCrouchTime, sv_botMaxCrouchTime, cmd, &bot->lastUsercmd);
@@ -2390,14 +2390,14 @@ LABEL_98:
             if ( random() < 0.0049999999
                 || sv_botsForceSpecialOnly->current.enabled
                 || ((v7 = botInfo->threat.enemy) == 0 || !v7->pTurretInfo ? (v4 = 0) : (v4 = 1),
-                        v4 && botInfo->threat.distSq < 4194304.0 && random() < 0.050000001) )
+                        v4 && botInfo->threat.distSq < 4194304.0 && random() < 0.05f) )
             {
                 cmd->button_bits.setBit(0xF);
                 goto LABEL_95;
             }
             v6 = botInfo->threat.enemy;
             v3 = v6 && v6->pTurretInfo;
-            if ( v3 && botInfo->threat.distSq < 4194304.0 && random() < 0.050000001 )
+            if ( v3 && botInfo->threat.distSq < 4194304.0 && random() < 0.05f )
             {
 LABEL_87:
                 cmd->button_bits.setBit(0xE);

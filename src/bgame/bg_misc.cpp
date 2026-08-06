@@ -1394,7 +1394,7 @@ void __cdecl BG_RegisterDvars()
                                                             "The period of the shellshock view kick effect");
     bg_shock_viewKickRadius = _Dvar_RegisterFloat(
                                                             "bg_shock_viewKickRadius",
-                                                            0.050000001,
+                                                            0.05f,
                                                             0.0,
                                                             1.0,
                                                             0x80u,

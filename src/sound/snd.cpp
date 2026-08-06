@@ -394,6 +394,8 @@ static unsigned int keys[148] =
 
 unsigned int ages[148];
 
+#define ENTRY_COUNT 148
+
 double __cdecl SND_GetSeed(unsigned int key, unsigned int global_age)
 {
     unsigned int n; // [esp+0h] [ebp-2Ch]
@@ -410,13 +412,13 @@ double __cdecl SND_GetSeed(unsigned int key, unsigned int global_age)
 
     if ( key == -1 )
         key = 0;
-    for ( i = 0; i < 0x94; ++i )
+    for ( i = 0; i < ENTRY_COUNT; ++i )
     {
         if ( global_age - ages[i] > 0x7530 && keys[i] != -1 || !ages[i] )
             keys[i] = -1;
     }
     index = -1;
-    for ( k = 0; k < 0x94; ++k )
+    for ( k = 0; k < ENTRY_COUNT; ++k )
     {
         if ( keys[k] == key )
         {
@@ -428,10 +430,10 @@ double __cdecl SND_GetSeed(unsigned int key, unsigned int global_age)
     {
         max_free_zone_start = 0;
         max_free_zone_len = 0;
-        for ( m = 0; m < 0x94; m += free_zone_len + 1 )
+        for ( m = 0; m < ENTRY_COUNT; m += free_zone_len + 1 )
         {
             free_zone_len = 0;
-            for ( j = m; j < 0x94 && keys[j] == -1; ++j )
+            for ( j = m; j < ENTRY_COUNT && keys[j] == -1; ++j )
                 ++free_zone_len;
             if ( free_zone_len > max_free_zone_len )
             {
@@ -446,7 +448,7 @@ double __cdecl SND_GetSeed(unsigned int key, unsigned int global_age)
     {
         oldest = 0;
         oldest_age = ages[0];
-        for ( n = 1; n < 0x94; ++n )
+        for ( n = 1; n < ENTRY_COUNT; ++n )
         {
             if ( ages[n] > oldest_age )
             {
@@ -456,13 +458,10 @@ double __cdecl SND_GetSeed(unsigned int key, unsigned int global_age)
         }
         index = oldest;
     }
-    if ( (unsigned int)index >= 0x94
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 408, 0, "%s", "index<ENTRY_COUNT") )
-    {
-        __debugbreak();
-    }
-    if ( index < 0 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 409, 0, "%s", "index>=0") )
-        __debugbreak();
+
+    iassert(index < ENTRY_COUNT);
+    iassert(index >= 0);
+
     keys[index] = key;
     ages[index] = global_age;
     return (double)index / 147.0;
@@ -893,20 +892,15 @@ void __cdecl SND_UpdateVoicePosition(snd_voice_t *voice, const float *startPosit
         {
             if ( !SND_GetEntState(voice->sndEnt, entityOrigin, voice->velocity, voice->orientation) )
                 return;
-            offset[0] = voice->position[0] - entityOrigin[0];
-            offset[1] = voice->position[1] - entityOrigin[1];
-            offset[2] = voice->position[2] - entityOrigin[2];
-            voice->offset[0] = (float)((float)(offset[0] * voice->orientation[0][0])
-                                                             + (float)(offset[1] * voice->orientation[0][1]))
-                                             + (float)(offset[2] * voice->orientation[0][2]);
-            voice->offset[1] = (float)((float)(offset[0] * voice->orientation[1][0])
-                                                             + (float)(offset[1] * voice->orientation[1][1]))
-                                             + (float)(offset[2] * voice->orientation[1][2]);
-            voice->offset[2] = (float)((float)(offset[0] * voice->orientation[2][0])
-                                                             + (float)(offset[1] * voice->orientation[2][1]))
-                                             + (float)(offset[2] * voice->orientation[2][2]);
+
+            Vec3Sub(voice->position, entityOrigin, offset);
+
+            voice->offset[0] = (float)((float)(offset[0] * voice->orientation[0][0]) + (float)(offset[1] * voice->orientation[0][1])) + (float)(offset[2] * voice->orientation[0][2]);
+            voice->offset[1] = (float)((float)(offset[0] * voice->orientation[1][0]) + (float)(offset[1] * voice->orientation[1][1])) + (float)(offset[2] * voice->orientation[1][2]);
+            voice->offset[2] = (float)((float)(offset[0] * voice->orientation[2][0]) + (float)(offset[1] * voice->orientation[2][1])) + (float)(offset[2] * voice->orientation[2][2]);
             voice->positionUpdated = 1;
         }
+
         nanassertvec3(voice->position);
         nanassertvec3(voice->orientation[0]);
         nanassertvec3(voice->orientation[1]);
@@ -928,16 +922,19 @@ void __cdecl SND_SetSoundFileVoiceInfo(
     iassert(voiceIndex >= 0 && voiceIndex < SND_MAX_VOICES);
 
     snd_voice_t *voice = &g_snd.voice[voiceIndex];
+
     //if ( voice->soundFileInfo.loadingState == SFLS_LOADING && loadingState == SFLS_LOADED )
     //{
     //    Sys_Milliseconds();
     //    BLOPS_NULLSUB();
     //}
+
     voice->soundFileInfo.loadingState = loadingState;
     voice->soundFileInfo.srcChannelCount = srcChannelCount;
     voice->soundFileInfo.baserate = baserate;
     voice->soundFileInfo.endtime = total_msec + g_snd.time - start_msec;
     voice->soundFileInfo.totalMsec = total_msec;
+
     SND_StartLengthNotify(voiceIndex, total_msec);
 }
 
@@ -1252,7 +1249,6 @@ unsigned int __cdecl SND_PlaySoundAlias(
 {
     float volume; // [esp+1Ch] [ebp-F0h]
     float v12; // [esp+5Ch] [ebp-B0h]
-    snd_listener *v13; // [esp+74h] [ebp-98h]
     int playbackId; // [esp+98h] [ebp-74h]
     float v15; // [esp+9Ch] [ebp-70h]
     unsigned int loopId; // [esp+A0h] [ebp-6Ch]
@@ -1334,10 +1330,7 @@ unsigned int __cdecl SND_PlaySoundAlias(
     {
         if ( !SND_ActiveListenerCount() )
             return -1;
-        v13 = &g_snd.listeners[SND_GetListenerIndexNearestToOrigin(org)];
-        playerPosition[0] = v13->orient.origin[0];
-        playerPosition[1] = v13->orient.origin[1];
-        playerPosition[2] = v13->orient.origin[2];
+        Vec3Copy(g_snd.listeners[SND_GetListenerIndexNearestToOrigin(org)].orient.origin, playerPosition);
         distMax = (float)alias->distReverbMax;
         distance = Vec3DistanceSq(org, playerPosition);
         if ( distance > (float)(distMax * distMax) )
@@ -1399,9 +1392,7 @@ unsigned int __cdecl SND_PlaySoundAlias(
 
     if ( direction )
     {
-        startAliasInfo.dir[0] = *direction;
-        startAliasInfo.dir[1] = direction[1];
-        startAliasInfo.dir[2] = direction[2];
+        Vec3Copy(direction, startAliasInfo.dir);
     }
     else
     {
@@ -1917,9 +1908,7 @@ void SND_UpdateStaticSounds()
                         if (distance > tmpDistance)
                         {
                             distance = tmpDistance;
-                            origin[0] = tmpOrigin[0];
-                            origin[1] = tmpOrigin[1];
-                            origin[2] = tmpOrigin[2];
+                            Vec3Copy(tmpOrigin, origin);
                         }
                     }
                     memset(direction, 0, sizeof(direction));

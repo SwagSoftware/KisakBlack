@@ -1360,7 +1360,7 @@ void __cdecl G_DObjUpdateServerTime(gentity_s *ent, int bNotify, void (__cdecl *
     theList.iNumElements = 64;
     DObjClearServerNotifies();
     DObjSetServerNotifies(&theList);
-    SV_DObjUpdateServerTime(ent, 0.050000001, bNotify);
+    SV_DObjUpdateServerTime(ent, 0.05f, bNotify);
     for ( iLoop = 0; iLoop < theList.iCurrentElement; ++iLoop )
     {
         Scr_AddConstString(notifies[iLoop].notetrackName, SCRIPTINSTANCE_SERVER);

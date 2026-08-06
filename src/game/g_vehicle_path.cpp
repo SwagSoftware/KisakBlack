@@ -1102,7 +1102,7 @@ int __cdecl G_VehUpdatePathPos(vehicle_pathpos_t *vpp, __int16 testNode)
         vpp->angles[0] = AngleNormalize180(vpp->angles[0]);
         vpp->angles[1] = AngleNormalize180(vpp->angles[1]);
         vpp->angles[2] = AngleNormalize180(vpp->angles[2]);
-        v3 = vpp->speed * 0.050000001;
+        v3 = vpp->speed * 0.05f;
         vpp->origin[0] = (float)(v3 * lookDir[0]) + vpp->origin[0];
         vpp->origin[1] = (float)(v3 * lookDir[1]) + vpp->origin[1];
         vpp->origin[2] = (float)(v3 * lookDir[2]) + vpp->origin[2];

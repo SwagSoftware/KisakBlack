@@ -897,7 +897,7 @@ void __cdecl R_RegisterDvars()
                                                      2.0,
                                                      0,
                                                      "Max reflection intensity based on glancing angle.");
-    r_envMapExponent = _Dvar_RegisterFloat("r_envMapExponent", 5.0, 0.050000001, 20.0, 0, "Reflection exponent.");
+    r_envMapExponent = _Dvar_RegisterFloat("r_envMapExponent", 5.0, 0.05f, 20.0, 0, "Reflection exponent.");
     r_envMapSunIntensity = _Dvar_RegisterFloat(
                                                      "r_envMapSunIntensity",
                                                      2.0,
@@ -1817,7 +1817,7 @@ void __cdecl R_RegisterDvars()
                                                                      "r_motionblur_directionFactor",
                                                                      0.001,
                                                                      0.001,
-                                                                     0.050000001,
+                                                                     0.05f,
                                                                      0x1081u,
                                                                      "Tweak dev var; blur magnitude due to direction change");
     r_motionblur_positionFactor = _Dvar_RegisterFloat(

@@ -7,7 +7,7 @@
 #include "snd_driver_xaudio2_dsp.h"
 
 #define SND_MAX_STREAM_VOICES 10
-#define SND_MAX_VOICES 74
+#define SND_MAX_VOICES (64 + 10)
 #define SND_PLAYBACKID_NOTPLAYED -1
 
 

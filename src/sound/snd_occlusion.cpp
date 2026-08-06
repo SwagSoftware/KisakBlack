@@ -8,6 +8,7 @@
 #include <win32/win_common.h>
 #include <qcommon/threads.h>
 #include <win32/win_net.h>
+#include "snd_driver_xaudio2.h"
 
 double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listener, const float *playback)
 {
@@ -173,19 +174,6 @@ void __cdecl Snd_LosOcclusionMultiTrace(
                 *global_cache = cache;
         }
     }
-}
-
-void __cdecl Vec3ScaleAdd(const float *base, const float *dir, float scale, float *dst)
-{
-    *dst = *dir;
-    dst[1] = dir[1];
-    dst[2] = dir[2];
-    *dst = scale * *dst;
-    dst[1] = scale * dst[1];
-    dst[2] = scale * dst[2];
-    *dst = *base + *dst;
-    dst[1] = base[1] + dst[1];
-    dst[2] = base[2] + dst[2];
 }
 
 // local variable allocation has failed, the output may be wrong!
@@ -525,7 +513,7 @@ void __cdecl SND_LosOcclusionCmd()
     Sys_EnterCriticalSection(CRITSEC_SOUND_OCCLUSION);
     if ( g_snd.occlusionRunning )
     {
-        for ( i = 0; i < 0x4A; ++i )
+        for ( i = 0; i < SND_MAX_VOICES; ++i )
         {
             if ( g_snd.occlusionTraces[i].id != -1 )
                 g_snd.occlusionTraces[i].occlusion = SND_LosOcclusionTrace(
@@ -564,7 +552,7 @@ void __cdecl SND_LosOcclusionUpdate()
     {
         SND_UpdateProximity();
         updated = 0;
-        for (i = 0; i < 0x4A; ++i)
+        for (i = 0; i < SND_MAX_VOICES; ++i)
         {
             voice = &g_snd.voice[i];
             if (g_snd.voiceAliasHash[(int)(472 * i) / 472] && (voice->alias->flags & 2) >> 1)
@@ -637,7 +625,7 @@ void __cdecl SND_LosOcclusionInit()
     unsigned int i; // [esp+4h] [ebp-4h]
 
     memset(g_snd.occlusionTraces, 0, sizeof(g_snd.occlusionTraces));
-    for (i = 0; i < 0x4A; ++i)
+    for (i = 0; i < SND_MAX_VOICES; ++i)
         g_snd.occlusionTraces[i].id = -1;
     g_snd.occlusionRunning = 1;
     Target = 0;

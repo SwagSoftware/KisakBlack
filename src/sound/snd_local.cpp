@@ -59,17 +59,8 @@ int __cdecl SNDL_Play(
     {
         if ( notify )
             SND_AddLengthNotify(pId, (const char *)entHandle.field.entIndex, SND_LENGTH_NOTIFY_SCRIPT);
-        if ( playback
-            && playback->id != pId
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_local.cpp",
-                        85,
-                        0,
-                        "%s",
-                        "playback->id == pId") )
-        {
-            __debugbreak();
-        }
+        if (playback)
+            iassert(playback->id == pId);
     }
     if ( pId == -1 )
     {

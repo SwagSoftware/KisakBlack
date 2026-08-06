@@ -176,7 +176,7 @@ void __cdecl SND_OcclusionLpfCoef(float occlusionLevel, float occlusionRatio, fl
     else
     {
         y = I_fclamp(occlusionRatio, 0.0, 0.99000001);
-        max = y * x * 0.050000001;
+        max = y * x * 0.05f;
         k = powf(10.0, max);
         maxa = (1.0 - y) * x * 0.1;
         ya = powf(10.0, maxa);

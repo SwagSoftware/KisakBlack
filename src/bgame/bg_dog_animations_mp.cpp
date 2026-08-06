@@ -199,10 +199,10 @@ void __cdecl BG_Dog_Look_At(int localClientNum, const entityState_s *es)
             rightWeight = -1.0 * es->animState.fAimLeftRight;
         else
             leftWeight = es->animState.fAimLeftRight;
-        XAnimSetGoalWeight(obj, 0x2Au, upWeight, 0.050000001, s_animRate, 0, 0, 0, -1);
-        XAnimSetGoalWeight(obj, 0x29u, downWeight, 0.050000001, s_animRate, 0, 0, 0, -1);
-        XAnimSetGoalWeight(obj, 0x2Cu, leftWeight, 0.050000001, s_animRate, 0, 0, 0, -1);
-        XAnimSetGoalWeight(obj, 0x2Bu, rightWeight, 0.050000001, s_animRate, 0, 0, 0, -1);
+        XAnimSetGoalWeight(obj, 0x2Au, upWeight, 0.05f, s_animRate, 0, 0, 0, -1);
+        XAnimSetGoalWeight(obj, 0x29u, downWeight, 0.05f, s_animRate, 0, 0, 0, -1);
+        XAnimSetGoalWeight(obj, 0x2Cu, leftWeight, 0.05f, s_animRate, 0, 0, 0, -1);
+        XAnimSetGoalWeight(obj, 0x2Bu, rightWeight, 0.05f, s_animRate, 0, 0, 0, -1);
     }
 }
 

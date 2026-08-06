@@ -5,17 +5,7 @@
 
 snd_category_t __cdecl SND_GroupCategory(unsigned int group)
 {
-    if ( group >= SND_GetGroupCount()
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    13,
-                    0,
-                    "%s\n\t(group) = %i",
-                    "(group >= 0 && group < SND_GetGroupCount())",
-                    group) )
-    {
-        __debugbreak();
-    }
+    iassert(group >= 0 && group < SND_GetGroupCount());
     return SND_GetGroupByIndex(group)->category;
 }
 
@@ -31,37 +21,17 @@ unsigned int __cdecl SND_GetGroupCount()
 
 const snd_group *__cdecl SND_GetGroupByIndex(unsigned int index)
 {
-    if ( index >= g_snd.global_constants->groupCount
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    37,
-                    0,
-                    "index doesn't index g_snd.global_constants->groupCount\n\t%i not in [0, %i)",
-                    index,
-                    g_snd.global_constants->groupCount) )
-    {
-        __debugbreak();
-    }
+    bcassert(index, g_snd.global_constants->groupCount);
     return &g_snd.global_constants->groups[index];
 }
 
 const snd_master *__cdecl SND_GetMaster(unsigned int id)
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
+    iassert(g_snd.global_constants);
 
-    if ( !g_snd.global_constants
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    44,
-                    0,
-                    "%s",
-                    "g_snd.global_constants") )
-    {
-        __debugbreak();
-    }
     if ( g_snd.global_constants )
     {
-        for ( i = 0; i < g_snd.global_constants->masterCount; ++i )
+        for ( int i = 0; i < g_snd.global_constants->masterCount; ++i )
         {
             if ( g_snd.global_constants->masters[i].id == id )
                 return &g_snd.global_constants->masters[i];
@@ -75,7 +45,6 @@ const snd_master *__cdecl SND_GetMaster(unsigned int id)
 
 const snd_master *__cdecl SND_GetMasterByConfig()
 {
-    unsigned int v0; // eax
     unsigned int setup; // [esp+0h] [ebp-30h]
     const char *snames[3][3]; // [esp+4h] [ebp-2Ch] BYREF
     const char *sname; // [esp+28h] [ebp-8h]
@@ -92,33 +61,12 @@ const snd_master *__cdecl SND_GetMasterByConfig()
     snames[2][0] = "headphone_quiet";
     snames[2][1] = "headphone_loud";
     snames[2][2] = 0;
-    if ( setup >= 4
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    77,
-                    0,
-                    "setup not in [0, ARRAY_COUNT(snames)]\n\t%i not in [%i, %i]",
-                    setup,
-                    0,
-                    3) )
-    {
-        __debugbreak();
-    }
-    if ( (unsigned int)level >= 4
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    78,
-                    0,
-                    "level not in [0, ARRAY_COUNT(snames[0])]\n\t%i not in [%i, %i]",
-                    level,
-                    0,
-                    3) )
-    {
-        __debugbreak();
-    }
+
+    bcassert2(setup, ARRAY_COUNT(snames));
+    bcassert2(level, ARRAY_COUNT(snames[0]));
+
     sname = snames[setup][level];
-    v0 = SND_HashName(sname);
-    return SND_GetMaster(v0);
+    return SND_GetMaster(SND_HashName(sname));
 }
 
 const snd_master *__cdecl SND_GetMasterCurrent()
@@ -133,21 +81,10 @@ const snd_master *__cdecl SND_GetMasterCurrent()
 
 const snd_curve *__cdecl SND_GetCurveById(unsigned int id)
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
-
-    if ( !g_snd.global_constants
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    103,
-                    0,
-                    "%s",
-                    "g_snd.global_constants") )
-    {
-        __debugbreak();
-    }
+    iassert(g_snd.global_constants);
     if ( g_snd.global_constants )
     {
-        for ( i = 0; i < g_snd.global_constants->curveCount; ++i )
+        for ( int i = 0; i < g_snd.global_constants->curveCount; ++i )
         {
             if ( g_snd.global_constants->curves[i].id == id )
                 return &g_snd.global_constants->curves[i];
@@ -161,85 +98,32 @@ const snd_curve *__cdecl SND_GetCurveById(unsigned int id)
 
 const snd_curve *__cdecl SND_GetCurveByIndex(unsigned int i)
 {
-    if ( !g_snd.global_constants
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    127,
-                    0,
-                    "%s",
-                    "g_snd.global_constants") )
-    {
-        __debugbreak();
-    }
-    if ( i == -1
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    128,
-                    0,
-                    "%s",
-                    "i != SND_INVALID_CURVE") )
-    {
-        __debugbreak();
-    }
-    if ( i >= g_snd.global_constants->curveCount
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    129,
-                    0,
-                    "%s",
-                    "i < g_snd.global_constants->curveCount") )
-    {
-        __debugbreak();
-    }
+    iassert(g_snd.global_constants);
+    iassert(i != SND_INVALID_CURVE);
+    iassert(i < g_snd.global_constants->curveCount);
+
     return &g_snd.global_constants->curves[i];
 }
 
 const snd_pan *__cdecl SND_GetPanByIndex(unsigned int i)
 {
-    if ( !g_snd.global_constants
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    138,
-                    0,
-                    "%s",
-                    "g_snd.global_constants") )
-    {
-        __debugbreak();
-    }
-    if ( i >= g_snd.global_constants->panCount
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    139,
-                    0,
-                    "i doesn't index g_snd.global_constants->panCount\n\t%i not in [0, %i)",
-                    i,
-                    g_snd.global_constants->panCount) )
-    {
-        __debugbreak();
-    }
+    iassert(g_snd.global_constants);
+    bcassert(i, g_snd.global_constants->panCount);
+
     return &g_snd.global_constants->pans[i];
 }
 
 unsigned int __cdecl SND_FindContextIndex(unsigned int type)
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
+    iassert(g_snd.global_constants);
 
-    if ( !g_snd.global_constants
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp",
-                    147,
-                    0,
-                    "%s",
-                    "g_snd.global_constants") )
-    {
-        __debugbreak();
-    }
-    for ( i = 0; i < g_snd.global_constants->contextCount; ++i )
+    for ( int i = 0; i < g_snd.global_constants->contextCount; ++i )
     {
         if ( g_snd.global_constants->contexts[i].type == type )
             return i;
     }
-    return -1;
+
+    return SND_INVALID_CURVE;
 }
 
 int __cdecl SND_FindContextValueIndex(unsigned int type, unsigned int value)
@@ -253,7 +137,7 @@ int __cdecl SND_FindContextValueIndex(unsigned int type, unsigned int value)
         if ( g_snd.global_constants->contexts[t].values[i] == value )
             return i;
     }
-    return -1;
+    return SND_INVALID_CURVE;
 }
 
 double __cdecl Snd_CurveEval(const snd_curve *curve, float x)
@@ -261,22 +145,16 @@ double __cdecl Snd_CurveEval(const snd_curve *curve, float x)
     float t; // [esp+8h] [ebp-Ch]
     int i; // [esp+10h] [ebp-4h]
 
-    if ( x < 0.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp", 181, 0, "%s", "x>=0.0f") )
-    {
-        __debugbreak();
-    }
-    if ( x > 1.0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp", 182, 0, "%s", "x<=1.0f") )
-    {
-        __debugbreak();
-    }
-    if ( !curve && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_globals.cpp", 183, 0, "%s", "curve") )
-        __debugbreak();
+    iassert(x >= 0.0f);
+    iassert(x <= 1.0f);
+    iassert(curve);
+
     if ( curve->points[0][0] >= x )
         return curve->points[0][1];
+
     if ( x >= curve->points[7][0] )
         return curve->points[7][1];
+
     for ( i = 1; i < 8; ++i )
     {
         if ( curve->points[i][0] >= x && x >= *(float *)&curve->name[8 * i + 28] )
@@ -286,6 +164,7 @@ double __cdecl Snd_CurveEval(const snd_curve *curve, float x)
             return (1.0 - t) * *(float *)&curve->name[8 * i + 32] + t * curve->points[i][1];
         }
     }
+
     Com_PrintError(9, "invalid curve data in curve '%s'\n", curve->name);
     return 0.0;
 }

@@ -1322,7 +1322,7 @@ int __cdecl turret_UpdateTargetAngles(gentity_s *self, const float *desiredAngle
 
     for ( i = 0; i < 2; ++i )
     {
-        fSpeed[i] = fSpeed[i] * 0.050000001;
+        fSpeed[i] = fSpeed[i] * 0.05f;
         if ( fSpeed[i] < 0.0
             && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\turret.cpp", 1032, 0, "%s", "fSpeed[i] >= 0") )
         {
@@ -1538,7 +1538,7 @@ void __cdecl Turret_ScanForEnemies(gentity_s *self)
                                                                                  turret->scanningPitch,
                                                                                  self->s.lerp.u.turret.gunAngles[0],
                                                                                  weapDef->scanSpeed,
-                                                                                 0.050000001);
+                                                                                 0.05f);
     if ( turret->scanningPitch == self->s.lerp.u.turret.gunAngles[0] )
     {
         self->s.lerp.u.turret.flags &= ~0x20u;
@@ -1566,17 +1566,17 @@ void __cdecl Turret_ScanForEnemies(gentity_s *self)
         {
             if ( turret->scanDecelYaw <= deltaYaw )
             {
-                turret->scanSpeed = (float)(weapDef->scanAccel * 0.050000001) + turret->scanSpeed;
+                turret->scanSpeed = (float)(weapDef->scanAccel * 0.05f) + turret->scanSpeed;
                 if ( turret->scanSpeed >= weapDef->scanSpeed )
                     turret->scanSpeed = weapDef->scanSpeed;
-                self->s.lerp.u.turret.gunAngles[1] = (float)((float)(turret->scanSpeed * 0.050000001) * sign)
+                self->s.lerp.u.turret.gunAngles[1] = (float)((float)(turret->scanSpeed * 0.05f) * sign)
                                                                                      + self->s.lerp.u.turret.gunAngles[1];
             }
             else
             {
-                turret->scanSpeed = turret->scanSpeed - (float)(weapDef->scanAccel * 0.050000001);
+                turret->scanSpeed = turret->scanSpeed - (float)(weapDef->scanAccel * 0.05f);
                 if ( turret->scanSpeed > 0.0 )
-                    self->s.lerp.u.turret.gunAngles[1] = (float)((float)(turret->scanSpeed * 0.050000001) * sign)
+                    self->s.lerp.u.turret.gunAngles[1] = (float)((float)(turret->scanSpeed * 0.05f) * sign)
                                                                                          + self->s.lerp.u.turret.gunAngles[1];
                 else
                     Turret_ScanStop(self);

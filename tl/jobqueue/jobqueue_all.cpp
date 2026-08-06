@@ -1324,7 +1324,7 @@ void __cdecl jqAddBatch(
   if ( ParamData && ParamSize )
     memcpy((unsigned __int8 *)Batch.ParamData, ParamData, ParamSize);
 
-  memset((unsigned __int8 *)Batch.ParamData + ParamSize, 0xCDu, 92 - ParamSize);
+  memset(Batch.ParamData + ParamSize, 0xCDu, 92 - ParamSize);
   jqAddBatch(&Batch, Queue);
 }
 
@@ -2069,7 +2069,7 @@ void __cdecl jqStart()
     } while (v0);
     jqNWorkers = v1;
     jqWorkers = (jqWorker *)tlMemAlloc(168 * v1, 8u, 0);
-    memset((unsigned __int8 *)jqWorkers, 0, 168 * jqNWorkers);
+    memset(jqWorkers, 0, 168 * jqNWorkers);
     v2 = jqProcessorsMask;
     v3 = 1;
     v19 = 0;
@@ -2168,7 +2168,7 @@ void __cdecl jqStart()
         __debugbreak();
     }
     jqTempWorkers = (jqWorker *)tlMemAlloc(0xA80u, 8u, 0);
-    memset((unsigned __int8 *)jqTempWorkers, 0, 0xA80u);
+    memset(jqTempWorkers, 0, 0xA80u);
     for (i = 0; i < 16; ++i)
     {
         v15 = &jqTempWorkers[i];

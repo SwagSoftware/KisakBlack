@@ -13,7 +13,6 @@ void __cdecl Snd_LosOcclusionMultiTrace(
                 unsigned int playback_rays,
                 unsigned int *valid,
                 unsigned int *hits);
-void __cdecl Vec3ScaleAdd(const float *base, const float *dir, float scale, float *dst);
 void    SND_TraceProximity(
                 float *front,
                 float *origin,

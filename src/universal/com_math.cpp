@@ -3420,6 +3420,13 @@ void __cdecl Vec3Mul(const float *a, const float *b, float *product)
     product[2] = a[2] * b[2];
 }
 
+void __cdecl Vec3ScaleAdd(const float *base, const float *dir, float scale, float *dst)
+{
+    Vec3Copy(dir, dst);
+    Vec3Scale(dst, scale, dst);
+    Vec3Add(base, dst, dst);
+}
+
 float __cdecl Vec3NormalizeTo(const vec3r v, vec3r out)
 {
     float v3; // [esp+0h] [ebp-14h]

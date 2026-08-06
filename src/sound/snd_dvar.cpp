@@ -496,7 +496,7 @@ void __cdecl SND_InitDvar()
                                                         "rpm point where engine_idle ends");
     snd_boat_rpm_low_start = _Dvar_RegisterFloat(
                                                          "snd_boat_rpm_low_start",
-                                                         0.050000001,
+                                                         0.05f,
                                                          0.0,
                                                          2.0,
                                                          0x80u,

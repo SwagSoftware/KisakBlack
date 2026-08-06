@@ -303,7 +303,7 @@ void AimAssist_RegisterDvars()
     aim_lockon_debug = _Dvar_RegisterBool("aim_lockon_debug", 0, 0x1080u, "Turn on debugging info for aim lock on");
     aim_lockon_deflection = _Dvar_RegisterFloat(
                                                         "aim_lockon_deflection",
-                                                        0.050000001,
+                                                        0.05f,
                                                         0.0,
                                                         1.0,
                                                         0x1080u,

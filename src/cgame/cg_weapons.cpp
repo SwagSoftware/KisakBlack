@@ -1001,7 +1001,7 @@ void __cdecl ChangeViewmodelDobj(
                     CG_SetWeaponHidePartBits(weapVariantDefDW, viewModelInfo, viewModelInfo->viewModelDObj, 2);
                 DObjSetHidePartBits(viewModelInfo->viewModelDObj, viewModelInfo->partBits);
                 if (updateClientInfo)
-                    DObjUpdateClientInfo(viewModelInfo->viewModelDObj, 0.050000001, 0);
+                    DObjUpdateClientInfo(viewModelInfo->viewModelDObj, 0.05f, 0);
                 if (viewModelInfo
                     && viewModelInfo->tree
                     && viewModelInfo->tree->anims != viewModelInfo->anims

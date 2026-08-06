@@ -3094,7 +3094,7 @@ void __cdecl BG_SwingAngles(
     if ( *swinging )
     {
         swinga = AngleNormalize180(destination - *angle);
-        scale = fabs(swinga) * 0.050000001;
+        scale = fabs(swinga) * 0.05f;
         if ( scale < 0.5 )
             scale = 0.5f;
         if ( swinga < 0.0 )

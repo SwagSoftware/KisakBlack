@@ -6398,7 +6398,7 @@ int __cdecl Item_Slider_HandleKey(UiContext *dc, itemDef_s *item, int key)
         editDef = Item_GetEditFieldDef(item);
         if ( editDef )
         {
-            step = (float)(editDef->maxVal - editDef->minVal) * 0.050000001;
+            step = (float)(editDef->maxVal - editDef->minVal) * 0.05f;
             VariantString = Dvar_GetVariantString(item->dvar);
             value = atof(VariantString);
             if ( (dvar->type == DVAR_TYPE_INT || dvar->type == DVAR_TYPE_INT64) && step < 1.0 )

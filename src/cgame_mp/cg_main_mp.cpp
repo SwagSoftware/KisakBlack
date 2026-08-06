@@ -1638,7 +1638,7 @@ void __cdecl CG_RegisterDvars()
                                                              "g_ScoresColor_EnemyTeam",
                                                              0.69,
                                                              0.07,
-                                                             0.050000001,
+                                                             0.05f,
                                                              1.0,
                                                              0x100u,
                                                              "Enemy team color on scoreboard");
@@ -1670,7 +1670,7 @@ void __cdecl CG_RegisterDvars()
                                                     "g_ScoresColor_Axis",
                                                     0.69,
                                                     0.07,
-                                                    0.050000001,
+                                                    0.05f,
                                                     1.0,
                                                     0x100u,
                                                     "Axis team color on scoreboard");

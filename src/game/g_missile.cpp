@@ -196,7 +196,7 @@ void __cdecl G_RegisterMissileDvars()
                                                                     3.4028235e38,
                                                                     0x80u,
                                                                     "Rocket's speed limit when descending towards target.");
-    missileJavTurnDecel = _Dvar_RegisterFloat("missileJavTurnDecel", 0.050000001, 0.0, 1.0, 0x80u, "");
+    missileJavTurnDecel = _Dvar_RegisterFloat("missileJavTurnDecel", 0.05f, 0.0, 1.0, 0x80u, "");
     missileJavClimbToOwner = _Dvar_RegisterFloat(
                                                          "missileJavClimbToOwner",
                                                          700.0,
@@ -2325,7 +2325,7 @@ bool    BounceMissile(gentity_s *ent, trace_t *trace)
             v3 = (float)(v45 - value) < 0.0 ? v45 : value;
             v44 = v3;
             mag = v3;
-            if (v3 > (float)(bg_gravity->current.value * 0.050000001))
+            if (v3 > (float)(bg_gravity->current.value * 0.05f))
             {
                 v42 = ent->s.lerp.pos.trDelta;
                 v41 = ent->s.lerp.pos.trDelta;
@@ -2339,7 +2339,7 @@ bool    BounceMissile(gentity_s *ent, trace_t *trace)
             trace_t sideTrace; // [esp+F4h] [ebp-F8h] BYREF
             wobbleFreq = slideSpeed * grenadeWobbleFreq->current.value;
             oldCycle = ent->mover.apos2[2];
-            for (ent->mover.apos2[2] = (float)((float)((float)(wobbleFreq * 0.050000001) * 2.0) * 3.1415901)
+            for (ent->mover.apos2[2] = (float)((float)((float)(wobbleFreq * 0.05f) * 2.0) * 3.1415901)
                 + ent->mover.apos2[2];
                 ent->mover.apos2[2] > 6.2831802;
                 ent->mover.apos2[2] = ent->mover.apos2[2] - 6.2831802)
@@ -3377,9 +3377,9 @@ void __cdecl RunMissile_Destabilize(gentity_s *missile)
         missile->mover.aDecelTime = weaponDef->destabilizationRateTime * 1000.0;
         missile->flags |= 0x10000u;
     }
-    newAPos[0] = (float)(0.050000001 * missile->mover.pos2[2]) + missile->s.lerp.apos.trBase[0];
-    newAPos[1] = (float)(0.050000001 * missile->mover.pos3[0]) + missile->s.lerp.apos.trBase[1];
-    newAPos[2] = (float)(0.050000001 * missile->mover.pos3[1]) + missile->s.lerp.apos.trBase[2];
+    newAPos[0] = (float)(0.05f * missile->mover.pos2[2]) + missile->s.lerp.apos.trBase[0];
+    newAPos[1] = (float)(0.05f * missile->mover.pos3[0]) + missile->s.lerp.apos.trBase[1];
+    newAPos[2] = (float)(0.05f * missile->mover.pos3[1]) + missile->s.lerp.apos.trBase[2];
     G_SetAngle(missile, newAPos);
     AngleVectors(newAPos, direction, 0, 0);
     iProjectileSpeed = (float)weaponDef->iProjectileSpeed;
@@ -3553,9 +3553,9 @@ void    Missile_ApplyAttractorsRepulsors(gentity_s *missile)
     }
     if (forceVector[0] != 0.0 || forceVector[1] != 0.0 || forceVector[2] != 0.0)
     {
-        missile->s.lerp.pos.trDelta[0] = (float)(0.050000001 * forceVector[0]) + missile->s.lerp.pos.trDelta[0];
-        missile->s.lerp.pos.trDelta[1] = (float)(0.050000001 * forceVector[1]) + missile->s.lerp.pos.trDelta[1];
-        missile->s.lerp.pos.trDelta[2] = (float)(0.050000001 * forceVector[2]) + missile->s.lerp.pos.trDelta[2];
+        missile->s.lerp.pos.trDelta[0] = (float)(0.05f * forceVector[0]) + missile->s.lerp.pos.trDelta[0];
+        missile->s.lerp.pos.trDelta[1] = (float)(0.05f * forceVector[1]) + missile->s.lerp.pos.trDelta[1];
+        missile->s.lerp.pos.trDelta[2] = (float)(0.05f * forceVector[2]) + missile->s.lerp.pos.trDelta[2];
         Vec3NormalizeTo(missile->s.lerp.pos.trDelta, forwardDir);
         iProjectileSpeed = (float)weaponDef->iProjectileSpeed;
         missile->s.lerp.pos.trDelta[0] = iProjectileSpeed * forwardDir[0];
@@ -3660,8 +3660,8 @@ void __cdecl MissileTrajectory(gentity_s *ent, float *result)
                 if ( forwardSpeed < (float)weapDef->iProjectileSpeed )
                 {
                     accel = (float)weapDef->iProjectileSpeed / weapDef->timeToAccelerate;
-                    v3 = accel * 0.050000001;
-                    ent->s.lerp.pos.trDelta[0] = (float)((float)(accel * 0.050000001) * dir[0]) + ent->s.lerp.pos.trDelta[0];
+                    v3 = accel * 0.05f;
+                    ent->s.lerp.pos.trDelta[0] = (float)((float)(accel * 0.05f) * dir[0]) + ent->s.lerp.pos.trDelta[0];
                     ent->s.lerp.pos.trDelta[1] = (float)(v3 * dir[1]) + ent->s.lerp.pos.trDelta[1];
                     ent->s.lerp.pos.trDelta[2] = (float)(v3 * dir[2]) + ent->s.lerp.pos.trDelta[2];
                 }
@@ -3675,9 +3675,9 @@ void __cdecl MissileTrajectory(gentity_s *ent, float *result)
             }
             if ( weapDef->projectileCurvature > 0.0 )
             {
-                ent->s.lerp.pos.trDelta[0] = (float)(0.050000001 * ent->mover.pos2[2]) + ent->s.lerp.pos.trDelta[0];
-                ent->s.lerp.pos.trDelta[1] = (float)(0.050000001 * ent->mover.pos3[0]) + ent->s.lerp.pos.trDelta[1];
-                ent->s.lerp.pos.trDelta[2] = (float)(0.050000001 * ent->mover.pos3[1]) + ent->s.lerp.pos.trDelta[2];
+                ent->s.lerp.pos.trDelta[0] = (float)(0.05f * ent->mover.pos2[2]) + ent->s.lerp.pos.trDelta[0];
+                ent->s.lerp.pos.trDelta[1] = (float)(0.05f * ent->mover.pos3[0]) + ent->s.lerp.pos.trDelta[1];
+                ent->s.lerp.pos.trDelta[2] = (float)(0.05f * ent->mover.pos3[1]) + ent->s.lerp.pos.trDelta[2];
             }
             if ( missileDebugDraw->current.enabled )
             {
@@ -3688,9 +3688,9 @@ void __cdecl MissileTrajectory(gentity_s *ent, float *result)
             GuidedMissileSteering(ent);
             if ( weapDef->guidedMissileType == MISSILE_GUIDANCE_TVGUIDED )
             {
-                ent->s.lerp.pos.trBase[0] = (float)(0.050000001 * ent->s.lerp.pos.trDelta[0]) + ent->s.lerp.pos.trBase[0];
-                ent->s.lerp.pos.trBase[1] = (float)(0.050000001 * ent->s.lerp.pos.trDelta[1]) + ent->s.lerp.pos.trBase[1];
-                ent->s.lerp.pos.trBase[2] = (float)(0.050000001 * ent->s.lerp.pos.trDelta[2]) + ent->s.lerp.pos.trBase[2];
+                ent->s.lerp.pos.trBase[0] = (float)(0.05f * ent->s.lerp.pos.trDelta[0]) + ent->s.lerp.pos.trBase[0];
+                ent->s.lerp.pos.trBase[1] = (float)(0.05f * ent->s.lerp.pos.trDelta[1]) + ent->s.lerp.pos.trBase[1];
+                ent->s.lerp.pos.trBase[2] = (float)(0.05f * ent->s.lerp.pos.trDelta[2]) + ent->s.lerp.pos.trBase[2];
                 roll = ent->s.lerp.apos.trBase[2];
                 keepRoll = 1;
                 vectoangles(ent->s.lerp.pos.trDelta, ent->s.lerp.apos.trBase);
@@ -3701,9 +3701,9 @@ void __cdecl MissileTrajectory(gentity_s *ent, float *result)
             }
             if ( weapDef->guidedMissileType != MISSILE_GUIDANCE_JAVELIN || ent->missile.missile.stage )
             {
-                ent->s.lerp.pos.trBase[0] = (float)(0.050000001 * ent->s.lerp.pos.trDelta[0]) + ent->s.lerp.pos.trBase[0];
-                ent->s.lerp.pos.trBase[1] = (float)(0.050000001 * ent->s.lerp.pos.trDelta[1]) + ent->s.lerp.pos.trBase[1];
-                ent->s.lerp.pos.trBase[2] = (float)(0.050000001 * ent->s.lerp.pos.trDelta[2]) + ent->s.lerp.pos.trBase[2];
+                ent->s.lerp.pos.trBase[0] = (float)(0.05f * ent->s.lerp.pos.trDelta[0]) + ent->s.lerp.pos.trBase[0];
+                ent->s.lerp.pos.trBase[1] = (float)(0.05f * ent->s.lerp.pos.trDelta[1]) + ent->s.lerp.pos.trBase[1];
+                ent->s.lerp.pos.trBase[2] = (float)(0.05f * ent->s.lerp.pos.trDelta[2]) + ent->s.lerp.pos.trBase[2];
                 *result = ent->s.lerp.pos.trBase[0];
                 result[1] = ent->s.lerp.pos.trBase[1];
                 result[2] = ent->s.lerp.pos.trBase[2];
@@ -3781,7 +3781,7 @@ void __cdecl MissileTrajectoryClientControlled(gentity_s *ent, float *result)
                                 + (float)((float)weapDef->iProjectileSpeed * missileTVGuidedBoost->current.value);
         ent->missile.flags |= 4u;
         if ( targetSpeed > speed )
-            speed = (float)missileTVGuidedBoostSpeedUp->current.integer * 0.050000001;
+            speed = (float)missileTVGuidedBoostSpeedUp->current.integer * 0.05f;
         if ( speed >= targetSpeed )
             speed = targetSpeed - speed;
     }
@@ -3795,7 +3795,7 @@ void __cdecl MissileTrajectoryClientControlled(gentity_s *ent, float *result)
         if ( speed < targetSpeed )
             speed = targetSpeed - speed;
         else
-            speed = (float)missileTVGuidedBoostSpeedDown->current.integer * 0.050000001;
+            speed = (float)missileTVGuidedBoostSpeedDown->current.integer * 0.05f;
     }
     ent->s.lerp.pos.trDelta[0] = (float)(speed * dirOrig[0]) + ent->s.lerp.pos.trDelta[0];
     ent->s.lerp.pos.trDelta[1] = (float)(speed * dirOrig[1]) + ent->s.lerp.pos.trDelta[1];
@@ -3897,14 +3897,14 @@ void __cdecl GuidedMissileSteering(gentity_s *ent)
                     if ( desiredAngle > ent->s.lerp.apos.trBase[2] )
                     {
                         deltaRoll = ent->s.lerp.apos.trBase[2] - desiredAngle;
-                        ent->s.lerp.apos.trBase[2] = (float)((float)((float)(deltaRoll * 0.050000001) * -1.0) * rollAccel)
+                        ent->s.lerp.apos.trBase[2] = (float)((float)((float)(deltaRoll * 0.05f) * -1.0) * rollAccel)
                                                                              + ent->s.lerp.apos.trBase[2];
                     }
                 }
                 else
                 {
                     deltaRoll = desiredAngle - ent->s.lerp.apos.trBase[2];
-                    ent->s.lerp.apos.trBase[2] = (float)((float)(deltaRoll * 0.050000001) * rollAccel)
+                    ent->s.lerp.apos.trBase[2] = (float)((float)(deltaRoll * 0.05f) * rollAccel)
                                                                          + ent->s.lerp.apos.trBase[2];
                 }
                 if ( !usingGamepad )
@@ -3981,9 +3981,9 @@ void __cdecl GuidedMissileSteering(gentity_s *ent)
             else
                 MissileHorzSteerToTarget(ent, currentRight, toTargetRelative, currentHorzSpeed, steer, tvGuided);
             MissileVerticalSteering(ent, toTargetRelative, currentHorzSpeed, steer);
-            ent->s.lerp.pos.trDelta[0] = (float)(0.050000001 * steer[0]) + ent->s.lerp.pos.trDelta[0];
-            ent->s.lerp.pos.trDelta[1] = (float)(0.050000001 * steer[1]) + ent->s.lerp.pos.trDelta[1];
-            ent->s.lerp.pos.trDelta[2] = (float)(0.050000001 * steer[2]) + ent->s.lerp.pos.trDelta[2];
+            ent->s.lerp.pos.trDelta[0] = (float)(0.05f * steer[0]) + ent->s.lerp.pos.trDelta[0];
+            ent->s.lerp.pos.trDelta[1] = (float)(0.05f * steer[1]) + ent->s.lerp.pos.trDelta[1];
+            ent->s.lerp.pos.trDelta[2] = (float)(0.05f * steer[2]) + ent->s.lerp.pos.trDelta[2];
         }
     }
 }
@@ -4425,7 +4425,7 @@ void __cdecl JavelinRotateVelocity(gentity_s *ent, const float *currentVel, cons
     {
         if ( ent->missile.missile.stage == MISSILESTAGE_ASCENT || currentVel[2] > 0.0 )
         {
-            len = (float)(missileJavAccelClimb->current.value * 0.050000001) + len;
+            len = (float)(missileJavAccelClimb->current.value * 0.05f) + len;
             if ( len > missileJavSpeedLimitClimb->current.value )
                 len = missileJavSpeedLimitClimb->current.value;
         }
@@ -4441,7 +4441,7 @@ void __cdecl JavelinRotateVelocity(gentity_s *ent, const float *currentVel, cons
             {
                 __debugbreak();
             }
-            len = (float)(missileJavAccelDescend->current.value * 0.050000001) + len;
+            len = (float)(missileJavAccelDescend->current.value * 0.05f) + len;
             if ( len > missileJavSpeedLimitDescend->current.value )
                 len = missileJavSpeedLimitDescend->current.value;
         }
@@ -4474,8 +4474,8 @@ double __cdecl JavelinRotateDir(gentity_s *ent, const float *currentDir, const f
             * 180.0;
     if ( dot > 0.1 )
     {
-        targetDPS = dot / 0.050000001;
-        if ( maxDPS <= (float)(dot / 0.050000001) )
+        targetDPS = dot / 0.05f;
+        if ( maxDPS <= (float)(dot / 0.05f) )
         {
             frac = maxDPS / targetDPS;
             if ( missileDebugText->current.enabled )

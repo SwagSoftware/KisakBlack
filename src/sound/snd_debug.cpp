@@ -13,6 +13,7 @@
 #include <universal/com_math_anglevectors.h>
 #include "snd_globals.h"
 #include "snd_utils.h"
+#include "snd_driver_xaudio2.h"
 
 cmd_function_s SND_PlayLocal_f_VAR;
 
@@ -40,20 +41,11 @@ void __cdecl SND_DebugDrawWorldSounds(int debugDrawStyle)
         closestId = -1;
         closestIdDotProd = -2.0f;
         memset(dst, 0, sizeof(dst));
-        for (idx = 0; idx < 74; ++idx)
+        for (idx = 0; idx < SND_MAX_VOICES; ++idx)
         {
             if (g_snd.voiceAliasHash[idx])
             {
-                if (!g_snd.voice[idx].alias
-                    && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp",
-                        199,
-                        0,
-                        "%s",
-                        "g_snd.voice[idx].alias"))
-                {
-                    __debugbreak();
-                }
+                iassert(g_snd.voice[idx].alias);
                 if ((g_snd.voice[idx].alias->flags & 2) >> 1)
                 {
                     if (!snd_solo_alias_substring->current.integer
@@ -72,7 +64,7 @@ void __cdecl SND_DebugDrawWorldSounds(int debugDrawStyle)
                 }
             }
         }
-        if (closestId != -1 && closestIdDotProd >= 0.93000001 && debugDrawStyle == 1)
+        if (closestId != -1 && closestIdDotProd >= 0.93f && debugDrawStyle == 1)
             DebugDrawWorldSound3D(closestId, 3, dst, 0, 0);
     }
 }
@@ -98,29 +90,16 @@ void __cdecl DebugDrawWorldSound3D(
     float origZ; // [esp+1A0h] [ebp-8h]
     const char *text; // [esp+1A4h] [ebp-4h]
 
-    if (idx >= 0x4A
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp",
-            74,
-            0,
-            "%s\n\t(idx) = %i",
-            "(( idx >= 0 ) && ( idx < (64 + 10) ))",
-            idx))
-    {
-        __debugbreak();
-    }
+    iassert(((idx >= 0) && (idx < SND_MAX_VOICES)));
+
     voice = &g_snd.voice[idx];
-    if (!voice->alias
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp", 77, 0, "%s", "voice->alias"))
-    {
-        __debugbreak();
-    }
+    iassert(voice->alias);
+
     entNum = voice->sndEnt.handle & 0xFFF;
     if (entNum > 1022)
         entNum = 1022;
-    org[0] = voice->position[0];
-    org[1] = voice->position[1];
-    org[2] = voice->position[2];
+
+    Vec3Copy(voice->position, org);
     dist = voice->baseDistance;
     fontsize = FontSizeForDistance(dist);
     if (g_snd.pausetime)
@@ -130,19 +109,10 @@ void __cdecl DebugDrawWorldSound3D(
     if (debugDrawStyle != 3)
     {
         listenerId = g_snd.voice[idx].closestListenerIndex;
-        if (!closestId
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp", 102, 0, "%s", "closestId"))
-        {
-            __debugbreak();
-        }
-        if (!closestIdDotProd
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp", 103, 0, "%s", "closestIdDotProd"))
-        {
-            __debugbreak();
-        }
-        sndDir[0] = org[0] - g_snd.listeners[listenerId].orient.origin[0];
-        sndDir[1] = org[1] - g_snd.listeners[listenerId].orient.origin[1];
-        sndDir[2] = org[2] - g_snd.listeners[listenerId].orient.origin[2];
+        iassert(closestId);
+        iassert(closestIdDotProd);
+
+        Vec3Sub(org, g_snd.listeners[listenerId].orient.origin, sndDir);
         Vec3Normalize(sndDir);
         dot = (float)((float)(sndDir[0] * g_snd.listeners[listenerId].orient.axis[0][0])
             + (float)(sndDir[1] * g_snd.listeners[listenerId].orient.axis[0][1]))
@@ -168,7 +138,7 @@ void __cdecl DebugDrawWorldSound3D(
         CL_AddDebugStarWithText(org, starColor, colorWhiteFaded, 0, fontsize, 1);
         return;
     case 3:
-        fontsize = fontsize * 0.85000002;
+        fontsize = fontsize * 0.85f;
         text = va("Details: %s %d", voice->alias->name, entNum);
         if (offsets[entNum])
             CL_AddDebugStarWithText(org, starColor, colorWhiteFaded, 0, fontsize, 1);
@@ -212,57 +182,51 @@ double __cdecl FontSizeForDistance(float distance)
     if ( distance >= 10.0 )
         return distance / 2000.0 * 3.5;
     else
-        return 0.050000001;
+        return 0.05f;
 }
 
 void __cdecl SND_PlayLocal_f()
 {
-    const char *v0; // eax
-    const char *v1; // eax
-    const char *v2; // eax
-    const char *v3; // eax
-    char *v4; // eax
-    SndEntHandle entHandle; // [esp+4Ch] [ebp-2Ch]
-    float soundDir[3]; // [esp+54h] [ebp-24h] BYREF
-    float dist; // [esp+60h] [ebp-18h]
-    float yaw; // [esp+64h] [ebp-14h]
-    float pitch; // [esp+68h] [ebp-10h]
-    float soundPos[3]; // [esp+6Ch] [ebp-Ch] BYREF
+    SndEntHandle entHandle;
+    float soundDir[3];
+    float soundPos[3];
+    float dist;
+    float yaw;
+    float pitch;
+    int argc;
 
     dist = 100.0f;
     yaw = 0.0f;
     pitch = 0.0f;
-    switch ( Cmd_Argc() )
+
+    argc = Cmd_Argc();
+
+    if (argc < 2 || argc > 5)
     {
-        case 2:
-            goto LABEL_6;
-        case 3:
-            goto $LN3_216;
-        case 4:
-            goto $LN4_213;
-        case 5:
-            v0 = Cmd_Argv(4);
-            pitch = atof(v0);
-$LN4_213:
-            v1 = Cmd_Argv(3);
-            yaw = atof(v1);
-$LN3_216:
-            v2 = Cmd_Argv(2);
-            dist = atof(v2);
-LABEL_6:
-            soundDir[0] = 1.0f;
-            soundDir[1] = 0.0f;
-            soundDir[2] = 0.0f;
-            RelativeToListener(g_snd.listeners, yaw, pitch, dist, soundPos);
-            entHandle.field = SND_EntHandle(0, 4094, 0, 0, 1, TEAM_FREE).field;
-            v4 = (char *)Cmd_Argv(1);
-            SND_Play(v4, 0, 1.0, entHandle, soundPos, soundDir, 0);
-            break;
-        default:
-            v3 = Cmd_Argv(0);
-            Com_Printf(0, "USAGE: %s <sndalias> [<dist> <yaw> <pitch>]\n", v3);
-            break;
+        Com_Printf(0, "USAGE: %s <sndalias> [<dist> <yaw> <pitch>]\n", Cmd_Argv(0));
+        return;
     }
+
+    if (argc >= 3) { dist = atof(Cmd_Argv(2)); }
+    if (argc >= 4) { yaw = atof(Cmd_Argv(3)); }
+    if (argc >= 5) { pitch = atof(Cmd_Argv(4)); }
+
+    soundDir[0] = 1.0f;
+    soundDir[1] = 0.0f;
+    soundDir[2] = 0.0f;
+
+    RelativeToListener(g_snd.listeners, yaw, pitch, dist, soundPos);
+
+    entHandle = SND_EntHandle(0, 4094, 0, 0, 1, TEAM_FREE);
+
+    SND_Play(
+        (char *)Cmd_Argv(1),
+        0,
+        1.0f,
+        entHandle,
+        soundPos,
+        soundDir,
+        0);
 }
 
 void __cdecl RelativeToListener(const snd_listener *listener, float yaw, float pitch, float dist, float *result)
@@ -277,12 +241,8 @@ void __cdecl RelativeToListener(const snd_listener *listener, float yaw, float p
     //inputAngles[1] = COERCE_FLOAT(LODWORD(yaw) ^ _mask__NegFloat_) + clientAngles[1];
     inputAngles[1] = -yaw + clientAngles[1];
     AngleVectors(inputAngles, sndDir, 0, 0);
-    *result = dist * sndDir[0];
-    result[1] = dist * sndDir[1];
-    result[2] = dist * sndDir[2];
-    *result = listener->orient.origin[0] + *result;
-    result[1] = listener->orient.origin[1] + result[1];
-    result[2] = listener->orient.origin[2] + result[2];
+    Vec3Scale(sndDir, dist, result);
+    Vec3Add(listener->orient.origin, result, result);
 }
 
 int __cdecl SND_GetSoundOverlay(snd_overlay_info *info, int start, int count)
@@ -291,17 +251,9 @@ int __cdecl SND_GetSoundOverlay(snd_overlay_info *info, int start, int count)
     snd_voice_t *voice; // [esp+10h] [ebp-Ch]
     int i; // [esp+18h] [ebp-4h]
 
-    if (count + start > 74
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp",
-            278,
-            0,
-            "%s",
-            "start+count <= SND_MAX_VOICES"))
-    {
-        __debugbreak();
-    }
-    memset(info, 0, 240 * count);
+    iassert(start + count <= SND_MAX_VOICES);
+    memset(info, 0, sizeof(snd_overlay_info) * count);
+
     for (i = 0; i < count; ++i)
     {
         voice = &g_snd.voice[start + i];
@@ -310,11 +262,7 @@ int __cdecl SND_GetSoundOverlay(snd_overlay_info *info, int start, int count)
         info[i].pszSampleName[0] = 0;
         if (g_snd.voiceAliasHash[i + start] && SND_GroupGetAttenuation(voice->group) >= SND_EPSILON)
         {
-            if (!voice->alias
-                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp", 301, 0, "%s", "voice->alias"))
-            {
-                __debugbreak();
-            }
+            iassert(voice->alias);
             SND_AliasGetFileName(voice->alias, info[i].pszSampleName, 128);
             Com_sprintf(info[i].name, 0x40u, "%s", voice->alias->name);
             info[i].channel |= (voice->alias->flags & 0xC000) >> 14 << 30;
@@ -337,13 +285,9 @@ int __cdecl SND_GetSoundOverlay(snd_overlay_info *info, int start, int count)
 
 int __cdecl SND_GetSoundOverlay(snd_overlay_type type, snd_overlay_info *info, int maxcount)
 {
-    if ( !info && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp", 328, 0, "%s", "info") )
-        __debugbreak();
-    if ( maxcount <= 0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_debug.cpp", 329, 0, "%s", "maxcount > 0") )
-    {
-        __debugbreak();
-    }
+    iassert(info);
+    iassert(maxcount > 0);
+
     if ( type == SND_OVERLAY_3D )
     {
         if ( maxcount > 64 )

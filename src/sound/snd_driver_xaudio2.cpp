@@ -717,12 +717,10 @@ char __cdecl SD_XAudio2CheckDevice(
 
 void SD_SwitchDevice()
 {
-    int deviceIndex; // [esp+0h] [ebp-4h]
-
     if ( sd_xa2_num_devices->current.integer )
     {
         iassert(g_sd.xa2);
-        deviceIndex = sd_xa2_device_indices[sd_xa2_device_guid->current.integer];
+        int deviceIndex = sd_xa2_device_indices[sd_xa2_device_guid->current.integer];
         iassert(g_sd.deviceIndex != deviceIndex);
         g_sd.deviceIndex = deviceIndex;
         g_sd.xa2->GetDeviceDetails(deviceIndex, &g_sd.details);
@@ -863,7 +861,7 @@ void SND_ShutdownMasterVoice()
 {
     g_sd.xa2->StopEngine();
 
-    for (int i = 0; i < 74; i = i + 1)
+    for (int i = 0; i < SND_MAX_VOICES; i = i + 1)
     {
         SND_StopVoice(i);
     }

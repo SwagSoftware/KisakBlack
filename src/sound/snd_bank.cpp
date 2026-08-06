@@ -445,74 +445,69 @@ snd_alias_list_t *__cdecl SND_FindRowAlias(unsigned int id)
 
 snd_group *__cdecl SND_FindRowGroup(unsigned int id)
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
-
     if ( g_snd.global_constants )
     {
-        for ( i = 0; i < g_snd.global_constants->groupCount; ++i )
+        for ( int i = 0; i < g_snd.global_constants->groupCount; ++i )
         {
             if ( g_snd.global_constants->groups[i].id == id )
                 return &g_snd.global_constants->groups[i];
         }
     }
-    return 0;
+
+    return NULL;
 }
 
 snd_curve *__cdecl SND_FindRowCurve(unsigned int id)
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
-
     if ( g_snd.global_constants )
     {
-        for ( i = 0; i < g_snd.global_constants->curveCount; ++i )
+        for ( int i = 0; i < g_snd.global_constants->curveCount; ++i )
         {
             if ( g_snd.global_constants->curves[i].id == id )
                 return &g_snd.global_constants->curves[i];
         }
     }
-    return 0;
+
+    return NULL;
 }
 
 snd_pan *__cdecl SND_FindRowPan(unsigned int id)
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
-
     if ( g_snd.global_constants )
     {
-        for ( i = 0; i < g_snd.global_constants->panCount; ++i )
+        for ( int i = 0; i < g_snd.global_constants->panCount; ++i )
         {
             if ( g_snd.global_constants->pans[i].id == id )
                 return &g_snd.global_constants->pans[i];
         }
     }
-    return 0;
+
+    return NULL;
 }
 
 snd_context *__cdecl SND_FindRowContext(unsigned int id)
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
-
-    for ( i = 0; i < g_snd.global_constants->contextCount; ++i )
+    for ( int i = 0; i < g_snd.global_constants->contextCount; ++i )
     {
         if ( g_snd.global_constants->contexts[i].type == id )
             return &g_snd.global_constants->contexts[i];
     }
-    return 0;
+
+    return NULL;
 }
 
 snd_master *__cdecl SND_FindRowMaster(unsigned int id)
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
-
     if ( g_snd.global_constants )
     {
-        for ( i = 0; i < g_snd.global_constants->masterCount; ++i )
+        for ( int i = 0; i < g_snd.global_constants->masterCount; ++i )
         {
             if ( g_snd.global_constants->masters[i].id == id )
                 return &g_snd.global_constants->masters[i];
         }
     }
-    return 0;
+
+    return NULL;
 }
 
 void *__cdecl SND_FindAsset(unsigned int table, unsigned int id)
@@ -527,54 +522,43 @@ void *__cdecl SND_FindAsset(unsigned int table, unsigned int id)
 
 void __cdecl SND_PatchValue(unsigned int table, char *asset, unsigned int field, unsigned int value)
 {
-    float *v4; // [esp+24h] [ebp-8h]
-    const snd_csv_entry_t *meta; // [esp+28h] [ebp-4h]
+    iassert(table < SND_TABLE_COUNT);
 
-    if ( table >= 9
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp",
-                    600,
-                    0,
-                    "%s",
-                    "table < SND_TABLE_COUNT") )
-    {
-        __debugbreak();
-    }
     if ( asset )
     {
-        meta = &SND_TABLE_METADATA[table][field];
-        v4 = (float *)&asset[meta->offset];
+        const snd_csv_entry_t *meta = &SND_TABLE_METADATA[table][field];
+        void *ptr = &asset[meta->offset];
         switch ( meta->type )
         {
             case SND_CSV_FLOAT:
-                *v4 = (double)value / 65535.0;
+                *(float*)ptr = (float)value / 65535.0;
                 break;
             case SND_CSV_INT:
-                *(unsigned int *)v4 = value;
+                *(uint *)ptr = value;
                 break;
             case SND_CSV_ENUM:
-                *(unsigned int *)v4 = value;
+                *(uint *)ptr = value;
                 break;
             case SND_CSV_FLAG:
-                *(unsigned int *)v4 = value;
+                *(uint *)ptr = value;
                 break;
             case SND_CSV_DBSPL:
-                *(_WORD *)v4 = (int)(SND_dBSPLToLinear(value) * 65535.0);
+                *(ushort *)ptr = (int)(SND_dBSPLToLinear(value) * 65535.0);
                 break;
             case SND_CSV_HASH:
-                *(unsigned int *)v4 = value;
+                *(uint *)ptr = value;
                 break;
             case SND_CSV_BYTE:
-                *(_BYTE *)v4 = value;
+                *(byte *)ptr = value;
                 break;
             case SND_CSV_ENUM_BYTE:
-                *(_BYTE *)v4 = value;
+                *(byte *)ptr = value;
                 break;
             case SND_CSV_SHORT:
-                *(_WORD *)v4 = value;
+                *(ushort *)ptr = value;
                 break;
             case SND_CSV_USHORT:
-                *(_WORD *)v4 = value;
+                *(ushort *)ptr = value;
                 break;
             default:
                 return;

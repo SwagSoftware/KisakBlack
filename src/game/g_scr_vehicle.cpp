@@ -948,11 +948,11 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
         if ( *move >= 0 )
             tgtVel[0] = 0.0f;
         else
-            tgtVel[0] = (float)(veh->phys.bodyVel[0] - (float)(accel * 0.050000001)) * xAccel;
+            tgtVel[0] = (float)(veh->phys.bodyVel[0] - (float)(accel * 0.05f)) * xAccel;
     }
     else
     {
-        tgtVel[0] = (float)((float)(accel * 0.050000001) + veh->phys.bodyVel[0]) * xAccel;
+        tgtVel[0] = (float)((float)(accel * 0.05f) + veh->phys.bodyVel[0]) * xAccel;
     }
     tgtVel[1] = 0.0f;
     tgtVel[2] = veh->phys.bodyVel[2];
@@ -968,7 +968,7 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
         else
             v10 = -maxSpeed;
         tgtVel[i] = v10;
-        bodyAccel[i] = (float)(tgtVel[i] - veh->phys.bodyVel[i]) / 0.050000001;
+        bodyAccel[i] = (float)(tgtVel[i] - veh->phys.bodyVel[i]) / 0.05f;
         v18 = bodyAccel[i];
         if ( (float)(v18 - accel) < 0.0 )
             v19 = bodyAccel[i];
@@ -987,11 +987,11 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
             if ( move[1] <= 0 )
                 tgtRotVel[1] = 0.0f;
             else
-                tgtRotVel[1] = (float)(veh->phys.rotVel[1] - (float)(info->rotAccel * 0.050000001)) * yAccel;
+                tgtRotVel[1] = (float)(veh->phys.rotVel[1] - (float)(info->rotAccel * 0.05f)) * yAccel;
         }
         else
         {
-            tgtRotVel[1] = (float)((float)(info->rotAccel * 0.050000001) + veh->phys.rotVel[1]) * yAccel;
+            tgtRotVel[1] = (float)((float)(info->rotAccel * 0.05f) + veh->phys.rotVel[1]) * yAccel;
         }
         if ( (float)(tgtRotVel[1] - info->rotRate) < 0.0 )
             rotRate = tgtRotVel[1];
@@ -1002,7 +1002,7 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
         else
             v7 = -info->rotRate;
         tgtRotVel[1] = v7;
-        rotAccel[1] = (float)(v7 - veh->phys.rotVel[1]) / 0.050000001;
+        rotAccel[1] = (float)(v7 - veh->phys.rotVel[1]) / 0.05f;
         v14 = rotAccel[1];
         if ( (float)(v14 - info->rotAccel) < 0.0 )
             v15 = rotAccel[1];
@@ -1023,7 +1023,7 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
 
         iassert(player->client);
 
-        tgtRotVel[1] = AngleNormalize180(player->client->ps.viewangles[1] - veh->phys.prevAngles[1]) / 0.050000001;
+        tgtRotVel[1] = AngleNormalize180(player->client->ps.viewangles[1] - veh->phys.prevAngles[1]) / 0.05f;
         if ( (float)(tgtRotVel[1] - info->rotRate) < 0.0 )
             v17 = tgtRotVel[1];
         else
@@ -1033,10 +1033,10 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
         else
             v8 = -info->rotRate;
         tgtRotVel[1] = v8;
-        rotAccel[1] = (float)(v8 - veh->phys.rotVel[1]) / 0.050000001;
+        rotAccel[1] = (float)(v8 - veh->phys.rotVel[1]) / 0.05f;
     }
     tgtRotVel[0] = 0.0f;
-    *rotAccel = (float)(0.0 - veh->phys.rotVel[0]) / 0.050000001;
+    *rotAccel = (float)(0.0 - veh->phys.rotVel[0]) / 0.05f;
     if ( (float)(*rotAccel - info->rotAccel) < 0.0 )
         v13 = *rotAccel;
     else
@@ -1047,7 +1047,7 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
         v5 = -info->rotAccel;
     *rotAccel = v5;
     tgtRotVel[2] = 0.0f;
-    rotAccel[2] = (float)(0.0 - veh->phys.rotVel[2]) / 0.050000001;
+    rotAccel[2] = (float)(0.0 - veh->phys.rotVel[2]) / 0.05f;
     v11 = rotAccel[2];
     if ( (float)(v11 - info->rotAccel) < 0.0 )
         v12 = rotAccel[2];
@@ -4616,7 +4616,7 @@ void __cdecl VEH_GroundPlant(gentity_s *ent, vehicle_physic_t *phys, int gravity
         if ( gravity )
         {
             phys->wheelZVel[i] = phys->wheelZVel[i] - 40.0;
-            phys->wheelZPos[i] = (float)(phys->wheelZVel[i] * 0.050000001) + phys->wheelZPos[i];
+            phys->wheelZPos[i] = (float)(phys->wheelZVel[i] * 0.05f) + phys->wheelZPos[i];
             if ( hitPos[2] > phys->wheelZPos[i] )
             {
                 phys->wheelZPos[i] = hitPos[2];
@@ -4677,8 +4677,8 @@ void __cdecl VEH_GroundPlant(gentity_s *ent, vehicle_physic_t *phys, int gravity
     Vec3Cross(axis[1], plane, axis[0]);
     Vec3Normalize(axis[0]);
     AxisToAngles(axis, angles);
-    phys->angles[0] = DiffTrackAngle(angles[0], phys->prevAngles[0], 6.0, 0.050000001);
-    phys->angles[2] = DiffTrackAngle(angles[2], phys->prevAngles[2], 6.0, 0.050000001);
+    phys->angles[0] = DiffTrackAngle(angles[0], phys->prevAngles[0], 6.0, 0.05f);
+    phys->angles[2] = DiffTrackAngle(angles[2], phys->prevAngles[2], 6.0, 0.05f);
     v9 = phys->angles[0];
     if ( (float)(v9 - 60.0) < 0.0 )
         v10 = phys->angles[0];
@@ -5520,12 +5520,12 @@ void __cdecl VEH_UpdateAim(gentity_s *ent)
                                                              tgtAngles[0],
                                                              prevAngles[0],
                                                              info->turretRotRate * veh->turretRotScale,
-                                                             0.050000001);
+                                                             0.05f);
             decompressedGunYaw = LinearTrackAngle(
                                                          tgtAngles[1],
                                                          prevAngles[1],
                                                          info->turretRotRate * veh->turretRotScale,
-                                                         0.050000001);
+                                                         0.05f);
             if ( vehLockTurretToPlayerView->current.enabled && player && !player->client->ps.vehiclePos )
                 decompressedGunYaw = AngleNormalize180(tgtAngles[1]);
             stopAngles[0] = decompressedGunPitch;
@@ -5739,8 +5739,8 @@ void __cdecl VEH_UpdateGunnerAim(gentity_s *ent, int gunnerIndex)
                 }
                 else
                 {
-                    pitch = LinearTrackAngle(tgtAngles[0], prevAngles[0], info->gunnerRotRate, 0.050000001);
-                    yaw = LinearTrackAngle(tgtAngles[1], prevAngles[1], info->gunnerRotRate, 0.050000001);
+                    pitch = LinearTrackAngle(tgtAngles[0], prevAngles[0], info->gunnerRotRate, 0.05f);
+                    yaw = LinearTrackAngle(tgtAngles[1], prevAngles[1], info->gunnerRotRate, 0.05f);
                 }
                 stopAngles[0] = pitch;
                 stopAngles[1] = yaw;
@@ -5786,8 +5786,8 @@ void __cdecl VEH_UpdateGunnerAim(gentity_s *ent, int gunnerIndex)
                 }
                 stopAngles[0] = AngleNormalize180(stopAngles[0] - pitch);
                 stopAngles[1] = AngleNormalize180(stopAngles[1] - yaw);
-                if ( deltaAngles[0] >= 0.050000001 && stopAngles[0] == 0.0
-                    || deltaAngles[1] >= 0.050000001 && stopAngles[1] == 0.0 )
+                if ( deltaAngles[0] >= 0.05f && stopAngles[0] == 0.0
+                    || deltaAngles[1] >= 0.05f && stopAngles[1] == 0.0 )
                 {
                     veh->gunnerTurrets[gunnerIndex].turretState = VEH_TURRET_MOVING;
                 }
@@ -6163,7 +6163,7 @@ void __cdecl VEH_UpdateBody(gentity_s *ent)
         v3 = floor((float)(intensity * veh->joltDir[0]) * 182.04445 + 0.5);
         ent->s.lerp.u.vehicle.throttle = (int)v3;
         ent->s.lerp.u.turret.gunAngles[1] = intensity * veh->joltDir[1];
-        veh->joltTime = veh->joltTime - 0.050000001;
+        veh->joltTime = veh->joltTime - 0.05f;
         veh->joltWave = veh->joltWave + 36.0;
     }
 }
@@ -6518,18 +6518,18 @@ void __cdecl VEH_UpdateClient(gentity_s *ent)
             }
         }
         VEH_CalcAccel(ent, move, bodyAccel, rotAccel);
-        veh->phys.rotVel[0] = (float)(0.050000001 * rotAccel[0]) + veh->phys.rotVel[0];
-        veh->phys.rotVel[1] = (float)(0.050000001 * rotAccel[1]) + veh->phys.rotVel[1];
-        veh->phys.rotVel[2] = (float)(0.050000001 * rotAccel[2]) + veh->phys.rotVel[2];
-        veh->phys.angles[1] = AngleNormalize180((float)(veh->phys.rotVel[1] * 0.050000001) + veh->phys.prevAngles[1]);
+        veh->phys.rotVel[0] = (float)(0.05f * rotAccel[0]) + veh->phys.rotVel[0];
+        veh->phys.rotVel[1] = (float)(0.05f * rotAccel[1]) + veh->phys.rotVel[1];
+        veh->phys.rotVel[2] = (float)(0.05f * rotAccel[2]) + veh->phys.rotVel[2];
+        veh->phys.angles[1] = AngleNormalize180((float)(veh->phys.rotVel[1] * 0.05f) + veh->phys.prevAngles[1]);
         veh->phys.angles[0] = 0.0f;
         veh->phys.angles[2] = 0.0f;
         AnglesToAxis(veh->phys.angles, axis);
         memset(axis[3], 0, sizeof(float[3]));
         MatrixTransformVector(bodyAccel, axis, worldAccel);
-        veh->phys.vel[0] = (float)(0.050000001 * worldAccel[0]) + veh->phys.vel[0];
-        veh->phys.vel[1] = (float)(0.050000001 * worldAccel[1]) + veh->phys.vel[1];
-        veh->phys.vel[2] = (float)(0.050000001 * worldAccel[2]) + veh->phys.vel[2];
+        veh->phys.vel[0] = (float)(0.05f * worldAccel[0]) + veh->phys.vel[0];
+        veh->phys.vel[1] = (float)(0.05f * worldAccel[1]) + veh->phys.vel[1];
+        veh->phys.vel[2] = (float)(0.05f * worldAccel[2]) + veh->phys.vel[2];
         if ( veh->phys.vel[0] != 0.0 || veh->phys.vel[1] != 0.0 || veh->phys.vel[2] != 0.0 )
         {
             VEH_GroundTrace(ent);
@@ -6852,14 +6852,14 @@ void    VEH_UpdatePath(gentity_s *ent)
                 speed = veh->manualSpeed;
             v33 = speed;
             tgtSpeed = speed;
-            v3 = VEH_AccelerateSpeed(veh->speed, speed, veh->manualAccel, 0.050000001);
+            v3 = VEH_AccelerateSpeed(veh->speed, speed, veh->manualAccel, 0.05f);
             veh->speed = v3;
             if (veh->manualMode == 2 && veh->speed == tgtSpeed)
                 veh->manualMode = 0;
         }
         else if ((veh->flags & 0x100) != 0)
         {
-            VEH_GetNewSpeedAndAccel(veh, 0.050000001, 0, 1.0, &veh->speed, &accel);
+            VEH_GetNewSpeedAndAccel(veh, 0.05f, 0, 1.0, &veh->speed, &accel);
         }
         else
         {
@@ -6924,11 +6924,11 @@ void    VEH_UpdatePath(gentity_s *ent)
         v20 = veh->manualTime;
         v6 = AngleNormalize180(nextVpp.angles[2] - v22);
         phys->angles[2] = v6 * v20 + v22;
-        v7 = DiffTrackAngle(phys->angles[0], phys->prevAngles[0], 6.0, 0.050000001);
+        v7 = DiffTrackAngle(phys->angles[0], phys->prevAngles[0], 6.0, 0.05f);
         phys->angles[0] = v7;
-        v8 = DiffTrackAngle(phys->angles[1], phys->prevAngles[1], 4.0, 0.050000001);
+        v8 = DiffTrackAngle(phys->angles[1], phys->prevAngles[1], 4.0, 0.05f);
         phys->angles[1] = v8;
-        v9 = DiffTrackAngle(phys->angles[2], phys->prevAngles[2], 6.0, 0.050000001);
+        v9 = DiffTrackAngle(phys->angles[2], phys->prevAngles[2], 6.0, 0.05f);
         phys->angles[2] = v9;
         if ((veh->flags & 0x100) != 0)
         {
@@ -7264,10 +7264,10 @@ void __cdecl VEH_UpdateMoveToGoal(gentity_s *ent, const float *goalPos)
         averageVel[0] = 0.5 * averageVel[0];
         averageVel[1] = 0.5 * averageVel[1];
         averageVel[2] = 0.5 * averageVel[2];
-        if ( dt < 0.050000001 )
+        if ( dt < 0.05f )
         {
-            v4 = 0.050000001 - dt;
-            phys->origin[0] = (float)((float)(0.050000001 - dt) * prevVel[0]) + phys->origin[0];
+            v4 = 0.05f - dt;
+            phys->origin[0] = (float)((float)(0.05f - dt) * prevVel[0]) + phys->origin[0];
             phys->origin[1] = (float)(v4 * prevVel[1]) + phys->origin[1];
             phys->origin[2] = (float)(v4 * prevVel[2]) + phys->origin[2];
         }
@@ -7403,7 +7403,7 @@ void __cdecl VEH_UpdateMoveOrientation(gentity_s *ent, float *desiredDir)
     accelVec[1] = veh->phys.accel[1];
     accelVec[2] = veh->phys.accel[2];
     VEH_AddFakeDrag(veh->phys.vel, veh->maxDragSpeed, accelVec);
-    horizontalAccel = Vec2Length(accelVec) / 0.050000001;
+    horizontalAccel = Vec2Length(accelVec) / 0.05f;
     Vec3Normalize(accelVec);
     angle = veh->phys.angles[1] * 0.017453292;
     bodyDir = cos(angle);
@@ -7470,7 +7470,7 @@ void __cdecl VEH_UpdateAngleAndAngularVel(
 
     angleDiff = AngleNormalize180(desiredAngle - phys->angles[index]);
     if ( (float)(0.0099999998 * 0.0099999998) <= (float)(angleDiff * angleDiff)
-        || (float)(0.050000001 * 0.050000001) <= (float)(phys->rotVel[index] * phys->rotVel[index]) )
+        || (float)(0.05f * 0.05f) <= (float)(phys->rotVel[index] * phys->rotVel[index]) )
     {
         absCurAngleVel = fabs(phys->rotVel[index]);
         targetAngleVel = phys->maxAngleVel[index];
@@ -7510,11 +7510,11 @@ void __cdecl VEH_UpdateAngleAndAngularVel(
             //LODWORD(targetAngleVel) ^= _mask__NegFloat_;
             targetAngleVel = -targetAngleVel;
         }
-        if ( (float)(effectiveAccel * 0.050000001) <= absCurAngleVel
-            || (float)(absCurAngleVel * 0.050000001) <= fabs(angleDiff) )
+        if ( (float)(effectiveAccel * 0.05f) <= absCurAngleVel
+            || (float)(absCurAngleVel * 0.05f) <= fabs(angleDiff) )
         {
-            phys->rotVel[index] = VEH_AccelerateSpeed(phys->rotVel[index], targetAngleVel, effectiveAccel, 0.050000001);
-            phys->angles[index] = (float)(phys->rotVel[index] * 0.050000001) + phys->angles[index];
+            phys->rotVel[index] = VEH_AccelerateSpeed(phys->rotVel[index], targetAngleVel, effectiveAccel, 0.05f);
+            phys->angles[index] = (float)(phys->rotVel[index] * 0.05f) + phys->angles[index];
             phys->angles[index] = AngleNormalize180(phys->angles[index]);
         }
         else
@@ -7694,7 +7694,7 @@ void __cdecl VEH_CheckHorizontalVelocityToGoal(
                     newSpeed > 0.0) )
         {
             oldSpeed = Vec2Length(phys->vel);
-            requiredDecel = (float)((float)(horizontalSpeed * horizontalSpeed) / (float)(2.0 * horizontalDist)) * 0.050000001;
+            requiredDecel = (float)((float)(horizontalSpeed * horizontalSpeed) / (float)(2.0 * horizontalDist)) * 0.05f;
             if ( requiredDecel > fabs(newSpeed - oldSpeed) )
             {
                 newVel[0] = (float)((float)(oldSpeed - requiredDecel) / newSpeed) * newVel[0];
@@ -7787,8 +7787,8 @@ void __cdecl VEH_CheckVerticalVelocityToGoal(scr_vehicle_s *veh, float verticalD
         && (float)(verticalDist * verticalSpeed) > 0.0 )
     {
         desiredStoppingTime = verticalDist / (float)(verticalSpeed * 0.5);
-        //if ( (float)((float)(verticalSpeed * 0.050000001) / COERCE_FLOAT(*((unsigned int *)accelVec + 2) ^ _mask__NegFloat_)) > desiredStoppingTime )
-        if ( (float)((float)(verticalSpeed * 0.050000001) / -accelVec[2]) > desiredStoppingTime)
+        //if ( (float)((float)(verticalSpeed * 0.05f) / COERCE_FLOAT(*((unsigned int *)accelVec + 2) ^ _mask__NegFloat_)) > desiredStoppingTime )
+        if ( (float)((float)(verticalSpeed * 0.05f) / -accelVec[2]) > desiredStoppingTime)
         {
             if ( desiredStoppingTime == 0.0
                 && !Assert_MyHandler(
@@ -7800,14 +7800,14 @@ void __cdecl VEH_CheckVerticalVelocityToGoal(scr_vehicle_s *veh, float verticalD
             {
                 __debugbreak();
             }
-            breakingAccel = (float)((-(verticalSpeed)) * 0.050000001) / desiredStoppingTime;
+            breakingAccel = (float)((-(verticalSpeed)) * 0.05f) / desiredStoppingTime;
             if ( (float)(breakingAccel * breakingAccel) > (float)(accelVec[2] * accelVec[2]) )
             {
-                accelerationCap = (float)(veh->manualAccel * 0.050000001) * 3.0;
+                accelerationCap = (float)(veh->manualAccel * 0.05f) * 3.0;
                 if ( (float)(breakingAccel - accelerationCap) < 0.0 )
-                    v4 = (float)((-(verticalSpeed)) * 0.050000001) / desiredStoppingTime;
+                    v4 = (float)((-(verticalSpeed)) * 0.05f) / desiredStoppingTime;
                 else
-                    v4 = (float)(veh->manualAccel * 0.050000001) * 3.0;
+                    v4 = (float)(veh->manualAccel * 0.05f) * 3.0;
                 if ( (float)((-(accelerationCap)) - breakingAccel) < 0.0 )
                     v3 = v4;
                 else
@@ -7861,7 +7861,7 @@ LABEL_20:
             return 1;
         }
     }
-    else if ( (float)(veh->speed * 0.050000001) >= distToGoal )
+    else if ( (float)(veh->speed * 0.05f) >= distToGoal )
     {
         if ( info->type != 6 && !veh->nitrousVehicle )
             veh->moveState = VEH_MOVESTATE_STOP;
@@ -7880,7 +7880,7 @@ double __cdecl VEH_UpdateMove_CheckStop(scr_vehicle_s *veh, float distToGoal)
     float stopDist; // [esp+28h] [ebp-4h]
 
     dt = 0.05f;
-    newSpeed = VEH_AccelerateSpeed(veh->speed, veh->manualSpeed, veh->manualAccel, 0.050000001);
+    newSpeed = VEH_AccelerateSpeed(veh->speed, veh->manualSpeed, veh->manualAccel, 0.05f);
     if ( veh->manualDecel == 0.0
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\game\\g_scr_vehicle.cpp",
@@ -7892,7 +7892,7 @@ double __cdecl VEH_UpdateMove_CheckStop(scr_vehicle_s *veh, float distToGoal)
         __debugbreak();
     }
     stopDist = (float)(newSpeed * 0.5) * (float)(newSpeed / veh->manualDecel);
-    if ( stopDist < (float)(distToGoal - (float)(newSpeed * 0.050000001)) || veh->speed <= 0.0 )
+    if ( stopDist < (float)(distToGoal - (float)(newSpeed * 0.05f)) || veh->speed <= 0.0 )
     {
         veh->stopping = 0;
     }
@@ -7905,9 +7905,9 @@ double __cdecl VEH_UpdateMove_CheckStop(scr_vehicle_s *veh, float distToGoal)
             {
                 __debugbreak();
             }
-            dta = 0.050000001 - (float)((float)(distToGoal - stopDist) / veh->speed);
-            if ( (float)(dta - 0.050000001) < 0.0 )
-                v4 = 0.050000001 - (float)((float)(distToGoal - stopDist) / veh->speed);
+            dta = 0.05f - (float)((float)(distToGoal - stopDist) / veh->speed);
+            if ( (float)(dta - 0.05f) < 0.0 )
+                v4 = 0.05f - (float)((float)(distToGoal - stopDist) / veh->speed);
             else
                 v4 = 0.05f;
             if ( (float)(0.0 - dta) < 0.0 )
@@ -8062,8 +8062,8 @@ void __cdecl VEH_UpdatePlaneOnCurve(gentity_s *ent)
     length = 0.0f;
     veh = ent->scr_vehicle;
     phys = &veh->phys;
-    VEH_GetNewSpeedAndAccel(veh, 0.050000001, 0, 1.0, &newSpeed, &accelMax);
-    frameDist = newSpeed * 0.050000001;
+    VEH_GetNewSpeedAndAccel(veh, 0.05f, 0, 1.0, &newSpeed, &accelMax);
+    frameDist = newSpeed * 0.05f;
     curveTime = veh->phys.curveTime;
     prevPos[0] = veh->phys.origin[0];
     prevPos[1] = veh->phys.origin[1];
@@ -8241,7 +8241,7 @@ void __cdecl VEH_UpdatePlaneRoll(gentity_s *ent)
     {
         Com_Error(ERR_DROP, "Can not set roll on non moving plane. ");
     }
-    veh->currentRollTime = veh->currentRollTime + 0.050000001;
+    veh->currentRollTime = veh->currentRollTime + 0.05f;
     //v2 = __libm_sse2_sin((float)((float)((float)(90.0 * veh->currentRollTime) / veh->goalRollTime) * 0.017453292));
     v2 = sin((float)((float)((float)(90.0 * veh->currentRollTime) / veh->goalRollTime) * 0.017453292));
     veh->phys.angles[2] = veh->goalRoll * v2;
@@ -8275,7 +8275,7 @@ void __cdecl VEH_UpdatePlaneFree(gentity_s *ent)
     dir[1] = veh->phys.vel[1];
     dir[2] = veh->phys.vel[2];
     Vec3Normalize(dir);
-    dist = veh->speed * 0.050000001;
+    dist = veh->speed * 0.05f;
     dir[0] = dist * dir[0];
     dir[1] = dist * dir[1];
     dir[2] = dist * dir[2];
@@ -8318,7 +8318,7 @@ void __cdecl VEH_UpdateChopperPathDrive(gentity_s *ent)
     veh->pathPos.origin[1] = veh->phys.origin[1];
     if ( veh->pathTransitionTime > 0.0 )
     {
-        veh->pathTransitionTime = veh->pathTransitionTime - 0.050000001;
+        veh->pathTransitionTime = veh->pathTransitionTime - 0.05f;
         transitionTimeFrac = 1.0 - (float)(veh->pathTransitionTime / vehHelicopterPathTransitionTime->current.value);
         if ( transitionTimeFrac >= 1.0 )
         {
@@ -9725,9 +9725,9 @@ void __cdecl VEH_GenerateCurveForPlane(gentity_s *ent, float (*goals)[3], int nu
     *(_QWORD *)&nodes[0][0] = *(_QWORD *)veh->phys.origin;
     nodes[0][2] = veh->phys.origin[2];
     AngleVectors(veh->phys.angles, nodes[1], 0, 0);
-    nodes[1][0] = (float)(distToGoal * 0.050000001) * nodes[1][0];
-    nodes[1][1] = (float)(distToGoal * 0.050000001) * nodes[1][1];
-    nodes[1][2] = (float)(distToGoal * 0.050000001) * nodes[1][2];
+    nodes[1][0] = (float)(distToGoal * 0.05f) * nodes[1][0];
+    nodes[1][1] = (float)(distToGoal * 0.05f) * nodes[1][1];
+    nodes[1][2] = (float)(distToGoal * 0.05f) * nodes[1][2];
     nodes[1][0] = veh->phys.origin[0] + nodes[1][0];
     nodes[1][1] = veh->phys.origin[1] + nodes[1][1];
     nodes[1][2] = veh->phys.origin[2] + nodes[1][2];

@@ -5122,7 +5122,7 @@ double __cdecl CG_UpdateAdsDofValue(float currentValue, float targetValue, float
     float changeVala; // [esp+0h] [ebp-4h]
     float maxChangea; // [esp+14h] [ebp+10h]
 
-    maxChangea = (float)(maxChange / 0.050000001) * dt;
+    maxChangea = (float)(maxChange / 0.05f) * dt;
     if ( currentValue <= targetValue )
     {
         if ( targetValue > currentValue )

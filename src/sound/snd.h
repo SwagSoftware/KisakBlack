@@ -10,6 +10,8 @@
 
 #define SND_EPSILON 0.0000152879
 
+#define SND_INVALID_CURVE -1
+
 enum snd_flux_type_t : __int32
 {                                       // XREF: SND_SetVoiceStartFlux/r
     SND_FLUX_TYPE_NONE             = 0x0,

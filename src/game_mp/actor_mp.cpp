@@ -3289,7 +3289,7 @@ double __cdecl Actor_CalcultatePlayerPushDelta(const actor_s *self, const gentit
     }
     if ( speed < 60.0 )
         speed = ACTOR_PLAYER_PUSH_MIN_SPEED;
-    return (float)(speed * 0.050000001);
+    return (float)(speed * 0.05f);
 }
 
 int __fastcall Actor_PhysicsCheckMoveAwayNoWorse(
@@ -4410,7 +4410,7 @@ void __fastcall Actor_PredictOriginAndAngles(actor_s *self)
     }
     Actor_UpdateAnglesAndDelta(self);
     Actor_DoMove(self);
-    SV_DObjInitServerTime(ent, 0.050000001);
+    SV_DObjInitServerTime(ent, 0.05f);
 }
 
 void __fastcall Actor_PredictAnim(actor_s *self)

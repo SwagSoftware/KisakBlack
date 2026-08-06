@@ -535,7 +535,7 @@ void __cdecl CG_ScanForCrosshairEntityInternal(int localClientNum)
                 && cgameGlob->predictedPlayerState.fWeaponPosFrac != 1.0
                 && (cgameGlob->predictedPlayerState.eFlags2 & 0x10000000) == 0 )
             {
-                Vec3Lerp(start, end, 0.050000001, start);
+                Vec3Lerp(start, end, 0.05f, start);
             }
         }
         ////col_context_t::col_context_t(&context);

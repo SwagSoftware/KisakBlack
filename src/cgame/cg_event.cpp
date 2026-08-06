@@ -925,7 +925,7 @@ void __cdecl CG_EntityEvent(int localClientNum, centity_s *cent, int event)
                 case EV_FIRE_WEAPON_MG42:
                 case EV_FIRE_WEAPON_MG42A:
                     eType = ET_PLAYER;
-                    CG_StartShakeCamera(localClientNum, 0.050000001, 100, cent->pose.origin, 100.0);
+                    CG_StartShakeCamera(localClientNum, 0.05f, 100, cent->pose.origin, 100.0);
                     if (event == 47)
                         CG_FireWeapon(localClientNum, cent, 47, scr_const.tag_flash, 0, &cgameGlob->nextSnap->ps, 0);
                     else
@@ -1596,7 +1596,7 @@ void __cdecl CG_EntityEvent(int localClientNum, centity_s *cent, int event)
                     CScr_NotifyNum(localClientNum, p_nextState->number, 0, cscr_const.face_shoot_single, 0);
                     v105 = 1;
                     CG_FireWeapon(localClientNum, cent, event, scr_const.tag_flash, 0, &cgameGlob->nextSnap->ps, 0);
-                    CG_StartShakeCamera(localClientNum, 0.050000001, 100, cent->pose.origin, 100.0);
+                    CG_StartShakeCamera(localClientNum, 0.05f, 100, cent->pose.origin, 100.0);
                     CG_CompassAddVehicleWeaponPingInfo(localClientNum, cent, cent->pose.origin, 50);
                     return;
                 case EV_FIRE_GUNNER_1:
@@ -1628,7 +1628,7 @@ void __cdecl CG_EntityEvent(int localClientNum, centity_s *cent, int event)
                         0);
                     if (cent->vehicle)
                         cent->vehicle->lastGunnerFire[gunnerIndex] = cgameGlob->time;
-                    CG_StartShakeCamera(localClientNum, 0.050000001, 100, cent->pose.origin, 100.0);
+                    CG_StartShakeCamera(localClientNum, 0.05f, 100, cent->pose.origin, 100.0);
                     v103 = CG_GetEntity(localClientNum, eventParm);
                     if (v103
                         && ((*((_DWORD *)v103 + 201) >> 1) & 1) != 0

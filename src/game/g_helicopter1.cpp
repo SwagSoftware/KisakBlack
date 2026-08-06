@@ -692,11 +692,11 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
         }
     }
     HELI_CalcAccel(ent, move, bodyAccel, rotAccel, viewangles);
-    phys->rotVel[1] = (float)(rotAccel[1] * 0.050000001) + phys->rotVel[1];
+    phys->rotVel[1] = (float)(rotAccel[1] * 0.05f) + phys->rotVel[1];
     if ( vehHelicopterAlwaysFaceCamera->current.enabled )
         phys->rotVel[1] = phys->rotVel[1]
-                                        - (float)((float)(phys->rotVel[1] * 0.050000001) * vehHelicopterRotDecel->current.value);
-    v2 = AngleNormalize180((float)(phys->rotVel[1] * 0.050000001) + phys->prevAngles[1]);
+                                        - (float)((float)(phys->rotVel[1] * 0.05f) * vehHelicopterRotDecel->current.value);
+    v2 = AngleNormalize180((float)(phys->rotVel[1] * 0.05f) + phys->prevAngles[1]);
     phys->angles[1] = v2;
     phys->angles[0] = rotAccel[0];
     phys->angles[2] = rotAccel[2];
@@ -722,9 +722,9 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
         HELI_SoftenCollisions(ent, worldAccel);
     vel = phys->vel;
     v17 = phys->vel;
-    phys->vel[0] = (float)(0.050000001 * worldAccel[0]) + phys->vel[0];
-    vel[1] = (float)(0.050000001 * worldAccel[1]) + v17[1];
-    vel[2] = (float)(0.050000001 * worldAccel[2]) + v17[2];
+    phys->vel[0] = (float)(0.05f * worldAccel[0]) + phys->vel[0];
+    vel[1] = (float)(0.05f * worldAccel[1]) + v17[1];
+    vel[2] = (float)(0.05f * worldAccel[2]) + v17[2];
     if ( phys->vel[0] != 0.0 || phys->vel[1] != 0.0 || phys->vel[2] != 0.0 )
     {
         startVel[0] = phys->vel[0];
@@ -738,9 +738,9 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
         bumped = v3;
         if ( v3 )
         {
-            collision[0] = (float)(0.050000001 * startVel[0]) + startPos[0];
-            collision[1] = (float)(0.050000001 * startVel[1]) + startPos[1];
-            collision[2] = (float)(0.050000001 * startVel[2]) + startPos[2];
+            collision[0] = (float)(0.05f * startVel[0]) + startPos[0];
+            collision[1] = (float)(0.05f * startVel[1]) + startPos[1];
+            collision[2] = (float)(0.05f * startVel[2]) + startPos[2];
             collision[0] = phys->origin[0] - collision[0];
             collision[1] = phys->origin[1] - collision[1];
             collision[2] = phys->origin[2] - collision[2];
@@ -907,17 +907,17 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
     newDecel[1] = 0.0f;
     for ( axis = 0; axis < 2; ++axis )
     {
-        nextState = DiffTrack(0.0, velOrthogonal[axis], decel[axis] * track[axis], 0.050000001);
-        newDecel[axis] = (float)(nextState - velOrthogonal[axis]) / 0.050000001;
+        nextState = DiffTrack(0.0, velOrthogonal[axis], decel[axis] * track[axis], 0.05f);
+        newDecel[axis] = (float)(nextState - velOrthogonal[axis]) / 0.05f;
         if ( tgtSpeed <= speedParallel )
         {
-            nextState = DiffTrack(tgtVel[axis], velParallel[axis], decel[axis] * track[axis], 0.050000001);
-            newDecel[axis] = (float)((float)(nextState - velParallel[axis]) / 0.050000001) + newDecel[axis];
+            nextState = DiffTrack(tgtVel[axis], velParallel[axis], decel[axis] * track[axis], 0.05f);
+            newDecel[axis] = (float)((float)(nextState - velParallel[axis]) / 0.05f) + newDecel[axis];
         }
         else
         {
-            nextState = DiffTrack(tgtVel[axis], velParallel[axis], track[axis], 0.050000001);
-            newAccel[axis] = (float)((float)(nextState - velParallel[axis]) / 0.050000001) + newAccel[axis];
+            nextState = DiffTrack(tgtVel[axis], velParallel[axis], track[axis], 0.05f);
+            newAccel[axis] = (float)((float)(nextState - velParallel[axis]) / 0.05f) + newAccel[axis];
         }
         bodyAccel[axis] = newDecel[axis] + newAccel[axis];
         v25 = bodyAccel[axis];
@@ -951,8 +951,8 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
             v10 = -maxAccel[axis];
         newAccel[axis] = v10;
     }
-    nextState = DiffTrack(tgtVel[2], phys->bodyVel[2], track[2], 0.050000001);
-    bodyAccel[2] = (float)(nextState - phys->bodyVel[2]) / 0.050000001;
+    nextState = DiffTrack(tgtVel[2], phys->bodyVel[2], track[2], 0.05f);
+    bodyAccel[2] = (float)(nextState - phys->bodyVel[2]) / 0.05f;
     v19 = bodyAccel[2];
     if ( (float)(v19 - maxAccel[2]) < 0.0 )
         v20 = bodyAccel[2];
@@ -986,8 +986,8 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
     else
         tgt = -info->rotRate;
     tgtYawVel = tgt;
-    nextState = DiffTrack(tgt, phys->rotVel[1], track[3], 0.050000001);
-    rotAccel[1] = (float)(nextState - phys->rotVel[1]) / 0.050000001;
+    nextState = DiffTrack(tgt, phys->rotVel[1], track[3], 0.05f);
+    rotAccel[1] = (float)(nextState - phys->rotVel[1]) / 0.05f;
     v16 = rotAccel[1];
     if ( (float)(v16 - info->accel) < 0.0 )
         accel = rotAccel[1];
@@ -1130,12 +1130,12 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
     tiltAccel[1] = (float)(v13 * phys->worldTiltVel[1]) + tiltAccel[1];
     oldTiltVel[0] = phys->worldTiltVel[0];
     oldTiltVel[1] = phys->worldTiltVel[1];
-    phys->worldTiltVel[0] = (float)(0.050000001 * tiltAccel[0]) + phys->worldTiltVel[0];
-    phys->worldTiltVel[1] = (float)(0.050000001 * tiltAccel[1]) + phys->worldTiltVel[1];
+    phys->worldTiltVel[0] = (float)(0.05f * tiltAccel[0]) + phys->worldTiltVel[0];
+    phys->worldTiltVel[1] = (float)(0.05f * tiltAccel[1]) + phys->worldTiltVel[1];
     oldTiltVel[0] = (float)(oldTiltVel[0] + phys->worldTiltVel[0]) * 0.5;
     oldTiltVel[1] = (float)(oldTiltVel[1] + phys->worldTiltVel[1]) * 0.5;
-    phys->worldTilt[0] = (float)(0.050000001 * oldTiltVel[0]) + phys->worldTilt[0];
-    phys->worldTilt[1] = (float)(0.050000001 * oldTiltVel[1]) + phys->worldTilt[1];
+    phys->worldTilt[0] = (float)(0.05f * oldTiltVel[0]) + phys->worldTilt[0];
+    phys->worldTilt[1] = (float)(0.05f * oldTiltVel[1]) + phys->worldTilt[1];
     MatrixTransposeTransformVector43(phys->worldTilt, bodyMat, targetTilt);
     *rotAccel = targetTilt[0] * info->maxBodyPitch;
     rotAccel[2] = targetTilt[1] * info->maxBodyRoll;
@@ -1244,7 +1244,7 @@ void __cdecl HELI_UpdateJitter(VehicleJitter *jitter)
     {
         if ( level.time > jitter->jitterEndTime )
         {
-            if ( (float)jitter->jitterPeriodMin < 0.050000001 )
+            if ( (float)jitter->jitterPeriodMin < 0.05f )
                 jitter->jitterPeriodMin = 50;
             jitterDelay = G_irand(jitter->jitterPeriodMin, jitter->jitterPeriodMax);
             jitter->jitterEndTime = jitterDelay + level.time;
@@ -1283,7 +1283,7 @@ void __cdecl HELI_UpdateJitter(VehicleJitter *jitter)
                          jitter->jitterAccel[i],
                          jitter->jitterPos[i],
                          vehHelicopterJitterJerkyness->current.value,
-                         0.050000001);
+                         0.05f);
             jitter->jitterPos[i] = v2;
         }
     }
@@ -1317,13 +1317,13 @@ void __cdecl HELI_SoftenCollisions(gentity_s *ent, float *worldAccel)
         oldVel[0] = veh->phys.vel[0];
         oldVel[1] = veh->phys.vel[1];
         oldVel[2] = veh->phys.vel[2];
-        v3 = vehHelicopterLookaheadTime->current.value / 0.050000001;
+        v3 = vehHelicopterLookaheadTime->current.value / 0.05f;
         veh->phys.vel[0] = v3 * veh->phys.vel[0];
         veh->phys.vel[1] = v3 * veh->phys.vel[1];
         veh->phys.vel[2] = v3 * veh->phys.vel[2];
-        targetPos[0] = (float)(0.050000001 * veh->phys.vel[0]) + veh->phys.origin[0];
-        targetPos[1] = (float)(0.050000001 * veh->phys.vel[1]) + veh->phys.origin[1];
-        targetPos[2] = (float)(0.050000001 * veh->phys.vel[2]) + veh->phys.origin[2];
+        targetPos[0] = (float)(0.05f * veh->phys.vel[0]) + veh->phys.origin[0];
+        targetPos[1] = (float)(0.05f * veh->phys.vel[1]) + veh->phys.origin[1];
+        targetPos[2] = (float)(0.05f * veh->phys.vel[2]) + veh->phys.origin[2];
         clipped = VEH_TestSlideMove(ent, clippedPos);
         veh->phys.vel[0] = oldVel[0];
         veh->phys.vel[1] = oldVel[1];
@@ -1642,11 +1642,11 @@ void __cdecl VEH_UpdateClientPlane(gentity_s *ent)
             }
         }
         AnglesToAxis(phys->angles, target_axis);
-        desiredRoll = (float)(info->maxBodyRoll * 0.050000001) * rollStick;
-        desiredPitch = (float)(info->maxBodyPitch * 0.050000001) * pitchStick;
-        desiredYaw = (float)(info->rotRate * 0.050000001) * yawStick;
-        actualRoll = DiffTrack(desiredRoll, phys->rotVel[2], vehPlaneRollAccel->current.value, 0.050000001);
-        actualYaw = DiffTrack(desiredYaw, phys->rotVel[1], info->rotRate, 0.050000001);
+        desiredRoll = (float)(info->maxBodyRoll * 0.05f) * rollStick;
+        desiredPitch = (float)(info->maxBodyPitch * 0.05f) * pitchStick;
+        desiredYaw = (float)(info->rotRate * 0.05f) * yawStick;
+        actualRoll = DiffTrack(desiredRoll, phys->rotVel[2], vehPlaneRollAccel->current.value, 0.05f);
+        actualYaw = DiffTrack(desiredYaw, phys->rotVel[1], info->rotRate, 0.05f);
         actualYaw = actualYaw - (float)(actualRoll * vehPlaneYawFromRollScale->current.value);
         up[0] = 0.0f;
         up[1] = 0.0f;
@@ -1655,10 +1655,10 @@ void __cdecl VEH_UpdateClientPlane(gentity_s *ent)
                          + (float)(target_axis[2][2] * 1.0);
         if ( dotOffUp < 0.0 )
             dotOffUp = 0.0f;
-        actualPitch = DiffTrack(desiredPitch, phys->rotVel[0], vehPlanePitchAccel->current.value, 0.050000001);
+        actualPitch = DiffTrack(desiredPitch, phys->rotVel[0], vehPlanePitchAccel->current.value, 0.05f);
         actualPitcha = Vehicle_GetFakeLift(target_axis[0], target_axis[2]) + actualPitch;
         Vehicle_AddRotate(phys, actualRoll, actualPitcha, actualYaw);
-        desiredDelta = (float)(0.050000001 * speedStick) * info->accel;
+        desiredDelta = (float)(0.05f * speedStick) * info->accel;
         phys->bodyVel[0] = phys->bodyVel[0] + desiredDelta;
         if ( vehPlaneLowSpeed->current.value > phys->bodyVel[0] )
             phys->bodyVel[0] = vehPlaneLowSpeed->current.value;
@@ -1671,24 +1671,24 @@ void __cdecl VEH_UpdateClientPlane(gentity_s *ent)
         end[0] = (float)(0.5 * phys->vel[0]) + phys->origin[0];
         end[1] = (float)(0.5 * phys->vel[1]) + phys->origin[1];
         end[2] = (float)(0.5 * phys->vel[2]) + phys->origin[2];
-        end[0] = (float)(0.050000001 * phys->vel[0]) + phys->origin[0];
-        end[1] = (float)(0.050000001 * phys->vel[1]) + phys->origin[1];
-        end[2] = (float)(0.050000001 * phys->vel[2]) + phys->origin[2];
+        end[0] = (float)(0.05f * phys->vel[0]) + phys->origin[0];
+        end[1] = (float)(0.05f * phys->vel[1]) + phys->origin[1];
+        end[2] = (float)(0.05f * phys->vel[2]) + phys->origin[2];
         gravityVec[0] = 0.0f;
         gravityVec[1] = 0.0f;
         gravityVec[2] = -1.0f;
         gravityVec[0] = 0.0 * vehPlaneGravityForce->current.value;
         gravityVec[1] = 0.0 * vehPlaneGravityForce->current.value;
         gravityVec[2] = -1.0 * vehPlaneGravityForce->current.value;
-        end[0] = (float)(0.050000001 * gravityVec[0]) + end[0];
-        end[1] = (float)(0.050000001 * gravityVec[1]) + end[1];
-        end[2] = (float)(0.050000001 * gravityVec[2]) + end[2];
+        end[0] = (float)(0.05f * gravityVec[0]) + end[0];
+        end[1] = (float)(0.05f * gravityVec[1]) + end[1];
+        end[2] = (float)(0.05f * gravityVec[2]) + end[2];
         upVec[0] = target_axis[2][0] * vehPlaneLiftForce->current.value;
         upVec[1] = target_axis[2][1] * vehPlaneLiftForce->current.value;
         upVec[2] = target_axis[2][2] * vehPlaneLiftForce->current.value;
-        end[0] = (float)(0.050000001 * upVec[0]) + end[0];
-        end[1] = (float)(0.050000001 * upVec[1]) + end[1];
-        end[2] = (float)(0.050000001 * upVec[2]) + end[2];
+        end[0] = (float)(0.05f * upVec[0]) + end[0];
+        end[1] = (float)(0.05f * upVec[1]) + end[1];
+        end[2] = (float)(0.05f * upVec[2]) + end[2];
         memset(zerovec, 0, sizeof(zerovec));
         VEH_CheckForCrash(ent, end);
         phys->origin[0] = end[0];

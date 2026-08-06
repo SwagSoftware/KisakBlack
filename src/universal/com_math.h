@@ -274,6 +274,7 @@ bool __cdecl Vec3IsNormalized(const float *v);
 void __cdecl Vec3Scale(const float *v, float scale, float *result);
 void __cdecl Vec3Avg(const float *a, const float *b, float *sum);
 void __cdecl Vec3Mul(const float *a, const float *b, float *product);
+void __cdecl Vec3ScaleAdd(const float *base, const float *dir, float scale, float *dst);
 void __cdecl Vec3Mad(const float *start, float scale, const float *dir, float *result);
 #define VectorMA(...) \
     typedef char VectorMA_From_Quake_Is_Vec3Mad_same_args_though[-1]
