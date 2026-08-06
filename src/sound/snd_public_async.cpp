@@ -12,6 +12,7 @@
 
 #include <Windows.h>
 #include "snd_local.h"
+#include "snd_driver_xaudio2.h"
 
 volatile unsigned int updatesound_workerLimit = 1;
 jqModule updatesound_workerModule =
@@ -21,8 +22,6 @@ jqModule updatesound_workerModule =
     .Code = (int(__cdecl *)(jqBatch *))updatesound_workerCallback,
 };
 jqWorkerCmd updatesound_workerWorkerCmd = { &updatesound_workerModule, 4u, 0, 0, &updatesound_workerLimit, NULL, 0u };
-
-
 
 volatile unsigned int entryCount;
 
@@ -38,77 +37,19 @@ void __cdecl SND_PlayInternal(
 {
     snd_command *cmd; // [esp+44h] [ebp-4h]
 
-    if ( (*(_WORD *)&entHandle.field & 0xFFFu) >= 0x600
-        && (*(_WORD *)&entHandle.field & 0xFFF) != 0xFFF
-        && (*(_WORD *)&entHandle.field & 0xFFF) != 0xFFE
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    66,
-                    0,
-                    "%s",
-                    "entHandle.field.entIndex < MAX_LOCAL_CENTITIES || entHandle.field.entIndex == SND_ENT_NONE || entHandle.field."
-                    "entIndex == SND_ENT_NO_STOP") )
-    {
-        __debugbreak();
-    }
-    if ( (*(_WORD *)&entHandle.field & 0xFFFu) >= 0x600
-        && (*(_WORD *)&entHandle.field & 0xFFF) != 0xFFF
-        && (*(_WORD *)&entHandle.field & 0xFFF) != 0xFFE )
+    iassert(entHandle.field.entIndex < MAX_LOCAL_CENTITIES || entHandle.field.entIndex == SND_ENT_NONE || entHandle.field.entIndex == SND_ENT_NO_STOP);
+
+    if (!(entHandle.field.entIndex < MAX_LOCAL_CENTITIES || entHandle.field.entIndex == SND_ENT_NONE || entHandle.field.entIndex == SND_ENT_NO_STOP))
     {
         Com_Error(ERR_DROP, "Invalid sound handle");
     }
     if ( SND_Active() && id )
     {
-        if ( fadeTimeMs >= 0x7FFF
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        88,
-                        0,
-                        "%s",
-                        "fadeTimeMs < 32767") )
-        {
-            __debugbreak();
-        }
-        if ( fadeTimeMs <= -32767
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        89,
-                        0,
-                        "%s",
-                        "fadeTimeMs > -32767") )
-        {
-            __debugbreak();
-        }
-        if ( (LODWORD(attenuation) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        90,
-                        0,
-                        "%s",
-                        "!IS_NAN(attenuation)") )
-        {
-            __debugbreak();
-        }
-        if ( attenuation < 0.0
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        91,
-                        0,
-                        "%s",
-                        "attenuation >= 0.0f") )
-        {
-            __debugbreak();
-        }
-        if ( attenuation > 1.0
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        92,
-                        0,
-                        "%s",
-                        "attenuation <= 1.0f") )
-        {
-            __debugbreak();
-        }
+        iassert(fadeTimeMs < 32767);
+        iassert(fadeTimeMs > -32767);
+        iassert(!IS_NAN(attenuation));
+        iassert(attenuation >= 0.0f);
+        iassert(attenuation <= 1.0f);
 
         if (position)
         {
@@ -119,6 +60,7 @@ void __cdecl SND_PlayInternal(
             nanassertvec3(direction);
         }
 
+#ifdef _DEBUG
         if ( snd_assert_on_enqueue
             && snd_assert_on_enqueue->current.integer
             && *(_BYTE *)snd_assert_on_enqueue->current.integer
@@ -132,17 +74,12 @@ void __cdecl SND_PlayInternal(
         {
             __debugbreak();
         }
-        if ( playback
-            && playback->id == -1
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        109,
-                        0,
-                        "%s",
-                        "playback->id != SND_PLAYBACKID_NOTPLAYED") )
+#endif
+        if (playback)
         {
-            __debugbreak();
+            iassert(playback->id != SND_PLAYBACKID_NOTPLAYED);
         }
+
         cmd = SND_GetNewCommand();
         if ( cmd )
         {
@@ -157,29 +94,21 @@ void __cdecl SND_PlayInternal(
             {
                 nanassertvec3(position);
 
-                cmd->context.play.position[0] = *position;
-                cmd->context.play.position[1] = position[1];
-                cmd->context.play.position[2] = position[2];
+                Vec3Copy(position, cmd->context.play.position);
             }
             else
             {
-                cmd->context.play.position[0] = 0.0f;
-                cmd->context.play.position[1] = 0.0f;
-                cmd->context.play.position[2] = 0.0f;
+                Vec3Clear(cmd->context.play.position);
             }
             if ( direction )
             {
                 nanassertvec3(direction);
 
-                cmd->context.play.direction[0] = *direction;
-                cmd->context.play.direction[1] = direction[1];
-                cmd->context.play.direction[2] = direction[2];
+                Vec3Copy(direction, cmd->context.play.direction);
             }
             else
             {
-                cmd->context.play.direction[0] = 0.0f;
-                cmd->context.play.direction[1] = 0.0f;
-                cmd->context.play.direction[2] = 0.0f;
+                Vec3Clear(cmd->context.play.direction);
             }
             SND_CommandPush(cmd);
         }
@@ -225,16 +154,14 @@ int __cdecl SND_Playback(
                 const float *direction,
                 bool notify)
 {
-    snd_playback *playback; // [esp+1Ch] [ebp-4h]
-
     if ( !SND_Active() )
-        return -1;
-    playback = SND_AllocatePlayback();
+        return SND_PLAYBACKID_NOTPLAYED;
+    snd_playback *playback = SND_AllocatePlayback();
     SND_PlayInternal(alias, fadeTimeMs, attenuation, entHandle, position, direction, notify, playback);
     if ( playback )
         return playback->id;
     else
-        return -1;
+        return SND_PLAYBACKID_NOTPLAYED;
 }
 
 void __cdecl SND_StopSoundAliasOnEnt(SndEntHandle ent, unsigned int alias_name)
@@ -248,7 +175,7 @@ void __cdecl SND_StopSoundAliasOnEnt(SndEntHandle ent, unsigned int alias_name)
         {
             cmd->type = SND_COMMAND_STOP_ALIAS;
             cmd->context.stop_alias.ent = ent;
-            cmd->context.play.fadeTimeMs = alias_name;
+            cmd->context.stop_alias.alias_name = alias_name;
             SND_CommandPush(cmd);
         }
     }
@@ -256,11 +183,9 @@ void __cdecl SND_StopSoundAliasOnEnt(SndEntHandle ent, unsigned int alias_name)
 
 void __cdecl SND_StopSoundsOnEnt(SndEntHandle ent)
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_STOP_ENT;
@@ -272,11 +197,9 @@ void __cdecl SND_StopSoundsOnEnt(SndEntHandle ent)
 
 void __cdecl SND_NotifyCinematicStart(float volume)
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_CINEMATIC_START;
@@ -288,11 +211,9 @@ void __cdecl SND_NotifyCinematicStart(float volume)
 
 void __cdecl SND_NotifyCinematicEnd()
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_CINEMATIC_END;
@@ -303,15 +224,13 @@ void __cdecl SND_NotifyCinematicEnd()
 
 void __cdecl SND_DisconnectListener(unsigned int listener)
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_DISCONNECT_LISTENER;
-            cmd->context.play.alias = listener;
+            cmd->context.disconnect_listener.listener = listener;
             SND_CommandPush(cmd);
         }
     }
@@ -324,43 +243,31 @@ void __cdecl SND_SetListener(
                 const float *origin,
                 const float (*axis)[3])
 {
-    double v5; // st7
-    snd_command *cmd; // [esp+2Ch] [ebp-4h]
-
     if ( SND_Active() )
     {
         iassert(Vec3Length(axis[0]) > 1.0f - (1.52879e-5f) && Vec3Length(axis[0]) < 1.0f + (1.52879e-5f));
-        //if ( Abs((const float *)axis) <= 0.99998474 || Abs((const float *)axis) >= 1.0000153 )
-        //{
-        //    v5 = Abs((const float *)axis);
-        //    if ( !Assert_MyHandler(
-        //                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-        //                    335,
-        //                    0,
-        //                    "%s\n\t(Vec3Length(axis[0])) = %g",
-        //                    "(Vec3Length(axis[0]) > 1.0f-(1.52879e-5f) && Vec3Length(axis[0]) < 1.0f+(1.52879e-5f))",
-        //                    v5) )
-        //        __debugbreak();
-        //}
-        cmd = SND_GetNewCommand();
+
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SET_LISTENER;
-            cmd->context.play.alias = listener;
-            cmd->context.play.fadeTimeMs = clientNum;
-            cmd->context.set_game_state.cg_time = team;
-            cmd->context.set_listener.origin[0] = *origin;
+
+            cmd->context.set_listener.listener = listener;
+            cmd->context.set_listener.clientNum = clientNum;
+            cmd->context.set_listener.team = team;
+            cmd->context.set_listener.origin[0] = origin[0];
             cmd->context.set_listener.origin[1] = origin[1];
-            cmd->context.play.position[0] = origin[2];
-            cmd->context.play.position[1] = (*axis)[0];
-            cmd->context.play.position[2] = (*axis)[1];
-            cmd->context.play.direction[0] = (*axis)[2];
-            cmd->context.play.direction[1] = (*axis)[3];
-            cmd->context.play.direction[2] = (*axis)[4];
-            cmd->context.set_listener.axis[1][2] = (*axis)[5];
-            cmd->context.set_listener.axis[2][0] = (*axis)[6];
-            cmd->context.set_listener.axis[2][1] = (*axis)[7];
-            cmd->context.set_listener.axis[2][2] = (*axis)[8];
+            cmd->context.set_listener.origin[2] = origin[2];
+            cmd->context.set_listener.axis[0][0] = axis[0][0];
+            cmd->context.set_listener.axis[0][1] = axis[0][1];
+            cmd->context.set_listener.axis[0][2] = axis[0][2];
+            cmd->context.set_listener.axis[1][0] = axis[1][0];
+            cmd->context.set_listener.axis[1][1] = axis[1][1];
+            cmd->context.set_listener.axis[1][2] = axis[1][2];
+            cmd->context.set_listener.axis[2][0] = axis[2][0];
+            cmd->context.set_listener.axis[2][1] = axis[2][1];
+            cmd->context.set_listener.axis[2][2] = axis[2][2];
+
             SND_CommandPush(cmd);
         }
     }
@@ -368,11 +275,9 @@ void __cdecl SND_SetListener(
 
 void __cdecl SND_StopSounds(snd_stop_sound_flags flags)
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_STOP_SOUNDS;
@@ -385,11 +290,9 @@ void __cdecl SND_StopSounds(snd_stop_sound_flags flags)
 
 void __cdecl SND_FadeIn()
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_FADE_IN;
@@ -400,11 +303,9 @@ void __cdecl SND_FadeIn()
 
 void __cdecl SND_FadeOut()
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_FADE_OUT;
@@ -420,25 +321,22 @@ void __cdecl SND_SetEnvironmentEffects(
                 float wetlevel,
                 int fademsec)
 {
-    const snd_radverb *radverb; // [esp+0h] [ebp-Ch]
-    snd_command *cmd; // [esp+4h] [ebp-8h]
-    int id; // [esp+8h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        id = SND_HashName(preset);
-        radverb = SND_GetRadverb(id);
+        int id = SND_HashName(preset);
+        const snd_radverb *radverb = SND_GetRadverb(id);
         if ( !radverb || radverb->id == g_snd.defaultHash && id != g_snd.defaultHash )
             Com_PrintError(9, "Missing radverb %s\n", preset);
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SET_ENVIRONMENT_EFFECTS;
-            cmd->context.play.alias = priority;
-            cmd->context.play.fadeTimeMs = id;
-            cmd->context.play.attenuation = drylevel;
-            cmd->context.set_listener.origin[0] = wetlevel;
-            cmd->context.play.notify = fademsec;
+            cmd->context.set_environment_effects.priority = priority;
+            cmd->context.set_environment_effects.id = id;
+            cmd->context.set_environment_effects.drylevel = drylevel;
+            cmd->context.set_environment_effects.wetlevel = wetlevel;
+            cmd->context.set_environment_effects.fademsec = fademsec;
+
             SND_CommandPush(cmd);
         }
     }
@@ -446,16 +344,14 @@ void __cdecl SND_SetEnvironmentEffects(
 
 void __cdecl SND_DeactivateEnvironmentEffects(unsigned int priority, int fademsec)
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_DEACTIVATE_ENVIRONMENT_EFFECTS;
-            cmd->context.play.alias = priority;
-            cmd->context.play.fadeTimeMs = fademsec;
+            cmd->context.deactivate_environment_effects.priority = priority;
+            cmd->context.deactivate_environment_effects.fademsec = fademsec;
             SND_CommandPush(cmd);
         }
     }
@@ -463,25 +359,14 @@ void __cdecl SND_DeactivateEnvironmentEffects(unsigned int priority, int fademse
 
 void __cdecl SND_SetPlaybackAttenuation(unsigned int id, float attenuation)
 {
-    snd_command *cmd; // [esp+4h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        if ( (LODWORD(attenuation) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        486,
-                        0,
-                        "%s",
-                        "!IS_NAN(attenuation)") )
-        {
-            __debugbreak();
-        }
-        cmd = SND_GetNewCommand();
+        iassert(!IS_NAN(attenuation));
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SET_PLAYBACK_ATTENUATION;
-            cmd->context.play.alias = id;
+            cmd->context.set_playback_attenuation.id = id;
             cmd->context.set_playback_attenuation.attenuation = attenuation;
             SND_CommandPush(cmd);
         }
@@ -490,25 +375,15 @@ void __cdecl SND_SetPlaybackAttenuation(unsigned int id, float attenuation)
 
 void __cdecl SND_SetPlaybackAttenuationRate(unsigned int id, float rate)
 {
-    snd_command *cmd; // [esp+4h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        if ( (LODWORD(rate) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        511,
-                        0,
-                        "%s",
-                        "!IS_NAN(rate)") )
-        {
-            __debugbreak();
-        }
-        cmd = SND_GetNewCommand();
+        iassert(!IS_NAN(rate));
+
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SET_PLAYBACK_ATTENUATION_RATE;
-            cmd->context.play.alias = id;
+            cmd->context.set_playback_attenuation_rate.id = id;
             cmd->context.set_playback_attenuation.attenuation = rate;
             SND_CommandPush(cmd);
         }
@@ -517,26 +392,16 @@ void __cdecl SND_SetPlaybackAttenuationRate(unsigned int id, float rate)
 
 void __cdecl SND_SetPlaybackPitch(unsigned int playbackId, float pitch)
 {
-    snd_command *cmd; // [esp+4h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        if ( (LODWORD(pitch) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        536,
-                        0,
-                        "%s",
-                        "!IS_NAN(pitch)") )
-        {
-            __debugbreak();
-        }
-        cmd = SND_GetNewCommand();
+        iassert(!IS_NAN(pitch));
+
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SET_PLAYBACK_PITCH;
-            cmd->context.play.alias = playbackId;
-            cmd->context.set_playback_attenuation.attenuation = pitch;
+            cmd->context.set_playback_pitch.id = playbackId;
+            cmd->context.set_playback_pitch.pitch = pitch;
             SND_CommandPush(cmd);
         }
     }
@@ -544,26 +409,15 @@ void __cdecl SND_SetPlaybackPitch(unsigned int playbackId, float pitch)
 
 void __cdecl SND_SetPlaybackPitchRate(unsigned int playbackId, float rate)
 {
-    snd_command *cmd; // [esp+4h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        if ( (LODWORD(rate) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        561,
-                        0,
-                        "%s",
-                        "!IS_NAN(rate)") )
-        {
-            __debugbreak();
-        }
-        cmd = SND_GetNewCommand();
+        iassert(!IS_NAN(rate));
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SET_PLAYBACK_PITCH_RATE;
-            cmd->context.play.alias = playbackId;
-            cmd->context.set_playback_attenuation.attenuation = rate;
+            cmd->context.set_playback_pitch_rate.id = playbackId;
+            cmd->context.set_playback_pitch_rate.rate = rate;
             SND_CommandPush(cmd);
         }
     }
@@ -571,15 +425,13 @@ void __cdecl SND_SetPlaybackPitchRate(unsigned int playbackId, float rate)
 
 void __cdecl SND_StopPlayback(unsigned int playbackId)
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_STOP_PLAYBACK;
-            cmd->context.play.alias = playbackId;
+            cmd->context.stop_playback.id = playbackId;
             SND_CommandPush(cmd);
         }
     }
@@ -587,37 +439,28 @@ void __cdecl SND_StopPlayback(unsigned int playbackId)
 
 void __cdecl SND_SetSnapshot(snd_snapshot_type type, const char *snapshotName, float length, float amount)
 {
-    snd_command *cmd; // [esp+4h] [ebp-8h]
-    unsigned int id; // [esp+8h] [ebp-4h]
-
     if ( SND_Active() )
     {
         if ( !snapshotName || !*snapshotName )
             snapshotName = "default";
-        if ( (LODWORD(length) & 0x7F800000) == 0x7F800000
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        613,
-                        0,
-                        "%s",
-                        "!IS_NAN(length)") )
-        {
-            __debugbreak();
-        }
-        id = SND_HashName(snapshotName);
+
+        iassert(!IS_NAN(length));
+
+        uint id = SND_HashName(snapshotName);
         if ( !SND_GetSnapshotById(id) )
         {
             Com_PrintError(9, "Could not find group snapshot %s\n", snapshotName);
             id = g_snd.defaultHash;
         }
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SNAPSHOT;
-            cmd->context.play.alias = type;
-            cmd->context.play.fadeTimeMs = id;
-            cmd->context.play.attenuation = length;
-            cmd->context.set_listener.origin[0] = amount;
+            cmd->context.snapshot.type = type;
+            cmd->context.snapshot.id = id;
+            cmd->context.snapshot.length = length;
+            cmd->context.snapshot.amount = amount;
+
             SND_CommandPush(cmd);
         }
     }
@@ -628,8 +471,8 @@ void __cdecl SND_SetEntState(SndEntHandle handle)
     snd_command *cmd; // [esp+4h] [ebp-4h]
 
     if ( SND_Active()
-        && (((unsigned int)handle.handle >> 21) & 1) == 0
-        && (*(_WORD *)&handle.field & 0xFFF) != 0xFFF
+        && (handle.field.isStationary) == 0
+        && (handle.field.entIndex) != 0xFFF
         && CL_LocalClient_IsCUIFlagSet(((unsigned int)handle.handle >> 19) & 3, 32)
         && CG_SoundEntInUse(handle)
         && (((unsigned int)handle.handle >> 12) & 0x7F) == (CG_SoundGetUseCount(handle) & 0x7F) )
@@ -638,12 +481,8 @@ void __cdecl SND_SetEntState(SndEntHandle handle)
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SET_ENT_STATE;
-            cmd->context.stop_alias.ent = handle;
-            CG_GetSoundEntityOrientation(
-                handle,
-                &cmd->context.set_playback_attenuation.attenuation,
-                (float (*)[3])&cmd->context.play.position[2],
-                &cmd->context.set_listener.origin[1]);
+            cmd->context.set_ent_state.handle = handle;
+            CG_GetSoundEntityOrientation(handle, cmd->context.set_ent_state.origin, cmd->context.set_ent_state.orientation, cmd->context.set_ent_state.velocity);
             SND_CommandPush(cmd);
         }
     }
@@ -651,20 +490,18 @@ void __cdecl SND_SetEntState(SndEntHandle handle)
 
 void __cdecl SND_PlayLoopAt(unsigned int id, const float *origin)
 {
-    snd_command *cmd; // [esp+10h] [ebp-4h]
-
     if ( SND_Active() )
     {
         nanassertvec3(origin);
 
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_PLAY_LOOP_AT;
-            cmd->context.play.alias = id;
-            cmd->context.set_playback_attenuation.attenuation = *origin;
-            cmd->context.play.attenuation = origin[1];
-            cmd->context.set_listener.origin[0] = origin[2];
+            cmd->context.loop_at.id = id;
+            cmd->context.loop_at.origin[0] = origin[0];
+            cmd->context.loop_at.origin[1] = origin[1];
+            cmd->context.loop_at.origin[2] = origin[2];
             SND_CommandPush(cmd);
         }
     }
@@ -672,20 +509,18 @@ void __cdecl SND_PlayLoopAt(unsigned int id, const float *origin)
 
 void __cdecl SND_StopLoopAt(unsigned int id, const float *origin)
 {
-    snd_command *cmd; // [esp+10h] [ebp-4h]
-
     if ( SND_Active() )
     {
         nanassertvec3(origin);
 
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_STOP_LOOP_AT;
-            cmd->context.play.alias = id;
-            cmd->context.set_playback_attenuation.attenuation = *origin;
-            cmd->context.play.attenuation = origin[1];
-            cmd->context.set_listener.origin[0] = origin[2];
+            cmd->context.loop_at.id = id;
+            cmd->context.loop_at.origin[0] = origin[0];
+            cmd->context.loop_at.origin[1] = origin[1];
+            cmd->context.loop_at.origin[2] = origin[2];
             SND_CommandPush(cmd);
         }
     }
@@ -704,13 +539,13 @@ void __cdecl SND_PlayLineAt(unsigned int id, const float *origin0, const float *
         if ( cmd )
         {
             cmd->type = SND_COMMAND_PLAY_LINE_AT;
-            cmd->context.play.alias = id;
-            cmd->context.set_playback_attenuation.attenuation = *origin0;
-            cmd->context.play.attenuation = origin0[1];
-            cmd->context.set_listener.origin[0] = origin0[2];
-            cmd->context.set_listener.origin[1] = *origin1;
-            cmd->context.play.position[0] = origin1[1];
-            cmd->context.play.position[1] = origin1[2];
+            cmd->context.line_at.id = id;
+            cmd->context.line_at.origin[0][0] = origin0[0];
+            cmd->context.line_at.origin[0][1] = origin0[1];
+            cmd->context.line_at.origin[0][2] = origin0[2];
+            cmd->context.line_at.origin[1][0] = origin1[0];
+            cmd->context.line_at.origin[1][1] = origin1[1];
+            cmd->context.line_at.origin[1][2] = origin1[2];
             SND_CommandPush(cmd);
         }
     }
@@ -729,13 +564,13 @@ void __cdecl SND_StopLineAt(unsigned int id, const float *origin0, const float *
         if ( cmd )
         {
             cmd->type = SND_COMMAND_STOP_LINE_AT;
-            cmd->context.play.alias = id;
-            cmd->context.set_playback_attenuation.attenuation = *origin0;
-            cmd->context.play.attenuation = origin0[1];
-            cmd->context.set_listener.origin[0] = origin0[2];
-            cmd->context.set_listener.origin[1] = *origin1;
-            cmd->context.play.position[0] = origin1[1];
-            cmd->context.play.position[1] = origin1[2];
+            cmd->context.line_at.id = id;
+            cmd->context.line_at.origin[0][0] = origin0[0];
+            cmd->context.line_at.origin[0][1] = origin0[1];
+            cmd->context.line_at.origin[0][2] = origin0[2];
+            cmd->context.line_at.origin[1][0] = origin1[0];
+            cmd->context.line_at.origin[1][1] = origin1[1];
+            cmd->context.line_at.origin[1][2] = origin1[2];
             SND_CommandPush(cmd);
         }
     }
@@ -750,8 +585,7 @@ void __cdecl SND_SetContext(const char *type, const char *value)
 
     if ( SND_Active() )
     {
-        v2 = SND_HashName(type);
-        if ( (SND_FindContextIndex(v2) & 0x80000000) == 0 )
+        if ( (SND_FindContextIndex(SND_HashName(type)) & 0x80000000) == 0 )
         {
             if ( SND_HashName(value)
                 && (v4 = SND_HashName(value), v3 = SND_HashName(type), SND_FindContextValueIndex(v3, v4) < 0) )
@@ -764,8 +598,8 @@ void __cdecl SND_SetContext(const char *type, const char *value)
                 if ( cmd )
                 {
                     cmd->type = SND_COMMAND_SET_CONTEXT;
-                    cmd->context.play.alias = SND_HashName(type);
-                    cmd->context.play.fadeTimeMs = SND_HashName(value);
+                    cmd->context.set_context.type = SND_HashName(type);
+                    cmd->context.set_context.value = SND_HashName(value);
                     SND_CommandPush(cmd);
                 }
             }
@@ -779,15 +613,13 @@ void __cdecl SND_SetContext(const char *type, const char *value)
 
 void __cdecl SND_SetScriptTimescale(float value)
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SCRIPT_TIMESCALE;
-            cmd->context.notify_cinematic_start.volume = value;
+            cmd->context.script_timescale.value = value;
             SND_CommandPush(cmd);
         }
     }
@@ -795,129 +627,53 @@ void __cdecl SND_SetScriptTimescale(float value)
 
 snd_ent_state *__cdecl SND_FindEntState(SndEntHandle handle, bool createNew)
 {
-    unsigned int k; // [esp+0h] [ebp-10h]
-    unsigned int j; // [esp+4h] [ebp-Ch]
-    unsigned int i; // [esp+8h] [ebp-8h]
-    snd_ent_state *state; // [esp+Ch] [ebp-4h]
+    iassert(handle.field.entIndex != SND_ENT_NONE);
+    iassert(!handle.field.isStationary);
+    bcassert(handle.field.entIndex, ARRAY_COUNT(g_snd.entStateIndex));
 
-    if ((*(_WORD *)&handle.field & 0xFFF) == 0xFFF
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-            842,
-            0,
-            "%s",
-            "handle.field.entIndex != SND_ENT_NONE"))
+    if (handle.field.isStationary || handle.field.entIndex == SND_ENT_NONE || handle.field.entIndex == SND_ENT_NO_STOP)
     {
-        __debugbreak();
+        return NULL;
     }
-    if ((((unsigned int)handle.handle >> 21) & 1) != 0
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-            843,
-            0,
-            "%s",
-            "!handle.field.isStationary"))
+
+    bcassert(handle.field.entIndex, MAX_LOCAL_CENTITIES);
+
+    if (handle.field.entIndex >= MAX_LOCAL_CENTITIES) // lwss: changed to >= instead of >
     {
-        __debugbreak();
-    }
-    if ((*(_WORD *)&handle.field & 0xFFFu) >= 0x600
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-            844,
-            0,
-            "handle.field.entIndex doesn't index ARRAY_COUNT(g_snd.entStateIndex)\n\t%i not in [0, %i)",
-            *(_WORD *)&handle.field & 0xFFF,
-            1536))
-    {
-        __debugbreak();
-    }
-    if ((((unsigned int)handle.handle >> 21) & 1) != 0
-        || (*(_WORD *)&handle.field & 0xFFF) == 0xFFF
-        || (*(_WORD *)&handle.field & 0xFFF) == 0xFFE)
-    {
-        return 0;
-    }
-    if ((*(_WORD *)&handle.field & 0xFFFu) >= 0x600
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-            854,
-            0,
-            "handle.field.entIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)",
-            *(_WORD *)&handle.field & 0xFFF,
-            1536))
-    {
-        __debugbreak();
-    }
-    if ((*(_WORD *)&handle.field & 0xFFFu) > 0x600)
         Com_Error(ERR_DROP, "Invalid sound handle");
-    state = g_snd.entStateIndex[*(_WORD *)&handle.field & 0xFFF];
-    for (i = 0; state && handle.handle != state->handle.handle && i < 0x64; ++i)
+    }
+
+    snd_ent_state *state = g_snd.entStateIndex[handle.field.entIndex];
+
+    for (int i = 0; state && handle.handle != state->handle.handle && i < 0x64; ++i)
     {
-        if (i >= 0x32
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp", 867, 0, "%s", "i<50"))
-        {
-            __debugbreak();
-        }
-        if (state == state->next
-            && !Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                868,
-                0,
-                "%s",
-                "state != state->next"))
-        {
-            __debugbreak();
-        }
-        if ((*(_WORD *)&handle.field & 0xFFF) != (state->handle.handle & 0xFFF)
-            && !Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                869,
-                0,
-                "%s",
-                "handle.field.entIndex == state->handle.field.entIndex"))
-        {
-            __debugbreak();
-        }
-        if (!state->lastUsed
-            && !Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                870,
-                0,
-                "%s",
-                "state->lastUsed"))
-        {
-            __debugbreak();
-        }
+        iassert(i < 50);
+        iassert(state != state->next);
+        iassert(handle.field.entIndex == state->handle.field.entIndex);
+        iassert(state->lastUsed);
+
         state = state->next;
     }
+
     if (createNew && !state)
     {
-        for (j = 0; j < 0x128; ++j)
+        for (int j = 0; j < 0x128; ++j)
         {
             if (!g_snd.entState[j].lastUsed)
             {
                 state = &g_snd.entState[j];
-                if (state == g_snd.entStateIndex[*(_WORD *)&handle.field & 0xFFF]
-                    && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        882,
-                        0,
-                        "%s",
-                        "state != g_snd.entStateIndex[handle.field.entIndex]"))
-                {
-                    __debugbreak();
-                }
+                iassert(state != g_snd.entStateIndex[handle.field.entIndex]);
                 state->lastUsed = g_snd.frame;
                 state->handle = handle;
-                state->next = g_snd.entStateIndex[*(_WORD *)&handle.field & 0xFFF];
-                g_snd.entStateIndex[*(_WORD *)&handle.field & 0xFFF] = state;
+                state->next = g_snd.entStateIndex[handle.field.entIndex];
+                g_snd.entStateIndex[handle.field.entIndex] = state;
                 break;
             }
         }
         if (!state)
         {
             Com_Printf(9, "Out of ent state cache entries at time %d\n", g_snd.frame);
-            for (k = 0; k < 0x128; ++k)
+            for (int k = 0; k < 0x128; ++k)
                 Com_Printf(
                     9,
                     "%d - %x %d %d\n",
@@ -926,11 +682,7 @@ snd_ent_state *__cdecl SND_FindEntState(SndEntHandle handle, bool createNew)
                     g_snd.entState[k].lastUsed,
                     g_snd.entState[k].next - g_snd.entState);
         }
-        if (!state
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp", 900, 0, "%s", "state"))
-        {
-            __debugbreak();
-        }
+        iassert(state);
     }
     return state;
 }
@@ -941,60 +693,32 @@ void __cdecl SND_UpdateEntState(
                 const float *velocity,
                 const float (*orientation)[3])
 {
-    snd_ent_state *state; // [esp+44h] [ebp-4h]
-
-    if ( (((unsigned int)handle.handle >> 21) & 1) != 0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    914,
-                    0,
-                    "%s",
-                    "!handle.field.isStationary") )
-    {
-        __debugbreak();
-    }
+    iassert(!handle.field.isStationary);
     nanassertvec3(origin);
     nanassertvec3(velocity);
     nanassertvec3(orientation[0]);
     nanassertvec3(orientation[1]);
     nanassertvec3(orientation[2]);
 
-    state = SND_FindEntState(handle, 1);
+    snd_ent_state *state = SND_FindEntState(handle, 1);
+
     if ( state )
     {
-        if ( state->handle.handle != handle.handle
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                        925,
-                        0,
-                        "%s",
-                        "state->handle.handle == handle.handle") )
-        {
-            __debugbreak();
-        }
-        state->origin[0] = *origin;
-        state->origin[1] = origin[1];
-        state->origin[2] = origin[2];
-        state->velocity[0] = *velocity;
-        state->velocity[1] = velocity[1];
-        state->velocity[2] = velocity[2];
+        iassert(state->handle.handle == handle.handle);
+  
+        Vec3Copy(origin, state->origin);
+        Vec3Copy(velocity, state->velocity);
         AxisCopy(orientation, state->orientation);
     }
 }
 
 char __cdecl SND_GetEntState(SndEntHandle handle, float *origin, float *velocity, float (*orientation)[3])
 {
-    snd_ent_state *state; // [esp+8h] [ebp-4h]
-
-    state = SND_FindEntState(handle, 0);
+    snd_ent_state *state = SND_FindEntState(handle, 0);
     if ( state )
     {
-        *origin = state->origin[0];
-        origin[1] = state->origin[1];
-        origin[2] = state->origin[2];
-        *velocity = state->velocity[0];
-        velocity[1] = state->velocity[1];
-        velocity[2] = state->velocity[2];
+        Vec3Copy(state->origin, origin);
+        Vec3Copy(state->velocity, velocity);
         AxisCopy(state->orientation, orientation);
         return 1;
     }
@@ -1016,110 +740,51 @@ void __cdecl SNDL_SetEntState(
 
 void __cdecl SND_EntStateFrame()
 {
-    unsigned int n; // [esp+8h] [ebp-28h]
-    bool removed; // [esp+Fh] [ebp-21h]
-    snd_ent_state **list; // [esp+10h] [ebp-20h]
-    snd_ent_state *v4; // [esp+14h] [ebp-1Ch]
-    unsigned int m; // [esp+18h] [ebp-18h]
-    snd_ent_state *EntState; // [esp+1Ch] [ebp-14h]
-    unsigned int k; // [esp+20h] [ebp-10h]
-    unsigned int j; // [esp+24h] [ebp-Ch]
-    snd_ent_state *state; // [esp+28h] [ebp-8h]
-    unsigned int i; // [esp+2Ch] [ebp-4h]
-
     PROF_SCOPED("SND_EntStateFrame");
 
-    for (i = 0; i < 0x600; ++i)
+    for (int i = 0; i < MAX_LOCAL_CENTITIES; ++i)
     {
-        state = g_snd.entStateIndex[i];
-        for (j = 0; state && j < 0x64; ++j)
+        snd_ent_state *state = g_snd.entStateIndex[i];
+        for (int j = 0; state && j < 0x64; ++j)
         {
-            if (j >= 0x32
-                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp", 979, 0, "%s", "j<50"))
-            {
-                __debugbreak();
-            }
-            if (i != (state->handle.handle & 0xFFF)
-                && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    980,
-                    0,
-                    "%s",
-                    "i == state->handle.field.entIndex"))
-            {
-                __debugbreak();
-            }
-            if (state == state->next
-                && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    981,
-                    0,
-                    "%s",
-                    "state != state->next"))
-            {
-                __debugbreak();
-            }
-            if (!state->lastUsed
-                && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    982,
-                    0,
-                    "%s",
-                    "state->lastUsed"))
-            {
-                __debugbreak();
-            }
+            iassert(j < 50);
+            iassert(i == state->handle.field.entIndex);
+            iassert(state != state->next);
+            iassert(state->lastUsed);
+        
             state = state->next;
         }
     }
-    for (k = 0; k < 0x4A; ++k)
+
+    for (int k = 0; k < SND_MAX_VOICES; ++k)
     {
         if (g_snd.voiceAliasHash[k])
         {
             if ((((unsigned int)g_snd.voice[k].sndEnt.handle >> 21) & 1) == 0
                 && (g_snd.voice[k].sndEnt.handle & 0xFFF) != 0xFFF)
             {
-                EntState = SND_FindEntState(g_snd.voice[k].sndEnt, 0);
-                if (EntState)
+                snd_ent_state *state = SND_FindEntState(g_snd.voice[k].sndEnt, 0);
+                if (state)
                 {
-                    if (EntState->lastUsed != g_snd.frame)
+                    if (state->lastUsed != g_snd.frame)
                         SND_EntStateRequest(g_snd.voice[k].sndEnt);
-                    EntState->lastUsed = g_snd.frame;
+                    state->lastUsed = g_snd.frame;
                 }
             }
         }
     }
-    for (m = 0; m < 0x128; ++m)
+    for (int m = 0; m < 0x128; ++m)
     {
-        v4 = &g_snd.entState[m];
-        if (v4->lastUsed && g_snd.frame - v4->lastUsed > 2)
+        snd_ent_state *state = &g_snd.entState[m];
+        if (state->lastUsed && g_snd.frame - state->lastUsed > 2)
         {
-            if (g_snd.frame < v4->lastUsed
-                && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    1014,
-                    0,
-                    "%s",
-                    "g_snd.frame >= state->lastUsed"))
+            iassert(g_snd.frame >= state->lastUsed);
+            bcassert(state->handle.field.entIndex, ARRAY_COUNT(g_snd.entStateIndex));
+            snd_ent_state **list = &g_snd.entStateIndex[state->handle.handle & 0xFFF];
+            bool removed = 0;
+            for (int n = 0; *list && n < 0x64; ++n)
             {
-                __debugbreak();
-            }
-            if ((v4->handle.handle & 0xFFFu) >= 0x600
-                && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    1015,
-                    0,
-                    "state->handle.field.entIndex doesn't index ARRAY_COUNT(g_snd.entStateIndex)\n\t%i not in [0, %i)",
-                    v4->handle.handle & 0xFFF,
-                    1536))
-            {
-                __debugbreak();
-            }
-            list = &g_snd.entStateIndex[v4->handle.handle & 0xFFF];
-            removed = 0;
-            for (n = 0; *list && n < 0x64; ++n)
-            {
-                if (*list == v4)
+                if (*list == state)
                 {
                     *list = (*list)->next;
                     removed = 1;
@@ -1127,33 +792,24 @@ void __cdecl SND_EntStateFrame()
                 }
                 list = &(*list)->next;
             }
-            if (!removed
-                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp", 1033, 0, "%s", "removed"))
-            {
-                __debugbreak();
-            }
-            v4->lastUsed = 0;
-            v4->next = 0;
+            iassert(removed);
+            state->lastUsed = 0;
+            state->next = 0;
         }
     }
 }
 
 void __cdecl SND_ResetEntState()
 {
-    unsigned int j; // [esp+0h] [ebp-8h]
-    unsigned int i; // [esp+4h] [ebp-4h]
-
-    for (i = 0; i < 0x128; ++i)
+    for (int i = 0; i < 0x128; ++i)
         g_snd.entState[i].lastUsed = 0;
-    for (j = 0; j < 0x600; ++j)
+    for (int j = 0; j < MAX_LOCAL_CENTITIES; ++j)
         g_snd.entStateIndex[j] = 0;
 }
 
 void __cdecl SND_EntStateRequest(SndEntHandle handle)
 {
-    snd_notify *cmd; // [esp+0h] [ebp-4h]
-
-    cmd = SND_GetNewNotify();
+    snd_notify *cmd = SND_GetNewNotify();
     if ( cmd )
     {
         cmd->type = SND_NOTIFY_ENT_UPDATE;
@@ -1164,68 +820,54 @@ void __cdecl SND_EntStateRequest(SndEntHandle handle)
 
 void __cdecl SND_SubtitleNotify(const char *subtitle, unsigned int lengthMs)
 {
-    snd_notify *cmd; // [esp+0h] [ebp-4h]
-
-    cmd = SND_GetNewNotify();
+    snd_notify *cmd = SND_GetNewNotify();
     if ( cmd )
     {
         cmd->type = SND_NOTIFY_SUBTITLE;
-        cmd->context.length.ent = (unsigned int)subtitle;
-        cmd->context.ent_update.handle.handle = lengthMs;
+        cmd->context.subtitle.subtitle = subtitle;
+        cmd->context.subtitle.lengthMs = lengthMs;
         SND_NotifyPush(cmd);
     }
 }
 
 void __cdecl SND_LengthNotify(unsigned int ent, unsigned int lengthMs)
 {
-    snd_notify *cmd; // [esp+0h] [ebp-4h]
-
-    cmd = SND_GetNewNotify();
+    snd_notify *cmd = SND_GetNewNotify();
     if ( cmd )
     {
         cmd->type = SND_NOTIFY_LENGTH;
         cmd->context.length.ent = ent;
-        cmd->context.ent_update.handle.handle = lengthMs;
+        cmd->context.length.lengthMs = lengthMs;
         SND_NotifyPush(cmd);
     }
 }
 
 void __cdecl SND_FreePlaybackNotify(snd_playback *playback)
 {
-    snd_notify *cmd; // [esp+0h] [ebp-4h]
+    iassert(playback);
 
-    if ( !playback
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp", 1130, 0, "%s", "playback") )
-    {
-        __debugbreak();
-    }
-    cmd = SND_GetNewNotify();
+    snd_notify *cmd = SND_GetNewNotify();
     if ( cmd )
     {
         cmd->type = SND_NOTIFY_PLAYBACK_FREE;
-        cmd->context.ent_update.handle.handle = (int)playback;
+        cmd->context.playback_free.playback = playback;
         SND_NotifyPush(cmd);
     }
 }
 
 void __cdecl SND_ResetPlaybacks()
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
-
-    for ( i = 0; i < 0x94; ++i )
-        g_snd.playbacks[i].id = -1;
+    for ( int i = 0; i < SND_PLAYBACK_COUNT; ++i )
+        g_snd.playbacks[i].id = SND_PLAYBACKID_NOTPLAYED;
 }
 
 snd_playback *__cdecl SND_AllocatePlayback()
 {
-    unsigned int i; // [esp+0h] [ebp-8h]
-    snd_playback *playback; // [esp+4h] [ebp-4h]
-
-    playback = 0;
+    snd_playback *playback = NULL;
     Sys_EnterCriticalSection(CRITSECT_SOUND_PLAYBACK_ALLOC);
-    for (i = 0; i < 0x94; ++i)
+    for (uint i = 0; i < SND_PLAYBACK_COUNT; ++i)
     {
-        if (g_snd.playbacks[i].id == -1)
+        if (g_snd.playbacks[i].id == SND_PLAYBACKID_NOTPLAYED)
         {
             g_snd.playbacks[i].id = SND_AcquirePlaybackId();
             g_snd.playbacks[i].attenuation = 1.0f;
@@ -1246,19 +888,9 @@ void __cdecl SND_FreePlayback(snd_playback *playback)
 {
     if (playback)
     {
-        if ((unsigned int)(playback - g_snd.playbacks) >= 0x94
-            && !Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                1193,
-                0,
-                "playback-g_snd.playbacks doesn't index SND_PLAYBACK_COUNT\n\t%i not in [0, %i)",
-                playback - g_snd.playbacks,
-                148))
-        {
-            __debugbreak();
-        }
-        playback->id = -1;
-        --g_snd.playbacksInUse;
+        bcassert(playback - g_snd.playbacks, SND_PLAYBACK_COUNT);
+        playback->id = SND_PLAYBACKID_NOTPLAYED;
+        g_snd.playbacksInUse--;
     }
 }
 
@@ -1274,7 +906,7 @@ snd_playback *__cdecl SND_FindPlayback(int playbackId)
 
     playback = 0;
     Sys_EnterCriticalSection(CRITSECT_SOUND_PLAYBACK_ALLOC);
-    for ( i = 0; i < 0x94; ++i )
+    for ( i = 0; i < SND_PLAYBACK_COUNT; ++i )
     {
         if ( g_snd.playbacks[i].id == playbackId )
         {
@@ -1297,20 +929,17 @@ int __cdecl SND_GetPlaybackTime(int playbackId)
         return 0;
 }
 
-char __cdecl SND_GetKnownLength(int playbackId, int *msec)
+bool __cdecl SND_GetKnownLength(int playbackId, int *msec)
 {
-    char v3; // [esp+0h] [ebp-8h]
-    snd_playback *playback; // [esp+4h] [ebp-4h]
+    snd_playback *playback = SND_FindPlayback(playbackId);
 
-    playback = SND_FindPlayback(playbackId);
-    v3 = 0;
     if ( playback )
     {
         *msec = playback->lengthMs;
         if ( playback->lengthMs )
-            return 1;
+            return true;
     }
-    return v3;
+    return false;
 }
 
 void SND_Update()
@@ -1366,11 +995,9 @@ void SND_Frame()
 
 void __cdecl SND_GameReset()
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_GAME_RESET;
@@ -1384,19 +1011,17 @@ void __cdecl SND_BeginFrame(bool isMature, bool isPaused, float timescale, unsig
 {
     PROF_SCOPED("SND_BeginFrame"); // LWSS ADD
 
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_SET_GAME_STATE;
-            cmd->context.alias_name.name[1] = isMature;
-            cmd->context.alias_name.name[0] = isPaused;
-            cmd->context.set_playback_attenuation.attenuation = timescale;
+            cmd->context.set_game_state.is_mature = isMature;
+            cmd->context.set_game_state.is_paused = isPaused;
+            cmd->context.set_game_state.timescale = timescale;
             cmd->context.set_game_state.cg_time = cgTime;
-            cmd->context.play.entHandle.handle = seed;
+            cmd->context.set_game_state.seed = seed;
             SND_CommandPush(cmd);
         }
     }
@@ -1404,12 +1029,10 @@ void __cdecl SND_BeginFrame(bool isMature, bool isPaused, float timescale, unsig
 
 void __cdecl SND_EndFrame()
 {
-    snd_command *cmd; // [esp+0h] [ebp-4h]
-
     if ( SND_Active() )
     {
         SND_NotifyPump();
-        cmd = SND_GetNewCommand();
+        snd_command *cmd = SND_GetNewCommand();
         if ( cmd )
         {
             cmd->type = SND_COMMAND_UPDATE_LOOPS;

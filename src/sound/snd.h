@@ -4,7 +4,11 @@
 #include "snd_dsp.h"
 
 #define SND_ENT_NONE 0xFFF
+#define SND_ENT_NO_STOP 0xFFE
 #define MAX_VARIANTS 64
+
+#define SND_PLAYBACKID_NOTPLAYED -1
+#define SND_PLAYBACK_COUNT 148 // 0x94
 
 #define SND_INVALID_HASH 0
 

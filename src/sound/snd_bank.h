@@ -5,6 +5,7 @@
 #define SND_TABLE_COUNT 9
 #define SND_MAX_PATCHES 8
 #define SND_MAX_BANKS 32
+#define SND_BANK_INVALID_VALUE 0xFFFF
 
 struct SndIndexEntry // sizeof=0x4
 {
@@ -37,7 +38,7 @@ struct SndPatch // sizeof=0x14
 
 void __cdecl SND_AddBank(SndBank *bank);
 void __cdecl SND_AssertBankIndexValid(const SndBank *bank);
-char __cdecl SND_FindInIndex(unsigned int key, const SndBank *bank, snd_alias_list_t **result);
+bool __cdecl SND_FindInIndex(unsigned int key, const SndBank *bank, snd_alias_list_t **result);
 void __cdecl SND_RemoveBank(SndBank *bank);
 void __cdecl SND_AddPatch(SndPatch *patch);
 void __cdecl SND_RemovePatch(SndPatch *patch);
@@ -47,11 +48,7 @@ snd_alias_list_t *__cdecl SND_AliasByIndex(unsigned int index);
 snd_alias_list_t *__cdecl SND_FindAlias(const char *name);
 snd_alias_list_t *__cdecl SND_FindAliasFromId(unsigned int hash);
 snd_alias_list_t *__cdecl SND_BankAliasLookup(unsigned int key);
-int __cdecl SND_FindAliasId(char *name);
-inline int SND_FindAliasId(const char *name)
-{
-    return SND_FindAliasId((char *)name);
-}
+int __cdecl SND_FindAliasId(const char *name);
 const snd_radverb *__cdecl SND_GetRadverb(unsigned int id);
 const snd_snapshot *__cdecl SND_GetSnapshotById(unsigned int id);
 const snd_snapshot *__cdecl SND_GetOcclusionSnapshot(const snd_snapshot *snap);

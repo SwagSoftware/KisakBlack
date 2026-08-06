@@ -7,12 +7,7 @@
 #include <qcommon/common.h>
 #include "snd_db.h"
 
-SndBank *g_snd_banks[SND_MAX_BANKS];
-unsigned int g_snd_bankCount;
-SndPatch *g_snd_patches[8];
-unsigned int g_snd_patchCount;
-
-void *(__cdecl *const SND_FIND_ROW[9])(unsigned int) =
+void *(__cdecl *const SND_FIND_ROW[SND_TABLE_COUNT])(unsigned int) =
 {
   (void*(*)(unsigned int))SND_FindRowAlias,
   (void*(*)(unsigned int))SND_FindRowGroup,
@@ -25,7 +20,7 @@ void *(__cdecl *const SND_FIND_ROW[9])(unsigned int) =
   (void*(*)(unsigned int))SND_FindRowMaster
 };
 
-const char *SND_TABLE_NAMES[9] =
+static const char *SND_TABLE_NAMES[SND_TABLE_COUNT] =
 {
   "alias",
   "group",
@@ -38,32 +33,24 @@ const char *SND_TABLE_NAMES[9] =
   "master"
 };
 
-unsigned int SND_METADATA_FIELD_COUNT[9] = { 53u, 6u, 18u, 8u, 1u, 73u, 9u, 17u, 37u };
+static unsigned int SND_METADATA_FIELD_COUNT[SND_TABLE_COUNT] = { 53u, 6u, 18u, 8u, 1u, 73u, 9u, 17u, 37u };
 
 
+static SndBank *g_snd_banks[SND_MAX_BANKS];
+static unsigned int g_snd_bankCount;
+static SndPatch *g_snd_patches[SND_MAX_PATCHES];
+static unsigned int g_snd_patchCount;
 
 void __cdecl SND_AddBank(SndBank *bank)
 {
-    unsigned int i; // [esp+0h] [ebp-4h]
-
     Sys_EnterCriticalSection(CRITSECT_SOUND_BANK);
-    if ( !bank && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp", 80, 0, "%s", "bank") )
-        __debugbreak();
-    if ( g_snd_bankCount > 0x20
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp",
-                    81,
-                    0,
-                    "%s",
-                    "g_snd_bankCount <= SND_MAX_BANKS") )
-    {
-        __debugbreak();
-    }
+    iassert(bank);
+    iassert(g_snd_bankCount <= SND_MAX_BANKS);
     if ( !g_snd_bankCount )
         memset(g_snd_banks, 0, sizeof(g_snd_banks));
     g_snd_banks[g_snd_bankCount++] = bank;
     SND_AssertBankIndexValid(bank);
-    for ( i = 0; i < 8; ++i )
+    for ( uint i = 0; i < SND_MAX_PATCHES; ++i )
     {
         if ( g_snd_patches[i] )
             SND_PatchApply(g_snd_patches[i]);
@@ -73,62 +60,22 @@ void __cdecl SND_AddBank(SndBank *bank)
 
 void __cdecl SND_AssertBankIndexValid(const SndBank *bank)
 {
-    snd_alias_list_t *value; // [esp+0h] [ebp-Ch] BYREF
-    unsigned int j; // [esp+4h] [ebp-8h]
-    unsigned int i; // [esp+8h] [ebp-4h]
-
-    for ( i = 0; i < bank->aliasCount; ++i )
+    for ( uint i = 0; i < bank->aliasCount; ++i )
     {
-        if ( bank->aliasIndex[i].value == 0xFFFF
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp",
-                        57,
-                        0,
-                        "%s",
-                        "bank->aliasIndex[i].value != SND_BANK_INVALID_VALUE") )
-        {
-            __debugbreak();
-        }
-        if ( bank->aliasIndex[i].value >= bank->aliasCount
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp",
-                        58,
-                        0,
-                        "%s",
-                        "bank->aliasIndex[i].value < bank->aliasCount") )
-        {
-            __debugbreak();
-        }
+        iassert(bank->aliasIndex[i].value != SND_BANK_INVALID_VALUE);
+        iassert(bank->aliasIndex[i].value != SND_BANK_INVALID_VALUE);
+        iassert(bank->aliasIndex[i].value < bank->aliasCount);
     }
-    for ( j = 0; j < bank->aliasCount; ++j )
+    for ( uint i = 0; i < bank->aliasCount; ++i )
     {
-        value = 0;
-        if ( !SND_FindInIndex(bank->alias[j].id, bank, &value)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp",
-                        68,
-                        0,
-                        "%s",
-                        "SND_FindInIndex(bank->alias[i].id, bank, &value )") )
-        {
-            __debugbreak();
-        }
-        if ( !value && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp", 69, 0, "%s", "value") )
-            __debugbreak();
-        if ( value != &bank->alias[j]
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp",
-                        70,
-                        0,
-                        "%s",
-                        "value == bank->alias+i") )
-        {
-            __debugbreak();
-        }
+        snd_alias_list_t *value = NULL;
+        iassert(SND_FindInIndex(bank->alias[i].id, bank, &value));
+        iassert(value);
+        iassert(value == bank->alias + i);
     }
 }
 
-char __cdecl SND_FindInIndex(unsigned int key, const SndBank *bank, snd_alias_list_t **result)
+bool __cdecl SND_FindInIndex(unsigned int key, const SndBank *bank, snd_alias_list_t **result)
 {
     snd_alias_list_t *list; // [esp+0h] [ebp-8h]
     unsigned int idx; // [esp+4h] [ebp-4h]
@@ -136,26 +83,18 @@ char __cdecl SND_FindInIndex(unsigned int key, const SndBank *bank, snd_alias_li
     if ( !bank->aliasCount )
         return 0;
 
-    for ( idx = key % bank->aliasCount; idx != 0xFFFF; idx = bank->aliasIndex[idx].next )
+    for ( idx = key % bank->aliasCount; idx != SND_BANK_INVALID_VALUE; idx = bank->aliasIndex[idx].next )
     {
-        if ( bank->aliasIndex[idx].value == 0xFFFF
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp",
-                        34,
-                        0,
-                        "%s",
-                        "bank->aliasIndex[idx].value != SND_BANK_INVALID_VALUE") )
-        {
-            __debugbreak();
-        }
+        iassert(bank->aliasIndex[idx].value != SND_BANK_INVALID_VALUE);
+
         list = &bank->alias[bank->aliasIndex[idx].value];
         if ( list->id == key )
         {
             *result = list;
-            return 1;
+            return true;
         }
     }
-    return 0;
+    return false;
 }
 
 void __cdecl SND_RemoveBank(SndBank *bank)
@@ -220,23 +159,11 @@ void __cdecl SND_RemovePatch(SndPatch *patch)
     bool found; // [esp+7h] [ebp-1h]
 
     Sys_EnterCriticalSection(CRITSECT_SOUND_BANK);
-    if ( !g_snd_patchCount
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp", 191, 0, "%s", "g_snd_patchCount") )
-    {
-        __debugbreak();
-    }
-    if ( g_snd_patchCount > 8
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_bank.cpp",
-                    192,
-                    0,
-                    "%s",
-                    "g_snd_patchCount <= SND_MAX_PATCHES") )
-    {
-        __debugbreak();
-    }
+    iassert(g_snd_patchCount);
+    iassert(g_snd_patchCount <= SND_MAX_PATCHES);
+
     found = 0;
-    for ( i = 0; i < 8; ++i )
+    for ( i = 0; i < SND_MAX_PATCHES; ++i )
     {
         if ( found || g_snd_patches[i] != patch )
         {
@@ -259,12 +186,9 @@ void __cdecl SND_RemovePatch(SndPatch *patch)
 
 unsigned int __cdecl SND_AliasCount()
 {
-    int i; // [esp+0h] [ebp-8h]
-    unsigned int total; // [esp+4h] [ebp-4h]
-
-    total = 0;
+    uint total = 0;
     Sys_EnterCriticalSection(CRITSECT_SOUND_BANK);
-    for ( i = 0; i < 32; ++i )
+    for ( int i = 0; i < SND_MAX_BANKS; ++i )
     {
         if ( g_snd_banks[i] )
             total += g_snd_banks[i]->aliasCount;
@@ -275,27 +199,21 @@ unsigned int __cdecl SND_AliasCount()
 
 bool __cdecl SND_IsAliasNameLooping(const char *name)
 {
-    snd_alias_list_t *list; // [esp+0h] [ebp-4h]
-
-    list = SND_FindAlias(name);
+    snd_alias_list_t *list = SND_FindAlias(name);
     return list && (list->head->flags & 1) != 0;
 }
 
 snd_alias_list_t *__cdecl SND_AliasByIndex(unsigned int index)
 {
-    snd_alias_list_t *list; // [esp+0h] [ebp-Ch]
-    int i; // [esp+4h] [ebp-8h]
-    unsigned int total; // [esp+8h] [ebp-4h]
-
-    total = 0;
+    uint total = 0;
     Sys_EnterCriticalSection(CRITSECT_SOUND_BANK);
-    for ( i = 0; i < 32; ++i )
+    for ( int i = 0; i < SND_MAX_BANKS; ++i )
     {
         if ( g_snd_banks[i] )
         {
             if ( g_snd_banks[i]->aliasCount + total > index )
             {
-                list = &g_snd_banks[i]->alias[index - total];
+                snd_alias_list_t *list = &g_snd_banks[i]->alias[index - total];
                 Sys_LeaveCriticalSection(CRITSECT_SOUND_BANK);
                 return list;
             }
@@ -308,20 +226,17 @@ snd_alias_list_t *__cdecl SND_AliasByIndex(unsigned int index)
 
 snd_alias_list_t *__cdecl SND_FindAlias(const char *name)
 {
-    int hash; // [esp+0h] [ebp-8h]
-    snd_alias_list_t *list; // [esp+4h] [ebp-4h]
-
     if ( !SND_Active() )
-        return 0;
+        return NULL;
 
     if ( !name || !*name )
-        return 0;
+        return NULL;
 
-    hash = SND_HashName(name);
-    list = SND_FindAliasFromId(hash);
+    int hash = SND_HashName(name);
+    snd_alias_list_t *list = SND_FindAliasFromId(hash);
 
     if ( !list || !list->count )
-        return 0;
+        return NULL;
 
     iassert(!I_stricmp(name, list->name));
 
@@ -330,36 +245,30 @@ snd_alias_list_t *__cdecl SND_FindAlias(const char *name)
 
 snd_alias_list_t *__cdecl SND_FindAliasFromId(unsigned int hash)
 {
-    snd_alias_list_t *list; // [esp+0h] [ebp-4h]
-
     if ( !SND_Active() || !hash )
-        return 0;
+        return NULL;
+
     Sys_EnterCriticalSection(CRITSECT_SOUND_LOOKUP_CACHE);
-    list = SND_BankAliasLookup(hash);
+    snd_alias_list_t *list = SND_BankAliasLookup(hash);
     Sys_LeaveCriticalSection(CRITSECT_SOUND_LOOKUP_CACHE);
     return list;
 }
 
 snd_alias_list_t *__cdecl SND_BankAliasLookup(unsigned int key)
 {
-    unsigned int i; // [esp+Ch] [ebp-8h]
-    snd_alias_list_t *list; // [esp+10h] [ebp-4h] BYREF
-
     PROF_SCOPED("SND_BankAliasLookup");
 
-    list = 0;
+    snd_alias_list_t *list = NULL;
     Sys_EnterCriticalSection(CRITSECT_SOUND_BANK);
-    for ( i = 0; i < g_snd_bankCount && !SND_FindInIndex(key, g_snd_banks[g_snd_bankCount - i - 1], &list); ++i )
+    for ( uint i = 0; i < g_snd_bankCount && !SND_FindInIndex(key, g_snd_banks[g_snd_bankCount - i - 1], &list); ++i )
         ;
     Sys_LeaveCriticalSection(CRITSECT_SOUND_BANK);
     return list;
 }
 
-int __cdecl SND_FindAliasId(char *name)
+int __cdecl SND_FindAliasId(const char *name)
 {
-    int id; // [esp+4h] [ebp-4h]
-
-    id = SND_HashName(name);
+    int id = SND_HashName(name);
     if ( id && !SND_FindAliasFromId(id) && SND_Active() )
         SND_LogRegisterString(name, id);
     return id;
@@ -605,7 +514,7 @@ void __cdecl SND_PatchApply(const SndPatch *patch)
 
             iassert(SND_METADATA_FIELD_COUNT[table]);
 
-            if ( table < 9 && field < SND_METADATA_FIELD_COUNT[table] )
+            if ( table < SND_TABLE_COUNT && field < SND_METADATA_FIELD_COUNT[table] )
             {
                 asset = (char *)SND_FindAsset(table, id);
 

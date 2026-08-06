@@ -33,7 +33,7 @@ void __cdecl SND_LogLookupAlias(unsigned int hash, char *string)
     Sys_LeaveCriticalSection(CRITSECT_SOUND_LOOKUP_CACHE);
 }
 
-void __cdecl SND_LogRegisterString(char *name, unsigned int hash)
+void __cdecl SND_LogRegisterString(const char *name, unsigned int hash)
 {
     unsigned int i; // [esp+0h] [ebp-Ch]
     unsigned int oldest; // [esp+4h] [ebp-8h]
