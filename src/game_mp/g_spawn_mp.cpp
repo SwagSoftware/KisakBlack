@@ -1360,7 +1360,7 @@ void __cdecl SP_worldspawn(SpawnVar *spawnVar)
     {
         SV_SetConfigstring(1548, (char *)s);
         v2 = atof(s);
-        v4 = v2 * 0.017453292;
+        v4 = DEG2RAD(v2);
         level.compassNorth[0] = cos(v4);
         level.compassNorth[1] = sin(v4);
     }

@@ -115,7 +115,7 @@ void __cdecl CG_DrawRotatedPicPhysicalW(
     float center[2]; // [esp+70h] [ebp-Ch]
     float sinval; // [esp+78h] [ebp-4h]
 
-    v9 = (float)(angle * 0.017453292);
+    v9 = (float)(DEG2RAD(angle));
     cosval = cos(v9);
     sinval = sin(v9);
     v17 = (float)(width * 0.5) / ScrPlace_HiResGetScale();
@@ -221,7 +221,7 @@ void __cdecl CG_DrawRotatedQuadPic(
     float s; // [esp+68h] [ebp-8h]
     int i; // [esp+6Ch] [ebp-4h]
 
-    v7 = (float)(angle * 0.017453292);
+    v7 = (float)(DEG2RAD(angle));
     c = cos(v7);
     s = sin(v7);
     for ( i = 0; i < 4; ++i )
@@ -485,7 +485,7 @@ void __cdecl CG_NorthDirectionChanged(int localClientNum)
     pszString = CL_GetConfigString(1548);
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     cgameGlob->compassNorthYaw = atof(pszString);
-    v1 = cgameGlob->compassNorthYaw * 0.017453292;
+    v1 = DEG2RAD(cgameGlob->compassNorthYaw);
     cgameGlob->compassNorth[0] = cos(v1);
     cgameGlob->compassNorth[1] = sin(v1);
     CG_MiniMapChanged(localClientNum);
@@ -511,7 +511,7 @@ void __cdecl CG_DebugBox(
     float v[25]; // [esp+34h] [ebp-68h] BYREF
     float fSin; // [esp+98h] [ebp-4h]
 
-    v7 = (float)(yaw * 0.017453292);
+    v7 = (float)(DEG2RAD(yaw));
     fCos = cos(v7);
     fSin = sin(v7);
     for (i = 0; i < 8; ++i)

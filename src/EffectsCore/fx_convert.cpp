@@ -871,13 +871,13 @@ void __cdecl FX_ConvertElemDef(
     FX_CopyCanonicalRange_FxFloatRange_FxFloatRange_(&elemDef->spawnOrigin[2], &edElemDef->spawnOrigin[2]);
     FX_CopyCanonicalRange_FxFloatRange_FxFloatRange_(&elemDef->spawnOffsetRadius, &edElemDef->spawnOffsetRadius);
     FX_CopyCanonicalRange_FxFloatRange_FxFloatRange_(&elemDef->spawnOffsetHeight, &edElemDef->spawnOffsetHeight);
-    FX_ScaleFloatRange(elemDef->spawnAngles, edElemDef->spawnAngles, 0.017453292);
-    FX_ScaleFloatRange(&elemDef->spawnAngles[1], &edElemDef->spawnAngles[1], 0.017453292);
-    FX_ScaleFloatRange(&elemDef->spawnAngles[2], &edElemDef->spawnAngles[2], 0.017453292);
-    FX_ScaleFloatRange(elemDef->angularVelocity, edElemDef->angularVelocity, 0.000017453294);
-    FX_ScaleFloatRange(&elemDef->angularVelocity[1], &edElemDef->angularVelocity[1], 0.000017453294);
-    FX_ScaleFloatRange(&elemDef->angularVelocity[2], &edElemDef->angularVelocity[2], 0.000017453294);
-    FX_ScaleFloatRange(&elemDef->initialRotation, &edElemDef->initialRotation, 0.017453292);
+    FX_ScaleFloatRange(elemDef->spawnAngles, edElemDef->spawnAngles, DEG2RAD(1.0));
+    FX_ScaleFloatRange(&elemDef->spawnAngles[1], &edElemDef->spawnAngles[1], DEG2RAD(1.0));
+    FX_ScaleFloatRange(&elemDef->spawnAngles[2], &edElemDef->spawnAngles[2], DEG2RAD(1.0));
+    FX_ScaleFloatRange(elemDef->angularVelocity, edElemDef->angularVelocity, DEG2RAD(1.0) * 0.001);
+    FX_ScaleFloatRange(&elemDef->angularVelocity[1], &edElemDef->angularVelocity[1], DEG2RAD(1.0) * 0.001);
+    FX_ScaleFloatRange(&elemDef->angularVelocity[2], &edElemDef->angularVelocity[2], DEG2RAD(1.0) * 0.001);
+    FX_ScaleFloatRange(&elemDef->initialRotation, &edElemDef->initialRotation, DEG2RAD(1.0));
     notApplyRotationAxis = 0;
     if ( !edElemDef->elemType || edElemDef->elemType == 3 || edElemDef->elemType == 4 )
         notApplyRotationAxis = 1;
@@ -1416,7 +1416,7 @@ void __cdecl FX_SampleVisualState(FxElemDef *elemDef, const FxEditorElemDef *edE
     FxSampleChannel routing[5]; // [esp+274h] [ebp-14h] BYREF
 
     FX_GetVisualSampleRouting(edElemDef, routing);
-    rotationScale = (float)(edElemDef->rotationScale * 0.017453292)
+    rotationScale = (float)DEG2RAD(edElemDef->rotationScale)
                                 / (float)((float)elemDef->visStateIntervalCount * 1000.0);
     secondColorSrc = (edElemDef->editorFlags & 2) != 0;
     secondAlphaSrc = (edElemDef->editorFlags & 4) != 0;

@@ -1064,19 +1064,19 @@ void __cdecl CG_DrawPlayerPopUps(
                 y = rect->y;
                 if ( doSwing && swingLength && (float)((float)swingLength + 2500.0) > (float)ratio )
                 {
-                    v10 = (float)(yScale->popupRotationAngle * 0.017453292);
+                    v10 = (float)(DEG2RAD(yScale->popupRotationAngle));
                     __libm_sse2_cos(v14);
                     *(float *)&v10 = v10;
                     v19 = *(float *)&v10;
-                    v11 = (float)(COERCE_FLOAT(LODWORD(yScale->popupRotationAngle) ^ _mask__NegFloat_) * 0.017453292);
+                    v11 = (float)(DEG2RAD(COERCE_FLOAT(LODWORD(yScale->popupRotationAngle) ^ _mask__NegFloat_)));
                     __libm_sse2_sin(v15);
                     *(float *)&v11 = v11;
                     x = (float)((float)((float)((float)(1.0 - v19) * rotatedY) / 2.0) + rect->x) + (float)(*(float *)&v11 * v22);
-                    v12 = (float)(yScale->popupRotationAngle * 0.017453292);
+                    v12 = (float)(DEG2RAD(yScale->popupRotationAngle));
                     __libm_sse2_sin(v16);
                     *(float *)&v12 = v12;
                     v18 = *(float *)&v12;
-                    v13 = (float)(COERCE_FLOAT(LODWORD(yScale->popupRotationAngle) ^ _mask__NegFloat_) * 0.017453292);
+                    v13 = (float)(DEG2RAD(COERCE_FLOAT(LODWORD(yScale->popupRotationAngle) ^ _mask__NegFloat_)));
                     __libm_sse2_cos(v17);
                     *(float *)&v13 = v13;
                     y = (float)(rect->y - (float)((float)(v18 * rotatedY) / 2.0)) + (float)((float)(*(float *)&v13 * v22) - v22);
@@ -1177,7 +1177,7 @@ void CG_DrawPlayerPopUps(
         cgame->popupRotationAngle += cgame->popUpAngleDelta;
 
         const float angleRad =
-            cgame->popupRotationAngle * (float)(M_PI / 180.0);
+            (float)DEG2RAD(cgame->popupRotationAngle);
 
         const float cosA = cosf(angleRad);
         const float sinA = sinf(angleRad);
@@ -3000,7 +3000,7 @@ void    CG_CompassDrawTickertape(
                             __libm_sse2_atan2(v12, v13);
                             *(float *)&v11 = v11;
                             textAlpha = AngleNormalize360(
-                                                        (float)((float)(*(float *)&v11 * 180.0) / 3.1415927)
+                                                        (float)RAD2DEG(*(float *)&v11)
                                                     - *(float *)(LODWORD(colorMod[2]) + 388504));
                             distWithRange = -AngleDelta(textAlpha, *(const float *)&objIdx);
                             if ( COERCE_FLOAT(LODWORD(nearestDistHeightDelta) ^ _mask__NegFloat_) <= distWithRange )
@@ -3187,7 +3187,7 @@ void CG_CompassDrawTickertape(
 
         float yaw =
             AngleNormalize360(
-                atan2f(delta[1], delta[0]) * (180.0f / M_PI)
+                RAD2DEG(atan2f(delta[1], delta[0]))
                 - cgame->compassNorthYaw);
 
         float angleDelta =

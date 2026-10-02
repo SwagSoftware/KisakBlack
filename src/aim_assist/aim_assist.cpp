@@ -590,7 +590,7 @@ void __cdecl AimAssist_FovScale(AimAssistGlobals *aaGlob, float tanHalfFovY)
 
         iassert(aaGlob);
         aaGlob->fovTurnRateScale = tanHalfFovY / (float)0.47780272;
-        v3 = cg_fov->current.value * 0.01745329238474369 * 0.5;
+        v3 = DEG2RAD(cg_fov->current.value) * 0.5;
         v2 = tan(v3);
         tanHalfBaseFovY = v2 * 0.75;
         iassert(tanHalfBaseFovY != 0.0f);
@@ -1757,7 +1757,7 @@ void __cdecl AimAssist_SetAutoAimTarget(AimAssistGlobals *aaGlob, const AimScree
 
 void __cdecl AimAssist_ApplyLockOn(const AimInput *input, AimOutput *output)
 {
-    float arcLength; // [esp+4Ch] [ebp-30h]
+    float targetDistance; // [esp+4Ch] [ebp-30h]
     const AimScreenTarget *screenTarget; // [esp+50h] [ebp-2Ch]
     float pitchTurnRate; // [esp+54h] [ebp-28h]
     int prevTargetEnt; // [esp+58h] [ebp-24h]
@@ -1807,27 +1807,26 @@ void __cdecl AimAssist_ApplyLockOn(const AimInput *input, AimOutput *output)
         if ( screenTarget && screenTarget->distSqr > 0.0 )
         {
             aaGlob->lockOnTargetEnt = screenTarget->entIndex;
-            arcLength = sqrtf(screenTarget->distSqr) * 3.1415927;
-            if ( arcLength <= 0.0
+            targetDistance = sqrtf(screenTarget->distSqr);
+            if ( targetDistance <= 0.0
                 && !Assert_MyHandler(
                             "C:\\projects_pc\\cod\\codsrc\\src\\aim_assist\\aim_assist.cpp",
                             1789,
                             0,
                             "%s",
-                            "arcLength > 0.0f") )
+                            "targetDistance > 0.0f") )
             {
                 __debugbreak();
             }
-            pitchTurnRate = (float)((float)((float)((float)((float)((float)(screenTarget->velocity[0] * aaGlob->viewAxis[2][0])
+            pitchTurnRate = (float)RAD2DEG((float)((float)((float)((float)((float)(screenTarget->velocity[0] * aaGlob->viewAxis[2][0])
                                                                                                                         + (float)(screenTarget->velocity[1] * aaGlob->viewAxis[2][1]))
                                                                                                         + (float)(screenTarget->velocity[2] * aaGlob->viewAxis[2][2]))
                                                                                         - (float)((float)((float)(aaGlob->ps.velocity[0] * aaGlob->viewAxis[2][0])
                                                                                                                         + (float)(aaGlob->ps.velocity[1] * aaGlob->viewAxis[2][1]))
                                                                                                         + (float)(aaGlob->ps.velocity[2] * aaGlob->viewAxis[2][2])))
-                                                                        / arcLength)
-                                                        * 180.0)
+                                                                        / targetDistance))
                                         * aim_lockon_pitch_strength->current.value;
-            output->yaw = (float)((float)((float)((float)((float)((float)((float)((float)(screenTarget->velocity[0]
+            output->yaw = (float)((float)((float)RAD2DEG((float)((float)((float)((float)((float)(screenTarget->velocity[0]
                                                                                                                                                                     * aaGlob->viewAxis[1][0])
                                                                                                                                                     + (float)(screenTarget->velocity[1]
                                                                                                                                                                     * aaGlob->viewAxis[1][1]))
@@ -1839,8 +1838,7 @@ void __cdecl AimAssist_ApplyLockOn(const AimInput *input, AimOutput *output)
                                                                                                                                                                     * aaGlob->viewAxis[1][1]))
                                                                                                                                     + (float)(aaGlob->ps.velocity[2]
                                                                                                                                                     * aaGlob->viewAxis[1][2])))
-                                                                                                    / arcLength)
-                                                                                    * 180.0)
+                                                                                                    / targetDistance))
                                                                     * aim_lockon_strength->current.value)
                                                     * input->deltaTime)
                                     + output->yaw;

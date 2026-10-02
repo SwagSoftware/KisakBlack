@@ -126,7 +126,7 @@ void __cdecl CG_RegisterVehicle(const char *name, __int16 index)
         {
             for ( i = 0; i < 4; ++i )
             {
-                v2 = (float)((float)(*(float *)&dst[4 * i + 2788] * 0.5) * 0.017453292);
+                v2 = (float)(DEG2RAD((float)(*(float *)&dst[4 * i + 2788] * 0.5)));
                 //__libm_sse2_cos(v4);
                 //*(float *)&v2 = v2;
                 //*(unsigned int *)&dst[4 * i + 2788] = LODWORD(v2);

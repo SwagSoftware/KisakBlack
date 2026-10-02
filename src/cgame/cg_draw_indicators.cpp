@@ -533,7 +533,7 @@ void __cdecl CG_DrawWarningPointer(
     pivot_4 = cg_hudGrenadePointerPivot->current.vector[1];
     angle = vectoyaw(grenadeOffset) - cgameGlob->predictedPlayerState.viewangles[1];
     yaw = AngleNormalize360(angle);
-    v6 = (float)(yaw * 0.017453292);
+    v6 = (float)(DEG2RAD(yaw));
     cosYaw = cos(v6);
     sinYaw = sin(v6);
     v13 = ScrPlace_HiResGetScale() * (float)(sinYaw * radiusScale);
@@ -597,7 +597,7 @@ void __cdecl CG_DrawWarningIcon(
     radiusScale = cg_hudGrenadeIconOffset->current.value + radiusOffset;
     angle = vectoyaw(grenadeOffset) - cgameGlob->predictedPlayerState.viewangles[1];
     yaw = AngleNormalize360(angle);
-    v7 = (float)(yaw * 0.017453292);
+    v7 = (float)(DEG2RAD(yaw));
     cosYaw = cos(v7);
     sinYaw = sin(v7);
     //v12 = ScrPlace_HiResGetScale() * (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(width * 0.5) ^ _mask__NegFloat_) - (float)(sinYaw * radiusScale));

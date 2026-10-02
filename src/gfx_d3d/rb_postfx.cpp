@@ -1500,11 +1500,11 @@ void __cdecl RB_PoisonFX(const GfxViewInfo *viewInfo)
     v22,
     (float)(1.0 / (float)(1.0 - v23)) * 0.5,
     (float)(1.0 / (float)(1.0 - v22)) * 0.5);
-  v3 = (float)(r_poisonFX_dvisionA->current.value * 0.017453292);
+  v3 = (float)DEG2RAD(r_poisonFX_dvisionA->current.value);
   __libm_sse2_cos(v10);
   *(float *)&v3 = v3;
   dvision0a = *(float *)&v3;
-  v4 = (float)(r_poisonFX_dvisionA->current.value * 0.017453292);
+  v4 = (float)DEG2RAD(r_poisonFX_dvisionA->current.value);
   __libm_sse2_sin(v11);
   *(float *)&v4 = v4;
   dvision0 = dvision0a * r_poisonFX_dvisionX->current.value;
@@ -1614,7 +1614,7 @@ void RB_PoisonFX(const GfxViewInfo *viewInfo)
         (1.0f / (1.0f - finalWarpY)) * 0.5f);
 
     /* double vision base direction */
-    dvisionPhase0 = r_poisonFX_dvisionA->current.value * (float)(M_PI / 180.0);
+    dvisionPhase0 = (float)DEG2RAD(r_poisonFX_dvisionA->current.value);
 
     dvisionX =
         cosf(dvisionPhase0) *

@@ -374,7 +374,7 @@ void R_InitWater(void)
     {
         /* degrees -> radians */
         const float angle =
-            (float)i * 0.3515625f * 0.017453292f;
+            DEG2RAD((float)i * 0.3515625f);
 
         waterGlobStatic.sinTable[i] = sinf(angle);
     }

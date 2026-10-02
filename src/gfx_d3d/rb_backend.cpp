@@ -1068,7 +1068,7 @@ void __cdecl RB_StretchPicRotateXYCmd(GfxRenderCommandExecState *execState)
     halfHeight = (float)(cmd->h * 0.5) / 1.0;
     midX = (float)(cmd->x / 1.0) + halfWidth;
     midY = (float)(cmd->y / 1.0) + halfHeight;
-    v1 = cmd->rotation * 0.017453292;
+    v1 = DEG2RAD(cmd->rotation);
     cosAngle = cos(v1);
     sinAngle = sin(v1);
     //stepY = COERCE_FLOAT(LODWORD(halfHeight) ^ _mask__NegFloat_) * sinAngle;
@@ -1149,7 +1149,7 @@ void __cdecl RB_StretchPicRotateSTCmd(GfxRenderCommandExecState *execState)
     tess.indices[indexCount + 3] = vertCount + 2;
     tess.indices[indexCount + 4] = vertCount;
     tess.indices[indexCount + 5] = vertCount + 1;
-    v1 = cmd->rotation * 0.017453292;
+    v1 = DEG2RAD(cmd->rotation);
     cosAngle = cos(v1);
     sinAngle = sin(v1);
     stepS = (float)(cmd->radiusST * cosAngle) * cmd->scaleFinalS;
@@ -4495,7 +4495,7 @@ void __cdecl RB_DrawText2DCmd(GfxRenderCommandExecState *execState)
     const GfxCmdDrawText2D *cmd; // [esp+7Ch] [ebp-4h]
 
     cmd = (const GfxCmdDrawText2D *)execState->cmd;
-    v1 = *((float *)execState->cmd + 4) * 0.017453292;
+    v1 = DEG2RAD(*((float *)execState->cmd + 4));
     cosAngle = cos(v1);
     sinAngle = sin(v1);
     PROF_SCOPED("RB_DrawText2DCmd");

@@ -436,7 +436,7 @@ void __cdecl CL_AddDebugBox(
     float v[25]; // [esp+34h] [ebp-68h] BYREF
     float fSin; // [esp+98h] [ebp-4h]
 
-    v7 = (float)(yaw * 0.017453292);
+    v7 = (float)(DEG2RAD(yaw));
     fCos = cos(v7);
     fSin = sin(v7);
     for ( i = 0; i < 8; ++i )

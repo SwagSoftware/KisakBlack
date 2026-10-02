@@ -3675,21 +3675,21 @@ void    CG_DrawPlayerImageSwing(
         {
             //v21 = cgameGlob->popupRotationAngle * 0.017453292;
             //__libm_sse2_cos(v6);
-            v20 = cos(cgameGlob->popupRotationAngle * 0.017453292);// v21;
+            v20 = cos(DEG2RAD(cgameGlob->popupRotationAngle));// v21;
 
             //v19 = (-(cgameGlob->popupRotationAngle)) * 0.017453292;
             //__libm_sse2_sin(v7);
-            v18 = sin((-(cgameGlob->popupRotationAngle)) * 0.017453292);
+            v18 = sin(DEG2RAD((-(cgameGlob->popupRotationAngle))));
 
             rotatedX = (float)((float)((float)(rect->w / 2.0) + rect->x) + (float)(1.0 - v20)) + (float)(v18 * swingPoint);
 
             //v17 = cgameGlob->popupRotationAngle * 0.017453292;
             //__libm_sse2_sin(v8);
-            v16 = sin(cgameGlob->popupRotationAngle * 0.017453292);// v17;
+            v16 = sin(DEG2RAD(cgameGlob->popupRotationAngle));// v17;
 
             //v15 = (-(cgameGlob->popupRotationAngle)) * 0.017453292;
             //__libm_sse2_cos(v9);
-            v14 = cos((-(cgameGlob->popupRotationAngle)) * 0.017453292);// v15;
+            v14 = cos(DEG2RAD((-(cgameGlob->popupRotationAngle))));// v15;
             rotatedY = (float)(rect->y - v16) + (float)((float)(v14 * swingPoint) - swingPoint);
             rotation = cgameGlob->popupRotationAngle;
         }
@@ -4632,7 +4632,7 @@ void    CG_DrawPlayerStance(
             else
                 v10 = UI_SafeTranslateString("CGAME_PRONE_BLOCKED");
             v9 = (float)UI_TextWidth(v10, 0, font, scale) * 0.5;
-            v7 = (float)((float)((float)((float)(cgameGlob->proneBlockedEndTime - cgameGlob->time) / 1500.0) * 540.0) * 0.017453292);
+            v7 = (float)(DEG2RAD((float)((float)((float)(cgameGlob->proneBlockedEndTime - cgameGlob->time) / 1500.0) * 540.0)));
             //__libm_sse2_sin(v8);
             //*(float *)&v7 = v7;
             drawColor[0] = fabs(sin(v7));

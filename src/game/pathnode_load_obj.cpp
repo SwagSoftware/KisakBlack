@@ -1112,7 +1112,7 @@ void __cdecl GetNodeAttackPoint(const pathnode_t *node, float *attackPos)
     {
         if ( (node->constant.spawnflags & 0x8000) != 0 )
         {
-            v2 = (float)((float)(node->constant.fAngle + nodeAttackOffset[node->constant.type]) * 0.017453292);
+            v2 = (float)(DEG2RAD((float)(node->constant.fAngle + nodeAttackOffset[node->constant.type])));
             fCos = cos(v2);
             fSin = sin(v2);
             *attackPos = (float)(44.0 * fCos) + node->constant.vOrigin[0];

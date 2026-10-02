@@ -1307,7 +1307,7 @@ void R_WaterSimulationUpdateConfig()
     config.particleWidth = r_watersim_particleWidth->current.value;
 
     // Convert wind direction from degrees to radians
-    float windDirRadians = r_watersim_windDir->current.value * (3.14159265f / 180.0f);
+    float windDirRadians = DEG2RAD(r_watersim_windDir->current.value);
 
     // Compute 2D wind direction vector (x, y)
     config.windDir[0] = cosf(windDirRadians);

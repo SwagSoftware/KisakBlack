@@ -738,7 +738,7 @@ void NitrousVehicle::update_parms(
         rb = thisa->m_phys_user_data->body;
         if (thisa->m_vehicle_info->type == 2)
         {
-            maxAvel = thisa->m_vehicle_info->rotRate * 0.017453292;
+            maxAvel = DEG2RAD(thisa->m_vehicle_info->rotRate);
             rb->m_max_avel = maxAvel;
         }
         else

@@ -422,13 +422,13 @@ void __cdecl DObjSetAngles(DObjAnimMat *rotTrans, const float *angles)
     float pitchQuat_4; // [esp+38h] [ebp-14h]
     float tempQuat; // [esp+3Ch] [ebp-10h]
 
-    v4 = angles[1] * 0.0087266462;
+    v4 = DEG2RAD(angles[1]) * 0.5;
     yawQuat_4 = cos(v4);
     yawQuat = sin(v4);
-    v3 = *angles * 0.0087266462;
+    v3 = DEG2RAD(*angles) * 0.5;
     pitchQuat_4 = cos(v3);
     pitchQuat = sin(v3);
-    v2 = angles[2] * 0.0087266462;
+    v2 = DEG2RAD(angles[2]) * 0.5;
     rollQuat_4 = cos(v2);
     rollQuat = sin(v2);
     tempQuat = (-(pitchQuat)) * yawQuat;

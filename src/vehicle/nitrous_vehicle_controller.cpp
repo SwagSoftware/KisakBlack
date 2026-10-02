@@ -93,7 +93,7 @@ void NitrousVehicleController::UpdateScriptVehicleControl(
         v17 = *(_QWORD *)&to_goal.x;
         //v4 = __libm_sse2_atan2(to_goal.y);
         v4 = atan2(to_goal.y, to_goal.x);
-        yaw = (float)(v4 * 180.0) / 3.1415927;
+        yaw = RAD2DEG(v4);
         if (yaw < 0.0)
             yaw = yaw + 360.0;
     }
@@ -504,7 +504,7 @@ LABEL_46:
         v14 = 1.0f;
     steerFactor = steerFactor * v14;
     v13 = rbveh->m_parameter;
-    yaw_steer_range = v13->m_steer_angle_max * 57.295776;
+    yaw_steer_range = RAD2DEG(v13->m_steer_angle_max);
     if (reverse && rbveh->m_vehicle_info->type != 2)
         yaw_steer_range = yaw_steer_range * 2.0;
     if (yaw_steer_range > (fabs(delta_yaw)))
@@ -768,9 +768,9 @@ LABEL_59:
     }
     else
     {
-        v11 = (float)(rbveh->m_owner->s.lerp.u.turret.gunAngles[0] * 0.017453292) * tweaker_0;
+        v11 = (float)(DEG2RAD(rbveh->m_owner->s.lerp.u.turret.gunAngles[0])) * tweaker_0;
         if ( (float)(v11 - 1.0) < 0.0 )
-            v10 = (float)(rbveh->m_owner->s.lerp.u.turret.gunAngles[0] * 0.017453292) * tweaker_0;
+            v10 = (float)(DEG2RAD(rbveh->m_owner->s.lerp.u.turret.gunAngles[0])) * tweaker_0;
         else
             v10 = 1.0f;
         if ( (float)(-1.0 - v11) < 0.0 )

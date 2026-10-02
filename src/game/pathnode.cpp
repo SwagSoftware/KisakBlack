@@ -1672,7 +1672,7 @@ void Path_DrawDebugNodeBox_0(const pathnode_t *node, float size, const float *co
         start[0] = 0.5 * (float)(mins + maxs[0]);
         start[1] = 0.5 * (float)(mins_4 + maxs[1]);
         start[2] = 0.5 * (float)(mins_8 + maxs[2]);
-        v5 = node->constant.fAngle * 0.017453292;
+        v5 = DEG2RAD(node->constant.fAngle);
         fCos = cos(v5);
         fSin = sin(v5);
         end[0] = (float)(boxsizeMax[0] * fCos) + start[0];
@@ -3427,7 +3427,7 @@ void    Path_UpdateArcBadPlaceCount(badplace_arc_t *arc, int teamflags, int delt
     bArcLessThan180 = v41;
     YawVectors((float)(angle * 0.5) + arc->angle0, forward, 0);
     //v4 = __libm_sse2_sin((float)(angle * 0.0087266462));
-    v4 = sin((float)(angle * 0.0087266462));
+    v4 = sin((float)(DEG2RAD(angle) * 0.5));
     scale = (float)((float)(v4 / angle) * 76.394371) * arc->radius;
     centroid = (float)(scale * forward[0]) + arc->origin[0];
     centroid_4 = (float)(scale * forward[1]) + arc->origin[1];
@@ -3810,7 +3810,7 @@ void    Path_UpdateLimitedDepthArcBadPlaceCount(
     side0[2] = (float)(side0[0] * arc->origin[0]) + (float)(side0[1] * arc->origin[1]);
     side1[2] = (float)(side1[0] * arc->origin[0]) + (float)(side1[1] * arc->origin[1]);
     YawVectors((float)(angle * 0.5) + arc->angle0, forward, 0);
-    v5 = (float)(angle * 0.0087266462);
+    v5 = (float)(DEG2RAD(angle) * 0.5);
     //__libm_sse2_sin(*(long double *)side1end);
     //*(float *)&v5 = v5;
     v5 = sin(v5);

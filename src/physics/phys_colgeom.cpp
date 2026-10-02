@@ -1746,7 +1746,7 @@ bool gjk_polygon_cylinder_t::is_foot(const phys_vec3 *hit_point) const
         return foot_z >= hit_point->z;
     }
 
-    static float offset = this->m_geom_radius * sinf((30.0f * M_PI) / 180.0f); // KISAKTODO: consider making this non-static? looks odd, does the radius never change?
+    static float offset = this->m_geom_radius * sinf(DEG2RAD(30.0f)); // KISAKTODO: consider making this non-static? looks odd, does the radius never change?
 
     float foot_z = (this->m_center.z - this->m_half_height + this->m_foot_offset) - offset;
     return foot_z >= hit_point->z;

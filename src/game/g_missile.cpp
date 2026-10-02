@@ -744,7 +744,7 @@ void    G_ExplodeMissile(gentity_s *ent)
             }
             if (weapDef->iExplosionInnerDamage)
             {
-                v19 = weapDef->damageConeAngle * 0.017453292;
+                v19 = DEG2RAD(weapDef->damageConeAngle);
                 //__libm_sse2_cos(v8);
                 v18 = cos(v19);
                 if ((float)(weapDef->damageConeAngle - 180.0) < 0.0)
@@ -1997,7 +1997,7 @@ void    MissileImpact(gentity_s *ent, trace_t *trace, float *dir, float *endpos)
                         //if (EntHandle::isDefined(&ent->parent))
                         if (ent->parent.isDefined())
                         {
-                            v22 = (float)(weapDef->damageConeAngle * 0.017453292);
+                            v22 = (float)(DEG2RAD(weapDef->damageConeAngle));
                             //__libm_sse2_cos(v35);
                             v23 = cos(v22);
                             if ((float)(weapDef->damageConeAngle - 180.0) < 0.0)
@@ -2661,7 +2661,7 @@ void __cdecl MissileLandAnglesFlat(gentity_s *ent, trace_t *trace, float *angles
     AngleVectors(angles, 0, right, up);
     normalRightComponent = Vec3Dot(right, trace->normal.vec.v);
     normalUpComponent = Vec3Dot(up, trace->normal.vec.v);
-    angles[2] = atan2(normalRightComponent, normalUpComponent) * 180.0f / 3.141592741012573f;
+    angles[2] = RAD2DEG(atan2(normalRightComponent, normalUpComponent));
 }
 
 void __cdecl MissileLandAnglesFlatMaintainingDirection(gentity_s *ent, trace_t *trace, float *angles)
@@ -2683,7 +2683,7 @@ void __cdecl MissileLandAnglesFlatMaintainingDirection(gentity_s *ent, trace_t *
     AngleVectors(angles, 0, right, up);
     normalRightComponent = Vec3Dot(right, trace->normal.vec.v);
     normalUpComponent = Vec3Dot(up, trace->normal.vec.v);
-    angles[2] = atan2(normalRightComponent, normalUpComponent) * 180.0f / 3.141592741012573f;
+    angles[2] = RAD2DEG(atan2(normalRightComponent, normalUpComponent));
 }
 
 void __cdecl CheckGrenadeDanger(gentity_s *grenadeEnt)
@@ -4651,7 +4651,7 @@ char JavelinClimbExceededAngle(gentity_s *ent, const float *targetPos)
                          / (float)(targetPos[2] - ent->s.lerp.pos.trBase[2]));
     //__libm_sse2_atan(v5);
     v3 = atan(v3);
-    if ( value <= fabs(*(float *)&v3 * 57.295776) )
+    if ( value <= fabs(RAD2DEG(*(float *)&v3)) )
         return 0;
     if ( missileDebugText->current.enabled )
         Com_Printf(15, "Javelin: *** Exceeded climb angle ***\n");
@@ -5554,7 +5554,7 @@ gentity_s *__cdecl G_FireRocket(
         AngleVectors(bolt->r.currentAngles, 0, v31, up);
         theta = G_random() * 360.0;
         r = G_random() * weapDef->projectileCurvature;
-        v8 = (float)(theta * 0.017453292);
+        v8 = (float)(DEG2RAD(theta));
         cosT = cos(v8);
         sinT = sin(v8);
         //v16 = &bolt->missile.44;
@@ -5834,7 +5834,7 @@ gentity_s *__cdecl G_DropBomb(
         AngleVectors(bolt->r.currentAngles, 0, v27, up);
         theta = G_random() * 360.0;
         r = G_random() * weapDef->projectileCurvature;
-        v8 = (float)(theta * 0.017453292);
+        v8 = (float)(DEG2RAD(theta));
         cosT = cos(v8);
         sinT = sin(v8);
         //v13 = &bolt->missile.44;

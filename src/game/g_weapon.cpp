@@ -707,7 +707,7 @@ gentity_s* Weapon_RocketLauncher_Fire(
     iassert(ent);
     iassert(wp);
 
-    v9 = spread * 0.01745329238474369;
+    v9 = DEG2RAD(spread);
     v8 = tan(v9);
     fAimOffset = v8 * 16.0;
     gunrandom(&r, &u);
@@ -737,7 +737,7 @@ void __cdecl gunrandom(float *x, float *y)
 
     theta = G_random() * 360.0;
     r = G_random();
-    v2 = (float)(theta * 0.017453292);
+    v2 = (float)(DEG2RAD(theta));
     cosT = cos(v2);
     sinT = sin(v2);
     *x = r * cosT;
@@ -768,7 +768,7 @@ gentity_s *__cdecl Weapon_BombDrop_Fire(
         __debugbreak();
     //__libm_sse2_tan(v8);
     //fAimOffset = (float)(spread * 0.017453292) * fDist;
-    fAimOffset = (float)tan(spread * 0.017453292) * fDist;
+    fAimOffset = (float)tan(DEG2RAD(spread)) * fDist;
     gunrandom(&r, &u);
     r = r * fAimOffset;
     u = u * fAimOffset;

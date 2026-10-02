@@ -358,7 +358,7 @@ char __cdecl G_WorldDirToScreenPos(const gentity_s *player, float fov_x, const f
     horzTan = dirCamera[1] / dirCamera[0];
     vertTan = dirCamera[2] / dirCamera[0];
     __libm_sse2_tan(*(long double *)dirCamera);
-    tanHalfFovX = (float)(fov_x * 0.017453292) * 0.5;
+    tanHalfFovX = (float)(DEG2RAD(fov_x)) * 0.5;
     tanHalfFovY = tanHalfFovX * 0.75;
     if ( tanHalfFovX <= 0.0
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_targets.cpp", 415, 1, "%s", "tanHalfFovX > 0") )
@@ -408,7 +408,7 @@ char __cdecl G_WorldDirToScreenPos(const gentity_s *player, float fov_x, const f
 
     /* ---- Correct tan() usage ---- */
 
-    halfFovRad = (fov_x * 0.017453292f) * 0.5f;
+    halfFovRad = ((float)DEG2RAD(fov_x)) * 0.5f;
     tanHalfFovX = tanf(halfFovRad);
 
     /* IW engine uses 4:3 virtual projection (320x240) */

@@ -817,7 +817,7 @@ void Mount_CheckLedge(pmove_t *pm, pml_t *pml, MantleResults *mresults)
             + (float)(lookVec[2] * ledgeVec[2]);
         //__libm_sse2_acos(v5);
         ledgeAngles = acosf(ledgeAngles);
-        if ((float)(ledgeAngles * 57.295776) < 30.0)
+        if ((float)(RAD2DEG(ledgeAngles)) < 30.0)
         {
             vectoangles(mresults->dir, v13);
             YawVectors(v13[1] + 180.0, traceStart, 0);
@@ -943,7 +943,7 @@ char    Mantle_FindMantleSurface(pmove_t *pm, pml_t *pml, trace_t *trace, float 
         if (len >= 0.000099999997)
         {
             float dot = Vec3Dot(traceDir, mantleDir);
-            if ((float)(acos(dot) * 57.295776) <= mantle_check_angle->current.value)
+            if ((float)(RAD2DEG(acos(dot))) <= mantle_check_angle->current.value)
             {
                 return 1;
             }

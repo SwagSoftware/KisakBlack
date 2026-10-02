@@ -609,7 +609,7 @@ void __cdecl RotatePointAroundVector(float *dst, const float *dir, const float *
     zrot[2][2] = 1.0;
     zrot[1][1] = 1.0;
     zrot[0][0] = 1.0;
-    rad = degrees * 0.01745329238474369;
+    rad = DEG2RAD(degrees);
     iassert(!isnan(rad));
 
     zrot[0][0] = cos(rad);
@@ -647,7 +647,7 @@ float __cdecl vectoyaw(const float *vec)
     else
     {
         v3 = atan2(vec[1], *vec);
-        yawa = v3 * 180.0 / 3.141592741012573;
+        yawa = RAD2DEG(v3);
         if (yawa < 0.0)
             v2 = 360.0;
         else
@@ -668,7 +668,7 @@ float __cdecl vectosignedyaw(const float *vec)
     else
     {
         v2 = atan2(vec[1], *vec);
-        yaw = v2 * 180.0 / 3.141592741012573;
+        yaw = RAD2DEG(v2);
         iassert(yaw >= -180);
         iassert(yaw <= 180);
     }
@@ -695,7 +695,7 @@ float __cdecl vectopitch(const float *vec)
         v6 = vec[1] * vec[1] + *vec * *vec;
         v4 = sqrt(v6);
         v3 = atan2(vec[2], v4);
-        pitcha = v3 * -180.0 / 3.141592741012573;
+        pitcha = RAD2DEG(-v3);
         if (pitcha < 0.0)
             v2 = 360.0;
         else
@@ -730,7 +730,7 @@ void __cdecl vectoangles(const float *vec, float *angles)
     else
     {
         v6 = atan2(vec[1], *vec);
-        yawa = v6 * 180.0 / 3.141592741012573;
+        yawa = RAD2DEG(v6);
         if (yawa < 0.0)
             v5 = 360.0;
         else
@@ -739,7 +739,7 @@ void __cdecl vectoangles(const float *vec, float *angles)
         v8 = vec[1] * vec[1] + *vec * *vec;
         v4 = sqrt(v8);
         v3 = atan2(vec[2], v4);
-        pitcha = v3 * -180.0 / 3.141592741012573;
+        pitcha = RAD2DEG(-v3);
         if (pitcha < 0.0)
             v2 = 360.0;
         else
@@ -765,7 +765,7 @@ void __cdecl YawVectors(float yaw, float *forward, float *right)
     float angle; // [esp+Ch] [ebp-8h]
     float sy; // [esp+10h] [ebp-4h]
 
-    angle = yaw * 0.01745329238474369;
+    angle = DEG2RAD(yaw);
     cy = cos(angle);
     sy = sin(angle);
     if (forward)
@@ -788,7 +788,7 @@ void __cdecl YawVectors2D(float yaw, float *forward, float *right)
     float angle; // [esp+Ch] [ebp-8h]
     float sy; // [esp+10h] [ebp-4h]
 
-    angle = yaw * 0.01745329238474369;
+    angle = DEG2RAD(yaw);
     cy = cos(angle);
     sy = sin(angle);
     if (forward)
@@ -1433,7 +1433,7 @@ void __cdecl VectorAngleMultiply(float *vec, float angle)
     float x; // [esp+10h] [ebp-8h]
     float y; // [esp+14h] [ebp-4h]
 
-    v2 = (float)(angle * 0.017453292);
+    v2 = (float)(DEG2RAD(angle));
     x = cos(v2);
     y = sin(v2);
     temp = (float)(*vec * x) - (float)(vec[1] * y);
@@ -1609,12 +1609,12 @@ double __cdecl RotationToYaw(const float *rot)
     v4 = ra * (rot[1] * *rot);
     v3 = 1.0 - ra * zz;
     v2 = atan2(v4, v3);
-    return (v2 * 57.2957763671875);
+    return (RAD2DEG(v2));
 }
 
 void __cdecl MatrixRotationZ(float (*mat)[3], float degree)
 {
-    float radians = degree * (3.14159265f / 180.0f);
+    float radians = DEG2RAD(degree);
     float s = sinf(radians);
     float c = cosf(radians);
 
@@ -2178,12 +2178,12 @@ void __cdecl AxisToAngles(const float (*axis)[3], float *angles)
     right[0] = axis[1][0];
     right[1] = axis[1][1];
     right[2] = axis[1][2];
-    rad = -angles[1] * 0.01745329238474369;
+    rad = DEG2RAD(-angles[1]);
     fCos = cos(rad);
     fSin = sin(rad);
     temp = fCos * right[0] - fSin * right[1];
     right[1] = fSin * right[0] + fCos * right[1];
-    rada = -*angles * 0.01745329238474369;
+    rada = DEG2RAD(-*angles);
     fCos = cos(rada);
     fSin = sin(rada);
     right[0] = fSin * right[2] + fCos * temp;
@@ -2220,13 +2220,13 @@ void __cdecl Axis4ToAngles(const float (*axis)[4], float *angles)
     right[2] = (*axis)[6];
     right[3] = (*axis)[7];
     //rad = COERCE_FLOAT(*((unsigned int *)angles + 1) ^ _mask__NegFloat_) * 0.017453292;
-    rad = -angles[1] * 0.017453292;
+    rad = DEG2RAD(-angles[1]);
     fCos = cos(rad);
     fSin = sin(rad);
     temp = (float)(fCos * right[0]) - (float)(fSin * right[1]);
     right[1] = (float)(fSin * right[0]) + (float)(fCos * right[1]);
     //rada = COERCE_FLOAT(*(unsigned int *)angles ^ _mask__NegFloat_) * 0.017453292;
-    rada = -angles[0] * 0.017453292f;
+    rada = DEG2RAD(-angles[0]);
     fCos = cos(rada);
     fSin = sin(rada);
     right[0] = (float)(fSin * right[2]) + (float)(fCos * temp);
@@ -2662,7 +2662,7 @@ double __cdecl PitchForYawOnNormal(float fYaw, const float *normal)
     if ( normal[2] == 0.0 )
         return 270.0;
     v3 = atan((float)((float)((float)(*normal * forward[0]) + (float)(normal[1] * forward[1])) / normal[2]));
-    return v3 * 180.0 / 3.1415927;
+    return RAD2DEG(v3);
 }
 
 void __cdecl NearestPitchAndYawOnPlane(const float *angles, const float *normal, float *result)
@@ -3163,7 +3163,7 @@ void colorHueMatrix(float finalMatrix[4][4], float hue)
     float basis2[4][4];
     float tmp[4][4];
 
-    const float H = hue * (3.14159265358979323846f / 180.0f);
+    const float H = DEG2RAD(hue);
     const float s = sinf(H);
     const float c = cosf(H);
 

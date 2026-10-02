@@ -908,12 +908,12 @@ void __cdecl CG_UpdateTurretKillCam(int localClientNum)
     }
     CG_GetPlayerKillCamEntityLookAt(localClientNum, lookAt);
     CG_GetTurretEntityOrgAngles(localClientNum, origin, angles);
-    v1 = (float)(angles[1] * 0.017453292);
+    v1 = (float)(DEG2RAD(angles[1]));
     cosine = cos(v1);
     sine = sin(v1);
     origin[0] = (float)(cosine * cg_turretKillCamBackOffset->current.value) + origin[0];
     origin[1] = (float)(sine * cg_turretKillCamBackOffset->current.value) + origin[1];
-    v4 = (float)(angles[1] + 90.0) * 0.017453292;
+    v4 = DEG2RAD((float)(angles[1] + 90.0));
     cosine = cos(v4);
     sine = sin(v4);
     origin[0] = (float)(cosine * cg_turretKillCamSideOffset->current.value) + origin[0];
@@ -2386,7 +2386,7 @@ void    CG_OffsetChaseCamView(int localClientNum, CameraMode camMode)
         up[2] = up[1];
         up[0] = v13;
         __libm_sse2_atan2(v3, v4);
-        viewAngles[1] = v13 * -57.295776;
+        viewAngles[1] = -RAD2DEG(v13);
         viewAngles[2] = viewAngles[2] - cg_thirdPersonAngle->current.value;
         AngleVectors(&viewAngles[1], &focusPoint[1], (float *)&v4 + 1, right);
         LODWORD(v4) = cg_thirdPersonRange->current.integer;
@@ -2465,7 +2465,7 @@ void CG_OffsetChaseCamView(int localClientNum, CameraMode camMode)
     if (horizDist < 1.0f)
         horizDist = 1.0f;
 
-    viewAngles[PITCH] = -atan2f(focusPoint[2], horizDist) * 57.295776f;
+    viewAngles[PITCH] = -RAD2DEG(atan2f(focusPoint[2], horizDist));
 
     focusAngles[PITCH] -= cg_thirdPersonAngle->current.value;
 
@@ -2633,7 +2633,7 @@ void    CG_OffsetThirdPersonView(int localClientNum)
         v3 = v10;
         __libm_sse2_atan2(v4, v5);
         *(float *)&v3 = v3;
-        focusAngles[1] = *(float *)&v3 * -57.295776;
+        focusAngles[1] = -RAD2DEG(*(float *)&v3);
         AnglesToAxis(&focusAngles[1], (float (*)[3])(LODWORD(tagMtx[3][2]) + 274156));
     }
 }
@@ -2781,7 +2781,7 @@ void CG_OffsetThirdPersonView(int localClientNum)
     if (dist < 1.0f)
         dist = 1.0f;
 
-    focusAngles[PITCH] = -atan2f(view[2], dist) * 57.295776f;
+    focusAngles[PITCH] = -RAD2DEG(atan2f(view[2], dist));
 
     AnglesToAxis(focusAngles, cgameGlob->refdef.viewaxis);
 }

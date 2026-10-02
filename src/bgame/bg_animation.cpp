@@ -2282,7 +2282,7 @@ LABEL_7:
             if ( fLeanFrac != 0.0 )
                 vHeadAngles[2] = vHeadAngles[2] * 0.5;
             tag_origin_angles[0] = tag_origin_angles[0] + es->animState.fAimLeftRight;
-            v4 = (float)(vTorsoAngles[1] * 0.017453292);
+            v4 = (float)(DEG2RAD(vTorsoAngles[1]));
             c = cos(v4);
             s = sin(v4);
             tag_origin_offset = (float)((float)(1.0 - c) * 0.0) + 0.0;

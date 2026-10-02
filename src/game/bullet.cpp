@@ -160,7 +160,7 @@ void __cdecl Bullet_Endpos(int randSeed, float spread, float *end, float *dir, c
         __debugbreak();
     //__libm_sse2_tan(v6);
     //aimOffset = (float)(spread * 0.017453292) * maxRange;
-    aimOffset = (float)(tan(spread * 0.017453292)) * maxRange;
+    aimOffset = (float)(tan(DEG2RAD(spread))) * maxRange;
     if ( (LODWORD(aimOffset) & 0x7F800000) == 0x7F800000
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\bullet.cpp", 118, 0, "%s", "!IS_NAN(aimOffset)") )
     {
@@ -226,7 +226,7 @@ void __cdecl Bullet_RandomDir(int time, float *x, float *y)
         __debugbreak();
     theta = G_GoodRandomFloat(&time) * 360.0;
     r = G_GoodRandomFloat(&time);
-    v3 = (float)(theta * 0.017453292);
+    v3 = (float)(DEG2RAD(theta));
     cosT = cos(v3);
     sinT = sin(v3);
     *x = r * cosT;
@@ -564,7 +564,7 @@ void __cdecl Bullet_Process(
     //BLOPS_NULLSUB();
     if ( weapDef->bBulletImpactExplode && weapDef->iExplosionInnerDamage )
     {
-        v8 = (float)(weapDef->damageConeAngle * 0.017453292);
+        v8 = (float)(DEG2RAD(weapDef->damageConeAngle));
         //__libm_sse2_cos(v15);
         //v9 = v8;
         v9 = cos(v8);

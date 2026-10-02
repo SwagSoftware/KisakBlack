@@ -469,7 +469,7 @@ void __cdecl FX_ImpactMark(
                 __debugbreak();
             }
             UnitQuatToAxis(quat, axis);
-            RotatePointAroundVector(axis[2], axis[0], axis[1], orientation * 57.295776);
+            RotatePointAroundVector(axis[2], axis[0], axis[1], RAD2DEG(orientation));
             Vec3Cross(axis[0], axis[2], axis[1]);
             if ( fx_marks_draw_impact_axis->current.enabled )
                 CL_AddDebugAxis(origin, axis, 20.0, 1, 700);

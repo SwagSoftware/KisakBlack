@@ -972,7 +972,7 @@ gentity_s *__cdecl ThrowClientWeapon(gentity_s *ent, const gitem_s *item, float 
     {
         angles[1] = ent->client->fGunYaw;
         AngleVectors(angles, velocity, 0, 0);
-        v5 = ent->client->fGunYaw * 0.017453292;
+        v5 = DEG2RAD(ent->client->fGunYaw);
         cosine = cos(v5);
         sine = sin(v5);
         velocity[0] = (float)(velocityIncrease * cosine) + velocity[0];

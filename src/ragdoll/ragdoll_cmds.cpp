@@ -269,9 +269,9 @@ void __cdecl Ragdoll_Limit_f()
                             v9 = atof(Cmd_Argv(4));
                             def->jointDefs[jointNum].axisFriction[def->jointDefs[jointNum].numLimitAxes] = v9;
                             v8 = atof(Cmd_Argv(5));
-                            def->jointDefs[jointNum].minAngles[def->jointDefs[jointNum].numLimitAxes] = v8 * 0.017453292;
+                            def->jointDefs[jointNum].minAngles[def->jointDefs[jointNum].numLimitAxes] = DEG2RAD(v8);
                             v7 = atof(Cmd_Argv(6));
-                            def->jointDefs[jointNum].maxAngles[def->jointDefs[jointNum].numLimitAxes] = v7 * 0.017453292;
+                            def->jointDefs[jointNum].maxAngles[def->jointDefs[jointNum].numLimitAxes] = DEG2RAD(v7);
                             v12 = def->jointDefs[jointNum].minAngles[def->jointDefs[jointNum].numLimitAxes];
                             if ( (float)(v12 - 3.1415927) < 0.0 )
                                 v13 = def->jointDefs[jointNum].minAngles[def->jointDefs[jointNum].numLimitAxes];

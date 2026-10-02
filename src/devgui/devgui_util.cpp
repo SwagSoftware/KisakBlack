@@ -324,7 +324,7 @@ void  DevGui_DrawLine(float *start, float *end, int width, const unsigned __int8
     len = Vec2Length(diff);
     Vec3Normalize(diff);
     v7 = acos(diff[0]);
-    angle = v7 * 57.2957763671875;
+    angle = RAD2DEG(v7);
     if (start[1] > (double)end[1])
         angle = -angle;
     while (angle < 0.0)

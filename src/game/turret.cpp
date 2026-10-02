@@ -2219,7 +2219,7 @@ bool __cdecl turret_behind(gentity_s *self, gentity_s *other)
     dir[2] = 0.0f;
     Vec3Normalize(dir);
     dot = (float)((float)(forward[0] * dir[0]) + (float)(forward[1] * dir[1])) + (float)(forward[2] * dir[2]);
-    angle = Q_acos(dot) * 57.295776;
+    angle = RAD2DEG(Q_acos(dot));
     return angle <= yawSpan;
 }
 
@@ -2748,7 +2748,7 @@ void __cdecl G_SpawnTurret(gentity_s *self, const char *weaponinfoname, SpawnVar
     else
         *((float *)&v8 + 1) = 90.0f;
     turretInfo->forwardAngleDot = *((float *)&v8 + 1);
-    v7 = (float)(turretInfo->forwardAngleDot * 0.017453292);
+    v7 = (float)(DEG2RAD(turretInfo->forwardAngleDot));
     //__libm_sse2_cos(v8);
     //*(float *)&v7 = v7;
     v7 = cos(v7);

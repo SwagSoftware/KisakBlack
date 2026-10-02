@@ -87,7 +87,7 @@ void __cdecl CG_Actor_DoControllers(const cpose_t *pose, const DObj *obj, int *p
         if ( DObjSetRotTransIndex(obj, partBits, 0) )
         {
             //v5 = pose->turret.$251974A72D8ACF7EC8C19B3B5F3F224B::angles.yaw * 0.0087266462;
-            v5 = pose->actor.pitch * 0.0087266462;
+            v5 = DEG2RAD(pose->actor.pitch) * 0.5;
             mat->quat[0] = 0.0f;
             mat->quat[2] = 0.0f;
             v3 = &mat->quat[1];
@@ -565,10 +565,10 @@ void __cdecl CG_mg42_DoControllers(const cpose_t *pose, const DObj *obj, int *pa
     {
         angles[1] = turretYaw;
         angles[0] = turretPitch;
-        v3 = (float)(turretPitch * 0.017453292);
+        v3 = (float)(DEG2RAD(turretPitch));
         pc = cos(v3);
         ps = sin(v3);
-        v4 = (float)(turretYaw * 0.017453292);
+        v4 = (float)(DEG2RAD(turretYaw));
         yc = cos(v4);
         ys = sin(v4);
         ofs[0] = (float)((float)((float)(yc - 1.0) * ofsDist) * ycFwdScale)

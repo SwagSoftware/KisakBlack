@@ -1162,8 +1162,8 @@ void    DynEnt_SetupConstraints(const DynEntityDef *dynEntDef)
                                 &b2axisloc,
                                 &b1refloc,
                                 &b2refloc,
-                                c->minAngle * 0.017453292,
-                                c->maxAngle * 0.017453292,
+                                DEG2RAD(c->minAngle),
+                                DEG2RAD(c->maxAngle),
                                 c->damp);
                         }
                         else

@@ -3393,7 +3393,7 @@ void CScr_sin()
 
     //*((float *)&v1 + 1) = Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT);
     //value = (float)(*((float *)&v1 + 1) * 0.017453292);
-    value = (float)(Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT) * 0.017453292);
+    value = (float)(DEG2RAD(Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT)));
     //__libm_sse2_sin(v1);
     //*(float *)&value = value;
     value = sin(value);
@@ -3407,7 +3407,7 @@ void CScr_cos()
 
     //*((float *)&v1 + 1) = Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT);
     //value = (float)(*((float *)&v1 + 1) * 0.017453292);
-    value = (float)(Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT) * 0.017453292);
+    value = (float)(DEG2RAD(Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT)));
     //__libm_sse2_cos(v1);
     //*(float *)&value = value;
     value = cos(value);
@@ -3420,7 +3420,7 @@ void CScr_tan()
     float sinT; // [esp+18h] [ebp-8h]
     float cosT; // [esp+1Ch] [ebp-4h]
 
-    v0 = Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT) * 0.017453292;
+    v0 = DEG2RAD(Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT));
     cosT = cos(v0);
     sinT = sin(v0);
     if ( cosT == 0.0 )
@@ -3439,7 +3439,7 @@ void CScr_asin()
         Scr_Error(SCRIPTINSTANCE_CLIENT, va("%g out of range", x), 0);
     }
     //__libm_sse2_asin(v0);
-    Scr_AddFloat(asin(x) * 57.295776, SCRIPTINSTANCE_CLIENT);
+    Scr_AddFloat(RAD2DEG(asin(x)), SCRIPTINSTANCE_CLIENT);
 }
 
 void CScr_acos()
@@ -3453,7 +3453,7 @@ void CScr_acos()
         Scr_Error(SCRIPTINSTANCE_CLIENT, va("%g out of range", x), 0);
     }
     //__libm_sse2_acos(v0);
-    Scr_AddFloat(acos(x) * 57.295776, SCRIPTINSTANCE_CLIENT);
+    Scr_AddFloat(RAD2DEG(acos(x)), SCRIPTINSTANCE_CLIENT);
 }
 
 void CScr_atan()
@@ -3466,7 +3466,7 @@ void CScr_atan()
     //__libm_sse2_atan(v1);
     //*(float *)&v0 = v0;
     //Scr_AddFloat(*(float *)&v0 * 57.295776, SCRIPTINSTANCE_CLIENT);
-    Scr_AddFloat(atan(Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT)) * 57.295776, SCRIPTINSTANCE_CLIENT);
+    Scr_AddFloat(RAD2DEG(atan(Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT))), SCRIPTINSTANCE_CLIENT);
 }
 
 void CScr_abs()
@@ -6937,7 +6937,7 @@ void __cdecl CScr_GetLightFovInner(scr_entref_t entref)
     //__libm_sse2_acos(v2);
     //*(float *)&v1 = v1;
     //Scr_AddFloat((float)(*(float *)&v1 * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
-    Scr_AddFloat((float)(acos(pSelf->nextState.lerp.u.primaryLight.cosHalfFovInner) * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
+    Scr_AddFloat(RAD2DEG((float)(acos(pSelf->nextState.lerp.u.primaryLight.cosHalfFovInner) * 2.0)), SCRIPTINSTANCE_CLIENT);
 }
 
 void __cdecl CScr_GetLightFovOuter(scr_entref_t entref)
@@ -6977,7 +6977,7 @@ void __cdecl CScr_GetLightFovOuter(scr_entref_t entref)
     //__libm_sse2_acos(v2);
     //*(float *)&v1 = v1;
     //Scr_AddFloat((float)(*(float *)&v1 * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
-    Scr_AddFloat((float)(acos(pSelf->nextState.lerp.u.primaryLight.cosHalfFovOuter) * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
+    Scr_AddFloat(RAD2DEG((float)(acos(pSelf->nextState.lerp.u.primaryLight.cosHalfFovOuter) * 2.0)), SCRIPTINSTANCE_CLIENT);
 }
 
 void __cdecl CScr_SetLightFovRange(scr_entref_t entref)

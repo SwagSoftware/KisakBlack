@@ -2163,7 +2163,7 @@ void    DrawOffscreenViewableWaypoint(int localClientNum, const hudelem_s *elem)
                     v23 = -(clampedDir[1]);
                     //v4 = __libm_sse2_atan2(clampedDir[0]);
                     v4 = atan2(clampedDir[0], -clampedDir[1]);
-                    angle = (float)(v4 * 180.0) / 3.1415927;
+                    angle = (float)RAD2DEG(v4);
                     screenPosArrow[0] = (float)(pointerDistance * clampedDir[0]) + screenPos[0];
                     screenPosArrow[1] = (float)(pointerDistance * clampedDir[1]) + screenPos[1];
                     ScrPlace_HiResApplyRect(screenPosArrow, &screenPosArrow[1], &pointerWidth, &pointerHeight);

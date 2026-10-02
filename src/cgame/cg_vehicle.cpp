@@ -836,7 +836,7 @@ void    CG_Vehicle_PreControllers(
                     v32 = v6;
                     cent->pose.vehicle.wheelHeight[j] = v6;
                     rotation = wheel->m_wheel_pos;
-                    cent->pose.vehicle.nitrousWheelRotation[j] = rotation * 57.295776;
+                    cent->pose.vehicle.nitrousWheelRotation[j] = RAD2DEG(rotation);
                     if (cent->nitrousVeh->m_vehicle_info->type == 2 || (unsigned int)j > 1)
                     {
                         cent->pose.vehicle.nitrousWheelYaw[j] = 0.0f;

@@ -324,7 +324,7 @@ void __cdecl SV_BotThink(client_t *bot, usercmd_s *cmd)
     if ( fabs(botFov - sv_botFov->current.value) > 0.000001 )
     {
         botFov = sv_botFov->current.value;
-        g_botFovCos = cos((float)((float)(botFov * 0.5) * 0.017453292));
+        g_botFovCos = cos((float)(DEG2RAD((float)(botFov * 0.5))));
     }
     cmd->serverTime = svs.time;
     Bot_UpdateTimedAction(&botInfo->adsEndTime);
@@ -2702,7 +2702,7 @@ char __cdecl Bot_GrenadeInRange(
         }
         else
         {
-            *outPitch = (float)(*outPitch * 57.295776) * -1.0;
+            *outPitch = (float)(RAD2DEG(*outPitch)) * -1.0;
             //if ( g_DXDeviceThread == GetCurrentThreadId() )
                 //D3DPERF_EndEvent();
             return 1;
@@ -3635,7 +3635,7 @@ void    Bot_DrawThreat(const client_t *bot)
             default:
                 break;
             }
-            ends[3][2] = (float)(sv_botFov->current.value * 0.5) * 0.017453292;
+            ends[3][2] = DEG2RAD((float)(sv_botFov->current.value * 0.5));
             //v2 = __libm_sse2_cos(ends[3][2]);
             v2 = cos(ends[3][2]);
             ends[3][1] = v2;

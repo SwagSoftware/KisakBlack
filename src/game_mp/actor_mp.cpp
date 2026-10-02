@@ -3378,7 +3378,7 @@ void __cdecl actor_controller(const gentity_s *self, int *partBits)
         rotTrans = SV_DObjGetRotTransArray(self);
         if ( rotTrans )
         {
-            v2 = (float)(pProneInfo->fTorsoPitch * fFrac) * 0.0087266462;
+            v2 = DEG2RAD((float)(pProneInfo->fTorsoPitch * fFrac)) * 0.5;
             rotTrans->quat[0] = 0.0f;
             rotTrans->quat[2] = 0.0f;
             rotTrans->quat[3] = cos(v2);

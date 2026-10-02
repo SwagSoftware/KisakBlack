@@ -2057,7 +2057,7 @@ double __cdecl GetPitchOffsetRelativeToADirection(const float *angles, const flo
 
     angleRad = acosf(dot);
 
-    return 90.0 - (double)(angleRad * 57.295776f);
+    return 90.0 - (double)(RAD2DEG(angleRad));
 }
 
 float lookAtOffsetInFront = -50.0f;

@@ -374,7 +374,7 @@ void __cdecl R_GenerateQuadStampCodeMeshVertsArray(
         i = 0;
         while ( i < numQuads )
         {
-            angle = quads[i].rotation * 0.017453292;
+            angle = DEG2RAD(quads[i].rotation);
             really_fast_sincos(angle, &s, &c);
             s = s * quads[i].radius;
             c = c * quads[i].radius;

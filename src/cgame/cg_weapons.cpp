@@ -5428,7 +5428,7 @@ void __cdecl CG_BulletEndpos(
     //__libm_sse2_tan(v9);
     //aimOffset = (float)(spread * 0.017453292) * maxRange;
 
-    aimOffset = tanf(spread * 0.017453292f) * maxRange; // convert spread to radians and tan
+    aimOffset = tanf(DEG2RAD(spread)) * maxRange; // convert spread to radians and tan
 
     if ( (LODWORD(aimOffset) & 0x7F800000) == 0x7F800000
         && !Assert_MyHandler(
@@ -5496,7 +5496,7 @@ void __cdecl RandomBulletDir(int randSeed, float *x, float *y)
         __debugbreak();
     theta = G_GoodRandomFloat(&randSeed) * 360.0;
     r = G_GoodRandomFloat(&randSeed);
-    v3 = (float)(theta * 0.017453292);
+    v3 = (float)(DEG2RAD(theta));
     cosT = cos(v3);
     sinT = sin(v3);
     *x = r * cosT;

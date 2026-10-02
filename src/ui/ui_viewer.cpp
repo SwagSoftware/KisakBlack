@@ -846,7 +846,7 @@ void __thiscall UIViewer::DrawScene(unsigned int eyeToRender)
         memset(&cgameGlob->refdef, 0, sizeof(cgameGlob->refdef));
         cgameGlob->refdef.exposure = rgp.world->sunParse.sunSettings[0].exposure;
         //v3 = __libm_sse2_tan(((this->fov->current.value * 0.017453292) * 0.5));
-        v3 = tan(((this->fov->current.value * 0.017453292) * 0.5));
+        v3 = tan((DEG2RAD(this->fov->current.value) * 0.5));
         dxDzAtDefaultAspectRatio = v3;
         cgameGlob->refdef.tanHalfFovX = v3;
         cgameGlob->refdef.tanHalfFovY = dxDzAtDefaultAspectRatio;

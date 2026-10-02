@@ -392,7 +392,7 @@ void __cdecl SpawnSystem_SetPointsBaseWeight(int teammask, float *objective_posi
     point = 0;
     //__libm_sse2_cos(v6);
     //angle_cos = angle * 0.017453292;
-    angle_cos = cos(angle * 0.017453292);
+    angle_cos = cos(DEG2RAD(angle));
     dot = 0.0f;
     for ( i = 0; i < g_spawnPointCount; ++i )
     {
@@ -415,7 +415,7 @@ void __cdecl SpawnSystem_SetPointsBaseWeight(int teammask, float *objective_posi
                 + (float)(forward[2] * direction[2]);
         if ( dot < angle_cos )
         {
-            iassert((acosf(dot) * 180.f / M_PI) > angle);
+            iassert((RAD2DEG(acosf(dot))) > angle);
             //v5 = dot;
             //__libm_sse2_acos(v7);
             //*(float *)&v5 = v5;
@@ -433,7 +433,7 @@ void __cdecl SpawnSystem_SetPointsBaseWeight(int teammask, float *objective_posi
         }
         else
         {
-            iassert((acosf(dot) * 180.f / M_PI) <= angle);
+            iassert((RAD2DEG(acosf(dot))) <= angle);
             //v4 = dot;
             //__libm_sse2_acos(v7);
             //*(float *)&v4 = v4;

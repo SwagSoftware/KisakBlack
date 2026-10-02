@@ -725,8 +725,8 @@ void    XDoll_CreateConstraint(
             Phys_Vec3ToNitrousVec(constraint->offset, &v19);
             v18 = (char *)rb1->m_userdata;
             damp = constraint->damp;
-            lowStop = constraint->minAngle * 0.017453292;
-            highStop = constraint->maxAngle * 0.017453292;
+            lowStop = DEG2RAD(constraint->minAngle);
+            highStop = DEG2RAD(constraint->maxAngle);
             v14 = v18 + 32;
             powera = (const phys_vec3 *)(v18 + 80);
             v5 = phys_multiply(&v13, (const phys_mat44 *)(v18 + 32), &v19);

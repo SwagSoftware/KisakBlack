@@ -2736,7 +2736,7 @@ void __cdecl G_ReloadScrVehicleInfo()
             HIDWORD(v1) = 0;
             while ( SHIDWORD(v1) < 4 )
             {
-                *(float *)&v1 = (float)(*(float *)&pStruct[4 * HIDWORD(v1) + 2788] * 0.5) * 0.017453292;
+                *(float *)&v1 = DEG2RAD((float)(*(float *)&pStruct[4 * HIDWORD(v1) + 2788] * 0.5));
                 v0 = *(float *)&v1;
                 __libm_sse2_cos(v1);
                 *(float *)&v0 = v0;
@@ -3049,7 +3049,7 @@ int __cdecl G_LoadVehicle(char *name)
         {
             for ( i = 0; i < 4; ++i )
             {
-                v2 = (float)((float)(*(float *)&dst[4 * i + 2788] * 0.5) * 0.017453292);
+                v2 = (float)(DEG2RAD((float)(*(float *)&dst[4 * i + 2788] * 0.5)));
                 __libm_sse2_cos(v4);
                 *(float *)&v2 = v2;
                 *(unsigned int *)&dst[4 * i + 2788] = LODWORD(v2);
@@ -5180,7 +5180,7 @@ void __cdecl VEH_UpdateNitrousPosition(gentity_s *pSelf)
     }
     else
     {
-        pSelf->s.lerp.u.turret.gunAngles[0] = (float)(info->nitrousVehParams.m_steer_angle_max * 57.295776)
+        pSelf->s.lerp.u.turret.gunAngles[0] = (float)(RAD2DEG(info->nitrousVehParams.m_steer_angle_max))
                                                                                 * nitrousVeh->m_steer_factor;
     }
     VEH_SetPosition(pSelf, absPos, tvel, angles);
@@ -6145,7 +6145,7 @@ void __cdecl VEH_UpdateBody(gentity_s *ent)
     veh = ent->scr_vehicle;
     if ( !veh->nitrousVehicle && veh->joltTime > 0.0 )
     {
-        v1 = (float)(veh->joltWave * 0.017453292);
+        v1 = (float)(DEG2RAD(veh->joltWave));
         //__libm_sse2_sin(v2);
         //*(float *)&v1 = v1;
         v1 = sin(v1);
@@ -7395,7 +7395,7 @@ void __cdecl VEH_UpdateMoveOrientation(gentity_s *ent, float *desiredDir)
     VEH_AddFakeDrag(veh->phys.vel, veh->maxDragSpeed, accelVec);
     horizontalAccel = Vec2Length(accelVec) / 0.05f;
     Vec3Normalize(accelVec);
-    angle = veh->phys.angles[1] * 0.017453292;
+    angle = DEG2RAD(veh->phys.angles[1]);
     bodyDir = cos(angle);
     bodyDir_4 = sin(angle);
     accelFraction = VEH_CalcAccelFraction(horizontalAccel, veh->infoIdx);
@@ -8233,7 +8233,7 @@ void __cdecl VEH_UpdatePlaneRoll(gentity_s *ent)
     }
     veh->currentRollTime = veh->currentRollTime + 0.05f;
     //v2 = __libm_sse2_sin((float)((float)((float)(90.0 * veh->currentRollTime) / veh->goalRollTime) * 0.017453292));
-    v2 = sin((float)((float)((float)(90.0 * veh->currentRollTime) / veh->goalRollTime) * 0.017453292));
+    v2 = sin((float)(DEG2RAD((float)((float)(90.0 * veh->currentRollTime) / veh->goalRollTime))));
     veh->phys.angles[2] = veh->goalRoll * v2;
     veh->phys.angles[2] = AngleNormalize360(veh->phys.angles[2]);
     if (veh->currentRollTime >= veh->goalRollTime)

@@ -2362,24 +2362,24 @@ void    R_SetHDRControlConstants(GfxCmdBufInput *input, const GfxViewInfo *viewI
     R_SetInputCodeConstant(input, 0x82u, rangeA[0], rangeA[1], rangeA[2], 0.0);
     R_SetInputCodeConstant(input, 0x83u, rangeB[0], rangeB[1], rangeB[2], 0.0);
     R_SetInputCodeConstant(input, 0x84u, rangeC[0], rangeC[1], rangeC[2], 0.0);
-    v5 = cos((float)(r_waterWaveAngle->current.value * 0.017453292));
+    v5 = cos((float)DEG2RAD(r_waterWaveAngle->current.value));
     vx = v5;
-    v6 = sin((float)(r_waterWaveAngle->current.value * 0.017453292));
+    v6 = sin((float)DEG2RAD(r_waterWaveAngle->current.value));
     v17 = 6.2831855 / r_waterWaveWavelength->current.value;
     R_SetInputCodeConstant(input, 0x79u, vx * v17, v6 * v17, vx, v6);
-    v7 = cos((float)(r_waterWaveAngle->current.vector[1] * 0.017453292));
+    v7 = cos((float)DEG2RAD(r_waterWaveAngle->current.vector[1]));
     vxa = v7;
-    v8 = sin((float)(r_waterWaveAngle->current.vector[1] * 0.017453292));
+    v8 = sin((float)DEG2RAD(r_waterWaveAngle->current.vector[1]));
     v16 = 6.2831855 / r_waterWaveWavelength->current.vector[1];
     R_SetInputCodeConstant(input, 0x7Au, vxa * v16, v8 * v16, vxa, v8);
-    v9 = cos((float)(r_waterWaveAngle->current.vector[2] * 0.017453292));
+    v9 = cos((float)DEG2RAD(r_waterWaveAngle->current.vector[2]));
     vxb = v9;
-    v10 = sin((float)(r_waterWaveAngle->current.vector[2] * 0.017453292));
+    v10 = sin((float)DEG2RAD(r_waterWaveAngle->current.vector[2]));
     v15 = 6.2831855 / r_waterWaveWavelength->current.vector[2];
     R_SetInputCodeConstant(input, 0x7Bu, vxb * v15, v10 * v15, vxb, v10);
-    v11 = cos((float)(r_waterWaveAngle->current.vector[3] * 0.017453292));
+    v11 = cos((float)DEG2RAD(r_waterWaveAngle->current.vector[3]));
     vxc = v11;
-    v12 = sin((float)(r_waterWaveAngle->current.vector[3] * 0.017453292));
+    v12 = sin((float)DEG2RAD(r_waterWaveAngle->current.vector[3]));
     v14 = 6.2831855 / r_waterWaveWavelength->current.vector[3];
     R_SetInputCodeConstant(input, 0x7Cu, vxc * v14, v12 * v14, vxc, v12);
     gametime = viewInfo->sceneDef.floatTime;
@@ -2534,9 +2534,9 @@ void    R_SetSkyDynamicIntensity(const float *viewForward, GfxCmdBufInput *input
         }
         diff = value;
         cos(v4);
-        v12 = (float)(90.0 - factor1) * 0.017453292;
+        v12 = DEG2RAD((float)(90.0 - factor1));
         cos(v4);
-        interp = (float)(90.0 - dotAngle0) * 0.017453292;
+        interp = DEG2RAD((float)(90.0 - dotAngle0));
         skyIntensity = interp - v12;
         if ( fabs(interp - v12) <= 0.000099999997 )
         {
@@ -2646,8 +2646,8 @@ void    R_SetSkyDynamicIntensity(const float *viewForward, GfxCmdBufInput *input
     }
 
     /* convert degrees-from-horizon to cosine thresholds */
-    cos0 = cosf((90.0f - angle0) * (float)M_PI / 180.0f);
-    cos1 = cosf((90.0f - angle1) * (float)M_PI / 180.0f);
+    cos0 = cosf(DEG2RAD(90.0f - angle0));
+    cos1 = cosf(DEG2RAD(90.0f - angle1));
 
     if (fabsf(cos1 - cos0) <= 1e-4f)
     {

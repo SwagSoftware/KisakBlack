@@ -113,7 +113,7 @@ void __cdecl G_DebugArc(
     }
     for ( i = 0; i < 0x10; ++i )
     {
-        fAngle = ((double)i * scale + angle0) * 0.017453292;
+        fAngle = DEG2RAD((double)i * scale + angle0);
         fCos = cos(fAngle);
         fSin = sin(fAngle);
         v[i][0] = (float)(fCos * radius) + *center;

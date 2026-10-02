@@ -6712,7 +6712,7 @@ void GScr_sin()
     long double v1; // [esp+4h] [ebp-8h]
     scriptInstance_t v2; // [esp+4h] [ebp-8h]
 
-    *((float *)&v1 + 1) = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER) * 0.017453292;
+    *((float *)&v1 + 1) = DEG2RAD(Scr_GetFloat(0, SCRIPTINSTANCE_SERVER));
     LODWORD(v1) = 0;
     value = *((float *)&v1 + 1);
     __libm_sse2_sin(v1);
@@ -6732,7 +6732,7 @@ void GScr_cos()
     long double v1; // [esp+4h] [ebp-8h]
     scriptInstance_t v2; // [esp+4h] [ebp-8h]
 
-    *((float *)&v1 + 1) = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER) * 0.017453292;
+    *((float *)&v1 + 1) = DEG2RAD(Scr_GetFloat(0, SCRIPTINSTANCE_SERVER));
     LODWORD(v1) = 0;
     value = *((float *)&v1 + 1);
     __libm_sse2_cos(v1);
@@ -6751,7 +6751,7 @@ void GScr_tan()
     float sinT; // [esp+14h] [ebp-8h]
     float cosT; // [esp+18h] [ebp-4h]
 
-    v0 = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER) * 0.017453292;
+    v0 = DEG2RAD(Scr_GetFloat(0, SCRIPTINSTANCE_SERVER));
     cosT = cos(v0);
     sinT = sin(v0);
     if ( cosT == 0.0 )
@@ -6777,7 +6777,7 @@ void GScr_asin()
     v1 = *((float *)&v2 + 1);
     __libm_sse2_asin(v2);
     *(float *)&v1 = v1;
-    Scr_AddFloat(*(float *)&v1 * 57.295776, v3);
+    Scr_AddFloat(RAD2DEG(*(float *)&v1), v3);
 #endif
 
     float value = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
@@ -6805,7 +6805,7 @@ void GScr_acos()
     v1 = *((float *)&v2 + 1);
     __libm_sse2_acos(v2);
     *(float *)&v1 = v1;
-    Scr_AddFloat(*(float *)&v1 * 57.295776, v3);
+    Scr_AddFloat(RAD2DEG(*(float *)&v1), v3);
 #endif
     float value = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
     if (value < -1.0f || value > 1.0f)
@@ -6826,7 +6826,7 @@ void GScr_atan()
     v0 = *((float *)&v1 + 1);
     __libm_sse2_atan(v1);
     *(float *)&v0 = v0;
-    Scr_AddFloat(*(float *)&v0 * 57.295776, v2);
+    Scr_AddFloat(RAD2DEG(*(float *)&v0), v2);
 #endif
     float value = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
     value = atan(value);
@@ -8292,7 +8292,7 @@ void __cdecl GScr_DamageConeTraceInternal(scr_entref_t entref, int contentMask)
     //v2 = (float)(*((float *)&v4 + 1) * 0.017453292);
     //__libm_sse2_cos(v4);
     //*(float *)&v2 = v2;
-    coneAngleCos = cos(coneAngleDegrees * 0.017453292);// * //*(float *)&v2;
+    coneAngleCos = cos(DEG2RAD(coneAngleDegrees));// * //*(float *)&v2;
     if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 2 )
         v5 = 1.0f;
     else
@@ -12561,7 +12561,7 @@ void GScr_SetMiniMap()
     lowerRight[1] = Scr_GetFloat(4u, SCRIPTINSTANCE_SERVER);
     SV_GetConfigstring(0x60Cu, northYawString, 32);
     v1 = atof(northYawString);
-    v2 = v1 * 0.017453292;
+    v2 = DEG2RAD(v1);
     north[0] = cos(v2);
     north[1] = sin(v2);
     level.compassMapWorldSize[0] = (float)((float)(lowerRight[0] - upperLeft) * north[1])

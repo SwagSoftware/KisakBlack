@@ -194,8 +194,7 @@ void __cdecl CG_mg42_PreControllers(DObj *obj, centity_s *cent)
     cent->pose.turret.playerUsing = v2;
     if ( (cent->nextState.lerp.eFlags & 0x40) != 0 )
     {
-        fc = cos((float)((float)((float)((float)(360.0 * (float)((float)cgameGlob->time * 0.001)) / firingRate) - 180.0)
-                                     * 0.017453292));
+        fc = cos((float)DEG2RAD((float)((float)((float)(360.0 * (float)((float)cgameGlob->time * 0.001)) / firingRate) - 180.0)));
         cent->pose.turret.firingOffset = (float)((float)(fc + 1.0) * firingOffset) / 2.0;
     }
     else

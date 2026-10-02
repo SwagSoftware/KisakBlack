@@ -1213,7 +1213,7 @@ void __cdecl CG_TransitionToAds(
     //__libm_sse2_tan(v6);
     //*(float *)&v5 = v5;
     //*transShift = (float)((float)(fa * 240.0) / cgameGlob->refdef.tanHalfFovY) * *(float *)&v5;
-    *transShift = (float)((float)(fa * 240.0) / cgameGlob->refdef.tanHalfFovY) * tan(weapDef->fAdsAimPitch * 0.017453292);
+    *transShift = (float)((float)(fa * 240.0) / cgameGlob->refdef.tanHalfFovY) * tan(DEG2RAD(weapDef->fAdsAimPitch));
 }
 
 void __cdecl CG_DrawReticleCenter(
@@ -1413,7 +1413,7 @@ void __cdecl CG_CalcReticleSpread(
     //v5 = (float)(f * 0.017453292);
     //__libm_sse2_tan(v6);
     //*(float *)&v5 = v5;
-    scale = (float)(240.0 * tan(f * 0.017453292)) / cgameGlob->refdef.tanHalfFovY;
+    scale = (float)(240.0 * tan(DEG2RAD(f))) / cgameGlob->refdef.tanHalfFovY;
     if ( (float)weapDef->iReticleMinOfs > scale )
         scale = (float)weapDef->iReticleMinOfs;
     *spread = scale - (float)(weapDef->fHipReticleSidePos * *drawSize);

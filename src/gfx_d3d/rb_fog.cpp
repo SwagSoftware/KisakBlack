@@ -31,8 +31,8 @@ void    R_SetFrameFog(GfxCmdBufInput *input, const GfxViewInfo *viewInfo)
         R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_SUN_FOG_COLOR, data->fogSettings.sunFogColor);
         R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_SUN_FOG_DIR, data->fogSettings.sunFogDir);
         slopeAng = 1.0e7;
-        startAng = cos(data->fogSettings.sunFogStartAng * 0.017453292);
-        endAng = cos(data->fogSettings.sunFogEndAng * 0.017453292);
+        startAng = cos(DEG2RAD(data->fogSettings.sunFogStartAng));
+        endAng = cos(DEG2RAD(data->fogSettings.sunFogEndAng));
 
         if ((startAng - endAng) != 0.0)
             slopeAng = 1.0 / (startAng - endAng);

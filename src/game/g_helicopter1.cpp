@@ -1464,7 +1464,7 @@ void __cdecl Vehicle_AddRotate(vehicle_physic_t *phys, float fRoll, float fPitch
             axisOut[i][j] = 0.0f;
     }
     AnglesToAxis(phys->angles, axisIn);
-    v4 = (float)(fRoll * 0.017453292);
+    v4 = (float)(DEG2RAD(fRoll));
     fCos = cos(v4);
     fSin = sin(v4);
     iAxis = 0;
@@ -1479,7 +1479,7 @@ void __cdecl Vehicle_AddRotate(vehicle_physic_t *phys, float fRoll, float fPitch
                                                                 + axisOut[(iAxis + 2) % 3][k];
     }
     iAxis = 1;
-    v5 = (float)(fPitch * 0.017453292);
+    v5 = (float)(DEG2RAD(fPitch));
     fCos = cos(v5);
     fSin = sin(v5);
     for ( m = 0; m < 3; ++m )
@@ -1493,7 +1493,7 @@ void __cdecl Vehicle_AddRotate(vehicle_physic_t *phys, float fRoll, float fPitch
                                                                 + axisOut[(iAxis + 2) % 3][m];
     }
     iAxis = 2;
-    v6 = (float)(fYaw * 0.017453292);
+    v6 = (float)(DEG2RAD(fYaw));
     fCos = cos(v6);
     fSin = sin(v6);
     for ( n = 0; n < 3; ++n )

@@ -15,10 +15,10 @@ void __cdecl AngleVectors(const float *angles, float *forward, float *right, flo
     float cp; // [esp+2Ch] [ebp-8h]
     float sy; // [esp+30h] [ebp-4h]
 
-    angle = angles[1] * 0.017453292;
+    angle = DEG2RAD(angles[1]);
     cy = cos(angle);
     sy = sin(angle);
-    anglea = *angles * 0.017453292;
+    anglea = DEG2RAD(*angles);
     cp = cos(anglea);
     v9 = sin(anglea);
     if ( forward )
@@ -30,7 +30,7 @@ void __cdecl AngleVectors(const float *angles, float *forward, float *right, flo
     }
     if ( right || up )
     {
-        angleb = angles[2] * 0.017453292;
+        angleb = DEG2RAD(angles[2]);
         cr = cos(angleb);
         sr = sin(angleb);
         if ( right )
@@ -63,17 +63,17 @@ void __cdecl AnglesToAxis(const float *angles, float axis[3][3])
     float cp; // [esp+2Ch] [ebp-8h]
     float sy; // [esp+30h] [ebp-4h]
 
-    angle = angles[1] * 0.01745329238474369;
+    angle = DEG2RAD(angles[1]);
     cy = cos(angle);
     sy = sin(angle);
-    anglea = angles[0] * 0.01745329238474369;
+    anglea = DEG2RAD(angles[0]);
     cp = cos(anglea);
     v7 = sin(anglea);
 
     axis[0][0] = cp * cy;
     axis[0][1] = cp * sy;
     axis[0][2] = -v7;
-    angleb = angles[2] * 0.01745329238474369;
+    angleb = DEG2RAD(angles[2]);
     cr = cos(angleb);
     sr = sin(angleb);
     axis[1][0] = sr * v7 * cy + -sy * cr;
@@ -158,13 +158,13 @@ void __cdecl AxisToSignedAngles(const float (*axis)[3], float *angles)
     right[1] = (*axis)[4];
     right[2] = (*axis)[5];
     //rad = COERCE_FLOAT(*((unsigned int *)angles + 1) ^ _mask__NegFloat_) * 0.017453292;
-    rad = -angles[1] * 0.017453292;
+    rad = DEG2RAD(-angles[1]);
     fCos = cos(rad);
     fSin = sin(rad);
     temp = (float)(fCos * right[0]) - (float)(fSin * right[1]);
     right[1] = (float)(fSin * right[0]) + (float)(fCos * right[1]);
     //rada = COERCE_FLOAT(*(unsigned int *)angles ^ _mask__NegFloat_) * 0.017453292;
-    rada = -angles[0] * 0.017453292;
+    rada = DEG2RAD(-angles[0]);
     fCos = cos(rada);
     fSin = sin(rada);
     right[0] = (float)(fSin * right[2]) + (float)(fCos * temp);
@@ -214,14 +214,14 @@ void __cdecl vectosignedangles(const float *vec, float *angles)
         v2 = vec[1];
         __libm_sse2_atan2(v4, v6);
         *(float *)&v2 = v2;
-        v10 = (float)(*(float *)&v2 * 180.0) / 3.1415927;
+        v10 = (float)RAD2DEG(*(float *)&v2);
         *(float *)&v7 = (float)(*vec * *vec) + (float)(vec[1] * vec[1]);
         HIDWORD(v5) = sqrtf(*(float *)&v7);
         *(float *)&v5 = vec[2];
         v3 = *(float *)&v5;
         __libm_sse2_atan2(v5, v7);
         *(float *)&v3 = v3;
-        v8 = (float)(*(float *)&v3 * -180.0) / 3.1415927;
+        v8 = (float)RAD2DEG(-*(float *)&v3);
     }
     *angles = v8;
     angles[1] = v10;
@@ -247,13 +247,13 @@ void __cdecl vectosignedangles(const float *vec, float *angles)
     else
     {
         // Yaw = atan2(y, x)
-        yaw = std::atan2(y, x) * (180.0f / 3.1415927f);
+        yaw = RAD2DEG(std::atan2(y, x));
 
         // Forward length (horizontal magnitude)
         float forward = std::sqrt(x * x + y * y);
 
         // Pitch = -atan2(z, forward)
-        pitch = -std::atan2(z, forward) * (180.0f / 3.1415927f);
+        pitch = RAD2DEG(-std::atan2(z, forward));
     }
 
     angles[0] = pitch;
@@ -282,7 +282,7 @@ double __cdecl vectosignedpitch(const float *vec)
         v1 = *((float *)&v4 + 1);
         __libm_sse2_atan2(v3, v4);
         *(float *)&v1 = v1;
-        return (float)((float)(*(float *)&v1 * -180.0) / 3.1415927);
+        return (float)((float)RAD2DEG(-*(float *)&v1));
     }
 #else // aislop
     const float x = vec[0];
@@ -299,7 +299,7 @@ double __cdecl vectosignedpitch(const float *vec)
     const float forward = std::sqrt(x * x + y * y);
 
     // Pitch = -atan2(z, forward) converted to degrees
-    return -atan2(z, forward) * (180.0 / 3.14159265358979323846);
+    return RAD2DEG(-atan2(z, forward));
 #endif
 }
 
