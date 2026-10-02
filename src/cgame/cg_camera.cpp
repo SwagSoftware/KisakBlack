@@ -2986,7 +2986,7 @@ void __cdecl CG_CalcFov_ExtraCam(int localClientNum)
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     fov_x = cg_fovExtraCam->current.value;
     //__libm_sse2_tan(v1);
-    dxDzAtDefaultAspectRatio = (float)(tan(fov_x) * 0.017453292) * 0.5;
+    dxDzAtDefaultAspectRatio = (float)tan((float)DEG2RAD(fov_x) * 0.5f);
     if ( r_extracam_custom_aspectratio->current.value <= 0.0 )
         value = R_ExtraCam_AspectRatio();
     else

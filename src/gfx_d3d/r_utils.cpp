@@ -226,7 +226,7 @@ double FresnelTerm(float n0, float n1, float cosIncidentAngle)
     }
 
     /* incident angle */
-    const float theta_i = acosf(cosIncidentAngle);
+    const float theta_i = acosf(fabsf(cosIncidentAngle));
 
     /* Snell’s law */
     float sin_theta_t = (n0 / n1) * sinf(theta_i);

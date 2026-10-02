@@ -6781,6 +6781,8 @@ void GScr_asin()
 #endif
 
     float value = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
+    if (value < -1.0f || value > 1.0f)
+        Scr_Error(va("%g out of range", value), 0);
     value = asin(value);
     Scr_AddFloat(RAD2DEG(value), SCRIPTINSTANCE_SERVER);
 }
@@ -6806,6 +6808,8 @@ void GScr_acos()
     Scr_AddFloat(*(float *)&v1 * 57.295776, v3);
 #endif
     float value = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
+    if (value < -1.0f || value > 1.0f)
+        Scr_Error(va("%g out of range", value), 0);
     value = acos(value);
     Scr_AddFloat(RAD2DEG(value), SCRIPTINSTANCE_SERVER);
 }
@@ -13226,11 +13230,11 @@ void __cdecl GScr_SetLightFovRange(scr_entref_t entref)
         Scr_ParamError(0, "outer fov must be in the range of 1 to 136", SCRIPTINSTANCE_SERVER);
     //__libm_sse2_cos(v2);
     //cosHalfFovOuter = (float)(fovOuter * 0.017453292) * 0.5;
-    cosHalfFovOuter = (float)cos(fovOuter * 0.017453292) * 0.5;
+    cosHalfFovOuter = (float)cos((float)DEG2RAD(fovOuter) * 0.5f);
     if ( (float)(refLight->cosHalfFovOuter - 0.001) > cosHalfFovOuter )
         Scr_ParamError(0, "outer fov cannot be larger than the fov when the map was compiled", SCRIPTINSTANCE_SERVER);
     if ( (float)(cosHalfFovOuter - 1.0) < 0.0 )
-        v8 = (float)(fovOuter * 0.017453292) * 0.5;
+        v8 = cosHalfFovOuter;
     else
         v8 = 1.0f;
     if ( (float)(refLight->cosHalfFovOuter - cosHalfFovOuter) < 0.0 )
@@ -13246,9 +13250,9 @@ void __cdecl GScr_SetLightFovRange(scr_entref_t entref)
             Scr_ParamError(1u, "inner fov must be in the range of 0 to outer fov", SCRIPTINSTANCE_SERVER);
         //__libm_sse2_cos(v3);
         //cosHalfFovInner = (float)(fovInner * 0.017453292) * 0.5;
-        cosHalfFovInner = (float)cos(fovInner * 0.017453292) * 0.5;
+        cosHalfFovInner = (float)cos((float)DEG2RAD(fovInner) * 0.5f);
         if ( (float)(cosHalfFovInner - 1.0) < 0.0 )
-            v7 = (float)(fovInner * 0.017453292) * 0.5;
+            v7 = cosHalfFovInner;
         else
             v7 = 1.0f;
         if ( (float)((float)(v6 + 0.001) - cosHalfFovInner) < 0.0 )

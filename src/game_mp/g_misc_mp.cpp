@@ -165,7 +165,7 @@ void __cdecl EntInfo_Item(gentity_s *self, float *source)
 
 float __cdecl G_GetEntInfoScale()
 {
-    return CG_GetViewZoomScale() * g_entinfo_scale->current.value;
+    return (float)((float)((float)tan((float)DEG2RAD(80.0f) * 0.5f) * 0.75f) * 1.5890048f) * g_entinfo_scale->current.value;
 }
 
 void __cdecl SP_info_notnull(gentity_s *self, SpawnVar *v)

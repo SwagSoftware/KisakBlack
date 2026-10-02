@@ -2351,7 +2351,7 @@ bool    BounceMissile(gentity_s *ent, trace_t *trace)
             //__libm_sse2_sin(v5);
             v36 = sin(v37);
             //__libm_sse2_sin(v6);
-            wobbleDelta = sin(v37) - oldCycle; // KISAKTODO: sin() 2x seems weird?
+            wobbleDelta = v36 - (float)sin(oldCycle);
 
             if (slideSpeed > 0.0099999998)
             {

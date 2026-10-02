@@ -781,8 +781,8 @@ void __cdecl UI_DrawServerRefreshDate(
         //v7 = *(float *)&v11;
         //__libm_sse2_sin(v11);
         //*(float *)&v7 = v7;
-        v7 = sin((uiInfo->uiDC.realTime / 75));
-        LerpColor(color, lowLight, newColor, (float)(*(float *)&v7 * 0.5) + 0.5);
+        v7 = sin((float)(uiInfo->uiDC.realTime / 75));
+        LerpColor(color, lowLight, newColor, (float)v7 * 0.5f + 0.5f);
         if (LAN_WaitServerResponse())
         {
             if (Dvar_GetBool("dw_loggedin"))

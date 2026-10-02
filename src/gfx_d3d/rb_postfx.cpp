@@ -1630,12 +1630,12 @@ void RB_PoisonFX(const GfxViewInfo *viewInfo)
     if (((int)(time / 4.0f)) & 1)
         dvisionPhase0 = 0.0f;
     else
-        dvisionPhase0 = sinf(time * (float)M_PI) * 3.25f;
+        dvisionPhase0 = sinf((time / 4.0f) * (float)M_PI) * 3.25f;
 
     if (((int)(time / 2.0f)) & 1)
         dvisionPhase1 = 0.0f;
     else
-        dvisionPhase1 = sinf(time * (float)M_PI) * 3.75f;
+        dvisionPhase1 = sinf((time / 2.0f) * (float)M_PI) * 3.75f;
 
     /* final double vision offset */
     dvisionX =

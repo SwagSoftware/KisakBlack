@@ -2748,9 +2748,6 @@ void __cdecl G_ReloadScrVehicleInfo()
 }
 #endif
 
-// aislop
-static constexpr float DEG2RAD = 0.017453292f;
-
 void G_ReloadScrVehicleInfo()
 {
     char path[64];
@@ -2795,13 +2792,7 @@ void G_ReloadScrVehicleInfo()
 
         for (int i = 0; i < 4; ++i)
         {
-            // Original logic:
-            // value = (value * 0.5) * DEG2RAD
-            angles[i] = (angles[i] * 0.5f) * DEG2RAD;
-
-            // The old code called cos() but discarded result.
-            // If that was intentional, it would be:
-            // angles[i] = std::cos(angles[i]);
+            angles[i] = (float)cos((float)DEG2RAD(angles[i] * 0.5f));
         }
     }
 
@@ -3175,8 +3166,7 @@ int __cdecl G_LoadVehicle(char *name)
 
     for (i = 0; i < 4; ++i)
     {
-        /* original logic: (value * 0.5) * DEG2RAD */
-        angles[i] = (angles[i] * 0.5f) * 0.017453292f;
+        angles[i] = (float)cos((float)DEG2RAD(angles[i] * 0.5f));
     }
 
     /* ---- Fixup 2: resolve 19 sound aliases ---- */

@@ -3815,7 +3815,7 @@ void    Path_UpdateLimitedDepthArcBadPlaceCount(
     //*(float *)&v5 = v5;
     v5 = sin(v5);
     v18 = LODWORD(v5);
-    scale = (float)((float)(*(float *)&v5 / angle) * 76.394371) * arc->radius;
+    scale = (float)((float)((float)v5 / angle) * 76.394371) * arc->radius;
     centroid[0] = (float)(scale * forward[0]) + arc->origin[0];
     centroid[1] = (float)(scale * forward[1]) + arc->origin[1];
     centroid[2] = (float)(scale * forward[2]) + arc->origin[2];

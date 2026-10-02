@@ -6937,7 +6937,7 @@ void __cdecl CScr_GetLightFovInner(scr_entref_t entref)
     //__libm_sse2_acos(v2);
     //*(float *)&v1 = v1;
     //Scr_AddFloat((float)(*(float *)&v1 * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
-    Scr_AddFloat((float)(acos(pSelf->nextState.lerp.u.destructibleHit.modelState3) * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
+    Scr_AddFloat((float)(acos(pSelf->nextState.lerp.u.primaryLight.cosHalfFovInner) * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
 }
 
 void __cdecl CScr_GetLightFovOuter(scr_entref_t entref)
@@ -6977,7 +6977,7 @@ void __cdecl CScr_GetLightFovOuter(scr_entref_t entref)
     //__libm_sse2_acos(v2);
     //*(float *)&v1 = v1;
     //Scr_AddFloat((float)(*(float *)&v1 * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
-    Scr_AddFloat((float)(acos(pSelf->nextState.lerp.u.turret.ownerNum) * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
+    Scr_AddFloat((float)(acos(pSelf->nextState.lerp.u.primaryLight.cosHalfFovOuter) * 2.0) * 57.295776, SCRIPTINSTANCE_CLIENT);
 }
 
 void __cdecl CScr_SetLightFovRange(scr_entref_t entref)
@@ -7035,12 +7035,11 @@ void __cdecl CScr_SetLightFovRange(scr_entref_t entref)
         Scr_ParamError(0, "outer fov must be in the range of 1 to 136", SCRIPTINSTANCE_CLIENT);
     
     //__libm_sse2_cos(v2);
-    fovOuter = cos(fovOuter);
-    cosHalfFovOuter = (float)(fovOuter * 0.017453292) * 0.5;
+    cosHalfFovOuter = (float)cos((float)DEG2RAD(fovOuter) * 0.5f);
     if ( (float)(refLight->cosHalfFovOuter - 0.001) > cosHalfFovOuter )
         Scr_ParamError(0, "outer fov cannot be larger than the fov when the map was compiled", SCRIPTINSTANCE_CLIENT);
     if ( (float)(cosHalfFovOuter - 1.0) < 0.0 )
-        v8 = (float)(fovOuter * 0.017453292) * 0.5;
+        v8 = cosHalfFovOuter;
     else
         v8 = 1.0f;
     if ( (float)(refLight->cosHalfFovOuter - cosHalfFovOuter) < 0.0 )
@@ -7053,10 +7052,9 @@ void __cdecl CScr_SetLightFovRange(scr_entref_t entref)
         if ( fovInner < -0.001 || fovInner >= (float)(fovOuter + 0.001) )
             Scr_ParamError(1u, "inner fov must be in the range of 0 to outer fov", SCRIPTINSTANCE_CLIENT);
         //__libm_sse2_cos(v3);
-        fovInner = cos(fovInner);
-        cosHalfFovInner = (float)(fovInner * 0.017453292) * 0.5;
+        cosHalfFovInner = (float)cos((float)DEG2RAD(fovInner) * 0.5f);
         if ( (float)(cosHalfFovInner - 1.0) < 0.0 )
-            v7 = (float)(fovInner * 0.017453292) * 0.5;
+            v7 = cosHalfFovInner;
         else
             v7 = 1.0f;
         if ( (float)((float)(v6 + 0.001) - cosHalfFovInner) < 0.0 )

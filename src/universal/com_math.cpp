@@ -1564,7 +1564,7 @@ void __cdecl QuatSlerp(const float *from, const float *to, float frac, float *re
     {
         v10 = acos(dot);
         v9 = sin(v10);
-        v8 = 1.0 - v10 * frac;
+        v8 = (1.0 - frac) * v10;
         v7 = sin(v8);
         scaleFrom = v7 / v9;
         v6 = v10 * frac;
@@ -1645,10 +1645,10 @@ static void RotateBasisAroundForward(const float forward[3], const float right_i
     float s = sinf(angle);
     float c = cosf(angle);
 
-    // rotatedRight = right*c - up*s
-    right_out[0] = right_in[0] * c - up_in[0] * s;
-    right_out[1] = right_in[1] * c - up_in[1] * s;
-    right_out[2] = right_in[2] * c - up_in[2] * s;
+    // The view basis uses -right before applying the roll rotation.
+    right_out[0] = -right_in[0] * c + up_in[0] * s;
+    right_out[1] = -right_in[1] * c + up_in[1] * s;
+    right_out[2] = -right_in[2] * c + up_in[2] * s;
 
     // rotatedUp = right*s + up*c
     up_out[0] = right_in[0] * s + up_in[0] * c;
@@ -3185,11 +3185,11 @@ void colorHueMatrix(float finalMatrix[4][4], float hue)
 
     memset(rot, 0, sizeof(rot));
 
-    rot[0][0] = 1.0f;  // luma unaffected
+    rot[0][0] = c;
+    rot[0][1] = s;
+    rot[1][0] = -s;
     rot[1][1] = c;
-    rot[1][2] = -s;
-    rot[2][1] = s;
-    rot[2][2] = c;
+    rot[2][2] = 1.0f;
     rot[3][3] = 1.0f;
 
     memset(basis2, 0, sizeof(basis2));

@@ -92,7 +92,7 @@ void NitrousVehicleController::UpdateScriptVehicleControl(
         to_goal.z = to_goal.z * (float)(1.0 / to_goal_dist);
         v17 = *(_QWORD *)&to_goal.x;
         //v4 = __libm_sse2_atan2(to_goal.y);
-        v4 = atan(to_goal.y);
+        v4 = atan2(to_goal.y, to_goal.x);
         yaw = (float)(v4 * 180.0) / 3.1415927;
         if (yaw < 0.0)
             yaw = yaw + 360.0;
