@@ -2664,7 +2664,6 @@ char __cdecl FX_GenerateMarkVertsForList_EntDObj(
     return 1;
 }
 
-// local variable allocation has failed, the output may be wrong!
 void    FX_GenerateMarkVertsForMark_MatrixFromAnim(
                 const FxMark *mark,
                 const DObj *dobj,
@@ -2672,22 +2671,11 @@ void    FX_GenerateMarkVertsForMark_MatrixFromAnim(
                 const float *viewOffset,
                 float (*outTransform)[3])
 {
-    float v6[3]; // [esp-Ch] [ebp-11Ch] BYREF
-    float invBasePoseMatrix[4][3]; // [esp+0h] [ebp-110h] BYREF
-    const DObjAnimMat *BasePose; // [esp+70h] [ebp-A0h]
-    float v9[3]; // [esp+74h] [ebp-9Ch] OVERLAPPED BYREF
-    float bonePoseMatrix[4][3]; // [esp+80h] [ebp-90h] BYREF
-    XModel *v11; // [esp+F0h] [ebp-20h]
-    XModel *i; // [esp+F4h] [ebp-1Ch]
-    int v13; // [esp+F8h] [ebp-18h]
-    XModel *model; // [esp+FCh] [ebp-14h]
-    int dObjModelIndexIter; // [esp+100h] [ebp-10h]
-    int baseBoneIndex; // [esp+104h] [ebp-Ch]
-    int dObjModelIndexForMark; // [esp+108h] [ebp-8h]
-    //int retaddr; // [esp+110h] [ebp+0h]
-    //
-    //baseBoneIndex = a1;
-    //dObjModelIndexForMark = retaddr;
+    DObjSkelMat bonePoseSkelMat;
+    DObjSkelMat invBasePoseSkelMat;
+    float bonePoseMatrix[4][3];
+    float invBasePoseMatrix[4][3];
+
     if ( !dobj && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_marks.cpp", 1916, 0, "%s", "dobj") )
         __debugbreak();
     if ( !boneMtxList
@@ -2695,32 +2683,36 @@ void    FX_GenerateMarkVertsForMark_MatrixFromAnim(
     {
         __debugbreak();
     }
-    dObjModelIndexIter = mark->context.lmapIndex;
-    model = (XModel *)(mark->context.modelTypeAndSurf & 0x3F);
-    if ( (int)model >= DObjGetNumModels(dobj)
+    const int dObjModelIndexIter = mark->context.lmapIndex;
+    const int dObjModelIndexForMark = mark->context.modelTypeAndSurf & 0x3F;
+    if ( dObjModelIndexForMark >= DObjGetNumModels(dobj)
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_marks.cpp",
                     1922,
                     0,
                     "%s\n\t(dObjModelIndexForMark) = %i",
                     "(dObjModelIndexForMark < DObjGetNumModels( dobj ))",
-                    model) )
+                    dObjModelIndexForMark) )
     {
         __debugbreak();
     }
-    v13 = 0;
-    for ( i = 0; i != model; i = (XModel *)((char *)i + 1) )
+
+    int baseBoneIndex = 0;
+    for ( int modelIndex = 0; modelIndex < dObjModelIndexForMark; ++modelIndex )
     {
-        v11 = DObjGetModel(dobj, (int)i);
-        v13 += XModelNumBones(v11);
+        const XModel *model = DObjGetModel(dobj, modelIndex);
+        baseBoneIndex += XModelNumBones(model);
     }
-    ConvertQuatToSkelMat(&boneMtxList[dObjModelIndexIter + v13], (DObjSkelMat *)bonePoseMatrix[3]);
-    DObjSkelMatToMatrix43((const DObjSkelMat *)bonePoseMatrix[3], (float (*)[3])v9);
-    v11 = DObjGetModel(dobj, (int)model);
-    BasePose = XModelGetBasePose(v11);
-    ConvertQuatToInverseSkelMat(&BasePose[dObjModelIndexIter], (DObjSkelMat *)invBasePoseMatrix[3]);
-    DObjSkelMatToMatrix43((const DObjSkelMat *)invBasePoseMatrix[3], (float (*)[3])v6);
-    MatrixMultiply43((const float (*)[3])v6, (const float (*)[3])v9, outTransform);
+
+    ConvertQuatToSkelMat(&boneMtxList[baseBoneIndex + dObjModelIndexIter], &bonePoseSkelMat);
+    DObjSkelMatToMatrix43(&bonePoseSkelMat, bonePoseMatrix);
+
+    const XModel *model = DObjGetModel(dobj, dObjModelIndexForMark);
+    const DObjAnimMat *basePose = XModelGetBasePose(model);
+    ConvertQuatToInverseSkelMat(&basePose[dObjModelIndexIter], &invBasePoseSkelMat);
+    DObjSkelMatToMatrix43(&invBasePoseSkelMat, invBasePoseMatrix);
+
+    MatrixMultiply43(invBasePoseMatrix, bonePoseMatrix, outTransform);
 }
 
 void __cdecl ConvertQuatToInverseSkelMat(const DObjAnimMat *mat, DObjSkelMat *skelMat)
@@ -3445,4 +3437,3 @@ int __cdecl FX_GetFrameTotalSeeThruDecalCount(unsigned int localClientNum)
     MarksSystem = FX_GetMarksSystem(localClientNum);
     return MarksSystem->numVisibleEntBrushSeethru + MarksSystem->numVisibleWorldSeethru;
 }
-
