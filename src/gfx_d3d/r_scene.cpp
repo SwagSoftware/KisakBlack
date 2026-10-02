@@ -701,14 +701,14 @@ void __cdecl R_AddOmniLightToScene(
     {
         clampedRadius =
             (radius > r_dlightMaxNonFullScreenRadius->current.value)
-            ? (float)r_dlightMaxNonFullScreenRadius->current.integer
+            ? r_dlightMaxNonFullScreenRadius->current.value
             : (float)radius;
     }
     else
     {
         clampedRadius =
             (radius > r_dlightMaxFullScreenRadius->current.value)
-            ? (float)r_dlightMaxFullScreenRadius->current.integer
+            ? r_dlightMaxFullScreenRadius->current.value
             : (float)radius;
     }
 
