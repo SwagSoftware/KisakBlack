@@ -40,7 +40,7 @@ void    R_SetDrawLitConstants(
         CONST_SRC_CODE_SKY_TRANSITION,
         r_skyTransition->current.value,
         0.0f,
-        r_treeScale->current.value,
+        (float)r_treeScale->current.integer,
         r_testScale->current.value);
 
     R_SetCodeConstant(source,

@@ -877,7 +877,7 @@ void    R_DrawLights(const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf)
     R_DirtyCodeConstant(&v6, CONST_SRC_CODE_DESTRUCTIBLE_PARMS);
     v6.input.consts[68][0] = r_skyTransition->current.value;
     v6.input.consts[68][1] = 0.0f;
-    v6.input.consts[68][2] = r_treeScale->current.value;
+    v6.input.consts[68][2] = (float)r_treeScale->current.integer;
     v6.input.consts[68][3] = r_testScale->current.value;
     //*(float *)&v5 = (float)r_treeScale->current.integer;
     //integer = r_testScale->current.integer;

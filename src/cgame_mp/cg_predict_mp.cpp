@@ -720,10 +720,10 @@ void __cdecl CG_PredictPlayerState_Internal(int localClientNum)
                     }
                     if ( (float)(stepRemaining + diff) <= 0.0 )
                     {
-                        if ( (float)(-(cg_viewZSmoothingMax->current.integer) - (float)(stepRemaining + diff)) < 0.0 )
+                        if ( (float)(-(cg_viewZSmoothingMax->current.value) - (float)(stepRemaining + diff)) < 0.0 )
                             v2 = stepRemaining + diff;
                         else
-                            v2 = -cg_viewZSmoothingMax->current.integer;
+                            v2 = -cg_viewZSmoothingMax->current.value;
                         cgameGlob->stepViewChange = v2;
                     }
                     else

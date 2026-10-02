@@ -3095,7 +3095,7 @@ void CG_CompassDrawTickertape(
         fade
     };
 
-    if (compassPartialType->current.value != 0)
+    if (compassPartialType->current.integer != 0)
         return;
 
     /* yaw setup */

@@ -266,12 +266,12 @@ char __cdecl UI_Gametype_ReadDvarChunk(MemoryFile *memFile)
     unsigned __int8 v5; // [esp+16h] [ebp-47Ah] BYREF
     unsigned __int8 v6; // [esp+17h] [ebp-479h] BYREF
     int v7; // [esp+18h] [ebp-478h] BYREF
-    unsigned int v8; // [esp+1Ch] [ebp-474h] BYREF
-    unsigned int v9; // [esp+20h] [ebp-470h] BYREF
-    unsigned int v10; // [esp+24h] [ebp-46Ch] BYREF
-    unsigned int v11[4]; // [esp+28h] [ebp-468h] BYREF
-    unsigned int v12; // [esp+38h] [ebp-458h] BYREF
-    unsigned int v13; // [esp+3Ch] [ebp-454h] BYREF
+    float v8; // [esp+1Ch] [ebp-474h] BYREF
+    float v9; // [esp+20h] [ebp-470h] BYREF
+    float v10; // [esp+24h] [ebp-46Ch] BYREF
+    float v11[4]; // [esp+28h] [ebp-468h] BYREF
+    float v12; // [esp+38h] [ebp-458h] BYREF
+    float v13; // [esp+3Ch] [ebp-454h] BYREF
     float v14; // [esp+40h] [ebp-450h] BYREF
     int value; // [esp+44h] [ebp-44Ch] BYREF
     unsigned __int8 v16; // [esp+4Ah] [ebp-446h] BYREF
@@ -281,13 +281,13 @@ char __cdecl UI_Gametype_ReadDvarChunk(MemoryFile *memFile)
     float b; // [esp+54h] [ebp-43Ch]
     float byteToFloatConversion; // [esp+58h] [ebp-438h]
     float a; // [esp+5Ch] [ebp-434h]
-    unsigned int z; // [esp+60h] [ebp-430h]
-    unsigned int v24; // [esp+64h] [ebp-42Ch]
-    unsigned int v25; // [esp+68h] [ebp-428h]
-    unsigned int w; // [esp+6Ch] [ebp-424h]
+    float z; // [esp+60h] [ebp-430h]
+    float v24; // [esp+64h] [ebp-42Ch]
+    float v25; // [esp+68h] [ebp-428h]
+    float w; // [esp+6Ch] [ebp-424h]
     float vec[3]; // [esp+70h] [ebp-420h] BYREF
-    unsigned int x; // [esp+7Ch] [ebp-414h]
-    unsigned int y; // [esp+80h] [ebp-410h]
+    float x; // [esp+7Ch] [ebp-414h]
+    float y; // [esp+80h] [ebp-410h]
     const char *dvarNameFromCache; // [esp+84h] [ebp-40Ch]
     char dvarName[1024]; // [esp+88h] [ebp-408h] BYREF
     unsigned __int8 type; // [esp+48Fh] [ebp-1h]
@@ -551,7 +551,7 @@ bool __cdecl UI_Gametype_HasDvarChanged(const dvar_s *dvar)
             result = I_strcmp(dvar->current.string, dvar->reset.string) != 0;
             break;
         case DVAR_TYPE_INT64:
-            v5 = dvar->current.integer != dvar->reset.integer || (dvar->current.vector[1]) != (dvar->reset.vector[1]);
+            v5 = dvar->current.integer64 != dvar->reset.integer64;
             result = v5;
             break;
         default:

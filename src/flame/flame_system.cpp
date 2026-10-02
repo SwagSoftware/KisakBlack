@@ -2089,7 +2089,7 @@ void __cdecl CG_Flame_Update_ViewModel(int localClientNum, centity_s *cent)
                                                                                                                      * (float)cgameGlob->frametime)
                                                                                                      / 1000.0)
                                                                                      + cgameGlob->flamethrowerKickOffset[i];
-            if (fabs(cgameGlob->flamethrowerKickOffset[i]) > fabs(flame_kick_offset->current.value))// COERCE_FLOAT(*(&flame_kick_offset->current.integer + i) & _mask__AbsFloat_) )
+            if (fabs(cgameGlob->flamethrowerKickOffset[i]) > fabs(flame_kick_offset->current.vector[i]))
                 cgameGlob->flamethrowerKickOffset[i] = flame_kick_offset->current.vector[i];
         }
     }

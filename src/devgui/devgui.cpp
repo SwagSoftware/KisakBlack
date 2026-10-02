@@ -2356,7 +2356,7 @@ void __cdecl DevGui_UpdateDvar(float deltaTime, bool channelLink, bool dvarReset
                                                                                          SCROLL_XAXIS);
             }
             if ( dvar->latched.value != vector.value || dvar->latched.vector[1] != vector.vector[1] )
-                Dvar_SetVec2FromSource((dvar_s *)dvar, vector.unsignedInt, LODWORD(vector.vector[1]), DVAR_SOURCE_DEVGUI);
+                Dvar_SetVec2FromSource((dvar_s *)dvar, vector.value, vector.vector[1], DVAR_SOURCE_DEVGUI);
             break;
         case DVAR_TYPE_FLOAT_3:
         case DVAR_TYPE_LINEAR_COLOR_RGB:
@@ -2404,8 +2404,8 @@ void __cdecl DevGui_UpdateDvar(float deltaTime, bool channelLink, bool dvarReset
             {
                 Dvar_SetVec3FromSource(
                     (dvar_s *)dvar,
-                    vector.unsignedInt,
-                    LODWORD(vector.vector[1]),
+                    vector.value,
+                    vector.vector[1],
                     vector.vector[2],
                     DVAR_SOURCE_DEVGUI);
             }
@@ -2461,10 +2461,10 @@ void __cdecl DevGui_UpdateDvar(float deltaTime, bool channelLink, bool dvarReset
             {
                 Dvar_SetVec4FromSource(
                     (dvar_s *)dvar,
-                    vector.unsignedInt,
-                    LODWORD(vector.vector[1]),
-                    LODWORD(vector.vector[2]),
-                    LODWORD(vector.vector[3]),
+                    vector.value,
+                    vector.vector[1],
+                    vector.vector[2],
+                    vector.vector[3],
                     DVAR_SOURCE_DEVGUI);
             }
             break;

@@ -3624,13 +3624,13 @@ void    Bot_DrawThreat(const client_t *bot)
                 angles[1] = (float)(sv_botFov->current.value * 0.5) + angles[1];
                 break;
             case 1:
-                angles[1] = (float)((-sv_botFov->current.integer) * 0.5) + angles[1];
+                angles[1] = (float)((-sv_botFov->current.value) * 0.5) + angles[1];
                 break;
             case 2:
                 angles[0] = (float)(sv_botFov->current.value * 0.5) + angles[0];
                 break;
             case 3:
-                angles[0] = (float)((-sv_botFov->current.integer) * 0.5) + angles[0];
+                angles[0] = (float)((-sv_botFov->current.value) * 0.5) + angles[0];
                 break;
             default:
                 break;

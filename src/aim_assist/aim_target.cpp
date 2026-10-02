@@ -459,8 +459,8 @@ void __cdecl AimTarget_GetTargetBounds(const centity_s *targetEnt, float *mins, 
         AimTarget_GetTagPos_0(targetEnt, scr_const.aim_highest_bone, highBonePos);
         //*(unsigned int *)mins = aim_target_sentient_radius->current.integer ^ _mask__NegFloat_;
         //*((unsigned int *)mins + 1) = aim_target_sentient_radius->current.integer ^ _mask__NegFloat_;
-        mins[0] = -aim_target_sentient_radius->current.integer;
-        mins[1] = -aim_target_sentient_radius->current.integer;
+        mins[0] = -aim_target_sentient_radius->current.value;
+        mins[1] = -aim_target_sentient_radius->current.value;
         mins[2] = 0.0f;
 
         maxs[0] = aim_target_sentient_radius->current.value;

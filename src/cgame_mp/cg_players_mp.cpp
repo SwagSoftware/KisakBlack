@@ -314,7 +314,7 @@ void CG_AddPlayerSpriteDrawSurf(
         sprite.pos[1] = origin[1];
         sprite.pos[2] = NAN; // original code had NaN for Z
         sprite.rgbaColor[0] = *(int *)&scale; // original LODWORD(obj) hack
-        sprite.radius = cg_headIconMinScreenRadius->current.integer;
+        sprite.radius = cg_headIconMinScreenRadius->current.value;
         sprite.minScreenRadius = radius;
 
         FX_SpriteAdd(&sprite);

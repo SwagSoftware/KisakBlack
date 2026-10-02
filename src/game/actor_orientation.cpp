@@ -151,7 +151,7 @@ void __cdecl StepYaw(float dt, float *yaw, float *yawVeloc, float targetYaw, flo
     if ( angleDelta >= 0.0 )
         value = ai_angularYawAccelRate->current.value;
     else
-        (value) = -ai_angularYawAccelRate->current.integer;
+        (value) = -ai_angularYawAccelRate->current.value;
     decel = (-(value)) * ai_angularYawDecelFactor->current.value;
     maxVeloc = sqrtf(
                              (float)((float)((float)((float)((float)(-2.0 * angleDelta) * value) * decel)
