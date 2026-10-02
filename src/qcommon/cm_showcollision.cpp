@@ -54,9 +54,9 @@ void __cdecl CM_ShowSingleBrushCollision(
     void(__cdecl *drawCollisionPoly)(int, float (*)[3], const float *))
 {
     int ptCount; // [esp+30h] [ebp-506Ch]
-    ShowCollisionBrushPt brushPts; // [esp+34h] [ebp-5068h] BYREF
+    ShowCollisionBrushPt brushPts[1024]; // [esp+34h] [ebp-5068h] BYREF
     int sideIndex; // [esp+5038h] [ebp-64h]
-    float axialPlanes[4][4]; // [esp+503Ch] [ebp-60h] BYREF
+    float axialPlanes[6][4]; // [esp+503Ch] [ebp-60h] BYREF
 
     if (!brush
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_showcollision.cpp", 403, 0, "%s", "brush"))
@@ -69,12 +69,12 @@ void __cdecl CM_ShowSingleBrushCollision(
         __debugbreak();
     }
     CM_BuildAxialPlanes(brush, axialPlanes);
-    ptCount = CM_ForEachBrushPlaneIntersection(brush, axialPlanes, &brushPts);
+    ptCount = CM_ForEachBrushPlaneIntersection(brush, axialPlanes, brushPts);
     if (ptCount >= 4)
     {
         for (sideIndex = 0; (unsigned int)sideIndex < 6; ++sideIndex)
         {
-            if (CM_BuildBrushWindingForSide((winding_t *)windingPool, axialPlanes[sideIndex], sideIndex, &brushPts, ptCount))
+            if (CM_BuildBrushWindingForSide((winding_t *)windingPool, axialPlanes[sideIndex], sideIndex, brushPts, ptCount))
                 drawCollisionPoly(*(_DWORD *)windingPool, (float (*)[3]) & windingPool[4], color);
         }
         for (sideIndex = 6; sideIndex < brush->numsides + 6; ++sideIndex)
@@ -83,7 +83,7 @@ void __cdecl CM_ShowSingleBrushCollision(
                 (winding_t *)windingPool,
                 brush->sides[sideIndex - 6].plane->normal,
                 sideIndex,
-                &brushPts,
+                brushPts,
                 ptCount))
             {
                 drawCollisionPoly(*(_DWORD *)windingPool, (float (*)[3]) & windingPool[4], color);

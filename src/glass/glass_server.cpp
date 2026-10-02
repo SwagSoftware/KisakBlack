@@ -603,13 +603,9 @@ void __cdecl GlassSv_PredictTouch(gentity_s *other)
 {
     scr_vehicle_s *scr_vehicle; // ecx
     actor_s *actor; // edx
-    float v4; // [esp+6Ch] [ebp-10B0h] BYREF
-    float v5; // [esp+70h] [ebp-10ACh]
-    float v6; // [esp+74h] [ebp-10A8h]
+    float v4[3]; // [esp+6Ch] [ebp-10B0h] BYREF
     float out[3][4]; // [esp+78h] [ebp-10A4h] BYREF
-    float v8; // [esp+A8h] [ebp-1074h] BYREF
-    float v9; // [esp+ACh] [ebp-1070h]
-    float v10; // [esp+B0h] [ebp-106Ch]
+    float v8[3]; // [esp+A8h] [ebp-1074h] BYREF
     const Glass *v11; // [esp+B4h] [ebp-1068h]
     float v12; // [esp+B8h] [ebp-1064h]
     float v13; // [esp+BCh] [ebp-1060h]
@@ -619,12 +615,8 @@ void __cdecl GlassSv_PredictTouch(gentity_s *other)
     float v17; // [esp+CCh] [ebp-1050h]
     unsigned int i; // [esp+D0h] [ebp-104Ch]
     float avel[3]; // [esp+D4h] [ebp-1048h] BYREF
-    float mins; // [esp+E0h] [ebp-103Ch] BYREF
-    float v21; // [esp+E4h] [ebp-1038h]
-    float v22; // [esp+E8h] [ebp-1034h]
-    float maxs; // [esp+ECh] [ebp-1030h] BYREF
-    float v24; // [esp+F0h] [ebp-102Ch]
-    float v25; // [esp+F4h] [ebp-1028h]
+    float mins[3]; // [esp+E0h] [ebp-103Ch] BYREF
+    float maxs[3]; // [esp+ECh] [ebp-1030h] BYREF
     float tvel[3] = { 0.0f, 0.0f, 0.0f }; // [esp+F8h] [ebp-1024h] BYREF
     float v29; // [esp+108h] [ebp-1014h]
     float v30; // [esp+10Ch] [ebp-1010h]
@@ -657,39 +649,39 @@ void __cdecl GlassSv_PredictTouch(gentity_s *other)
         }
         PROF_SCOPED("GlassSv_PredictTouch");
 
-        maxs = other->r.absmax[0];
-        v24 = other->r.absmax[1];
-        v25 = other->r.absmax[2];
-        mins = other->r.absmin[0];
-        v21 = other->r.absmin[1];
-        v22 = other->r.absmin[2];
+        maxs[0] = other->r.absmax[0];
+        maxs[1] = other->r.absmax[1];
+        maxs[2] = other->r.absmax[2];
+        mins[0] = other->r.absmin[0];
+        mins[1] = other->r.absmin[1];
+        mins[2] = other->r.absmin[2];
         v29 = PREDICT_TIME * tvel[0];
         v30 = PREDICT_TIME * tvel[1];
         v31 = PREDICT_TIME * tvel[2];
-        mins = mins + (float)(PREDICT_TIME * tvel[0]);
-        v21 = v21 + (float)(PREDICT_TIME * tvel[1]);
-        v22 = v22 + (float)(PREDICT_TIME * tvel[2]);
-        maxs = maxs + (float)(PREDICT_TIME * tvel[0]);
-        v24 = v24 + (float)(PREDICT_TIME * tvel[1]);
-        v25 = v25 + (float)(PREDICT_TIME * tvel[2]);
-        v33 = GlassSv_AreaGlasses(&mins, &maxs, glasses, 0x400u);
+        mins[0] = mins[0] + (float)(PREDICT_TIME * tvel[0]);
+        mins[1] = mins[1] + (float)(PREDICT_TIME * tvel[1]);
+        mins[2] = mins[2] + (float)(PREDICT_TIME * tvel[2]);
+        maxs[0] = maxs[0] + (float)(PREDICT_TIME * tvel[0]);
+        maxs[1] = maxs[1] + (float)(PREDICT_TIME * tvel[1]);
+        maxs[2] = maxs[2] + (float)(PREDICT_TIME * tvel[2]);
+        v33 = GlassSv_AreaGlasses(mins, maxs, glasses, 0x400u);
         for (i = 0; i < v33; ++i)
         {
             v11 = glasses[i];
-            v8 = v11->absmin[0];
-            v9 = v11->absmin[1];
-            v10 = v11->absmin[2];
-            v4 = v11->absmax[0];
-            v5 = v11->absmax[1];
-            v6 = v11->absmax[2];
-            ExpandBoundsToWidth(&v8, &v4);
-            v8 = v8 - v29;
-            v9 = v9 - v30;
-            v10 = v10 - v31;
-            v4 = v4 - v29;
-            v5 = v5 - v30;
-            v6 = v6 - v31;
-            if (SV_EntityContact(&v8, &v4, other))
+            v8[0] = v11->absmin[0];
+            v8[1] = v11->absmin[1];
+            v8[2] = v11->absmin[2];
+            v4[0] = v11->absmax[0];
+            v4[1] = v11->absmax[1];
+            v4[2] = v11->absmax[2];
+            ExpandBoundsToWidth(v8, v4);
+            v8[0] = v8[0] - v29;
+            v8[1] = v8[1] - v30;
+            v8[2] = v8[2] - v31;
+            v4[0] = v4[0] - v29;
+            v4[1] = v4[1] - v30;
+            v4[2] = v4[2] - v31;
+            if (SV_EntityContact(v8, v4, other))
             {
                 MatrixInverseOrthogonal43(v11->outlineAxis, (float (*)[3])out);
                 v12 = other->r.currentOrigin[0];

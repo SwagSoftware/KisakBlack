@@ -1250,20 +1250,18 @@ bool __cdecl ParseConfigStringToStructMerged(
     char *v11; // eax
     char v12; // bl
     int i; // [esp+68h] [ebp-602Ch]
-    char v15; // [esp+6Ch] [ebp-6028h] BYREF
+    char v15[8192]; // [esp+6Ch] [ebp-6028h] BYREF
     char v16; // [esp+2073h] [ebp-4021h]
-    char v17; // [esp+2074h] [ebp-4020h] BYREF
+    char v17[8192]; // [esp+2074h] [ebp-4020h] BYREF
     char *value; // [esp+4078h] [ebp-201Ch]
-    char v19; // [esp+407Ch] [ebp-2018h] BYREF
+    char v19[8192]; // [esp+407Ch] [ebp-2018h] BYREF
     cspField_t *pField; // [esp+6080h] [ebp-14h]
     int v21; // [esp+6084h] [ebp-10h]
-    char *dest; // [esp+6088h] [ebp-Ch] BYREF
-    char *v23; // [esp+608Ch] [ebp-8h]
-    char *v24; // [esp+6090h] [ebp-4h]
+    char *dest[3]; // [esp+6088h] [ebp-Ch] BYREF
 
-    dest = &v19;
-    v23 = &v17;
-    v24 = &v15;
+    dest[0] = v19;
+    dest[1] = v17;
+    dest[2] = v15;
     v16 = 0;
     v21 = 0;
     pField = pFieldList;
@@ -1272,17 +1270,17 @@ bool __cdecl ParseConfigStringToStructMerged(
         for ( i = 0; i < 3; ++i )
         {
             v11 = Info_ValueForKey((char *)pszBuffer[i], (char *)pField->szName);
-            I_strncpyz((&dest)[i], v11, 0x2000);
+            I_strncpyz(dest[i], v11, 0x2000);
         }
-        if ( !strcmp(v23, v24) )
+        if ( !strcmp(dest[1], dest[2]) )
         {
-            value = v23;
+            value = dest[1];
         }
-        else if ( strcmp(dest, v24) || !strcmp(dest, v23) )
+        else if ( strcmp(dest[0], dest[2]) || !strcmp(dest[0], dest[1]) )
         {
-            if ( strcmp(dest, v23) || !strcmp(dest, v24) )
+            if ( strcmp(dest[0], dest[1]) || !strcmp(dest[0], dest[2]) )
             {
-                if ( !parseMergeSpecialCase(pField->szName, &dest, dest, 0x2000) )
+                if ( !parseMergeSpecialCase(pField->szName, dest, dest[0], 0x2000) )
                 {
                     Com_PrintError(
                         1,
@@ -1290,23 +1288,23 @@ bool __cdecl ParseConfigStringToStructMerged(
                         pField->szName,
                         mergedName,
                         *sourceName,
-                        dest,
+                        dest[0],
                         sourceName[1],
-                        v23,
+                        dest[1],
                         sourceName[2],
-                        v24);
+                        dest[2]);
                     v16 = 1;
                 }
-                value = dest;
+                value = dest[0];
             }
             else
             {
-                value = v24;
+                value = dest[2];
             }
         }
         else
         {
-            value = v23;
+            value = dest[1];
         }
         if ( *value )
         {

@@ -137,7 +137,7 @@ adjacencyWinding_t *__cdecl BuildBrushdAdjacencyWindingForSide(
     {
         __debugbreak();
     }
-    rv = PlaneInCommonExcluding(cycle[0][0], xyz[cycleCount[0] + 1023], basePlaneIndex, winding->sides);
+    rv = PlaneInCommonExcluding(cycle[0][0], cycle[0][cycleCount[0] - 1], basePlaneIndex, winding->sides);
     if ( !rv
         && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\qcommon\\../../common/brush_edges.cpp", 860, 1, "%s", "rv") )
     {
@@ -149,7 +149,7 @@ adjacencyWinding_t *__cdecl BuildBrushdAdjacencyWindingForSide(
     for ( winding->numsides = 1; winding->numsides < (int)cycleCount[0]; ++winding->numsides )
     {
         winding->sides[winding->numsides] = ThirdPlane(
-                                                                                    xyz[winding->numsides + 1023],
+                                                                                    cycle[0][winding->numsides - 1],
                                                                                     basePlaneIndex,
                                                                                     *(&winding->numsides + winding->numsides));
         v10 = &v0[3 * winding->numsides];
@@ -159,7 +159,7 @@ adjacencyWinding_t *__cdecl BuildBrushdAdjacencyWindingForSide(
         v10[2] = v11->xyz[2];
     }
     if ( winding->sides[0] != ThirdPlane(
-                                                            xyz[cycleCount[0] + 1023],
+                                                            cycle[0][cycleCount[0] - 1],
                                                             basePlaneIndex,
                                                             *(&winding->numsides + winding->numsides))
         && !Assert_MyHandler(
@@ -923,14 +923,19 @@ char __cdecl FindCycleBFS(
                 const SimplePlaneIntersection **resultCycle,
                 int *resultCycleCount)
 {
-    const SimplePlaneIntersection **v9; // [esp+0h] [ebp-4028h]
+    struct CycleNode
+    {
+        const SimplePlaneIntersection *point;
+        int plane;
+        int depth;
+        CycleNode *parent;
+    };
+
+    CycleNode *v9; // [esp+0h] [ebp-4028h]
     const SimplePlaneIntersection **enda; // [esp+4h] [ebp-4024h]
-    const SimplePlaneIntersection *v11; // [esp+8h] [ebp-4020h] BYREF
-    int planeIndex; // [esp+Ch] [ebp-401Ch]
-    int v13; // [esp+10h] [ebp-4018h]
-    unsigned int v14[4094]; // [esp+14h] [ebp-4014h]
+    CycleNode queue[1024];
     int v15; // [esp+400Ch] [ebp-1Ch]
-    const SimplePlaneIntersection *v16; // [esp+4010h] [ebp-18h]
+    int v16; // [esp+4010h] [ebp-18h]
     const SimplePlaneIntersection **i; // [esp+4014h] [ebp-14h]
     signed int j; // [esp+4018h] [ebp-10h]
     int v19; // [esp+401Ch] [ebp-Ch]
@@ -957,10 +962,10 @@ char __cdecl FindCycleBFS(
     {
         __debugbreak();
     }
-    v11 = start;
-    planeIndex = ThirdPlane(start, basePlane, connectingPlane);
-    v13 = 1;
-    v14[0] = 0;
+    queue[0].point = start;
+    queue[0].plane = ThirdPlane(start, basePlane, connectingPlane);
+    queue[0].depth = 1;
+    queue[0].parent = 0;
     v20 = 0;
     v21 = 1;
     v19 = ThirdPlane(end, basePlane, connectingPlane);
@@ -973,19 +978,19 @@ LABEL_8:
     else
     {
         enda = (const SimplePlaneIntersection **)&pts[ptsCount];
-        for ( i = NextPointFormedByThisPlane(*(&planeIndex + 4 * v20), (const SimplePlaneIntersection **)pts, enda);
+        for ( i = NextPointFormedByThisPlane(queue[v20].plane, (const SimplePlaneIntersection **)pts, enda);
                     ;
-                    i = NextPointFormedByThisPlane(*(&planeIndex + 4 * v20), i + 1, enda) )
+                    i = NextPointFormedByThisPlane(queue[v20].plane, i + 1, enda) )
         {
             if ( i == enda )
             {
                 ++v20;
                 goto LABEL_8;
             }
-            v15 = ThirdPlane(*i, basePlane, *(&planeIndex + 4 * v20));
+            v15 = ThirdPlane(*i, basePlane, queue[v20].plane);
             if ( v15 != connectingPlane )
             {
-                for ( j = 0; j < v21 && *(&planeIndex + 4 * j) != v15; ++j )
+                for ( j = 0; j < v21 && queue[j].plane != v15; ++j )
                     ;
                 if ( j >= v21 )
                 {
@@ -1000,17 +1005,17 @@ LABEL_8:
                     {
                         __debugbreak();
                     }
-                    *(&v11 + 4 * v21) = *i;
-                    *(&planeIndex + 4 * v21) = v15;
-                    v14[4 * v21 - 1] = v14[4 * v20 - 1] + 1;
-                    v14[4 * v21++] = (unsigned int)&v11 + 4 * v20;
+                    queue[v21].point = *i;
+                    queue[v21].plane = v15;
+                    queue[v21].depth = queue[v20].depth + 1;
+                    queue[v21++].parent = &queue[v20];
                     if ( v15 == v19 )
                         break;
                 }
             }
         }
-        v9 = &v11 + 4 * v21 - 4;
-        if ( v9[1] != (const SimplePlaneIntersection *)v19
+        v9 = &queue[v21 - 1];
+        if ( v9->plane != v19
             && !Assert_MyHandler(
                         "c:\\projects_pc\\cod\\codsrc\\src\\qcommon\\../../common/brush_edges.cpp",
                         314,
@@ -1020,13 +1025,13 @@ LABEL_8:
         {
             __debugbreak();
         }
-        *resultCycleCount = (int)v9[2]->xyz + 1;
-        v16 = v9[2];
+        *resultCycleCount = v9->depth + 1;
+        v16 = v9->depth;
         while ( v9 )
         {
-            resultCycle[(unsigned int)v16] = *v9;
-            v16 = (const SimplePlaneIntersection *)((char *)v16 - 1);
-            v9 = (const SimplePlaneIntersection **)v9[3];
+            resultCycle[v16] = v9->point;
+            --v16;
+            v9 = v9->parent;
         }
         if ( v16 )
         {
@@ -1163,14 +1168,11 @@ int __cdecl ChooseEdgeToRemove(
     SimplePlaneIntersection *resultCycle[1024]; // [esp+1Ch] [ebp-3020h] BYREF
     SimplePlaneIntersection *v11[1024]; // [esp+101Ch] [ebp-2020h] BYREF
     SimplePlaneIntersection *v12[1025]; // [esp+201Ch] [ebp-1020h] BYREF
-    char v13; // [esp+3020h] [ebp-1Ch]
-    char v14; // [esp+3021h] [ebp-1Bh]
+    char convex[2]; // [esp+3020h] [ebp-1Ch]
     char v15; // [esp+3022h] [ebp-1Ah]
-    int resultCycleCount; // [esp+3024h] [ebp-18h] BYREF
-    unsigned int ptCount; // [esp+3028h] [ebp-14h] BYREF
+    int cycleCounts[2]; // [esp+3024h] [ebp-18h] BYREF
     unsigned int v18; // [esp+302Ch] [ebp-10h] BYREF
-    float perimiter1; // [esp+3030h] [ebp-Ch]
-    float perimiter2; // [esp+3034h] [ebp-8h]
+    float perimeters[2]; // [esp+3030h] [ebp-Ch]
     float v21; // [esp+3038h] [ebp-4h]
 
     CycleBFS = FindCycleBFS(
@@ -1181,7 +1183,7 @@ int __cdecl ChooseEdgeToRemove(
                              edges[1],
                              connectingPlane,
                              (const SimplePlaneIntersection **)resultCycle,
-                             &resultCycleCount);
+                             &cycleCounts[0]);
     v7 = FindCycleBFS(
                  basePlane,
                  pts,
@@ -1190,7 +1192,7 @@ int __cdecl ChooseEdgeToRemove(
                  edges[2],
                  connectingPlane,
                  (const SimplePlaneIntersection **)v11,
-                 (int *)&ptCount);
+                 (int *)&cycleCounts[1]);
     v8 = FindCycleBFS(
                  basePlane,
                  pts,
@@ -1210,14 +1212,14 @@ int __cdecl ChooseEdgeToRemove(
     {
         __debugbreak();
     }
-    perimiter1 = CyclePerimiter((const SimplePlaneIntersection **)resultCycle, resultCycleCount);
-    perimiter2 = CyclePerimiter((const SimplePlaneIntersection **)v11, ptCount);
+    perimeters[0] = CyclePerimiter((const SimplePlaneIntersection **)resultCycle, cycleCounts[0]);
+    perimeters[1] = CyclePerimiter((const SimplePlaneIntersection **)v11, cycleCounts[1]);
     v21 = CyclePerimiter((const SimplePlaneIntersection **)v12, v18);
-    v13 = TestConvexWithoutNearPoints((const SimplePlaneIntersection **)resultCycle, resultCycleCount);
-    v14 = TestConvexWithoutNearPoints((const SimplePlaneIntersection **)v11, ptCount);
+    convex[0] = TestConvexWithoutNearPoints((const SimplePlaneIntersection **)resultCycle, cycleCounts[0]);
+    convex[1] = TestConvexWithoutNearPoints((const SimplePlaneIntersection **)v11, cycleCounts[1]);
     v15 = TestConvexWithoutNearPoints((const SimplePlaneIntersection **)v12, v18);
-    v9 = CycleLess(v13, v14, perimiter1, perimiter2, resultCycleCount, ptCount);
-    if ( CycleLess(*(&v13 + v9), v15, *(&perimiter1 + v9), v21, *(&resultCycleCount + v9), v18) )
+    v9 = CycleLess(convex[0], convex[1], perimeters[0], perimeters[1], cycleCounts[0], cycleCounts[1]);
+    if ( CycleLess(convex[v9], v15, perimeters[v9], v21, cycleCounts[v9], v18) )
         v9 = 2;
     return 2 - v9;
 }
@@ -1232,7 +1234,7 @@ int __cdecl PartitionEdges(
                 int *partition)
 {
     const SimplePlaneIntersection *v8; // [esp+0h] [ebp-1020h]
-    SimplePlaneIntersection *resultCycle; // [esp+8h] [ebp-1018h] BYREF
+    SimplePlaneIntersection *resultCycle[1024]; // [esp+8h] [ebp-1018h] BYREF
     int v10; // [esp+100Ch] [ebp-14h]
     int i; // [esp+1010h] [ebp-10h]
     int resultCycleCount; // [esp+1014h] [ebp-Ch] BYREF
@@ -1253,7 +1255,7 @@ int __cdecl PartitionEdges(
                          edges[partition[i] - 1],
                          edges[v14],
                          connectingPlane,
-                         (const SimplePlaneIntersection **)&resultCycle,
+                         (const SimplePlaneIntersection **)resultCycle,
                          &resultCycleCount) )
             {
                 if ( i < v10 - 1 )

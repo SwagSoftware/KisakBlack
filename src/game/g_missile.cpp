@@ -1097,9 +1097,7 @@ void __cdecl G_RunMissileInternal(gentity_s *ent)
 {
     const float *v1; // [esp+1Ch] [ebp-1C4h]
     float circleDir3[3]; // [esp+A8h] [ebp-138h] BYREF
-    float center; // [esp+B4h] [ebp-12Ch] BYREF
-    float v4; // [esp+B8h] [ebp-128h]
-    float v5; // [esp+BCh] [ebp-124h]
+    float center[3]; // [esp+B4h] [ebp-12Ch] BYREF
     float radius; // [esp+C0h] [ebp-120h]
     float circleDir2[3]; // [esp+C4h] [ebp-11Ch] BYREF
     float circleDir1[3]; // [esp+D0h] [ebp-110h] BYREF
@@ -1406,9 +1404,9 @@ LABEL_90:
                         {
                             if ( attrGlob.attractors[attractorIndex].entnum == 1023 )
                             {
-                                center = attrGlob.attractors[attractorIndex].origin[0];
-                                v4 = attrGlob.attractors[attractorIndex].origin[1];
-                                v5 = attrGlob.attractors[attractorIndex].origin[2];
+                                center[0] = attrGlob.attractors[attractorIndex].origin[0];
+                                center[1] = attrGlob.attractors[attractorIndex].origin[1];
+                                center[2] = attrGlob.attractors[attractorIndex].origin[2];
                             }
                             else
                             {
@@ -1423,18 +1421,18 @@ LABEL_90:
                                     __debugbreak();
                                 }
                                 ent = &g_entities[attrGlob.attractors[attractorIndex].entnum];
-                                center = ent->r.currentOrigin[0];
-                                v4 = ent->r.currentOrigin[1];
-                                v5 = ent->r.currentOrigin[2];
+                                center[0] = ent->r.currentOrigin[0];
+                                center[1] = ent->r.currentOrigin[1];
+                                center[2] = ent->r.currentOrigin[2];
                             }
                             if ( attrGlob.attractors[attractorIndex].isAttractor )
                                 v1 = colorGreen;
                             else
                                 v1 = colorOrange;
                             color = v1;
-                            G_DebugCircleEx(&center, radius, circleDir1, v1, 0, 1);
-                            G_DebugCircleEx(&center, radius, circleDir2, color, 0, 1);
-                            G_DebugCircleEx(&center, radius, circleDir3, color, 0, 1);
+                            G_DebugCircleEx(center, radius, circleDir1, v1, 0, 1);
+                            G_DebugCircleEx(center, radius, circleDir2, color, 0, 1);
+                            G_DebugCircleEx(center, radius, circleDir3, color, 0, 1);
                         }
                     }
                 }
@@ -3435,9 +3433,8 @@ void    Missile_ApplyAttractorsRepulsors(gentity_s *missile)
     float angleToAttractora; // [esp+8h] [ebp-80h]
     float force; // [esp+Ch] [ebp-7Ch]
     float totalDist; // [esp+10h] [ebp-78h]
-    float perpDist; // [esp+14h] [ebp-74h] BYREF
-    float perpDir[3]; // [esp+18h] [ebp-70h] BYREF
-    float perpDelta[3]; // [esp+24h] [ebp-64h]
+    float perpDir[3]; // [esp+14h] [ebp-74h] BYREF
+    float perpDelta[3]; // [esp+20h] [ebp-68h] BYREF
     float forwardDist; // [esp+30h] [ebp-58h]
     float delta[5]; // [esp+34h] [ebp-54h] BYREF
     gentity_s *ent; // [esp+48h] [ebp-40h]
@@ -3492,24 +3489,23 @@ void    Missile_ApplyAttractorsRepulsors(gentity_s *missile)
             forwardDist = (float)((float)(delta[0] * forwardDir[0]) + (float)(delta[1] * forwardDir[1])) + (float)(delta[2] * forwardDir[2]);
             if (forwardDist > 0.0)
             {
-                (perpDelta[2]) = -(forwardDist);
-                perpDir[2] =   (float)((-(forwardDist)) * forwardDir[0]) + delta[0];
-                perpDelta[0] = (float)((-(forwardDist)) * forwardDir[1]) + delta[1];
-                perpDelta[1] = (float)((-(forwardDist)) * forwardDir[2]) + delta[2];
-                totalDist = Vec3NormalizeTo(&perpDir[2], &perpDist);
+                perpDelta[0] =   (float)((-(forwardDist)) * forwardDir[0]) + delta[0];
+                perpDelta[1] = (float)((-(forwardDist)) * forwardDir[1]) + delta[1];
+                perpDelta[2] = (float)((-(forwardDist)) * forwardDir[2]) + delta[2];
+                totalDist = Vec3NormalizeTo(perpDelta, perpDir);
                 if (totalDist < 0.0000099999997)
                 {
                     if (attrGlob.attractors[attractorIndex].isAttractor)
                         continue;
-                    perpDist = 0.0f;
                     perpDir[0] = 0.0f;
-                    perpDir[1] = -1.0f;
+                    perpDir[1] = 0.0f;
+                    perpDir[2] = -1.0f;
                 }
-                if (!attrGlob.attractors[attractorIndex].isAttractor && perpDir[1] > 0.0)
+                if (!attrGlob.attractors[attractorIndex].isAttractor && perpDir[2] > 0.0)
                 {
-                    perpDist = 0.0f;
                     perpDir[0] = 0.0f;
-                    perpDir[1] = -1.0f;
+                    perpDir[1] = 0.0f;
+                    perpDir[2] = -1.0f;
                     totalDist = 0.0f;
                 }
                 force = Vec3Length(delta);
@@ -3544,9 +3540,9 @@ void    Missile_ApplyAttractorsRepulsors(gentity_s *missile)
                             v5 = (float)((float)((float)weaponDef->iProjectileSpeed * totalDist) / forwardDist) * 20.0;
                         angleToAttractora = v5;
                     }
-                    forceVector[0] = (float)(angleToAttractora * perpDist) + forceVector[0];
-                    forceVector[1] = (float)(angleToAttractora * perpDir[0]) + forceVector[1];
-                    forceVector[2] = (float)(angleToAttractora * perpDir[1]) + forceVector[2];
+                    forceVector[0] = (float)(angleToAttractora * perpDir[0]) + forceVector[0];
+                    forceVector[1] = (float)(angleToAttractora * perpDir[1]) + forceVector[1];
+                    forceVector[2] = (float)(angleToAttractora * perpDir[2]) + forceVector[2];
                 }
             }
         }

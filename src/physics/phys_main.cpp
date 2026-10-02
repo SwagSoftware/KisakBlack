@@ -3342,6 +3342,7 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
     float v12; // [esp+54h] [ebp-550h]
     float v13; // [esp+58h] [ebp-54Ch]
     phys_vec3 v14; // [esp+5Ch] [ebp-548h] BYREF
+    phys_vec3 localNormal;
     phys_vec3 *v15; // [esp+84h] [ebp-520h]
     phys_vec3 v16; // [esp+88h] [ebp-51Ch] BYREF
     phys_vec3 *p_m_ground_vel; // [esp+9Ch] [ebp-508h]
@@ -3349,7 +3350,7 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
     environment_rigid_body *TraceResultsRigidBody; // [esp+A4h] [ebp-500h]
     phys_vec3 v20; // [esp+A8h] [ebp-4FCh] BYREF
     phys_vec3 v21; // [esp+B8h] [ebp-4ECh] BYREF
-    int v22; // [esp+CCh] [ebp-4D8h] BYREF
+    float v22[3]; // [esp+CCh] [ebp-4D8h] BYREF
     int m_entnum; // [esp+D8h] [ebp-4CCh]
     col_context_t v24; // [esp+DCh] [ebp-4C8h] BYREF
     float zero[3]; // [esp+13Ch] [ebp-468h] BYREF
@@ -3420,8 +3421,8 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
                 else
                 {
                     ++v35;
-                    Vec3Lerp(p0, p1, traceResults.fraction, (float *)&v22);
-                    Phys_Vec3ToNitrousVec((float *)&v22, &v21);
+                    Vec3Lerp(p0, p1, traceResults.fraction, v22);
+                    Phys_Vec3ToNitrousVec(v22, &v21);
                     Phys_Vec3ToNitrousVec(traceResults.normal.vec.v, &v20);
                     TraceResultsRigidBody = (environment_rigid_body*)GetTraceResultsRigidBody(&traceResults);
                     p_m_t_vel = &TraceResultsRigidBody->m_t_vel;
@@ -3433,7 +3434,7 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
                     v21.x = v15->x;
                     v21.y = v15->y;
                     v21.z = v15->z;
-                    LODWORD(v14.z) = (DWORD)phys_inv_multiply((phys_vec3 *)&v14.w, &TraceResultsRigidBody->m_mat, &v20);
+                    LODWORD(v14.z) = (DWORD)phys_inv_multiply(&localNormal, &TraceResultsRigidBody->m_mat, &v20);
                     v20.x = *(float *)LODWORD(v14.z);
                     v20.y = *(float *)(LODWORD(v14.z) + 4);
                     v20.z = *(float *)(LODWORD(v14.z) + 8);

@@ -2558,8 +2558,7 @@ void __cdecl CG_CompassDrawPlayer(
 {
     float yawVector[2]; // [esp+30h] [ebp-58h] BYREF
     bool clipped; // [esp+3Bh] [ebp-4Dh]
-    float outClipped; // [esp+3Ch] [ebp-4Ch] BYREF
-    float v9; // [esp+40h] [ebp-48h]
+    float outClipped[2]; // [esp+3Ch] [ebp-4Ch] BYREF
     float xy[2]; // [esp+44h] [ebp-44h] BYREF
     const cg_s *cgameGlob; // [esp+4Ch] [ebp-3Ch]
     float angle; // [esp+50h] [ebp-38h]
@@ -2649,8 +2648,8 @@ void __cdecl CG_CompassDrawPlayer(
             angle = 0.0f;
         goto LABEL_25;
     }
-    outClipped = 0.0f;
-    v9 = 0.0f;
+    outClipped[0] = 0.0f;
+    outClipped[1] = 0.0f;
     CG_CompassUpYawVector(cgameGlob, yawVector);
     clipped = CG_WorldPosToCompass(
                             (CompassType)compassType,
@@ -2660,11 +2659,11 @@ void __cdecl CG_CompassDrawPlayer(
                             cgameGlob->refdef.vieworg,
                             cgameGlob->predictedPlayerState.origin,
                             0,
-                            &outClipped);
+                            outClipped);
     if ( !clipped || compassClampIcons->current.enabled )
     {
-        x = outClipped;
-        y = v9;
+        x = outClipped[0];
+        y = outClipped[1];
         if ( compassType || !compassRotation->current.enabled )
             angle = AngleNormalize360(cgameGlob->compassNorthYaw - cgameGlob->predictedPlayerEntity.nextState.lerp.apos.trBase[1]);
         else

@@ -562,9 +562,7 @@ int Player_GetUseList(gentity_s *ent, useList_t *useList, int prevHintEntIndex)
     float origin[3]; // [esp+130Ch] [ebp-98h] BYREF
     //float v26; // [esp+1310h] [ebp-94h]
     //float v27; // [esp+1314h] [ebp-90h]
-    float v28; // [esp+1318h] [ebp-8Ch] BYREF
-    float v29; // [esp+131Ch] [ebp-88h]
-    float v30; // [esp+1320h] [ebp-84h]
+    float v28[3]; // [esp+1318h] [ebp-8Ch] BYREF
     float v31; // [esp+1324h] [ebp-80h]
     float mins[3]; // [esp+1328h] [ebp-7Ch] BYREF
     float v33; // [esp+1334h] [ebp-70h]
@@ -588,9 +586,7 @@ int Player_GetUseList(gentity_s *ent, useList_t *useList, int prevHintEntIndex)
     playerState_s *ps; // [esp+138Ch] [ebp-18h]
     team_t team; // [esp+1390h] [ebp-14h]
     float v53; // [esp+1394h] [ebp-10h]
-    float v54; // [esp+1398h] [ebp-Ch] BYREF
-    float v55; // [esp+139Ch] [ebp-8h]
-    float v56; // [esp+13A0h] [ebp-4h]
+    float v54[3]; // [esp+1398h] [ebp-Ch] BYREF
     gentity_s *ent2; // [esp+13ACh] [ebp+8h]
 
     v31 = 256.0f;
@@ -617,12 +613,12 @@ int Player_GetUseList(gentity_s *ent, useList_t *useList, int prevHintEntIndex)
     v37 = 0;
     G_GetPlayerViewOrigin(ps, origin);
     BG_GetPlayerViewDirection(ps, forward, 0, 0);
-    v54 = ps->origin[0] + -15.0;
-    v55 = ps->origin[1] + -15.0;
-    v56 = ps->origin[2] + 0.0;
-    v28 = ps->origin[0] + 15.0;
-    v29 = ps->origin[1] + 15.0;
-    v30 = ps->origin[2] + 70.0;
+    v54[0] = ps->origin[0] + -15.0;
+    v54[1] = ps->origin[1] + -15.0;
+    v54[2] = ps->origin[2] + 0.0;
+    v28[0] = ps->origin[0] + 15.0;
+    v28[1] = ps->origin[1] + 15.0;
+    v28[2] = ps->origin[2] + 70.0;
     mins[0] = origin[0] - v34;
     mins[1] = origin[1] - v35;
     mins[2] = origin[2] - v36;
@@ -638,14 +634,14 @@ int Player_GetUseList(gentity_s *ent, useList_t *useList, int prevHintEntIndex)
         {
             if (gEnt->classname == scr_const.trigger_use_touch)
             {
-                if (gEnt->r.absmin[0] <= v28
-                    && v54 <= gEnt->r.absmax[0]
-                    && gEnt->r.absmin[1] <= v29
-                    && v55 <= gEnt->r.absmax[1]
-                    && gEnt->r.absmin[2] <= v30
-                    && v56 <= gEnt->r.absmax[2])
+                if (gEnt->r.absmin[0] <= v28[0]
+                    && v54[0] <= gEnt->r.absmax[0]
+                    && gEnt->r.absmin[1] <= v28[1]
+                    && v54[1] <= gEnt->r.absmax[1]
+                    && gEnt->r.absmin[2] <= v28[2]
+                    && v54[2] <= gEnt->r.absmax[2])
                 {
-                    if (SV_EntityContact(&v54, &v28, gEnt))
+                    if (SV_EntityContact(v54, v28, gEnt))
                     {
                         useList[v42].score = -256.0f;
                         useList[v42++].ent = gEnt;

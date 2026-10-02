@@ -2653,23 +2653,14 @@ void __cdecl IKImport_InitCollisionCache(IKState *ikState)
 
 void    IKImport_Profiler(IKState *ikState)
 {
-    float v2; // [esp-4h] [ebp-C0h] BYREF
-    int timed; // [esp+0h] [ebp-BCh]
-    int time2; // [esp+4h] [ebp-B8h]
+    float v2[3]; // [esp-4h] [ebp-C0h] BYREF
     float *v5; // [esp+8h] [ebp-B4h]
     float *v6; // [esp+Ch] [ebp-B0h]
     float v7; // [esp+10h] [ebp-ACh]
     float v8; // [esp+14h] [ebp-A8h]
     float v9; // [esp+18h] [ebp-A4h]
-    float out[17]; // [esp+1Ch] [ebp-A0h] OVERLAPPED BYREF
-    float v11; // [esp+60h] [ebp-5Ch]
-    float v12; // [esp+64h] [ebp-58h]
-    float v13; // [esp+68h] [ebp-54h]
-    int v14; // [esp+6Ch] [ebp-50h]
-    float v15; // [esp+70h] [ebp-4Ch]
-    float v16; // [esp+74h] [ebp-48h]
-    float v17; // [esp+78h] [ebp-44h]
-    int v18; // [esp+7Ch] [ebp-40h]
+    float out[13]; // [esp+1Ch] [ebp-A0h] BYREF
+    float transposed[3][4];
     float *v19; // [esp+9Ch] [ebp-20h]
     float *v20; // [esp+A0h] [ebp-1Ch]
     int m; // [esp+A4h] [ebp-18h]
@@ -2691,41 +2682,41 @@ void    IKImport_Profiler(IKState *ikState)
             {
                 v20 = ikState->matArrayPostIK[m - 1][0];
                 v19 = ikState->matArrayPostIK[m][0];
-                if ( v20 == &out[13]
+                if ( v20 == &transposed[0][0]
                     && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\ik\\ik_math.h", 165, 0, "%s", "in != out") )
                 {
                     __debugbreak();
                 }
-                out[13] = *v20;
-                out[14] = v20[4];
-                out[15] = v20[8];
-                out[16] = 0.0f;
-                v11 = v20[1];
-                v12 = v20[5];
-                v13 = v20[9];
-                v14 = 0;
-                v15 = v20[2];
-                v16 = v20[6];
-                v17 = v20[10];
-                v18 = 0;
-                v7 = (float)((float)(*v19 * out[13]) + (float)(v19[1] * v11)) + (float)(v19[2] * v15);
-                v8 = (float)((float)(*v19 * out[14]) + (float)(v19[1] * v12)) + (float)(v19[2] * v16);
-                v9 = (float)((float)(*v19 * out[15]) + (float)(v19[1] * v13)) + (float)(v19[2] * v17);
+                transposed[0][0] = *v20;
+                transposed[0][1] = v20[4];
+                transposed[0][2] = v20[8];
+                transposed[0][3] = 0.0f;
+                transposed[1][0] = v20[1];
+                transposed[1][1] = v20[5];
+                transposed[1][2] = v20[9];
+                transposed[1][3] = 0;
+                transposed[2][0] = v20[2];
+                transposed[2][1] = v20[6];
+                transposed[2][2] = v20[10];
+                transposed[2][3] = 0;
+                v7 = (float)((float)(*v19 * transposed[0][0]) + (float)(v19[1] * transposed[1][0])) + (float)(v19[2] * transposed[2][0]);
+                v8 = (float)((float)(*v19 * transposed[0][1]) + (float)(v19[1] * transposed[1][1])) + (float)(v19[2] * transposed[2][1]);
+                v9 = (float)((float)(*v19 * transposed[0][2]) + (float)(v19[1] * transposed[1][2])) + (float)(v19[2] * transposed[2][2]);
                 out[0] = 0.0f;
-                out[1] = (float)((float)(v19[4] * out[13]) + (float)(v19[5] * v11)) + (float)(v19[6] * v15);
-                out[2] = (float)((float)(v19[4] * out[14]) + (float)(v19[5] * v12)) + (float)(v19[6] * v16);
-                out[3] = (float)((float)(v19[4] * out[15]) + (float)(v19[5] * v13)) + (float)(v19[6] * v17);
+                out[1] = (float)((float)(v19[4] * transposed[0][0]) + (float)(v19[5] * transposed[1][0])) + (float)(v19[6] * transposed[2][0]);
+                out[2] = (float)((float)(v19[4] * transposed[0][1]) + (float)(v19[5] * transposed[1][1])) + (float)(v19[6] * transposed[2][1]);
+                out[3] = (float)((float)(v19[4] * transposed[0][2]) + (float)(v19[5] * transposed[1][2])) + (float)(v19[6] * transposed[2][2]);
                 out[4] = 0.0f;
-                out[5] = (float)((float)(v19[8] * out[13]) + (float)(v19[9] * v11)) + (float)(v19[10] * v15);
-                out[6] = (float)((float)(v19[8] * out[14]) + (float)(v19[9] * v12)) + (float)(v19[10] * v16);
-                out[7] = (float)((float)(v19[8] * out[15]) + (float)(v19[9] * v13)) + (float)(v19[10] * v17);
+                out[5] = (float)((float)(v19[8] * transposed[0][0]) + (float)(v19[9] * transposed[1][0])) + (float)(v19[10] * transposed[2][0]);
+                out[6] = (float)((float)(v19[8] * transposed[0][1]) + (float)(v19[9] * transposed[1][1])) + (float)(v19[10] * transposed[2][1]);
+                out[7] = (float)((float)(v19[8] * transposed[0][2]) + (float)(v19[9] * transposed[1][2])) + (float)(v19[10] * transposed[2][2]);
                 out[8] = 0.0f;
                 v6 = v20 + 12;
                 v5 = v19 + 12;
-                v2 = v19[12] - v20[12];
-                *(float *)&timed = v19[13] - v20[13];
-                *(float *)&time2 = v19[14] - v20[14];
-                ikMatrixTransformVector34(&v2, (const float (*)[4])&out[13], &out[9]);
+                v2[0] = v19[12] - v20[12];
+                v2[1] = v19[13] - v20[13];
+                v2[2] = v19[14] - v20[14];
+                ikMatrixTransformVector34(v2, transposed, &out[9]);
                 out[12] = 1.0f;
             }
         }

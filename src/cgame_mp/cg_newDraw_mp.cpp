@@ -4579,9 +4579,7 @@ void    CG_DrawPlayerStance(
     long double v8; // [esp+1Ch] [ebp-5Ch]
     float v9; // [esp+2Ch] [ebp-4Ch]
     const char *v10; // [esp+30h] [ebp-48h]
-    float deltaTime; // [esp+34h] [ebp-44h] BYREF
-    float halfWidth; // [esp+38h] [ebp-40h]
-    const char *proneStr; // [esp+3Ch] [ebp-3Ch]
+    float stanceColor[4];
     float drawColor[4]; // [esp+40h] [ebp-38h] BYREF
     float y; // [esp+50h] [ebp-28h]
     const cgs_t *x; // [esp+54h] [ebp-24h]
@@ -4620,9 +4618,9 @@ void    CG_DrawPlayerStance(
                                  + rect->x;
         drawColor[1] = rect->y;
         //BLOPS_NULLSUB((jpeg_decompress_struct *)&drawColor[2]);
-        deltaTime = *color;
-        halfWidth = color[1];
-        proneStr = (const char *)*((unsigned int *)color + 2);
+        stanceColor[0] = color[0];
+        stanceColor[1] = color[1];
+        stanceColor[2] = color[2];
         if ( (cgameGlob->predictedPlayerState.pm_flags & 0x1000) != 0 && cgameGlob->proneBlockedEndTime < cgameGlob->time )
             cgameGlob->proneBlockedEndTime = cgameGlob->time + 1500;
         if ( cgameGlob->proneBlockedEndTime > cgameGlob->time )
@@ -4635,7 +4633,7 @@ void    CG_DrawPlayerStance(
             v7 = (float)(DEG2RAD((float)((float)((float)(cgameGlob->proneBlockedEndTime - cgameGlob->time) / 1500.0) * 540.0)));
             //__libm_sse2_sin(v8);
             //*(float *)&v7 = v7;
-            drawColor[0] = fabs(sin(v7));
+            stanceColor[3] = fabs(sin(v7));
             UI_DrawText(
                 &scrPlaceView[localClientNum],
                 (char*)v10,
@@ -4646,13 +4644,13 @@ void    CG_DrawPlayerStance(
                 7,
                 3,
                 scale,
-                &deltaTime,
+                stanceColor,
                 textStyle);
         }
         if ( cg_hudStanceHintPrints->current.enabled && cgameGlob->lastStanceChangeTime + 3000 > cgameGlob->time )
             CG_DrawStanceHintPrints(localClientNum, rect, drawColor[2], color, y, font, scale, textStyle);
-        drawColor[0] = color[3] * y;
-        CG_DrawStanceIcon(localClientNum, rect, &deltaTime, drawColor[2], drawColor[1], y);
+        stanceColor[3] = color[3] * y;
+        CG_DrawStanceIcon(localClientNum, rect, stanceColor, drawColor[2], drawColor[1], y);
     }
 }
 

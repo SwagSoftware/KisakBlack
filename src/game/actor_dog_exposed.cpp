@@ -276,9 +276,7 @@ char __fastcall Actor_Dog_ObstacleInPath(const actor_s *self)
     float v2; // [esp+14h] [ebp-1024h]
     float v3; // [esp+18h] [ebp-1020h]
     float v4; // [esp+1Ch] [ebp-101Ch]
-    float mins; // [esp+20h] [ebp-1018h] BYREF
-    float v6; // [esp+24h] [ebp-1014h]
-    float v7; // [esp+28h] [ebp-1010h]
+    float mins[3]; // [esp+20h] [ebp-1018h] BYREF
     int v8; // [esp+2Ch] [ebp-100Ch]
     int entityList[1024]; // [esp+30h] [ebp-1008h] BYREF
     gentity_s *v10; // [esp+1030h] [ebp-8h]
@@ -287,13 +285,13 @@ char __fastcall Actor_Dog_ObstacleInPath(const actor_s *self)
     v2 = self->ent->r.currentOrigin[0];
     v3 = self->ent->r.currentOrigin[1];
     v4 = self->ent->r.currentOrigin[2] + 20.0;
-    mins = self->vLookForward[0];
-    v6 = self->vLookForward[1];
-    v7 = self->vLookForward[2];
-    mins = (float)(32.0 * mins) + v2;
-    v6 = (float)(32.0 * v6) + v3;
-    v7 = (float)(32.0 * v7) + v4;
-    v8 = CM_AreaEntities(&mins, &mins, entityList, 1024, 0x200000);
+    mins[0] = self->vLookForward[0];
+    mins[1] = self->vLookForward[1];
+    mins[2] = self->vLookForward[2];
+    mins[0] = (float)(32.0 * mins[0]) + v2;
+    mins[1] = (float)(32.0 * mins[1]) + v3;
+    mins[2] = (float)(32.0 * mins[2]) + v4;
+    v8 = CM_AreaEntities(mins, mins, entityList, 1024, 0x200000);
     for ( i = 0; i < v8; ++i )
     {
         v10 = &g_entities[entityList[i]];

@@ -1642,19 +1642,15 @@ int __cdecl BG_MergeWeaponDefSpecialCases(const char *fieldName, char **value, c
 
 char __cdecl BG_LoadWeaponVariantDefFile(WeaponFullDef *weapFullDef, const char *folder, char *name)
 {
-    char *sourceName; // [esp+10h] [ebp-2847Ch] BYREF
-    char *v5; // [esp+14h] [ebp-28478h]
-    _BYTE *v6; // [esp+18h] [ebp-28474h]
-    char *pszBuffer; // [esp+1Ch] [ebp-28470h] BYREF
-    char *v8; // [esp+20h] [ebp-2846Ch]
-    char *v9; // [esp+24h] [ebp-28468h]
+    const char *sourceName[3];
+    const char *pszBuffer[3];
     int v10; // [esp+28h] [ebp-28464h]
     char *sources[6]; // [esp+2Ch] [ebp-28460h] BYREF
     WeaponComponentList componentAll; // [esp+44h] [ebp-28448h] BYREF
-    char szBuffer[16384]; // [esp+17Ch] [ebp-28310h] BYREF
-    char v14; // [esp+417Ch] [ebp-24310h] BYREF
-    _BYTE v15[64]; // [esp+1817Ch] [ebp-10310h] BYREF
-    char v16[66116]; // [esp+181BCh] [ebp-102D0h] BYREF
+    char szBuffer[6][16384];
+    char sourceNames[6][64];
+    char mergedBuffers[4][16384];
+    char mergedNames[4][64];
     char **ppszConfigString; // [esp+28400h] [ebp-8Ch]
     char outputName[64]; // [esp+28404h] [ebp-88h] BYREF
     char dest[64]; // [esp+28444h] [ebp-48h] BYREF
@@ -1663,15 +1659,15 @@ char __cdecl BG_LoadWeaponVariantDefFile(WeaponFullDef *weapFullDef, const char 
     ppszConfigString = (char **)weapFullDef;
     for ( i = 0; i < 4; ++i )
     {
-        v16[0x4000 * i + 320] = 0;
-        v16[64 * i + 65856] = 0;
+        mergedBuffers[i][0] = 0;
+        mergedNames[i][0] = 0;
     }
     outputName[0] = 0;
     Com_sprintf(dest, 0x40u, "weapons/%s/%s", folder, name);
     if ( (int)FS_FOpenFileByMode(dest, 0, FS_READ) <= 0 )
     {
         for ( i = 0; i < 6; ++i )
-            sources[i] = (char*)&v15[64 * i];
+            sources[i] = sourceNames[i];
         if ( !BG_SplitWeaponDefNames(name, sources, &componentAll, outputName) )
             return 0;
         if ( componentAll.numComponents - 1 > 6
@@ -1686,8 +1682,8 @@ char __cdecl BG_LoadWeaponVariantDefFile(WeaponFullDef *weapFullDef, const char 
         }
         for ( i = 0; i < componentAll.numComponents - 1; ++i )
         {
-            Com_sprintf(dest, 0x40u, "weapons/%s/%s", folder, &v15[64 * i]);
-            if ( !BG_LoadWeaponFile(dest, &szBuffer[0x4000 * i], 0x4000) )
+            Com_sprintf(dest, 0x40u, "weapons/%s/%s", folder, sourceNames[i]);
+            if ( !BG_LoadWeaponFile(dest, szBuffer[i], 0x4000) )
             {
                 Com_PrintError(
                     1,
@@ -1698,45 +1694,45 @@ char __cdecl BG_LoadWeaponVariantDefFile(WeaponFullDef *weapFullDef, const char 
             }
         }
         SetConfigString(ppszConfigString, outputName);
-        sourceName = (char*)v15;
-        pszBuffer = szBuffer;
-        v5 = v16;
-        v8 = &v14;
+        sourceName[0] = sourceNames[0];
+        pszBuffer[0] = szBuffer[0];
+        sourceName[1] = sourceNames[1];
+        pszBuffer[1] = szBuffer[1];
         v10 = BG_WeaponComponentListCountAttachments(&componentAll);
         for ( i = 0; i < v10 - 1; ++i )
         {
-            v6 = &v15[64 * i + 128];
-            v9 = &szBuffer[0x4000 * i + 0x8000];
+            sourceName[2] = sourceNames[i + 2];
+            pszBuffer[2] = szBuffer[i + 2];
             if ( !ParseConfigStringToStructMerged(
                             (unsigned __int8 *)weapFullDef,
                             weaponDefFields,
                             748,
                             name,
-                            (const char **)&pszBuffer,
-                            (const char **)&sourceName,
-                            &v16[0x4000 * i + 320],
+                            pszBuffer,
+                            sourceName,
+                            mergedBuffers[i],
                             43,
                             (int (__cdecl *)(unsigned __int8 *, const char *, const int, const int))BG_ParseWeaponDefSpecificFieldType,
                             SetConfigString2,
                             BG_MergeWeaponDefSpecialCases) )
                 return 0;
             componentAll.numComponents = i + 3;
-            BG_WeaponComponentListToName(&componentAll, &v16[64 * i + 65856], 64);
-            strcat(&v16[64 * i + 65856], "_mp");
-            v5 = &v16[64 * i + 65856];
-            v8 = &v16[0x4000 * i + 320];
+            BG_WeaponComponentListToName(&componentAll, mergedNames[i], 64);
+            strcat(mergedNames[i], "_mp");
+            sourceName[1] = mergedNames[i];
+            pszBuffer[1] = mergedBuffers[i];
         }
     }
     else
     {
-        if ( !BG_LoadWeaponFile(dest, szBuffer, 0x4000) )
+        if ( !BG_LoadWeaponFile(dest, szBuffer[0], 0x4000) )
             return 0;
         SetConfigString(ppszConfigString, name);
         if ( !ParseConfigStringToStruct(
                         (unsigned __int8 *)weapFullDef,
                         weaponDefFields,
                         748,
-                        szBuffer,
+                        szBuffer[0],
                         43,
                         (int (__cdecl *)(unsigned __int8 *, const char *, const int, const int))BG_ParseWeaponDefSpecificFieldType,
                         SetConfigString2) )

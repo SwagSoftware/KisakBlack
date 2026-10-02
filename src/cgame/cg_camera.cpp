@@ -264,12 +264,8 @@ void __cdecl CG_UpdateCameraTransition(int localClientNum, CameraMode oldMode, C
     float *lastViewAngles; // [esp+44h] [ebp-3Ch]
     float *missileViewAngles; // [esp+48h] [ebp-38h]
     float *viewangles; // [esp+4Ch] [ebp-34h]
-    float v10; // [esp+50h] [ebp-30h] BYREF
-    float v11; // [esp+54h] [ebp-2Ch]
-    float v12; // [esp+58h] [ebp-28h]
-    float angles; // [esp+5Ch] [ebp-24h] BYREF
-    float v14; // [esp+60h] [ebp-20h]
-    float v15; // [esp+64h] [ebp-1Ch]
+    float v10[3]; // [esp+50h] [ebp-30h] BYREF
+    float angles[3]; // [esp+5Ch] [ebp-24h] BYREF
     float temp[3]; // [esp+68h] [ebp-18h] BYREF
     float tweenTime; // [esp+74h] [ebp-Ch]
     cg_s *cgameGlob; // [esp+78h] [ebp-8h]
@@ -360,11 +356,11 @@ void __cdecl CG_UpdateCameraTransition(int localClientNum, CameraMode oldMode, C
         if ( (ps->otherFlags & 2) == 0 )
         {
             ps->viewangles[2] = 0.0f;
-            angles = ps->viewangles[0] - ps->delta_angles[0];
-            v14 = ps->viewangles[1] - ps->delta_angles[1];
-            v15 = ps->viewangles[2] - ps->delta_angles[2];
-            CL_SetViewAngles(localClientNum, &angles);
-            Com_Printf(0, "CL_SetViewAngles() - BRAVO - (%3.0f, %3.0f, %3.0f)\n", angles, v14, v15);
+            angles[0] = ps->viewangles[0] - ps->delta_angles[0];
+            angles[1] = ps->viewangles[1] - ps->delta_angles[1];
+            angles[2] = ps->viewangles[2] - ps->delta_angles[2];
+            CL_SetViewAngles(localClientNum, angles);
+            Com_Printf(0, "CL_SetViewAngles() - BRAVO - (%3.0f, %3.0f, %3.0f)\n", angles[0], angles[1], angles[2]);
         }
     }
     else if ( oldMode == CAM_MISSILE && !cgameGlob->cameraData.missileWasKillCam )
@@ -374,11 +370,11 @@ void __cdecl CG_UpdateCameraTransition(int localClientNum, CameraMode oldMode, C
         ps->viewangles[0] = cgameGlob->cameraData.missileViewAngles[0];
         v4[1] = v5[1];
         v4[2] = v5[2];
-        v10 = ps->viewangles[0] - ps->delta_angles[0];
-        v11 = ps->viewangles[1] - ps->delta_angles[1];
-        v12 = ps->viewangles[2] - ps->delta_angles[2];
-        CL_SetViewAngles(localClientNum, &v10);
-        Com_Printf(0, "CL_SetViewAngles() - DELTA - (%3.0f, %3.0f, %3.0f)\n", v10, v11, v12);
+        v10[0] = ps->viewangles[0] - ps->delta_angles[0];
+        v10[1] = ps->viewangles[1] - ps->delta_angles[1];
+        v10[2] = ps->viewangles[2] - ps->delta_angles[2];
+        CL_SetViewAngles(localClientNum, v10);
+        Com_Printf(0, "CL_SetViewAngles() - DELTA - (%3.0f, %3.0f, %3.0f)\n", v10[0], v10[1], v10[2]);
     }
 }
 

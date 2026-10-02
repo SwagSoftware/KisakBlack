@@ -343,8 +343,7 @@ void __cdecl SVC_Status(netadr_t from, bdSecurityID *secID)
     char *v8; // [esp+2Ch] [ebp-8460h]
     int argIndex; // [esp+30h] [ebp-845Ch]
     char dest[1024]; // [esp+34h] [ebp-8458h] BYREF
-    char s; // [esp+434h] [ebp-8058h] BYREF
-    _BYTE v12[16387]; // [esp+435h] [ebp-8057h] BYREF
+    char s[16384]; // [esp+434h] [ebp-8058h] BYREF
     char *text_in; // [esp+4438h] [ebp-4054h]
     unsigned __int8 dst[16436]; // [esp+443Ch] [ebp-4050h] BYREF
     const char *v15; // [esp+8470h] [ebp-1Ch]
@@ -357,7 +356,7 @@ void __cdecl SVC_Status(netadr_t from, bdSecurityID *secID)
     v19 = 0;
     memset(dst, 0, 0x4029u);
     v8 = Dvar_InfoString(0, 4);
-    p_s = &s;
+    p_s = s;
     do
     {
         v6 = *v8;
@@ -366,9 +365,9 @@ void __cdecl SVC_Status(netadr_t from, bdSecurityID *secID)
     while ( v6 );
     if ( Dvar_GetBool("fs_restrict") )
     {
-        v2 = Info_ValueForKey(&s, (char*)"sv_keywords");
+        v2 = Info_ValueForKey(s, (char*)"sv_keywords");
         Com_sprintf(dest, 0x400u, "demo %s", v2);
-        Info_SetValueForKey(&s, (char *)"sv_keywords", dest);
+        Info_SetValueForKey(s, (char *)"sv_keywords", dest);
     }
     if ( !Sys_IsServerThread()
         && !Assert_MyHandler(
@@ -382,14 +381,14 @@ void __cdecl SVC_Status(netadr_t from, bdSecurityID *secID)
     }
     String = Dvar_GetString("g_password");
     if ( String && *String )
-        Info_SetValueForKey(&s, (char *)"pswrd", "1");
+        Info_SetValueForKey(s, (char *)"pswrd", "1");
     else
-        Info_SetValueForKey(&s, (char *)"pswrd", "0");
+        Info_SetValueForKey(s, (char *)"pswrd", "0");
     value = (char *)Dvar_GetString("ui_serverinfomessage");
     if ( value && *value )
-        Info_SetValueForKey(&s, (char *)"ui_serverinfomessage", value);
+        Info_SetValueForKey(s, (char *)"ui_serverinfomessage", value);
     v3 = Dvar_GetString("sv_geolocation");
-    Info_SetValueForKey(&s, (char *)"geolocation", v3);
+    Info_SetValueForKey(s, (char *)"geolocation", v3);
     v15 = Dvar_GetString("fs_game");
     if ( !sv_pure->current.enabled || v15 && *v15 )
     {
@@ -415,14 +414,14 @@ void __cdecl SVC_Status(netadr_t from, bdSecurityID *secID)
         }
     }
     v5 = va("%i", v19);
-    Info_SetValueForKey(&s, (char *)"mod", v5);
+    Info_SetValueForKey(s, (char *)"mod", v5);
     dst[0] = 5;
     v17 = &dst[1];
     *(bdSecurityID *)&dst[1] = *secID;
     v17 = &dst[9];
-    memcpy(&dst[9], (unsigned __int8 *)&s, &v12[strlen(&s)] - v12);
+    memcpy(&dst[9], (unsigned __int8 *)s, strlen(s));
 #ifdef KISAK_LIVE
-    dwRawSendTo(&from, dst, &v12[strlen(&s)] - v12 + 9);
+    dwRawSendTo(&from, dst, strlen(s) + 9);
 #else
     NET_OutOfBandPrint(NS_SERVER, from, (char*)dst);
 #endif
@@ -449,8 +448,7 @@ void __cdecl SVC_StatusScoreBoard(netadr_t from, bdSecurityID *secID)
     unsigned __int8 *v18; // [esp+408Ch] [ebp-414h]
     int i; // [esp+4090h] [ebp-410h]
     unsigned int count; // [esp+4094h] [ebp-40Ch]
-    char dest; // [esp+4098h] [ebp-408h] BYREF
-    _BYTE v22[3]; // [esp+4099h] [ebp-407h] BYREF
+    char dest[1024]; // [esp+4098h] [ebp-408h] BYREF
 
     if ( !Sys_IsServerThread()
         && !Assert_MyHandler(
@@ -484,7 +482,7 @@ void __cdecl SVC_StatusScoreBoard(netadr_t from, bdSecurityID *secID)
                 ClientRank = G_GetClientRank(v14 - svs.clients);
                 ClientTeam = G_GetClientTeam(v14 - svs.clients);
                 Com_sprintf(
-                    &dest,
+                    dest,
                     0x400u,
                     "%i %i %i %i %i %i %i %s\n",
                     ClientTeam,
@@ -499,12 +497,12 @@ void __cdecl SVC_StatusScoreBoard(netadr_t from, bdSecurityID *secID)
             else
             {
                 v3 = G_GetClientRank(v14 - svs.clients);
-                Com_sprintf(&dest, 0x400u, "%i %i %i %i %i %i %i %s\n", 3, v3, 0, 0, 0, ping, string, "kisak swag"); // KISAKTODO: last string sprintf, wrong
+                Com_sprintf(dest, 0x400u, "%i %i %i %i %i %i %i %s\n", 3, v3, 0, 0, 0, ping, string, "kisak swag"); // KISAKTODO: last string sprintf, wrong
             }
-            v16 = &v22[strlen(&dest)] - v22;
+            v16 = strlen(dest);
             if ( (int)(v16 + count) >= 0x10000 )
                 break;
-            p_dest = &dest;
+            p_dest = dest;
             v12 = &tempServerMsgBuf[count];
             do
             {

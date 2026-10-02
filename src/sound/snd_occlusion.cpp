@@ -328,7 +328,7 @@ void SND_TraceProximity(
     float *resultReflection)
 {
     float forwardT, quadT, MAX_DISTANCE, MAX_DISTANCE_SCALE, distance;
-    float x, y, z;
+    float end[3];
     int reflect, i;
     trace_t result;
 
@@ -352,12 +352,12 @@ void SND_TraceProximity(
         {
             // Compute point to trace
             float theta = (float)i / 16.0f * (float)M_PI_HALF + MAX_DISTANCE;
-            x = origin[0] + cosf(theta) * 1000.0f;
-            y = origin[1] + sinf(theta) * 1000.0f;
-            z = origin[2];
+            end[0] = origin[0] + sinf(theta) * 1000.0f;
+            end[1] = origin[1] + cosf(theta) * 1000.0f;
+            end[2] = origin[2];
 
             int hitNum = 0;
-            if (CG_SightTracePoint(&hitNum, origin, &x, 49, &result))
+            if (CG_SightTracePoint(&hitNum, origin, end, 49, &result))
             {
                 MAX_DISTANCE_SCALE += (1.0f - (1.0f - result.normal.vec.v[1]) * (1.0f - result.normal.vec.v[1])) * (1000.0f / 16.0f);
                 distance += SND_SurfaceTypeToReflectance((result.normal.vec.u[2] & 0x3F00000) >> 20);

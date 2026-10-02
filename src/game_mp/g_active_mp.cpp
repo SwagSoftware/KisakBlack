@@ -2128,14 +2128,11 @@ void __cdecl CM_CheckForTraps(gentity_s *ent)
     float v13; // [esp+68h] [ebp-1088h]
     float v14; // [esp+6Ch] [ebp-1084h]
     float mins[6]; // [esp+70h] [ebp-1080h] BYREF
-    float start; // [esp+88h] [ebp-1068h] BYREF
-    float v17; // [esp+8Ch] [ebp-1064h]
-    float v18; // [esp+90h] [ebp-1060h]
+    float start[3]; // [esp+88h] [ebp-1068h] BYREF
     float end[3]; // [esp+94h] [ebp-105Ch] BYREF
     int entityList[1024]; // [esp+A0h] [ebp-1050h] BYREF
     trace_t results; // [esp+10A0h] [ebp-50h] BYREF
-    float maxs[2]; // [esp+10DCh] [ebp-14h] BYREF
-    float v23; // [esp+10E4h] [ebp-Ch]
+    float maxs[3]; // [esp+10DCh] [ebp-14h] BYREF
     int contentmask; // [esp+10E8h] [ebp-8h]
     int v25; // [esp+10ECh] [ebp-4h]
 
@@ -2151,11 +2148,11 @@ void __cdecl CM_CheckForTraps(gentity_s *ent)
     mins[2] = ent->r.currentOrigin[2] - 0.0;
     maxs[0] = ent->r.currentOrigin[0] + 55.0;
     maxs[1] = ent->r.currentOrigin[1] + 55.0;
-    v23 = ent->r.currentOrigin[2] + 0.0;
-    v23 = v23 + 70.0;
-    start = ent->r.currentOrigin[0];
-    v17 = ent->r.currentOrigin[1];
-    v18 = ent->r.currentOrigin[2];
+    maxs[2] = ent->r.currentOrigin[2] + 0.0;
+    maxs[2] = maxs[2] + 70.0;
+    start[0] = ent->r.currentOrigin[0];
+    start[1] = ent->r.currentOrigin[1];
+    start[2] = ent->r.currentOrigin[2];
     end[0] = ent->r.currentOrigin[0] + 1.0;
     end[1] = ent->r.currentOrigin[1] + 1.0;
     end[2] = ent->r.currentOrigin[2] + 1.0;
@@ -2183,12 +2180,12 @@ void __cdecl CM_CheckForTraps(gentity_s *ent)
                 origin[0] = (float)(scale_1 * tvel[0]) + enta->r.currentOrigin[0];
                 origin[1] = (float)(scale_1 * tvel[1]) + enta->r.currentOrigin[1];
                 origin[2] = (float)(scale_1 * tvel[2]) + enta->r.currentOrigin[2];
-                CM_TransformedBoxTraceExternal(&results, &start, end, aiMins, aiMaxs, model, -1, origin, enta->r.currentAngles);
+                CM_TransformedBoxTraceExternal(&results, start, end, aiMins, aiMaxs, model, -1, origin, enta->r.currentAngles);
                 if ( results.startsolid )
                 {
-                    dir[0] = start - enta->r.currentOrigin[0];
-                    dir[1] = v17 - enta->r.currentOrigin[1];
-                    dir[2] = v18 - enta->r.currentOrigin[2];
+                    dir[0] = start[0] - enta->r.currentOrigin[0];
+                    dir[1] = start[1] - enta->r.currentOrigin[1];
+                    dir[2] = start[2] - enta->r.currentOrigin[2];
                     G_Damage(ent, enta, enta, dir, enta->r.currentOrigin, 500, 0, 18, 0xFFFFFFFF, HITLOC_NONE, 0, 0, 0);
                     if ( !ent->client )
                     {

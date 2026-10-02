@@ -1130,8 +1130,7 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
     float v15; // [esp+44h] [ebp-330h]
     float turn_throttle; // [esp+48h] [ebp-32Ch]
     phys_vec3 end; // [esp+4Ch] [ebp-328h] BYREF
-    float v18; // [esp+5Ch] [ebp-318h]
-    float v19; // [esp+60h] [ebp-314h]
+    phys_vec3 debugEnd; // [esp+58h] [ebp-31Ch] BYREF
     float v20; // [esp+6Ch] [ebp-308h]
     float v21; // [esp+70h] [ebp-304h]
     float v22; // [esp+74h] [ebp-300h]
@@ -1408,10 +1407,10 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
                 v22 = motor_position.x - (float)(50.0 * accel.x);
                 v21 = motor_position.y - (float)(50.0 * accel.y);
                 v20 = motor_position.z - (float)(50.0 * accel.z);
-                end.w = v22;
-                v18 = v21;
-                v19 = v20;
-                Phys_NitrousVecToVec3((phys_vec3 *)&end.w, &end.x);
+                debugEnd.x = v22;
+                debugEnd.y = v21;
+                debugEnd.z = v20;
+                Phys_NitrousVecToVec3(&debugEnd, &end.x);
                 CL_AddDebugLine(start, &end.x, colorWhite, 0, 1);
             }
             turn_throttle = throttle;

@@ -4926,7 +4926,8 @@ void R_SetDLightsConstants(
     }
 
     // ===== DLIGHT_ATTENUATION (slot 0x95) — actually the spot direction =====
-    R_SetInputCodeConstantFromVec4(input, CONST_SRC_CODE_DLIGHT_ATTENUATION, lightDir);
+    R_SetInputCodeConstant(input, CONST_SRC_CODE_DLIGHT_ATTENUATION,
+                           lightDir[0], lightDir[1], lightDir[2], lightAttentuation[0]);
 
     // ===== DLIGHT_FALLOFF (slot 0x96) — outer/inner slope+bias =====
     // Outer edge spans falloff[0] -> falloff[2]; inner edge spans falloff[3] -> falloff[1].
@@ -4951,7 +4952,8 @@ void R_SetDLightsConstants(
     // ===== DLIGHT_SPOT_MATRIX_0..3 (slots 0x97-0x9A) — spot view*proj =====
     // 1. Transform light position through the spot's view matrix; the result replaces the
     //    view matrix's translation row (row 3).
-    MatrixTransformVector44(&lightAttentuation[1],
+    const float lightPosition[4] = { lightAttentuation[1], lightAttentuation[2], lightAttentuation[3], 1.0f };
+    MatrixTransformVector44(lightPosition,
                             (const float (*)[4])viewMatrix,
                             viewMatrix[3]);
     // 2. Negate the xyz of that translation row (leave w alone).

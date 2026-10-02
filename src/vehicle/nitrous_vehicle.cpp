@@ -2317,10 +2317,8 @@ void    NitrousVehicle::debug_render()
     float v90; // [esp+50Ch] [ebp-144h]
     float v91; // [esp+510h] [ebp-140h]
     phys_vec3 v92; // [esp+514h] [ebp-13Ch] BYREF
-    float v93; // [esp+524h] [ebp-12Ch] BYREF
-    phys_vec3 v94; // [esp+528h] [ebp-128h] BYREF
-    float v95; // [esp+538h] [ebp-118h]
-    float v96; // [esp+53Ch] [ebp-114h]
+    phys_vec3 buoyancyMins; // [esp+524h] [ebp-12Ch] BYREF
+    phys_vec3 boxHalfDims; // [esp+534h] [ebp-11Ch] BYREF
     float v97; // [esp+548h] [ebp-108h]
     float v98; // [esp+54Ch] [ebp-104h]
     float v99; // [esp+550h] [ebp-100h]
@@ -2390,30 +2388,30 @@ void    NitrousVehicle::debug_render()
             v99 = 0.5 * dim.x;
             v98 = 0.5 * dim.y;
             v97 = 0.5 * dim.z;
-            v94.w = 0.5 * dim.x;
-            v95 = 0.5 * dim.y;
-            v96 = 0.5 * dim.z;
-            Phys_DebugBox(&transform, (phys_vec3 *)&v94.w, colorGreen);
+            boxHalfDims.x = 0.5 * dim.x;
+            boxHalfDims.y = 0.5 * dim.y;
+            boxHalfDims.z = 0.5 * dim.z;
+            Phys_DebugBox(&transform, &boxHalfDims, colorGreen);
         }
         if (thisa->m_parameter->m_buoyancybox_min[0] != 0.0)
         {
-            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_buoyancybox_min, (phys_vec3 *)&v93);
+            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_buoyancybox_min, &buoyancyMins);
             Phys_Vec3ToNitrousVec(thisa->m_parameter->m_buoyancybox_max, &v92);
-            v91 = v92.x - v93;
-            v90 = v92.y - v94.x;
-            v89 = v92.z - v94.y;
-            v86 = v92.x - v93;
-            v87 = v92.y - v94.x;
-            v88 = v92.z - v94.y;
-            v85 = v92.x + v93;
-            v84 = v92.y + v94.x;
-            v83 = v92.z + v94.y;
-            v80 = v92.x + v93;
-            v81 = v92.y + v94.x;
-            v82 = v92.z + v94.y;
-            v79 = 0.5 * (float)(v92.x + v93);
-            v78 = 0.5 * (float)(v92.y + v94.x);
-            v77 = 0.5 * (float)(v92.z + v94.y);
+            v91 = v92.x - buoyancyMins.x;
+            v90 = v92.y - buoyancyMins.y;
+            v89 = v92.z - buoyancyMins.z;
+            v86 = v92.x - buoyancyMins.x;
+            v87 = v92.y - buoyancyMins.y;
+            v88 = v92.z - buoyancyMins.z;
+            v85 = v92.x + buoyancyMins.x;
+            v84 = v92.y + buoyancyMins.y;
+            v83 = v92.z + buoyancyMins.z;
+            v80 = v92.x + buoyancyMins.x;
+            v81 = v92.y + buoyancyMins.y;
+            v82 = v92.z + buoyancyMins.z;
+            v79 = 0.5 * (float)(v92.x + buoyancyMins.x);
+            v78 = 0.5 * (float)(v92.y + buoyancyMins.y);
+            v77 = 0.5 * (float)(v92.z + buoyancyMins.z);
             v76.x = v79;
             v76.y = v78;
             v76.z = v77;

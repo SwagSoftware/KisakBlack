@@ -62,8 +62,8 @@ void __cdecl FFT(complex_s *data_inout, unsigned int log2_count, int *bitSwap, c
     float *v28; // eax
     unsigned int v29; // [esp+44h] [ebp-10C8h]
     unsigned int j; // [esp+48h] [ebp-10C4h]
-    unsigned int v31[2]; // [esp+4Ch] [ebp-10C0h] BYREF
-    float v32[510]; // [esp+54h] [ebp-10B8h] BYREF
+    float v31[512]; // [esp+4Ch] [ebp-10C0h] BYREF
+    float *v32 = &v31[2]; // [esp+54h] [ebp-10B8h] BYREF
     unsigned int v33; // [esp+84Ch] [ebp-8C0h]
     unsigned int v34; // [esp+850h] [ebp-8BCh]
     float v35[512]; // [esp+854h] [ebp-8B8h] BYREF
@@ -75,7 +75,7 @@ void __cdecl FFT(complex_s *data_inout, unsigned int log2_count, int *bitSwap, c
     float v41; // [esp+1068h] [ebp-A4h]
     float v42; // [esp+106Ch] [ebp-A0h]
     float v43; // [esp+1070h] [ebp-9Ch]
-    unsigned int *v44; // [esp+1074h] [ebp-98h]
+    float *v44; // [esp+1074h] [ebp-98h]
     int v45; // [esp+1078h] [ebp-94h]
     float real; // [esp+107Ch] [ebp-90h]
     float v47; // [esp+1080h] [ebp-8Ch]
@@ -119,11 +119,11 @@ void __cdecl FFT(complex_s *data_inout, unsigned int log2_count, int *bitSwap, c
     {
         v4 = bitSwap[i] >> v62;
         imag = data_inout[i].imag;
-        v31[2 * v4] = LODWORD(data_inout[i].real);
-        *(float *)&v31[2 * v4 + 1] = imag;
+        v31[2 * v4] = data_inout[i].real;
+        v31[2 * v4 + 1] = imag;
     }
     v44 = v31;
-    v6 = (float *)v31;
+    v6 = v31;
     v7 = v80 >> 2;
     v8 = v32;
     do
@@ -156,11 +156,11 @@ void __cdecl FFT(complex_s *data_inout, unsigned int log2_count, int *bitSwap, c
     for ( i = 0; i < v80; i += 4 )
     {
         v33 = i >> 2;
-        v35[8 * (i >> 2)] = *(float *)&v31[2 * i];
+        v35[8 * (i >> 2)] = v31[2 * i];
         v35[8 * v33 + 1] = v32[2 * i];
         v35[8 * v33 + 2] = v32[2 * i + 2];
         v35[8 * v33 + 3] = v32[2 * i + 4];
-        v35[8 * v33 + 4] = *(float *)&v31[2 * i + 1];
+        v35[8 * v33 + 4] = v31[2 * i + 1];
         v35[8 * v33 + 5] = v32[2 * i + 1];
         v35[8 * v33 + 6] = v32[2 * i + 3];
         v35[8 * v33 + 7] = v32[2 * i + 5];

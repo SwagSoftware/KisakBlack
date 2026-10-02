@@ -6573,8 +6573,7 @@ void __cdecl CG_BulletHitEvent(
                 __int16 hitContents,
                 unsigned __int8 boneIndex)
 {
-    float v[2]; // [esp+30h] [ebp-1Ch] BYREF
-    float v15; // [esp+38h] [ebp-14h]
+    float v[3]; // [esp+30h] [ebp-1Ch] BYREF
     const cg_s *cgameGlob; // [esp+3Ch] [ebp-10h]
     float exitDir[3]; // [esp+40h] [ebp-Ch] BYREF
 
@@ -6604,9 +6603,9 @@ void __cdecl CG_BulletHitEvent(
     {
         v[0] = *position - *startPos;
         v[1] = position[1] - startPos[1];
-        v15 = position[2] - startPos[2];
+        v[2] = position[2] - startPos[2];
         Vec3Normalize(v);
-        if ( v15 < 0.0 )
+        if ( v[2] < 0.0 )
             CG_BulletHitEvent_Internal(
                 localClientNum,
                 sourceEntityNum,

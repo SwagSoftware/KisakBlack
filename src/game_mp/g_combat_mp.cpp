@@ -883,12 +883,8 @@ double __cdecl CanDamage(
                 float *coneDirection,
                 int contentMask)
 {
-    float v7; // [esp+E4h] [ebp-134h] BYREF
-    float v8; // [esp+E8h] [ebp-130h]
-    float v9; // [esp+ECh] [ebp-12Ch]
-    float v10; // [esp+F0h] [ebp-128h] BYREF
-    float v11; // [esp+F4h] [ebp-124h]
-    float v12; // [esp+F8h] [ebp-120h]
+    float v7[3]; // [esp+E4h] [ebp-134h] BYREF
+    float v10[3]; // [esp+F0h] [ebp-128h] BYREF
     char success_1; // [esp+FFh] [ebp-119h]
     float *color_; // [esp+100h] [ebp-118h]
     float centerToCorner[3]; // [esp+104h] [ebp-114h]
@@ -900,9 +896,7 @@ double __cdecl CanDamage(
     float up[3]; // [esp+13Ch] [ebp-DCh] BYREF
     float radiusRight; // [esp+148h] [ebp-D0h]
     float absMins[3]; // [esp+14Ch] [ebp-CCh] BYREF
-    float v; // [esp+158h] [ebp-C0h] BYREF
-    float v25; // [esp+15Ch] [ebp-BCh]
-    float v26; // [esp+160h] [ebp-B8h]
+    float v[3]; // [esp+158h] [ebp-C0h] BYREF
     float dir[3]; // [esp+164h] [ebp-B4h] BYREF
     bool success; // [esp+173h] [ebp-A5h]
     const float *color; // [esp+174h] [ebp-A4h]
@@ -1018,12 +1012,12 @@ double __cdecl CanDamage(
             {
                 if ( coneDirection )
                 {
-                    v = dest[i][0] - *centerPos;
-                    v25 = dest[i][1] - centerPos[1];
-                    v26 = dest[i][2] - centerPos[2];
-                    Vec3Normalize(&v);
-                    if ( coneAngleCos > (float)((float)((float)(v * *coneDirection) + (float)(v25 * coneDirection[1]))
-                                                                        + (float)(v26 * coneDirection[2])) )
+                    v[0] = dest[i][0] - *centerPos;
+                    v[1] = dest[i][1] - centerPos[1];
+                    v[2] = dest[i][2] - centerPos[2];
+                    Vec3Normalize(v);
+                    if ( coneAngleCos > (float)((float)((float)(v[0] * *coneDirection) + (float)(v[1] * coneDirection[1]))
+                                                                        + (float)(v[2] * coneDirection[2])) )
                         continue;
                 }
             }
@@ -1124,12 +1118,12 @@ double __cdecl CanDamage(
                 {
                     if ( coneDirection )
                     {
-                        v10 = dest[i][0] - *centerPos;
-                        v11 = dest[i][1] - centerPos[1];
-                        v12 = dest[i][2] - centerPos[2];
-                        Vec3Normalize(&v10);
-                        if ( coneAngleCos > (float)((float)((float)(v10 * *coneDirection) + (float)(v11 * coneDirection[1]))
-                                                                            + (float)(v12 * coneDirection[2])) )
+                        v10[0] = dest[i][0] - *centerPos;
+                        v10[1] = dest[i][1] - centerPos[1];
+                        v10[2] = dest[i][2] - centerPos[2];
+                        Vec3Normalize(v10);
+                        if ( coneAngleCos > (float)((float)((float)(v10[0] * *coneDirection) + (float)(v10[1] * coneDirection[1]))
+                                                                            + (float)(v10[2] * coneDirection[2])) )
                         {
                             success_1 = 0;
                             color_ = (float *)colorOrange;
@@ -1147,12 +1141,12 @@ double __cdecl CanDamage(
             {
                 if ( coneDirection )
                 {
-                    v7 = dest[i][0] - *centerPos;
-                    v8 = dest[i][1] - centerPos[1];
-                    v9 = dest[i][2] - centerPos[2];
-                    Vec3Normalize(&v7);
-                    if ( coneAngleCos > (float)((float)((float)(v7 * *coneDirection) + (float)(v8 * coneDirection[1]))
-                                                                        + (float)(v9 * coneDirection[2])) )
+                    v7[0] = dest[i][0] - *centerPos;
+                    v7[1] = dest[i][1] - centerPos[1];
+                    v7[2] = dest[i][2] - centerPos[2];
+                    Vec3Normalize(v7);
+                    if ( coneAngleCos > (float)((float)((float)(v7[0] * *coneDirection) + (float)(v7[1] * coneDirection[1]))
+                                                                        + (float)(v7[2] * coneDirection[2])) )
                         continue;
                 }
             }
