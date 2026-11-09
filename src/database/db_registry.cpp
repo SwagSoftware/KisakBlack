@@ -13,6 +13,7 @@
 #include "db_file_load.h"
 #include <win32/win_net.h>
 #include <algorithm>
+#include <setjmp.h>
 #include <win32/win_local.h>
 #include <win32/win_main.h>
 #include <clientscript/cscr_stringlist.h>
