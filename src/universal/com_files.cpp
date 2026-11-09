@@ -2034,7 +2034,11 @@ void __cdecl FS_AddIwdFilesForGameDirectory(char *path, char *pszGameFolder)
             1024);
         numfiles = 1024;
     }
-    v8 = !I_stricmp(pszGameFolder, "main") && !I_stricmp(path, fs_basepath->current.string);
+    // fs_cdpath (the original install, see setup.ps1) gets the same "main takes only iw_*.iwd" rule as fs_basepath, so
+    // an install's extra iwds (client mods' v2_00.iwd, ...) are not loaded
+    v8 = !I_stricmp(pszGameFolder, "main")
+        && (!I_stricmp(path, fs_basepath->current.string)
+            || (*fs_cdpath->current.string && !I_stricmp(path, fs_cdpath->current.string)));
     mainAndBase = v8;
     for (i = 0; i < numfiles; ++i)
     {

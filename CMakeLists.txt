@@ -105,3 +105,17 @@ set_target_properties(KisakBlack PROPERTIES WIN32_EXECUTABLE TRUE)
 set_target_properties(KisakBlack PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>"
 )
+
+# The original game's files are read from the Black Ops install instead of being copied (see setup.ps1, which
+# records the install folder in gamedir.txt): the debugger passes it as fs_cdpath.
+set(GAMEDIR_FILE "${CMAKE_CURRENT_SOURCE_DIR}/gamedir.txt")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${GAMEDIR_FILE}")
+if (EXISTS "${GAMEDIR_FILE}")
+    file(STRINGS "${GAMEDIR_FILE}" BLOPS_INSTALL_DIR LIMIT_COUNT 1)
+    string(STRIP "${BLOPS_INSTALL_DIR}" BLOPS_INSTALL_DIR)
+    set_target_properties(KisakBlack PROPERTIES
+        VS_DEBUGGER_COMMAND_ARGUMENTS "+set fs_cdpath \"${BLOPS_INSTALL_DIR}\""
+    )
+else()
+    message(STATUS "gamedir.txt not found: run setup.ps1 to link the game files (see README.md)")
+endif()

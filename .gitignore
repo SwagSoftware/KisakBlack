@@ -430,3 +430,5 @@ KisakCOD/.idea/*
 Debug/*
 KisakBlack/*
 __KisakBlack
+# where this machine's Black Ops install is (written by setup.ps1)
+/gamedir.txt

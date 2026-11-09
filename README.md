@@ -22,9 +22,16 @@ Learn about the Development of KisakBlack here: [https://lwss.github.io/Kisak-Bl
 3) `CMAKE .. -G"Visual Studio 17 2022" -DCMAKE_GENERATOR_PLATFORM=WIN32`
 4) Open the generated .sln file
 5) Build Debug or Release (Visual Studio dropdown)
-6) Copy BLOPS Game files to `build/(BUILD_TYPE)/*` (Don't try to cherry-pick them, small files like localization.txt are needed)
-8) Copy `binkw32.dll`, `steam.dll`, `steam_api.dll`, `steamclient.dll`, `tier0_s.dll`, `vpx.dll`, `vstdlib_s.dll` into the folder as well (You can find these in-tree in the respective folders)
-11) Run the game via Visual Studio play button or just the .exe
+6) Run `powershell -NoProfile -ExecutionPolicy Bypass -File setup.ps1 [-GameDir "D:\Games\Call of Duty Black Ops"] [-Config Debug]`
+   (from the repo root, after the first build created `build/`; default config is Release).
+   This does **not** copy the ~11 GB install. It records the install folder in `gamedir.txt`, links `zone\` and `main\video`
+   into `build/(BUILD_TYPE)/` with directory junctions, and copies only the small files the exe needs next to it
+   (`localization.txt`, the in-tree DLLs, the DirectX 9 runtime DLLs). `main\*.iwd` are read straight from the install via `+set fs_cdpath`.
+   The install is only read, never changed. Without `-GameDir` it is looked up in Steam.
+7) Run the game via the Visual Studio play button (re-run CMake after setup.ps1 so the debugger gets `fs_cdpath`) or `Play.bat [Debug]`.
+   Starting the .exe by hand needs `+set fs_cdpath "<your install>"`.
+
+To undo setup: `rmdir build\Release\zone build\Release\main\video` (never `Remove-Item -Recurse` on a junction) and delete `gamedir.txt`.
 
 
 ```
