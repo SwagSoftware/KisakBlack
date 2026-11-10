@@ -128,11 +128,11 @@ struct client_t // sizeof=0x84D00
     int voicePacketCount;
     bool muteList[32];
     bool sendVoice;
-    unsigned __int8 stats[40168];
+    unsigned __int8 stats[40960];
     unsigned __int8 purchasedItems[32];
-    unsigned __int8 globalStats[40168];
-    unsigned __int8 globalStatsStable[40168];
-    unsigned __int8 modifiedStatBytes[5021];
+    unsigned __int8 globalStats[40960];
+    unsigned __int8 globalStatsStable[40960];
+    unsigned __int8 modifiedStatBytes[5120];
     // padding byte
     // padding byte
     int statsSentIndex;

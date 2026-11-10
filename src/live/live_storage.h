@@ -173,9 +173,9 @@ const struct __declspec(align(8)) TaskDefinition // sizeof=0x20
     // padding byte
 };
 
-struct persistentStats // sizeof=0x996C
+struct persistentStats // sizeof=0xA004
 {                                       // XREF: .data:s_otherPlayerStats/r
-    unsigned __int8 statsBuffer[39272];
+    unsigned __int8 statsBuffer[40960];
     bool isChecksumValid;
     bool statsWriteNeeded;
     bool statsValidatedWithDDL;
@@ -729,15 +729,15 @@ struct fileShareWriteFileInfo // sizeof=0x34
                                         // Demo_StartRecord_f(void)+195/w ...
 };
 
-struct playerNetworkData // sizeof=0x3AD90
+struct playerNetworkData // sizeof=0x40020
 {                                       // XREF: .data:controllerNetworkData/r
-    _BYTE playerStats[40172];
-    _BYTE playerStatsBackup[40172];     // XREF: LiveStorage_GetPersStatsBuffer+81/o
-    _BYTE stableStatsBuffer[40172];     // XREF: LiveStorage_GetPersStatsBuffer+94/o
-    _BYTE basicTrainingStats[40172];    // XREF: LiveStorage_GetPersStatsBuffer+B1/o
+    _BYTE playerStats[40964];
+    _BYTE playerStatsBackup[40964];     // XREF: LiveStorage_GetPersStatsBuffer+81/o
+    _BYTE stableStatsBuffer[40964];     // XREF: LiveStorage_GetPersStatsBuffer+94/o
+    _BYTE basicTrainingStats[40964];    // XREF: LiveStorage_GetPersStatsBuffer+B1/o
                                         // LiveStorage_GetPersStatsBuffer+117/o
-    _BYTE globalplayerStats[40172];     // XREF: LiveStorage_GetPersStatsBuffer+C5/o
-    _BYTE globalStablePlayerStats[40172];
+    _BYTE globalplayerStats[40964];     // XREF: LiveStorage_GetPersStatsBuffer+C5/o
+    _BYTE globalStablePlayerStats[40964];
                                         // XREF: LiveStorage_GetPersStatsBuffer+D8/o
     bool firstTimeRunning;              // XREF: LiveStorage_PlayerStatsFileNotFound+49/w
                                         // LiveStorage_ReadPlayerStatsSuccessful+79/w ...

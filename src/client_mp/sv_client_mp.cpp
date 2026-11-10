@@ -271,7 +271,7 @@ void __cdecl SV_SetClientDIntStat(unsigned int clientNum, ddlState_t *searchStat
         if ( !cl->statsValidated )
         {
             StatsDDL = LiveStats_GetStatsDDL();
-            if ( !DDL_AssociateBuffer(buffer, 40168, StatsDDL) )
+            if ( !DDL_AssociateBuffer(buffer, 40960, StatsDDL) )
             {
                 DDL_PrintError("DDL: Could not get stat. Buffer error.");
                 return;
@@ -318,7 +318,7 @@ void __cdecl SV_SetClientDStringStat(unsigned int clientNum, ddlState_t *searchS
         if ( !cl->statsValidated )
         {
             StatsDDL = LiveStats_GetStatsDDL();
-            if ( !DDL_AssociateBuffer(buffer, 40168, StatsDDL) )
+            if ( !DDL_AssociateBuffer(buffer, 40960, StatsDDL) )
             {
                 DDL_PrintError("DDL: Could not get stat. Buffer error.");
                 return;
@@ -365,7 +365,7 @@ void __cdecl SV_SetClientDInt64Stat(unsigned int clientNum, ddlState_t *searchSt
         if ( !cl->statsValidated )
         {
             StatsDDL = LiveStats_GetStatsDDL();
-            if ( !DDL_AssociateBuffer(buffer, 40168, StatsDDL) )
+            if ( !DDL_AssociateBuffer(buffer, 40960, StatsDDL) )
             {
                 DDL_PrintError("DDL: Could not get stat. Buffer error.");
                 return;
@@ -416,7 +416,7 @@ unsigned int __cdecl SV_GetClientDIntStat(unsigned int clientNum, ddlState_t *se
     if ( !svs.clients[clientNum].statsValidated )
     {
         StatsDDL = LiveStats_GetStatsDDL();
-        if ( !DDL_AssociateBuffer(buffer, 40168, StatsDDL) )
+        if ( !DDL_AssociateBuffer(buffer, 40960, StatsDDL) )
         {
             DDL_PrintError("DDL: Could not get stat. Buffer error.");
             return 0;
@@ -453,7 +453,7 @@ char *__cdecl SV_GetClientDStringStat(unsigned int clientNum, ddlState_t *search
     if ( !svs.clients[clientNum].statsValidated )
     {
         StatsDDL = LiveStats_GetStatsDDL();
-        if ( !DDL_AssociateBuffer(buffer, 40168, StatsDDL) )
+        if ( !DDL_AssociateBuffer(buffer, 40960, StatsDDL) )
         {
             DDL_PrintError("DDL: Could not get stat. Buffer error.");
             return (char *)"";
@@ -494,7 +494,7 @@ unsigned int __cdecl SV_GetClientDInt64Stat(unsigned int clientNum, ddlState_t *
     if ( !svs.clients[clientNum].statsValidated )
     {
         StatsDDL = LiveStats_GetStatsDDL();
-        if ( !DDL_AssociateBuffer(buffer, 40168, StatsDDL) )
+        if ( !DDL_AssociateBuffer(buffer, 40960, StatsDDL) )
         {
             DDL_PrintError("DDL: Could not get stat. Buffer error.");
             return 0;
