@@ -26,7 +26,7 @@
 #include <universal/q_parse.h>
 #include <universal/timing.h>
 #include "win_wndproc.h"
-#include <tl/tl_system.h>
+#include "tl/base/include/tl_system.h"
 #include <qcommon/tl_support.h>
 #include "win_configure.h"
 #include <direct.h>

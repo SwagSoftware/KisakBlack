@@ -1,8 +1,8 @@
 #include "bg_slidemove.h"
 #include "bg_pmove.h"
 #include <cgame_mp/cg_predict_mp.h>
-#include <tl/tl_system.h>
-#include <physics/phys_mem_new.h>
+#include "tl/base/include/tl_system.h"
+#include <physics/phys_local.h>
 #include <server/sv_world.h>
 #include <cgame_mp/cg_vehicles_mp.h>
 #include <cgame/cg_drawtools.h>
@@ -33,7 +33,7 @@ gjk_polygon_cylinder_t *__cdecl create_gjkcc_gjk_geom(
 {
     gjk_polygon_cylinder_t *gjk_geom; // [esp+Ch] [ebp-4h]
 
-    gjk_geom = gjk_polygon_cylinder_t::create(mins, maxs, 0.5, stype, allocator);
+    gjk_geom = gjk_polygon_cylinder_t::create(*mins, *maxs, 0.5, stype, allocator);
     setup_gjk_polygon_cylinder((float *)mins, (float *)maxs, 0.5, gjk_geom);
     return gjk_geom;
 }
@@ -60,8 +60,8 @@ gjkcc_info *__cdecl create_gjkcc_info(unsigned int gjkcc_id, bool is_server_thre
     gcci->m_maxs[1] = 15.0f;
     gcci->m_maxs[2] = 70.0f;
     gcci->m_cg_ = gjk_polygon_cylinder_t::create(
-                                    (float (*)[3])gcci->m_mins,
-                                    (float (*)[3])gcci->m_maxs,
+                                    gcci->m_mins,
+                                    gcci->m_maxs,
                                     0.5,
                                     0,
                                     &g_empty_collision_visitor);
@@ -104,7 +104,7 @@ void gjkcc_info::update_cg(float *mins, float *maxs, bool force)
             setup_gjk_cylinder(mins, maxs, 0.5, (gjk_cylinder_t *)this->m_cg_);
         }
 
-        this->m_cg_->calc_aabb(&PHYS_IDENTITY_MATRIX, &this->m_cg_aabb_min, &this->m_cg_aabb_max);
+        this->m_cg_->calc_aabb(PHYS_IDENTITY_MATRIX, &this->m_cg_aabb_min, &this->m_cg_aabb_max);
         this->m_cg_aabb_min.x = this->m_cg_aabb_min.x + PT_AC_EPS_VEC.x;
         this->m_cg_aabb_min.y = this->m_cg_aabb_min.y + PT_AC_EPS_VEC.y;
         this->m_cg_aabb_min.z = this->m_cg_aabb_min.z + PT_AC_EPS_VEC.z;
@@ -335,7 +335,7 @@ void    gjkcc_prolog(const gjkcc_input_t *gjkcc_in, float *origin)
     }
     //gjkcc_info::Lock(v5);
     v5->Lock();
-    Phys_Vec3ToNitrousVec(origin, &v4);
+    Phys_Vec3ToNitrousVec(origin, v4);
     //gjk_query_output::cached_query_prolog(
         //&v5->m_gjk_query_output,
     v5->m_gjk_query_output.cached_query_prolog(
@@ -370,34 +370,6 @@ void __cdecl gjkcc_epilog(const gjkcc_input_t *gjkcc_in, const float *origin)
     gcci->Unlock();
 }
 
-void __thiscall phys_heap_gjk_cache_system_avl_tree::update_cache()
-{
-    phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal **gjk_ci_i; // [esp+158h] [ebp-8h]
-    phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal *gjk_ci; // [esp+15Ch] [ebp-4h]
-
-    gjk_ci_i = &this->m_list_head;
-    for ( gjk_ci = this->m_list_head; gjk_ci; gjk_ci = *gjk_ci_i )
-    {
-        if ( (gjk_ci->m_flags & 1) != 0 )
-        {
-            gjk_ci_i = &gjk_ci->m_next_gjk_ci;
-            gjk_ci->m_flags &= ~1u;
-        }
-        else
-        {
-            *gjk_ci_i = gjk_ci->m_next_gjk_ci;
-            //phys_inplace_avl_tree<phys_gjk_geom_id_pair_key,phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal,phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal::avl_tree_accessor>::remove(
-            //    &this->m_search_tree,
-            //    &gjk_ci->m_key);
-            this->m_search_tree.remove(gjk_ci->m_key);
-            //phys_simple_allocator<phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal>::free(
-            //    &this->m_list_phys_gjk_cache_info_internal,
-            //    gjk_ci);
-            this->m_list_phys_gjk_cache_info_internal.free(gjk_ci);
-        }
-    }
-}
-
 void __thiscall gjkcc_info::Unlock()
 {
     if ( _InterlockedCompareExchange(&this->m_active, 0, 1) != 1
@@ -417,29 +389,6 @@ gjkcc_info *__cdecl find_gjkcc_info(unsigned int gjkcc_id, bool is_server_thread
     {
         return g_gjkcc_info_client_database.gjkcc_info_find(gjkcc_id, false);
     }
-}
-
-bool __thiscall gjk_double_sphere_t::is_foot(const phys_vec3 *hit_point) const
-{
-    return (float)(this->m_list_center[1].z - 1.0) >= hit_point->z;
-}
-
-bool gjk_cylinder_t::is_foot(const phys_vec3 *hit_point) const
-{
-    phys_vec3 local_hit;
-    phys_full_inv_multiply(&local_hit, &this->xform, hit_point);
-
-    return (-this->halfHeight) >= local_hit[direction];
-}
-
-bool gjk_brush_t::is_walkable(const phys_vec3 *hit_point, const phys_vec3 *up)
-{
-    return ::is_walkable(this->brush, hit_point, up);
-}
-
-bool gjk_partition_t::is_walkable(const phys_vec3 *hit_point, const phys_vec3 *up)
-{
-    return ::is_walkable(this->partition, hit_point, up);
 }
 
 void __cdecl calc_time(phys_gjk_info *gjk_info, bool keep_all_collisions, float *time, float *dist)
@@ -533,7 +482,7 @@ bool gjk_collide(
         Com_PrintError(1, buf);
     }
 
-    gto->m_is_foot = gti.m_cg->is_foot(&gto->m_arm);
+    gto->m_is_foot = gjk_is_foot(gti.m_cg, &gto->m_arm);
     gto->m_gi = gi;
 
     return true;
@@ -600,7 +549,7 @@ void    gjk_trace(const gjk_trace_input_t &gti, list_gjk_trace_output *list)
     //phys_gjk_info::phys_gjk_info(&info);
     phys_gjk_info info; // [esp+B8h] [ebp-3DCh] BYREF
 
-    list->m_list.clear();
+    list->m_list.remove_all();
 
     list->m_first_hit = 0;
     if (gti.m_query_output->m_list_geom_info.m_alloc_count)
@@ -753,7 +702,7 @@ void __cdecl setup_query_input(
     query_input->m_proximity_mask = gjkcc_in->proximity_mask;
     query_input->m_gjk_query_flags = gjkcc_in->m_gjk_query_flags;
 
-    query_input->m_geom_skip_list.clear();
+    query_input->m_geom_skip_list.remove_all();
 }
 
 void    setup_trace_info(
@@ -779,8 +728,8 @@ void    setup_trace_info(
     gti->m_gjk_cache = &gcci->m_gjk_cache;
     gti->m_query_output = &gcci->m_gjk_query_output;
 
-    Phys_Vec3ToNitrousVec(start, &pv_start);
-    Phys_Vec3ToNitrousVec(end, &pv_end);
+    Phys_Vec3ToNitrousVec(start, pv_start);
+    Phys_Vec3ToNitrousVec(end, pv_end);
 
     translation.x = pv_end.x - pv_start.x;
     translation.y = pv_end.y - pv_start.y;
@@ -812,10 +761,10 @@ void    setup_trace_info(
         if (gjkcc_in->m_gjk_cg)
         {
             gti->m_cg = gjkcc_in->m_gjk_cg;
-            gti->m_gcci->m_cg_to_world_xform = gjkcc_in->m_mat;
+            gti->m_gcci->m_cg_to_world_xform = *gjkcc_in->m_mat;
             gti->set_cg_position(&pv_start);
             gti->m_cg->calc_aabb(
-                &PHYS_IDENTITY_MATRIX,
+                PHYS_IDENTITY_MATRIX,
                 &gti->m_query_input.m_cg_aabb_min,
                 &gti->m_query_input.m_cg_aabb_max);
         }
@@ -969,8 +918,9 @@ bool __cdecl project_succeeded(
 {
     geom_plane *gp_i; // [esp+14h] [ebp-4h]
 
-    for ( gp_i = list_geom_plane->m_slot_array; &list_geom_plane->m_slot_array[list_geom_plane->m_alloc_count] != gp_i; ++gp_i )
+    for ( int i = 0; i < list_geom_plane->get_count(); ++i )
     {
+        gp_i = &(*list_geom_plane)[i];
         if ((-(PROJECT_FAIL_THRESH)) >
             (float)((float)((float)((float)(new_position->x * gp_i->m_normal.x)
                 + (float)(new_position->y * gp_i->m_normal.y))
@@ -1001,7 +951,7 @@ bool gjk_push_out(
     // cur_pos = the goal/target we're trying to reach (stays fixed as goal)
     // pos     = current solved position (iteratively updated)
     phys_vec3 cur_pos, pos;
-    Phys_Vec3ToNitrousVec((const float *)input->position, &cur_pos);
+    Phys_Vec3ToNitrousVec((const float *)input->position, cur_pos);
     pos = cur_pos;
 
     // --- Set up trace (start == end == position, zero translation initially) ---
@@ -1057,11 +1007,11 @@ bool gjk_push_out(
         }
 
         // --- Collect all hit planes ---
-        int plane_count = list_geom_plane.m_alloc_count;
+        int plane_count = list_geom_plane.get_count();
         for (gjk_trace_output_t *gto = traceOut.m_list.m_first; gto; gto = gto->m_next_link)
         {
-            gi_list[128] = (gjk_geom_info_t *)(uintptr_t)list_geom_plane.m_alloc_count; // snapshot count
-            gi_list[list_geom_plane.m_alloc_count] = gto->m_gi;
+            gi_list[128] = (gjk_geom_info_t *)(uintptr_t)list_geom_plane.get_count(); // snapshot count
+            gi_list[list_geom_plane.get_count()] = gto->m_gi;
             add_hit_info(gto, &list_geom_plane, &gti.m_query_input.m_geom_skip_list);
             input->custom_process(gto);
         }
@@ -1069,9 +1019,9 @@ bool gjk_push_out(
         iassert(list_geom_plane.get_count() > plane_count);
 
         // --- Compute right-hand sides at current pos ---
-        for (int pi = 0; pi < list_geom_plane.m_alloc_count; ++pi)
+        for (int pi = 0; pi < list_geom_plane.get_count(); ++pi)
         {
-            geom_plane *gp = list_geom_plane[pi];
+            geom_plane *gp = &list_geom_plane[pi];
             gp->m_lambda = 0.0f;
             phys_vec3 contact_pt;
             contact_pt.x = pos.x + gp->m_arm.x;
@@ -1136,9 +1086,9 @@ bool gjk_push_out(
 
                 // Re-run GJK against each stored geom to update plane hit info
                 gjk_trace_output_t gto_temp;
-                for (int pi = 0; pi < list_geom_plane.m_alloc_count; ++pi)
+                for (int pi = 0; pi < list_geom_plane.get_count(); ++pi)
                 {
-                    geom_plane *gp = list_geom_plane[pi];
+                    geom_plane *gp = &list_geom_plane[pi];
                     gjk_geom_info_t *gi = gi_list[pi];
 
                     set_pgi_cg2(&pgi, gti, gi);
@@ -1156,9 +1106,9 @@ bool gjk_push_out(
                 }
 
                 // Recompute right-hand sides at original pos with updated hit info
-                for (int pi = 0; pi < list_geom_plane.m_alloc_count; ++pi)
+                for (int pi = 0; pi < list_geom_plane.get_count(); ++pi)
                 {
-                    geom_plane *gp = list_geom_plane[pi];
+                    geom_plane *gp = &list_geom_plane[pi];
                     gp->m_lambda = 0.0f;
                     phys_vec3 contact_pt;
                     contact_pt.x = pos.x + gp->m_arm.x;
@@ -1211,7 +1161,7 @@ bool gjk_push_out(
     }
 
 write_output:
-    Phys_NitrousVecToVec3(&cur_pos, output->new_position);
+    Phys_NitrousVecToVec3(cur_pos, output->new_position);
     // Velocity is unchanged — copy directly from input
     output->new_velocity[0] = ((const float *)input->velocity)[0];
     output->new_velocity[1] = ((const float *)input->velocity)[1];
@@ -1257,8 +1207,8 @@ bool    gjk_slide_move1(
     // ----------------------------------------------------------------
     // Setup: convert input pos/vel, apply gravity to vel_end
     // ----------------------------------------------------------------
-    Phys_Vec3ToNitrousVec((const float *)input->position, &pos);
-    Phys_Vec3ToNitrousVec((const float *)input->velocity, &vel);
+    Phys_Vec3ToNitrousVec((const float *)input->position, pos);
+    Phys_Vec3ToNitrousVec((const float *)input->velocity, vel);
 
     vel_end = vel;
 
@@ -1279,7 +1229,7 @@ bool    gjk_slide_move1(
     target_pos.y = pos.y + half_disp.y;
     target_pos.z = pos.z + half_disp.z;
 
-    Phys_NitrousVecToVec3(&target_pos, end);
+    Phys_NitrousVecToVec3(target_pos, end);
     setup_trace_info(
         gjkcc_in,
         (float *)input->position,
@@ -1317,7 +1267,7 @@ bool    gjk_slide_move1(
 
     start_pos = pos;
     elapsed = 0.0f;
-    max_bumps = 128 - list_geom_plane.m_alloc_count;
+    max_bumps = 128 - list_geom_plane.get_count();
 
     if (g_bDebugRenderPlayerCollision->current.enabled)
     {
@@ -1393,7 +1343,7 @@ bool    gjk_slide_move1(
             advanced_time = hit_real_time;
         }
 
-        plane_count = list_geom_plane.m_alloc_count;
+        plane_count = list_geom_plane.get_count();
 
         // ---- Iterate trace hits and add ones within MIN_SUBSTEP of advanced_time ----
         for (gjk_trace_output_t *gto = traceOut.m_list.m_first; gto; gto = gto->m_next_link)
@@ -1431,9 +1381,9 @@ bool    gjk_slide_move1(
         iassert(list_geom_plane.get_count() > plane_count);
 
         // ---- Compute right_side for every plane at the new pos ----
-        for (int pi = 0; pi < list_geom_plane.m_alloc_count; ++pi)
+        for (int pi = 0; pi < list_geom_plane.get_count(); ++pi)
         {
-            geom_plane *gp = list_geom_plane[pi];
+            geom_plane *gp = &list_geom_plane[pi];
             gp->m_lambda = 0.0f;
 
             const float cpx = pos.x + gp->m_arm.x;
@@ -1465,9 +1415,9 @@ bool    gjk_slide_move1(
         }
 
         // Clamp positive (outward-pushing) right_sides to 0 before re-projecting velocity
-        for (int pi = 0; pi < list_geom_plane.m_alloc_count; ++pi)
+        for (int pi = 0; pi < list_geom_plane.get_count(); ++pi)
         {
-            geom_plane *gp = list_geom_plane[pi];
+            geom_plane *gp = &list_geom_plane[pi];
             if (gp->m_right_side > 0.0f)
                 gp->m_right_side = 0.0f;
         }
@@ -1504,9 +1454,9 @@ bool    gjk_slide_move1(
         float min_walkable_dist = 10000.0f;
         int   non_walkable_count = 0;
 
-        for (int pi = 0; pi < list_geom_plane.m_alloc_count; ++pi)
+        for (int pi = 0; pi < list_geom_plane.get_count(); ++pi)
         {
-            geom_plane *gp = list_geom_plane[pi];
+            geom_plane *gp = &list_geom_plane[pi];
             gp->m_active = 0;
 
             if (gp->m_walkable)
@@ -1540,15 +1490,15 @@ bool    gjk_slide_move1(
             step_cur.z = -30.0f;
             step_cur.w = step_dir.w; // matches original (uninitialised w copy)
 
-            for (int j = 0; j < list_geom_plane.m_alloc_count; ++j)
+            for (int j = 0; j < list_geom_plane.get_count(); ++j)
             {
                 // ---- Find non-active plane hit earliest along step_cur ----
                 float       best_t = 1.0f;
                 geom_plane *potential_landing_plane = nullptr;
 
-                for (int pi = 0; pi < list_geom_plane.m_alloc_count; ++pi)
+                for (int pi = 0; pi < list_geom_plane.get_count(); ++pi)
                 {
-                    geom_plane *gp = list_geom_plane[pi];
+                    geom_plane *gp = &list_geom_plane[pi];
                     if (gp->m_active)
                         continue;
 
@@ -1597,9 +1547,9 @@ bool    gjk_slide_move1(
                     landing_plane = nullptr;
                     float best_landing_dist = WALKABLE_DIST_THRESH;
 
-                    for (int pi = 0; pi < list_geom_plane.m_alloc_count; ++pi)
+                    for (int pi = 0; pi < list_geom_plane.get_count(); ++pi)
                     {
-                        geom_plane *gp = list_geom_plane[pi];
+                        geom_plane *gp = &list_geom_plane[pi];
                         if (!gp->m_walkable)
                             continue;
 
@@ -1637,10 +1587,10 @@ bool    gjk_slide_move1(
                         // Project velocity onto the landing plane normal
                         float landing_plane_normal[3];
                         float vel3[3];
-                        Phys_NitrousVecToVec3(&landing_plane->m_normal, landing_plane_normal);
-                        Phys_NitrousVecToVec3(&vel, vel3);
+                        Phys_NitrousVecToVec3(landing_plane->m_normal, landing_plane_normal);
+                        Phys_NitrousVecToVec3(vel, vel3);
                         PM_ProjectVelocity(vel3, landing_plane_normal, vel3);
-                        Phys_Vec3ToNitrousVec(vel3, &vel);
+                        Phys_Vec3ToNitrousVec(vel3, vel);
                     }
                     break;
                 }
@@ -1649,9 +1599,9 @@ bool    gjk_slide_move1(
                 // (Compiled binary checks potential_landing_plane->m_active here, which
                 //  was just set to 1 above - so the gate is unconditionally true and
                 //  every plane in the list gets its right_side recomputed.)
-                for (int pi = 0; pi < list_geom_plane.m_alloc_count; ++pi)
+                for (int pi = 0; pi < list_geom_plane.get_count(); ++pi)
                 {
-                    geom_plane *gp = list_geom_plane[pi];
+                    geom_plane *gp = &list_geom_plane[pi];
                     if (potential_landing_plane->m_active)
                     {
                         const float cpx = pos.x + gp->m_arm.x;
@@ -1671,10 +1621,10 @@ bool    gjk_slide_move1(
         }
     }
 
-    Phys_NitrousVecToVec3(&pos, output->new_position);
-    Phys_NitrousVecToVec3(&vel, output->new_velocity);
+    Phys_NitrousVecToVec3(pos, output->new_position);
+    Phys_NitrousVecToVec3(vel, output->new_velocity);
 
-    return list_geom_plane.m_alloc_count > 0;
+    return list_geom_plane.get_count() > 0;
 }
 
 int __cdecl gjk_slide_move(
@@ -1745,7 +1695,7 @@ void    setup_player_push_slide_move_input(
     vel.x = inv_frametime * push_movement->x;
     vel.y = inv_frametime * push_movement->y;
     vel.z = inv_frametime * push_movement->z;
-    Phys_NitrousVecToVec3(&vel, input->velocity_);
+    Phys_NitrousVecToVec3(vel, input->velocity_);
     input->clientnum = pm->ps->clientNum;
     input->do_step_down = 1;
     input->frametime = frametime;
@@ -1874,21 +1824,21 @@ void    gjk_sentient_push(
     v86 = pushRadius + 2.0;
     v87 = 0.0f;
 
-    Phys_Vec3ToNitrousVec(mins, &v84);
+    Phys_Vec3ToNitrousVec(mins, v84);
     v82 = v84.x - v85;
     v81 = v84.y - v86;
     v80 = v84.z - v87;
     v77 = v82;
     v78 = v81;
     v79 = v80;
-    Phys_Vec3ToNitrousVec(maxs, &v76);
+    Phys_Vec3ToNitrousVec(maxs, v76);
     v74 = v76.x + v85;
     v73 = v76.y + v86;
     v72 = v76.z + v87;
     v69 = v74;
     v70 = v73;
     v71 = v72;
-    Phys_Vec3ToNitrousVec(origin, &v68);
+    Phys_Vec3ToNitrousVec(origin, v68);
     //gjk_query_input::gjk_query_input(&v67.m_query_input);
     setup_trace_info(gjkcc_in, origin, mins, maxs, origin, passEntityNum, contentMask, &v67);
     v67.m_query_input.m_cg_aabb_min.x = v77;
@@ -2010,9 +1960,9 @@ void    gjk_sentient_push(
         *origin_ = v22.new_position[0];
         origin_[1] = v22.new_position[1];
         origin_[2] = v22.new_position[2];
-        m_slot_array = v66.m_slot_array;
-        v20 = v66.m_slot_array;
-        v19 = &v66.m_slot_array[v66.m_alloc_count];
+        m_slot_array = v66.get_list_head();
+        v20 = v66.get_list_head();
+        v19 = &v66.get_list_head()[v66.get_count()];
         v18 = v19;
         while ( v18 != v20 )
         {
@@ -2021,12 +1971,12 @@ void    gjk_sentient_push(
                 v17->m_right_side = 0.0f;
             ++v20;
         }
-        Phys_Vec3ToNitrousVec(pm->ps->velocity, &v16);
+        Phys_Vec3ToNitrousVec(pm->ps->velocity, v16);
         v27.x = v16.x;
         v27.y = v16.y;
         v27.z = v16.z;
         project(&v27, &v66, &v27);
-        Phys_NitrousVecToVec3(&v27, pm->ps->velocity);
+        Phys_NitrousVecToVec3(v27, pm->ps->velocity);
     }
 }
 
@@ -2121,16 +2071,16 @@ void render_gjkcc_collision(float (*mins)[3], float (*maxs)[3], float (*origin)[
     gjk_polygon_cylinder_t gjk_geom; // [esp+308h] [ebp-8Ch] BYREF
 
     setup_gjk_polygon_cylinder((float *)mins, (float *)maxs, 0.5, &gjk_geom);
-    Phys_Vec3ToNitrousVec((float *)origin, &position);
+    Phys_Vec3ToNitrousVec((float *)origin, position);
     if (render_bounding_box)
     {
         memcpy(&xform, &PHYS_IDENTITY_MATRIX, sizeof(xform));
         //phys_vec3::operator=(&xform.w, &position);
         xform.w = position;
         //gjk_polygon_cylinder_t::calc_aabb(&gjk_geom, (int)v90, &xform, &aabb_min, &aabb_max);
-        gjk_geom.calc_aabb(&xform, &aabb_min, &aabb_max);
-        Phys_NitrousVecToVec3(&aabb_min, mn);
-        Phys_NitrousVecToVec3(&aabb_max, mx);
+        gjk_geom.calc_aabb(xform, &aabb_min, &aabb_max);
+        Phys_NitrousVecToVec3(aabb_min, mn);
+        Phys_NitrousVecToVec3(aabb_max, mx);
         render_box(mn, mx, colorRed, 0);
     }
     pc = &gjk_geom;
@@ -2245,36 +2195,6 @@ void render_gjkcc_collision(float (*mins)[3], float (*maxs)[3], float (*origin)[
         render_line(&v17, &v60, colorBlue, 0, 0);
     }
     //gjk_base_t::~gjk_base_t(&gjk_geom);
-}
-
-void __thiscall phys_gjk_geom::set_simplex(
-                const phys_vec3 *simplex_inds,
-                int w_set,
-                const phys_vec3 *normal,
-                cached_simplex_info *cache_info) const
-{
-    int outIdx = 0;
-    for ( int i = 0; i < 4; ++i )
-    {
-        if ( (w_set & (1 << i)) != 0 )
-        {
-            cache_info->m_indices[outIdx].x = simplex_inds[i].x;
-            cache_info->m_indices[outIdx].y = simplex_inds[i].y;
-            cache_info->m_indices[outIdx].z = simplex_inds[i].z;
-            outIdx++;
-            //cache_info = (cached_simplex_info *)((char *)cache_info + 16);
-        }
-    }
-}
-
-bool phys_gjk_geom::ray_cast(
-                const phys_vec3 *__formal,
-                const phys_vec3 *ray_dir,
-                float t_input,
-                float *t_output,
-                phys_vec3 *hitn) const
-{
-    return 0;
 }
 
 void __cdecl render_gjkcc_collision(pmove_t *pm)
@@ -2999,24 +2919,4 @@ void __thiscall player_gjk_slide_move_input_t::custom_process(gjk_trace_output_t
     fill_results_type_and_id(gto, &trace);
     PM_AddTouchEnt(this->pm, Trace_GetEntityHitId(&trace));
     PM_AddTouchGlass(this->pm, Trace_GetGlassHitId(&trace));
-}
-
-
-void __thiscall bpei_database_t::purge_database()
-{
-    broad_phase_environment_info *next_bpei; // [esp+154h] [ebp-8h]
-    broad_phase_environment_info *bpei; // [esp+158h] [ebp-4h]
-
-    for ( bpei = this->m_bpei_list; bpei; bpei = next_bpei )
-    {
-        next_bpei = bpei->m_next_bpei;
-
-        this->m_bpei_map.remove(bpei->m_database_id);
-        //phys_inplace_avl_tree<bpei_database_id,broad_phase_environment_info,broad_phase_environment_info::avl_tree_accessor>::remove(
-        //    &this->m_bpei_map,
-        //    &bpei->m_database_id);
-        this->m_bpei_allocator.free(bpei);
-        //phys_simple_allocator<broad_phase_environment_info>::free(&this->m_bpei_allocator, bpei);
-    }
-    this->m_bpei_list = 0;
 }

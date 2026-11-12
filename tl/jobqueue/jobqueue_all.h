@@ -1,7 +1,9 @@
 #pragma once
-#include <tl/tl_system.h>
-
 #include <Windows.h>
+
+// tl base (tlAtomicMutex, tlSharedAtomicMutex, tlAtomicAdd/And/Or, _tlAssert) comes from TreyBO.
+#include "tl/base/include/tl_system.h"
+#include "tl/base/include/tl_thread.h"
 
 #define JQ_MAX_QUEUES 8
 
@@ -16,29 +18,6 @@ enum jqProcessor : __int32
     JQ_CORE_6   = 0x40,
     JQ_CORE_7   = 0x80,
     JQ_CORE_ALL = 0xFF,
-};
-
-struct tlAtomicMutex // sizeof=0x10
-{                                       // XREF: .data:tlAtomicMutex g_prolog_task_mutex/r
-    volatile LONG64 ThreadId;          // XREF: jqInit(void)+58/w
-    int LockCount;                      // XREF: jqInit(void)+64/w
-    tlAtomicMutex *ThisPtr;             // XREF: jqInit(void)+4E/w
-
-    tlAtomicMutex()
-    {
-        ThisPtr = this;
-        ThreadId = 0;
-        LockCount = 0;
-    }
-    ~tlAtomicMutex()
-    {
-        this->ThreadId = 0;
-        this->ThisPtr = 0;
-    }
-
-    void Lock();
-    bool TryLock();
-    void Unlock();
 };
 
 struct tlAtomicMutexLocker // sizeof=0x4
@@ -101,25 +80,6 @@ struct jqAtomicHeap // sizeof=0x110
         LevelInfo *Level,
         int Slot,
         LevelInfo *LevelTo);
-};
-
-struct tlSharedAtomicMutex // sizeof=0x10
-{                                       // XREF: jqAtomicQueue<jqBatch,32>/r
-    volatile unsigned __int64 ThreadId; // XREF: jqInit(void)+31/w
-                                        // jqInit(void)+37/w ...
-    volatile int LockCount;             // XREF: jqInit(void)+42/w
-                                        // _dynamic_initializer_for__jqPool__+11/w ...
-    tlSharedAtomicMutex *ThisPtr;       // XREF: jqInit(void)+27/w
-
-    tlSharedAtomicMutex()
-    {
-        ThreadId = 0;
-        LockCount = 0;
-        ThisPtr = this;
-    }
-
-    void Lock();
-    void Unlock();
 };
 
 
@@ -413,9 +373,6 @@ struct jqBatchPool // sizeof=0x180
 static_assert(offsetof(jqBatchPool, group) % 8 == 0, "jqPool.group must be 8-byte aligned");
 
 
-unsigned int __cdecl tlAtomicAdd(volatile unsigned __int32 *var, unsigned int value);
-unsigned __int64 __cdecl tlAtomicAnd(volatile unsigned __int64 *var, unsigned __int64 value);
-unsigned __int64 __cdecl tlAtomicOr(volatile unsigned __int64 *var, unsigned __int64 value);
 
 
 void __cdecl jqAttachQueueToWorkers(jqQueue *Queue, unsigned int ProcessorMask);

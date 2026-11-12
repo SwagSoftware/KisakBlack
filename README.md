@@ -17,7 +17,7 @@ Learn about the Development of KisakBlack here: [https://lwss.github.io/Kisak-Bl
 
 
 ## How to build
-1) Install the above requirements and Clone repo
+1) Install the above requirements and Clone repo (`git clone https://github.com/swagsoftware/kisakblack --recursive`)
 2) create a `/build` folder
 3) `CMAKE .. -G"Visual Studio 17 2022" -DCMAKE_GENERATOR_PLATFORM=WIN32`
 4) Open the generated .sln file

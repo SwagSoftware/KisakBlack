@@ -1,10 +1,43 @@
 #include "tl_support.h"
-#include <tl/tl_system.h>
 #include <universal/mem_userhunk.h>
 #include "common.h"
 #include <win32/win_common.h>
+#include <win32/win_workercmds.h>
+#include <tl/jobqueue/jobqueue_all.h>
 
 HunkUser *s_tlHunkUser;
+
+static tlJobFunc s_tlJobFunc;
+static void *s_tlJobUserData;
+static volatile long s_tlJobNextIndex;
+static jqBatch s_tlJobBatch;
+
+static int __cdecl TL_RunJobsBatch(jqBatch *batch)
+{
+    s_tlJobFunc(s_tlJobUserData, InterlockedIncrement(&s_tlJobNextIndex) - 1);
+    return 0;
+}
+
+static jqModule s_tlJobModule =
+{
+    .Name = "tlRunJobs",
+    .Type = JQ_WORKER_GENERIC,
+    .Code = TL_RunJobsBatch,
+};
+
+// TreyBO's job dispatch (tlRunJobs): func(user_data, i) once for every i in [0, job_count) on the nuge_physics
+// worker cmd, returning when all of them are done. This is what phys_task_manager_process + _flush did.
+void __cdecl TL_RunJobs(tlJobFunc func, void *user_data, int job_count)
+{
+    s_tlJobFunc = func;
+    s_tlJobUserData = user_data;
+    s_tlJobNextIndex = 0;
+    s_tlJobBatch.Module = &s_tlJobModule;
+    s_tlJobBatch.Input = user_data;
+    for ( int i = 0; i < job_count; ++i )
+        IW_task_manager_add_batch(&s_tlJobBatch);
+    IW_task_manager_flush();
+}
 
 void __cdecl Sys_SetupTLCallbacks(int hunkMemSize)
 {
@@ -19,6 +52,7 @@ void __cdecl Sys_SetupTLCallbacks(int hunkMemSize)
     callbacks.MemAlloc = (void *(__cdecl *)(unsigned int, unsigned int, unsigned int))TL_MemAlloc;
     callbacks.MemRealloc = (void *(__cdecl *)(void *, unsigned int, unsigned int, unsigned int))RETURN_ZERO32;
     callbacks.MemFree = TL_MemFree;
+    callbacks.RunJobs = TL_RunJobs;
     tlSetSystemCallbacks(&callbacks);
 }
 

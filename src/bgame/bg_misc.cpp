@@ -3231,8 +3231,8 @@ char    BG_CheckProne(
         traceFunc(&trace, v36, vMins, vMaxs, vEnd, passEntityNum, iTraceMask, &context);
         if (render_waist_foot_line)
         {
-            Phys_Vec3ToNitrousVec(v36, &p0);
-            Phys_Vec3ToNitrousVec(vEnd, &anglea);
+            Phys_Vec3ToNitrousVec(v36, p0);
+            Phys_Vec3ToNitrousVec(vEnd, anglea);
             render_line(&p0, &anglea, colorWhite, 0, 0);
         }
         if (!enable_new_prone_check->current.integer && trace.fraction < 1.0)

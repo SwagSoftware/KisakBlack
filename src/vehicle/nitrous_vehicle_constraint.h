@@ -1,6 +1,6 @@
 #pragma once
 
-#include <physics/rigid_body.h>
+#include <physics/phys_collision.h>
 
 struct gentity_s;
 

@@ -6,7 +6,7 @@
 #include "q_shared.h"
 #include <qcommon/common.h>
 #include <qcommon/mem_track.h>
-#include "../../tl/tl_system.h"
+#include "tl/base/include/tl_system.h"
 #include <win32/win_main.h>
 
 bool g_physicalMemoryInit;

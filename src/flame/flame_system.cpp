@@ -1557,7 +1557,7 @@ void __cdecl CG_Flame_Age_All_Objects(int time)
 {
     PROF_SCOPED("CG_Flame_Age_All_Objects");
 
-    cl_flames.m_alloc_count = 0;
+    cl_flames.remove_all();
     Flame_Class_Chunk_Age(0, time);
     Flame_Class_Fire_Age(0, time);
     Flame_Class_Smoke_Age(0, time);
@@ -1569,7 +1569,7 @@ void __cdecl SV_Flame_Age_All_Objects(int time)
 {
     PROF_SCOPED("SV_Flame_Age_All_Objects");
 
-    sv_flames.m_alloc_count = 0;
+    sv_flames.remove_all();
     Flame_Class_Chunk_Age(1, time);
     Flame_Class_Fire_Age(1, time);
     Flame_Class_Smoke_Age(1, time);

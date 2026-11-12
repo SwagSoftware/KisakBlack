@@ -1,5 +1,5 @@
 #pragma once
-#include "rigid_body.h"
+#include "phys_collision.h"
 #include "physconstraints_load_obj.h"
 
 struct XDollBone // sizeof=0x10

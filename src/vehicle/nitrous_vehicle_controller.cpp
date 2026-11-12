@@ -6,7 +6,6 @@
 #include <bgame/bg_misc.h>
 #include <cgame/cg_main.h>
 #include <cgame/cg_drawtools.h>
-#include <physics/phys_assert.h>
 #include <physics/phys_main.h>
 #include <cgame_mp/cg_local_mp.h>
 
@@ -102,8 +101,8 @@ void NitrousVehicleController::UpdateScriptVehicleControl(
         goal_speed = thisa->m_drive_path_speed;
     if (phys_drawNitrousVehicle->current.enabled)
     {
-        Phys_NitrousVecToVec3(&currentOrigin, start);
-        Phys_NitrousVecToVec3(&thisa->m_script_goal_position, end);
+        Phys_NitrousVecToVec3(currentOrigin, start);
+        Phys_NitrousVecToVec3(thisa->m_script_goal_position, end);
         CL_AddDebugLine(start, end, colorGreen, 0, 1);
     }
     (angle_to_side) = fabs((float)((float)(userData->body->m_mat.y.x * to_goal.x) + (float)(userData->body->m_mat.y.y * to_goal.y)) + (float)(userData->body->m_mat.y.z * to_goal.z));
@@ -412,7 +411,7 @@ void NitrousVehicleController::UpdateVehicleInputs(
             pt = p_m_mat->w;
             _pt[3] = pt.z;
             pt.z = pt.z + 100.0;
-            Phys_NitrousVecToVec3(&pt, _pt);
+            Phys_NitrousVecToVec3(pt, _pt);
             input_fwd[0] = (float)(450.0 * input_fwd[0]) + _pt[0];
             input_fwd[1] = (float)(450.0 * input_fwd[1]) + _pt[1];
             input_fwd[2] = (float)(450.0 * input_fwd[2]) + _pt[2];
@@ -1088,7 +1087,7 @@ void NitrousVehicleController::UpdateJump(
             v4.y = 0.0f;
             v4.z = m_jump_force;
             //rigid_body::add_force(body, &v4);
-            body->add_force(&v4);
+            body->add_force(v4);
             thisa->m_jump_button_pressed = 1;
         }
     }
@@ -1250,7 +1249,7 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
         vehParams = rbveh->m_parameter;
         info = rbveh->m_vehicle_info;
         center = body->m_mat.w;
-        Phys_NitrousVecToVec3(&center, pos);
+        Phys_NitrousVecToVec3(center, pos);
         forwardForce = body->m_mat.x;
         m_forward_vel = rbveh->m_forward_vel;
         v118 = fabs(m_forward_vel);
@@ -1300,7 +1299,7 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
             forwardForce.y = v103;
             forwardForce.z = v102;
             //rigid_body::add_force(body, &forwardForce);
-            body->add_force(&forwardForce);
+            body->add_force(forwardForce);
             rightForce = body->m_mat.x;
             m_throttle = rbveh->m_throttle;
             m_steer_factor = rbveh->m_steer_factor;
@@ -1346,7 +1345,7 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
             v63 = center.y + v70;
             v64 = center.z + v69;
             //rigid_body::add_force(body, &leftForce, (phys_vec3 *)&v62.w, 1.0);
-            body->add_force(&leftForce, (phys_vec3 *)&v62.w, 1.0);
+            body->add_force(leftForce, *(phys_vec3 *)&v62.w, 1.0);
             v62.z = center.x - centerOffset.x;
             v62.y = center.y - centerOffset.y;
             v62.x = center.z - centerOffset.z;
@@ -1354,7 +1353,7 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
             v60 = center.y - centerOffset.y;
             v61 = center.z - centerOffset.z;
             //rigid_body::add_force(body, &rightForce, (phys_vec3 *)&v59.w, 1.0);
-            body->add_force(&rightForce, (phys_vec3 *)&v59.w, 1.0);
+            body->add_force(rightForce, *(phys_vec3 *)&v59.w, 1.0);
         }
         else
         {
@@ -1390,14 +1389,15 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
             v34 = rbveh->m_steer_factor;
             //rot = COERCE_FLOAT(LODWORD(v34) ^ _mask__NegFloat_) * vehParams->m_steer_angle_max;
             rot = (-(v34)) * vehParams->m_steer_angle_max;
-            make_rotate(&rv, &body->m_mat.z, rot, 1000.0);
-            v30 = phys_multiply(&v31, &rv, &accel);
+            make_rotate(&rv, body->m_mat.z, rot, 1000.0);
+            v31 = phys_multiply(rv, accel);
+            v30 = &v31;
             accel.x = v30->x;
             accel.y = v30->y;
             accel.z = v30->z;
             if (phys_drawNitrousVehicle->current.enabled)
             {
-                Phys_NitrousVecToVec3(&motor_position, start);
+                Phys_NitrousVecToVec3(motor_position, start);
                 v28 = 50.0 * accel.x;
                 v27 = 50.0 * accel.y;
                 v26 = 50.0 * accel.z;
@@ -1410,7 +1410,7 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
                 debugEnd.x = v22;
                 debugEnd.y = v21;
                 debugEnd.z = v20;
-                Phys_NitrousVecToVec3(&debugEnd, &end.x);
+                Phys_NitrousVecToVec3(debugEnd, &end.x);
                 CL_AddDebugLine(start, &end.x, colorWhite, 0, 1);
             }
             turn_throttle = throttle;
@@ -1470,7 +1470,7 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
             y.y = y.y * v6;
             y.z = y.z * v6;
             //rigid_body::add_force(body, &y, &motor_position, 1.0);
-            body->add_force(&y, &motor_position, 1.0);
+            body->add_force(y, motor_position, 1.0);
             v5 = (float)((float)((float)((float)(forwardForce.x * accel.x) + (float)(forwardForce.y * accel.y))
                 + (float)(forwardForce.z * accel.z))
                 * throttle)
@@ -1479,7 +1479,7 @@ void NitrousVehicleController::UpdateApplyBoatAccel(
             forwardForce.y = forwardForce.y * v5;
             forwardForce.z = forwardForce.z * v5;
             //rigid_body::add_force(body, &forwardForce, &motor_position, 1.0);
-            body->add_force(&forwardForce, &motor_position, 1.0);
+            body->add_force(forwardForce, motor_position, 1.0);
         }
     }
 }

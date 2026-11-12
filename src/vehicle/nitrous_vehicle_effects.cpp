@@ -82,8 +82,8 @@ void NitrousVehicle::_update_wheel_effect_states(float delta_t)
                     }
                     else if ((rbc_wheel->m_wheel_flags & 4) != 0)
                     {
-                        phys_inv_multiply(&t_vel_loc, &rb->m_mat, &rb->m_t_vel);
-                        phys_inv_multiply(&a_vel_loc, &rb->m_mat, &rb->m_a_vel);
+                        t_vel_loc = phys_inv_multiply(rb->m_mat, rb->m_t_vel);
+                        a_vel_loc = phys_inv_multiply(rb->m_mat, rb->m_a_vel);
                         m_b1_suspension_dir_loc = rbc_wheel->m_b1_suspension_dir_loc;
                         m_wheel_radius = rbc_wheel->m_wheel_radius;
                         m_wheel_displaced_center_dist = rbc_wheel->m_wheel_displaced_center_dist;
@@ -103,7 +103,7 @@ void NitrousVehicle::_update_wheel_effect_states(float delta_t)
                         p.z = m_b1_wheel_center_loc.z + v28;
                         phys_vec3 tmp_cross;
                         //LODWORD(v19[2]) = phys_cross(&tmp_cross, &a_vel_loc, &p);
-                        phys_cross(&tmp_cross, &a_vel_loc, &p);
+                        tmp_cross = phys_cross(a_vel_loc, p);
                         //v19[1] = t_vel_loc.x + *(float *)LODWORD(v19[2]);
                         //v19[0] = t_vel_loc.y + *(float *)(LODWORD(v19[2]) + 4);
                         //v18 = t_vel_loc.z + *(float *)(LODWORD(v19[2]) + 8);
@@ -118,7 +118,7 @@ void NitrousVehicle::_update_wheel_effect_states(float delta_t)
                         v14 = rbc_wheel->m_wheel_radius;
                         m_wheel_vel = rbc_wheel->m_wheel_vel;
                         //LODWORD(v12.z) = phys_cross((phys_vec3 *)&v12.w, &m_b1_wheel_axis_loc, &v16);
-                        phys_cross(&tmp_cross, &m_b1_wheel_axis_loc, &v16);
+                        tmp_cross = phys_cross(m_b1_wheel_axis_loc, v16);
                         //v10 = (float)(v14 * m_wheel_vel) * *(float *)(LODWORD(v12.z) + 4);
                         //v11 = (float)(v14 * m_wheel_vel) * *(float *)(LODWORD(v12.z) + 8);
                         //p_vel.x = p_vel.x + (float)((float)(v14 * m_wheel_vel) * *(float *)LODWORD(v12.z));
@@ -296,20 +296,21 @@ double NitrousVehicle::debug_render_wheel_effects(int wheel)
     wheel_pos = rbc_wheel->m_b1_wheel_center_loc - v65;
     p_m_mat = &b1->m_mat;
     p_w = &b1->m_mat.w;
-    v5 = phys_multiply(&v62, &b1->m_mat, &wheel_pos);
+    v62 = phys_multiply(b1->m_mat, wheel_pos);
+    v5 = &v62;
     v61 = *v5 + *p_w;
     //operator+(&v61, v5, p_w);
     wheel_pos.x = v61.x;
     wheel_pos.y = v61.y;
     wheel_pos.z = v61.z;
     m_b1_wheel_axis_loc = rbc_wheel->m_b1_wheel_axis_loc;
-    phys_multiply(&dir, &b1->m_mat, &m_b1_wheel_axis_loc);
-    Phys_NitrousVecToVec3(&dir, _dir);
-    Phys_NitrousVecToVec3(&wheel_pos, _pos);
+    dir = phys_multiply(b1->m_mat, m_b1_wheel_axis_loc);
+    Phys_NitrousVecToVec3(dir, _dir);
+    Phys_NitrousVecToVec3(wheel_pos, _pos);
     G_DebugCircleEx(_pos, radius, _dir, color, 0, 0);
     rb = thisa->m_phys_user_data->body;
-    phys_inv_multiply(&t_vel_loc, &rb->m_mat, &rb->m_t_vel);
-    phys_inv_multiply(&a_vel_loc, &rb->m_mat, &rb->m_a_vel);
+    t_vel_loc = phys_inv_multiply(rb->m_mat, rb->m_t_vel);
+    a_vel_loc = phys_inv_multiply(rb->m_mat, rb->m_a_vel);
     m_b1_suspension_dir_loc = rbc_wheel->m_b1_suspension_dir_loc;
     m_wheel_radius = rbc_wheel->m_wheel_radius;
     m_wheel_displaced_center_dist = rbc_wheel->m_wheel_displaced_center_dist;
@@ -327,7 +328,8 @@ double NitrousVehicle::debug_render_wheel_effects(int wheel)
     p.x = m_b1_wheel_center_loc.x + v49;
     p.y = m_b1_wheel_center_loc.y + v48;
     p.z = m_b1_wheel_center_loc.z + v47;
-    v37 = phys_cross(&v38, &a_vel_loc, &p);
+    v38 = phys_cross(a_vel_loc, p);
+    v37 = &v38;
     v36[1] = t_vel_loc.x + v37->x;
     v36[0] = t_vel_loc.y + v37->y;
     v35 = t_vel_loc.z + v37->z;
@@ -338,7 +340,8 @@ double NitrousVehicle::debug_render_wheel_effects(int wheel)
     v32 = rbc_wheel->m_b1_wheel_axis_loc;
     v31 = rbc_wheel->m_wheel_radius;
     m_wheel_vel = rbc_wheel->m_wheel_vel;
-    v28 = phys_cross(&v29, &v32, &v33);
+    v29 = phys_cross(v32, v33);
+    v28 = &v29;
     v27 = v31 * m_wheel_vel;
     v26 = (float)(v31 * m_wheel_vel) * v28->x;
     v25 = (float)(v31 * m_wheel_vel) * v28->y;
@@ -421,7 +424,7 @@ void    NitrousVehicle::debug_render_effects()
         }
         p_m_mat = &thisa->m_phys_user_data->body->m_mat;
         pos = p_m_mat->w;
-        Phys_NitrousVecToVec3(&pos, textPos);
+        Phys_NitrousVecToVec3(pos, textPos);
         textPos[2] = textPos[2] + 50.0;
         sprintf(buffer, "Wheel Speeds %.0f %.0f %.0f %.0f", wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]);
         CL_AddDebugString(textPos, colorWhite, scale_2, buffer, 0);

@@ -5,7 +5,7 @@
 #include "avi.h"
 #include "yuv.h"
 #include <qcommon/common.h>
-#include <tl/tl_system.h>
+#include "tl/base/include/tl_system.h"
 #include <gfx_d3d/r_dvars.h>
 
 struct mjpeg_render // sizeof=0x0
@@ -61,18 +61,18 @@ void __stdcall    mjpeg_thread(void *context)
     {
         while ( !mjpeg_run_encoder )
             WaitForSingleObject(mjpeg_hEvent, 0xFFFFFFFF);
-        tick = tlPcGetTick().QuadPart;
+        tick = tlPcGetTick();
         mjpeg_fps = r_clipFPS->current.integer;
         fpsms = 1000.0 / (float)mjpeg_fps;
         for ( frames = 0; frames < 0x2000 && !mjpeg_quit_encoder; ++frames )
         {
-            //diff = (double)(tlPcGetTick().QuadPart - tick) / tlPcTicksPerMS;
-            diff = (double)(tlPcGetTick().QuadPart - tick) / tlPcTicksPerMS;
+            //diff = (double)(tlPcGetTick() - tick) / tlPcTicksPerMS;
+            diff = (double)(tlPcGetTick() - tick) / tlPcTicksPerMS;
             if ( fpsms <= diff )
                 Com_PrintWarning(16, "WARNING: Movie encoding took to %g ms limit is %g ms\n", diff, fpsms);
             else
                 Sleep((__int64)(fpsms - diff));
-            tick = tlPcGetTick().QuadPart;
+            tick = tlPcGetTick();
             WaitForSingleObject(mjpeg_hEvent, 0xFFFFFFFF);
             yuv_get_buffers(&y, &u, &v);
             mjpeg_current_callback(y, u, v);

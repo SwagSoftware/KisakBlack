@@ -5,12 +5,8 @@
 #include <qcommon/dobj_management.h>
 #include <xanim/dobj_utils.h>
 #include <xanim/xmodel_utils.h>
-#include <tl/base/tl_thread.h>
-#include "physics_system.h"
 #include <universal/com_math_anglevectors.h>
 #include <cgame_mp/cg_ents_mp.h>
-#include "physics_system_internal.h"
-#include <tl/physics/rbc_def_vehicle.h>
 
 auto_rigid_body *g_auto_rigid_body_list;
 
@@ -25,7 +21,6 @@ void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_v
     float *inVector; // [esp+2Ch] [ebp-9Ch]
     float axis[13]; // [esp+34h] [ebp-94h] BYREF
     auto_rigid_body *m_right; // [esp+68h] [ebp-60h]
-    volatile unsigned int *p_ReadLockCount; // [esp+90h] [ebp-38h]
     auto_rigid_body *m_tree_root; // [esp+94h] [ebp-34h]
     DObj *obj; // [esp+B8h] [ebp-10h]
     XModel *model; // [esp+BCh] [ebp-Ch]
@@ -64,8 +59,7 @@ void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_v
                     m_tree_root = m_tree_root->m_avl_tree_node.m_left;
             }
             arb = m_tree_root;
-            p_ReadLockCount = &g_auto_rigid_body_map_mutex.ThisPtr->ReadLockCount;
-            _InterlockedExchangeAdd(&g_auto_rigid_body_map_mutex.ThisPtr->ReadLockCount, 0xFFFFFFFF);
+            g_auto_rigid_body_map_mutex.ReadUnlock();
             if ( !m_tree_root )
             {
                 //tlAtomicReadWriteMutex::WriteLock(&g_auto_rigid_body_map_mutex);
@@ -89,8 +83,8 @@ void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_v
                     outMat = &arb->rb->m_dictator_mat;
                     inVector = (float*)cent->pose.origin;
                     AnglesToAxis(cent->pose.angles, (float (*)[3])axis);
-                    Phys_AxisToNitrousMat((float (*)[3])axis, outMat);
-                    Phys_Vec3ToNitrousVec(inVector, &outMat->w);
+                    Phys_AxisToNitrousMat((float (*)[3])axis, *outMat);
+                    Phys_Vec3ToNitrousVec(inVector, outMat->w);
                     //user_rigid_body::set(arb->rb, &arb->rb->m_dictator_mat);
                     arb->rb->set(&arb->rb->m_dictator_mat);
                     //rigid_body::set_flag(arb->rb, 0x40u, 1);
@@ -166,8 +160,8 @@ void    auto_rigid_body::update()
             const float *origin = iter->cent->pose.origin;
             const float *angles = iter->cent->pose.angles;
             AnglesToAxis(angles, axis);
-            Phys_AxisToNitrousMat(axis, &dictator);
-            Phys_Vec3ToNitrousVec(origin, &dictator.w);
+            Phys_AxisToNitrousMat(axis, dictator);
+            Phys_Vec3ToNitrousVec(origin, dictator.w);
             //user_rigid_body::setPosition(iter->rb, &dictator);
             iter->rb->setPosition(&dictator);
             prev_next = &iter->next;
@@ -194,11 +188,11 @@ void __cdecl fixup_wheel_constraints_arb(auto_rigid_body *arb)
     //    wci = wci->m_next_T_internal;
     //}
 
-    for (rigid_body_constraint_wheel *wci : g_physics_system->m_list_rbc_wheel)
+    for (rigid_body_constraint_wheel &wci : g_physics_system->m_list_rbc_wheel)
     {
-        if (wci->b2 == arb->rb)
+        if (wci.b2 == arb->rb)
         {
-            wci->set_no_collision();
+            wci.set_no_collision();
         }
     }
 }

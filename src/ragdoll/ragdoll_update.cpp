@@ -11,13 +11,10 @@
 #include <universal/com_math_anglevectors.h>
 #include <cgame_mp/cg_ents_mp.h>
 #include <win32/win_common.h>
-#include <physics/phys_broad_phase.h>
 #include <physics/physpreset_load_obj.h>
-#include <physics/phys_assert.h>
 #include <qcommon/threads.h>
 #include <cgame_mp/cg_main_mp.h>
 #include <physics/phys_render.h>
-#include <physics/physics_system.h>
 
 #include <algorithm>
 
@@ -260,8 +257,9 @@ void __cdecl Ragdoll_ExplosionEvent(
             invRange = 1.0 / (float)(outerRadiusSqr - innerRadiusSqr);
         hitCount = 0;
 
-        for (RagdollBody *body : g_ragdoll_body_pool)
+        for (RagdollBody &bodyRef : g_ragdoll_body_pool)
         {
+            RagdollBody *body = &bodyRef;
             iassert(Ragdoll_BodyInUse(body));
             Ragdoll_BodyRootOrigin(body, ragdollOrigin);
             hitEntsSorter[hitCount].distSq = Vec3DistanceSq(origin, ragdollOrigin);
@@ -837,7 +835,7 @@ char __cdecl Ragdoll_CreatePhysObjs(RagdollBody *body)
     int ia; // [esp+5Ch] [ebp-8h]
 
     iassert(body);
-    if (physGlob.objects_by_world[0].m_alloc_count / 12 >= 5)
+    if (physGlob.objects_by_world[0].get_count() / 12 >= 5)
         proftimer_physics_frame_advance.start_capture();
     def = Ragdoll_BodyDef(body);
     iassert(def);
@@ -906,7 +904,7 @@ char __cdecl Ragdoll_CreatePhysObjs(RagdollBody *body)
 
 char __cdecl Ragdoll_CreatePhysObj(RagdollBody *body, BoneDef *boneDef, Bone *bone)
 {
-    gjk_double_sphere_t *capsule_gjk_geom; // eax
+    gjk_base_t *capsule_gjk_geom; // eax
     float qRot[4]; // [esp+40h] [ebp-E4h] BYREF
     RagdollDef *def; // [esp+50h] [ebp-D4h]
     float hlength; // [esp+54h] [ebp-D0h]
@@ -1300,7 +1298,7 @@ char    Ragdoll_TunnelTest(RagdollBody *body)
         ++curOrientation;
     }
     pose = Ragdoll_BodyPose(body);
-    Phys_Vec3ToNitrousVec(pose->origin, &sphere_center);
+    Phys_Vec3ToNitrousVec(pose->origin, sphere_center);
     v14 = 0.0f;
     v15 = 0.0f;
     v16 = 15.0f;
@@ -1828,7 +1826,7 @@ void    Ragdoll_DebugRender(RagdollBody *body)
         body->debug_hang_point = phys_sys::create_rbc_point(v9, envRigBody, 0);
         memset(&v4, 0, 12);
         //rigid_body_constraint_point::set(body->debug_hang_point, &v4, &world_pos);
-        body->debug_hang_point->set(&v4, &world_pos);
+        body->debug_hang_point->set(v4, world_pos);
         //rigid_body::set_flag(v9, 0x40u, 1);
         v9->set_flag(0x40, 1);
     }
@@ -1946,8 +1944,9 @@ void __cdecl Ragdoll_Update(int msec)
 
     if ( ragdollInited && ragdoll_enable->current.enabled && cg_paused && !cg_paused->current.integer )
     {
-        for (RagdollBody *body : g_ragdoll_body_pool)
+        for (RagdollBody &bodyRef : g_ragdoll_body_pool)
         {
+            RagdollBody *body = &bodyRef;
             iassert(Ragdoll_BodyInUse(body));
             Ragdoll_BodyUpdate(msec, body);
         }
@@ -1956,8 +1955,9 @@ void __cdecl Ragdoll_Update(int msec)
 
 void __cdecl Ragdoll_RemoveConstraintsForRope(int rope_id)
 {
-    for (RagdollBody *body : g_ragdoll_body_pool)
+    for (RagdollBody &bodyRef : g_ragdoll_body_pool)
     {
+        RagdollBody *body = &bodyRef;
         iassert(Ragdoll_BodyInUse(body));
         
         if (body->rope_id - 1 == rope_id)
@@ -1973,8 +1973,9 @@ void __cdecl Ragdoll_RemoveConstraintsForRope(int rope_id)
 
 int __cdecl Ragdoll_GetRBForBone(int entnum, unsigned int boneName)
 {
-    for (RagdollBody *body : g_ragdoll_body_pool)
+    for (RagdollBody &bodyRef : g_ragdoll_body_pool)
     {
+        RagdollBody *body = &bodyRef;
         iassert(Ragdoll_BodyInUse(body));
 
         if (entnum == body->dobj)

@@ -1,7 +1,6 @@
 #include "nitrous_vehicle_constraint.h"
 #include <cgame/cg_drawtools.h>
 #include <universal/com_math_anglevectors.h>
-#include <physics/physics_system.h>
 #include <game/g_scr_vehicle.h>
 #include <physics/phys_main.h>
 
@@ -21,8 +20,8 @@ void    path_constraint_update(rigid_body_constraint_custom_path *vpc, gentity_s
         scr_vehicle = veh->scr_vehicle;
         p_m_path_mat = &vpc->m_path_mat;
         AnglesToAxis(scr_vehicle->pathPos.angles, (float (*)[3])v3);
-        Phys_AxisToNitrousMat((float (*)[3])v3, p_m_path_mat);
-        Phys_Vec3ToNitrousVec(scr_vehicle->pathPos.origin, &p_m_path_mat->w);
+        Phys_AxisToNitrousMat((float (*)[3])v3, *p_m_path_mat);
+        Phys_Vec3ToNitrousVec(scr_vehicle->pathPos.origin, p_m_path_mat->w);
         if ( ((LODWORD(scr_vehicle->pathPos.origin[0]) & 0x7F800000) == 0x7F800000
              || (LODWORD(scr_vehicle->pathPos.origin[1]) & 0x7F800000) == 0x7F800000
              || (LODWORD(scr_vehicle->pathPos.origin[2]) & 0x7F800000) == 0x7F800000)
@@ -151,8 +150,8 @@ rigid_body_constraint_custom_path * path_constraint_create(gentity_s *veh)
     p_b1_r_loc->z = v8;
     p_m_path_mat = &v9->m_path_mat;
     AnglesToAxis(veh->r.currentAngles, (float (*)[3])v3);
-    Phys_AxisToNitrousMat((float (*)[3])v3, p_m_path_mat);
-    Phys_Vec3ToNitrousVec(veh->r.currentOrigin, &p_m_path_mat->w);
+    Phys_AxisToNitrousMat((float (*)[3])v3, *p_m_path_mat);
+    Phys_Vec3ToNitrousVec(veh->r.currentOrigin, p_m_path_mat->w);
     v9->m_urb = user_rb;
     //user_rb::set(v9->m_urb, &v9->m_path_mat);
     v9->m_urb->set(&v9->m_path_mat);

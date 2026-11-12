@@ -19,7 +19,7 @@
 #include <cgame/cg_event.h>
 #include "actor_script_cmd.h"
 #include <ragdoll/ragdoll_update.h>
-#include <physics/physics_system.h>
+#include <physics/phys_collision.h>
 #include <bgame/bg_slidemove.h>
 
 const char *hintStrings[8] =
@@ -85,13 +85,15 @@ void mover_info_t::apply_rotation(float *v)
     //v9 = a2;
     //v10 = retaddr;
     v8 = this;
-    Phys_Vec3ToNitrousVec(v, (phys_vec3 *)v7);
-    v3 = phys_inv_multiply(&v6, &v8->m_prev_mat, (const phys_vec3 *)v7);
-    v4 = phys_multiply(&v5, &v8->m_mat, v3);
+    Phys_Vec3ToNitrousVec(v, *(phys_vec3 *)v7);
+    v6 = phys_inv_multiply(v8->m_prev_mat, *(const phys_vec3 *)v7);
+    v3 = &v6;
+    v5 = phys_multiply(v8->m_mat, *v3);
+    v4 = &v5;
     v7[0] = LODWORD(v4->x);
     v7[1] = LODWORD(v4->y);
     v7[2] = LODWORD(v4->z);
-    Phys_NitrousVecToVec3((const phys_vec3 *)v7, v);
+    Phys_NitrousVecToVec3(*(const phys_vec3 *)v7, v);
 }
 
 void mover_info_t::apply_rotation_translation(float *v)
@@ -108,13 +110,15 @@ void mover_info_t::apply_rotation_translation(float *v)
     //v9[0] = a2;
     //v9[1] = retaddr;
     v8 = this;
-    Phys_Vec3ToNitrousVec(v, (phys_vec3 *)v7);
-    v3 = phys_full_inv_multiply(&v6, &v8->m_prev_mat, (const phys_vec3 *)v7);
-    v4 = phys_full_multiply(&v5, &v8->m_mat, v3);
+    Phys_Vec3ToNitrousVec(v, *(phys_vec3 *)v7);
+    v6 = phys_full_inv_multiply(v8->m_prev_mat, *(const phys_vec3 *)v7);
+    v3 = &v6;
+    v5 = phys_full_multiply(v8->m_mat, *v3);
+    v4 = &v5;
     v7[0] = LODWORD(v4->x);
     v7[1] = LODWORD(v4->y);
     v7[2] = LODWORD(v4->z);
-    Phys_NitrousVecToVec3((const phys_vec3 *)v7, v);
+    Phys_NitrousVecToVec3(*(const phys_vec3 *)v7, v);
 }
 
 void __cdecl G_PushEntity(gentity_s *check, gentity_s *pusher, const float *move, const float *amove, mover_info_t *mi)
@@ -237,16 +241,17 @@ void    CreateConstraint(PhysConstraint *constraint)
             ent1_anchor_loc[0] = constraint->pos[0];
             ent1_anchor_loc[1] = constraint->pos[1];
             ent1_anchor_loc[2] = constraint->pos[2];
-            Phys_Vec3ToNitrousVec(ent1_anchor_loc, &ent1_anchor_loc_);
+            Phys_Vec3ToNitrousVec(ent1_anchor_loc, ent1_anchor_loc_);
             p_cg2rb = &userData1->cg2rb;
             max_distance = &userData1->cg2rb.w;
-            v2 = phys_multiply(&v19, &userData1->cg2rb, &ent1_anchor_loc_);
+            v19 = phys_multiply(userData1->cg2rb, ent1_anchor_loc_);
+            v2 = &v19;
             //operator+(&v18, v2, max_distance);
             v18 = *v2 + *max_distance;
             rb1_anchor_loc_.x = v18.x;
             rb1_anchor_loc_.y = v18.y;
             rb1_anchor_loc_.z = v18.z;
-            Phys_NitrousVecToVec3(&rb1_anchor_loc_, rb1_anchor_loc);
+            Phys_NitrousVecToVec3(rb1_anchor_loc_, rb1_anchor_loc);
         }
         else
         {
@@ -254,7 +259,7 @@ void    CreateConstraint(PhysConstraint *constraint)
             rb1_anchor_loc[0] = constraint->pos[0];
             rb1_anchor_loc[1] = constraint->pos[1];
             rb1_anchor_loc[2] = constraint->pos[2];
-            Phys_Vec3ToNitrousVec(rb1_anchor_loc, &rb1_anchor_loc_);
+            Phys_Vec3ToNitrousVec(rb1_anchor_loc, rb1_anchor_loc_);
         }
         if (constraint->attach_point_type2 == ATTACH_POINT_ENT)
         {
@@ -266,19 +271,20 @@ void    CreateConstraint(PhysConstraint *constraint)
             ent2_anchor_loc[0] = constraint->pos2[0];
             ent2_anchor_loc[1] = constraint->pos2[1];
             ent2_anchor_loc[2] = constraint->pos2[2];
-            Phys_Vec3ToNitrousVec(ent2_anchor_loc, &ent2_anchor_loc_);
-            v10 = phys_full_multiply(&v11, &userData2->cg2rb, &ent2_anchor_loc_);
+            Phys_Vec3ToNitrousVec(ent2_anchor_loc, ent2_anchor_loc_);
+            v11 = phys_full_multiply(userData2->cg2rb, ent2_anchor_loc_);
+            v10 = &v11;
             rb2_anchor_loc_.x = v10->x;
             rb2_anchor_loc_.y = v10->y;
             rb2_anchor_loc_.z = v10->z;
-            Phys_NitrousVecToVec3(&rb2_anchor_loc_, rb2_anchor_loc);
+            Phys_NitrousVecToVec3(rb2_anchor_loc_, rb2_anchor_loc);
         }
         else
         {
             rb2_anchor_loc[0] = constraint->pos2[0];
             rb2_anchor_loc[1] = constraint->pos2[1];
             rb2_anchor_loc[2] = constraint->pos2[2];
-            Phys_Vec3ToNitrousVec(rb2_anchor_loc, &rb2_anchor_loc_);
+            Phys_Vec3ToNitrousVec(rb2_anchor_loc, rb2_anchor_loc_);
         }
         if (rb1 == phys_sys::get_environment_rigid_body())
         {
@@ -299,8 +305,8 @@ void    CreateConstraint(PhysConstraint *constraint)
         {
             //rigid_body_constraint_distance::set(
                 phys_constraint->set(
-                &rb1_anchor_loc_,
-                &rb2_anchor_loc_,
+                rb1_anchor_loc_,
+                rb2_anchor_loc_,
                 0.0,
                 constraint->distance);
             constraint->constraintHandle = (int)phys_constraint;
@@ -806,8 +812,8 @@ void __thiscall mover_info_t::init(float *origin, const float *angles, bool do_c
     float axis[9]; // [esp+24h] [ebp-24h] BYREF
 
     AnglesToAxis(angles, (float (*)[3])axis);
-    Phys_AxisToNitrousMat((float (*)[3])axis, &this->m_mat);
-    Phys_Vec3ToNitrousVec(origin, &this->m_mat.w);
+    Phys_AxisToNitrousMat((float (*)[3])axis, this->m_mat);
+    Phys_Vec3ToNitrousVec(origin, this->m_mat.w);
     //phys_mat44::operator=(&this->m_prev_mat, &this->m_mat);
     this->m_prev_mat = this->m_mat;
     this->m_origin[0] = *origin;
@@ -836,11 +842,11 @@ void __thiscall mover_info_t::init(
     float axis[9]; // [esp+3Ch] [ebp-24h] BYREF
 
     AnglesToAxis(angles, (float (*)[3])axis);
-    Phys_AxisToNitrousMat((float (*)[3])axis, &this->m_mat);
-    Phys_Vec3ToNitrousVec(origin, &this->m_mat.w);
+    Phys_AxisToNitrousMat((float (*)[3])axis, this->m_mat);
+    Phys_Vec3ToNitrousVec(origin, this->m_mat.w);
     AnglesToAxis(prev_angles, (float (*)[3])prevaxis);
-    Phys_AxisToNitrousMat((float (*)[3])prevaxis, &this->m_prev_mat);
-    Phys_Vec3ToNitrousVec(prev_origin, &this->m_prev_mat.w);
+    Phys_AxisToNitrousMat((float (*)[3])prevaxis, this->m_prev_mat);
+    Phys_Vec3ToNitrousVec(prev_origin, this->m_prev_mat.w);
     this->m_origin[0] = *origin;
     this->m_origin[1] = origin[1];
     this->m_origin[2] = origin[2];
@@ -863,8 +869,8 @@ void __thiscall mover_info_t::update(float *origin, const float *angles)
     //phys_mat44::operator=(&this->m_prev_mat, &this->m_mat);
     this->m_prev_mat = this->m_mat;
     AnglesToAxis(angles, (float (*)[3])axis);
-    Phys_AxisToNitrousMat((float (*)[3])axis, &this->m_mat);
-    Phys_Vec3ToNitrousVec(origin, &this->m_mat.w);
+    Phys_AxisToNitrousMat((float (*)[3])axis, this->m_mat);
+    Phys_Vec3ToNitrousVec(origin, this->m_mat.w);
     this->m_prev_origin[0] = this->m_origin[0];
     this->m_prev_origin[1] = this->m_origin[1];
     this->m_prev_origin[2] = this->m_origin[2];

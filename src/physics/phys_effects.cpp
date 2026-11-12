@@ -188,7 +188,7 @@ void __cdecl Phys_ReEvalPriority(PhysObjUserData *userData)
                 player_pos[0] = cgameGlob->refdef.vieworg[0];
                 player_pos[1] = cgameGlob->refdef.vieworg[1];
                 player_pos[2] = cgameGlob->refdef.vieworg[2];
-                Phys_NitrousVecToVec3(&userData->body->m_mat.w, body_pos);
+                Phys_NitrousVecToVec3(userData->body->m_mat.w, body_pos);
                 dist2 = Vec3DistanceSq(body_pos, player_pos);
                 if ( (float)(phys_impact_distance_cutoff->current.value * phys_impact_distance_cutoff->current.value) > dist2 )
                 {

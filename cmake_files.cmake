@@ -2155,57 +2155,30 @@ set(SRC_PHYSICS
 	"${SRC_DIR}/physics/destructible.h"
 	"${SRC_DIR}/physics/destructibledef_load_obj.cpp"
 	"${SRC_DIR}/physics/destructibledef_load_obj.h"
-	"${SRC_DIR}/physics/phys_assert.cpp"
-	"${SRC_DIR}/physics/phys_assert.h"
 	"${SRC_DIR}/physics/phys_auto_rigid_body.cpp"
 	"${SRC_DIR}/physics/phys_auto_rigid_body.h"
-	"${SRC_DIR}/physics/phys_broad_phase.cpp"
-	"${SRC_DIR}/physics/phys_broad_phase.h"
 	"${SRC_DIR}/physics/phys_colgeom.cpp"
 	"${SRC_DIR}/physics/phys_colgeom.h"
 	"${SRC_DIR}/physics/phys_collision.cpp"
 	"${SRC_DIR}/physics/phys_collision.h"
-	"${SRC_DIR}/physics/phys_collision_multithreaded.cpp"
-	"${SRC_DIR}/physics/phys_collision_multithreaded.h"
-	"${SRC_DIR}/physics/phys_constraint_solver_multithreaded.cpp"
-	"${SRC_DIR}/physics/phys_constraint_solver_multithreaded.h"
-	"${SRC_DIR}/physics/phys_contact_manifold.cpp"
-	"${SRC_DIR}/physics/phys_contact_manifold.h"
 	"${SRC_DIR}/physics/phys_convex_hull.cpp"
 	"${SRC_DIR}/physics/phys_convex_hull.h"
 	"${SRC_DIR}/physics/phys_effects.cpp"
 	"${SRC_DIR}/physics/phys_effects.h"
-	"${SRC_DIR}/physics/phys_gjk.cpp"
 	"${SRC_DIR}/physics/phys_gjk.h"
 	"${SRC_DIR}/physics/phys_gjk_collision_detection.cpp"
 	"${SRC_DIR}/physics/phys_gjk_collision_detection.h"
-	"${SRC_DIR}/physics/phys_gjk_sep_dir.cpp"
-	"${SRC_DIR}/physics/phys_gjk_sep_dir.h"
 	"${SRC_DIR}/physics/phys_local.h"
 	"${SRC_DIR}/physics/phys_main.cpp"
 	"${SRC_DIR}/physics/phys_main.h"
-	"${SRC_DIR}/physics/phys_mem_new.cpp"
-	"${SRC_DIR}/physics/phys_mem_new.h"
 	"${SRC_DIR}/physics/phys_render.cpp"
 	"${SRC_DIR}/physics/phys_render.h"
-	"${SRC_DIR}/physics/phys_task_manager.cpp"
-	"${SRC_DIR}/physics/phys_task_manager.h"
-	"${SRC_DIR}/physics/phys_transient_allocator.cpp"
-	"${SRC_DIR}/physics/phys_transient_allocator.h"
 	"${SRC_DIR}/physics/phys_traverse.cpp"
 	"${SRC_DIR}/physics/phys_traverse.h"
-	"${SRC_DIR}/physics/phys_util.cpp"
-	"${SRC_DIR}/physics/phys_util.h"
 	"${SRC_DIR}/physics/physconstraints_load_obj.cpp"
 	"${SRC_DIR}/physics/physconstraints_load_obj.h"
-	"${SRC_DIR}/physics/physics_system.cpp"
-	"${SRC_DIR}/physics/physics_system.h"
-	"${SRC_DIR}/physics/physics_system_internal.cpp"
-	"${SRC_DIR}/physics/physics_system_internal.h"
 	"${SRC_DIR}/physics/physpreset_load_obj.cpp"
 	"${SRC_DIR}/physics/physpreset_load_obj.h"
-	"${SRC_DIR}/physics/rigid_body.cpp"
-	"${SRC_DIR}/physics/rigid_body.h"
 	"${SRC_DIR}/physics/rope.cpp"
 	"${SRC_DIR}/physics/rope.h"
 	"${SRC_DIR}/physics/rope_gamestate.cpp"
@@ -2809,7 +2782,6 @@ set(ZLIB_FILES
 # ----- tl/ (root files) -----
 set(TL
 	"${TL_DIR}/gdt_remote.cpp"
-	"${TL_DIR}/tl_system.cpp"
 )
 source_group("tl/" FILES ${TL})
 
@@ -2817,15 +2789,7 @@ set(TL_TLROOT_FILES
 	${TL}
 )
 
-# ----- tl/base -----
-set(TL_BASE
-	"${TL_DIR}/base/tl_thread.h"
-)
-source_group("tl/base" FILES ${TL_BASE})
-
-set(TL_BASE_FILES
-	${TL_BASE}
-)
+# tl/base and tl/physics come from the TreyBO submodule (see CMakeLists.txt).
 
 # ----- tl/jobqueue -----
 set(TL_JOBQUEUE
@@ -2836,25 +2800,6 @@ source_group("tl/jobqueue" FILES ${TL_JOBQUEUE})
 
 set(TL_JOBQUEUE_FILES
 	${TL_JOBQUEUE}
-)
-
-# ----- tl/physics -----
-set(TL_PHYSICS
-	"${TL_DIR}/physics/rbc_def_contact.cpp"
-	"${TL_DIR}/physics/rbc_def_contact.h"
-	"${TL_DIR}/physics/rbc_def_custom.cpp"
-	"${TL_DIR}/physics/rbc_def_custom.h"
-	"${TL_DIR}/physics/rbc_def_generic.cpp"
-	"${TL_DIR}/physics/rbc_def_generic.h"
-	"${TL_DIR}/physics/rbc_def_ragdoll.cpp"
-	"${TL_DIR}/physics/rbc_def_ragdoll.h"
-	"${TL_DIR}/physics/rbc_def_vehicle.cpp"
-	"${TL_DIR}/physics/rbc_def_vehicle.h"
-)
-source_group("tl/physics" FILES ${TL_PHYSICS})
-
-set(TL_PHYSICS_FILES
-	${TL_PHYSICS}
 )
 
 # ======================================================================
@@ -2916,7 +2861,5 @@ add_executable(${BIN_NAME}
 	${XANIM_FILES}
 	${ZLIB_FILES}
 	${TL_TLROOT_FILES}
-	${TL_BASE_FILES}
 	${TL_JOBQUEUE_FILES}
-	${TL_PHYSICS_FILES}
 )

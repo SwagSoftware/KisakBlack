@@ -423,7 +423,7 @@ int __cdecl XModelTraceLineAnimated(
                                             - ctri->plane[3];
                             if ( endDist < 0.0 )
                             {
-                                v9 = phys_dot((const phys_vec3 *)&boneExtents, (const phys_vec3 *)ctri);
+                                v9 = phys_dot(*(const phys_vec3 *)&boneExtents, *(const phys_vec3 *)ctri);
                                 startDist = v9 - ctri->plane[3];
                                 if ( startDist > 0.0 )
                                 {
@@ -434,11 +434,11 @@ int __cdecl XModelTraceLineAnimated(
                                     {
                                         hitFrac = startDist / (float)(startDist - endDist);
                                         Vec3Mad(boneExtents.start.vec.v, hitFrac, delta, hit);
-                                        v10 = phys_dot((const phys_vec3 *)hit, (const phys_vec3 *)ctri->svec);
+                                        v10 = phys_dot(*(const phys_vec3 *)hit, *(const phys_vec3 *)ctri->svec);
                                         s = v10 - ctri->svec[3];
                                         if ( s >= -0.001 && s <= 1.001 )
                                         {
-                                            v11 = phys_dot((const phys_vec3 *)hit, (const phys_vec3 *)ctri->tvec);
+                                            v11 = phys_dot(*(const phys_vec3 *)hit, *(const phys_vec3 *)ctri->tvec);
                                             t = v11 - ctri->tvec[3];
                                             if ( t >= -0.001 && (float)(s + t) <= 1.001 )
                                             {

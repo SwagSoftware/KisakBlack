@@ -1,7 +1,7 @@
 #pragma once
 #include <xanim/dobj.h>
 #include <bgame/bg_local.h>
-#include <physics/rigid_body.h>
+#include <physics/phys_collision.h>
 #include <physics/phys_main.h>
 #include <qcommon/common.h>
 

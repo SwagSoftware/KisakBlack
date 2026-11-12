@@ -94,8 +94,8 @@ void CG_GetEntityBModelBounds(
     float axis3x3[3][3];
 
     /* Convert to phys vectors */
-    Phys_Vec3ToNitrousVec(mins, &localMin);
-    Phys_Vec3ToNitrousVec(maxs, &localMax);
+    Phys_Vec3ToNitrousVec(mins, localMin);
+    Phys_Vec3ToNitrousVec(maxs, localMax);
 
     /* Half-extents */
     halfExtents.x = (localMax.x - localMin.x) * 0.5f;
@@ -109,21 +109,21 @@ void CG_GetEntityBModelBounds(
 
     /* Orientation */
     AnglesToAxis(cent->pose.angles, axis3x3);
-    Phys_AxisToNitrousMat(axis3x3, &axis);
+    Phys_AxisToNitrousMat(axis3x3, axis);
 
     /* Translation */
-    Phys_Vec3ToNitrousVec(cent->pose.origin, &axis.w);
+    Phys_Vec3ToNitrousVec(cent->pose.origin, axis.w);
 
     /* Compute world AABB */
     phys_calc_world_aabb(
-        &center,
-        &halfExtents,
-        &axis,
+        center,
+        halfExtents,
+        axis,
         &localMin,
         &localMax);
 
-    Phys_NitrousVecToVec3(&localMin, absMins);
-    Phys_NitrousVecToVec3(&localMax, absMaxs);
+    Phys_NitrousVecToVec3(localMin, absMins);
+    Phys_NitrousVecToVec3(localMax, absMaxs);
 }
 
 

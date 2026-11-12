@@ -42,8 +42,9 @@ void __cdecl Ragdoll_DebugDraw()
     {
         memset(states, 0, sizeof(states));
         total = 0;
-        for ( RagdollBody *body : g_ragdoll_body_pool )
+        for ( RagdollBody &bodyRef : g_ragdoll_body_pool )
         {
+            RagdollBody *body = &bodyRef;
             iassert(Ragdoll_BodyInUse(body));
             bcassert((int)body->state, RAGDOLL_NUM_STATES);
             ++states[(int)body->state];
@@ -123,8 +124,9 @@ int __cdecl Ragdoll_CountPhysicsBodies()
 {
     int running = 0;
 
-    for (RagdollBody *body : g_ragdoll_body_pool)
+    for (RagdollBody &bodyRef : g_ragdoll_body_pool)
     {
+        RagdollBody *body = &bodyRef;
         iassert(Ragdoll_BodyInUse(body));
 
         if (Ragdoll_BodyHasPhysics(body))
@@ -218,8 +220,9 @@ void __cdecl Ragdoll_InitBody(RagdollBody *body)
 
 RagdollBody *__cdecl Ragdoll_ReferenceDObjBody(int dobj)
 {
-    for (RagdollBody *body : g_ragdoll_body_pool)
+    for (RagdollBody &bodyRef : g_ragdoll_body_pool)
     {
+        RagdollBody *body = &bodyRef;
         iassert(Ragdoll_BodyInUse(body));
 
         if (body->dobj == dobj)

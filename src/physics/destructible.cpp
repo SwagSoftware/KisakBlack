@@ -33,7 +33,6 @@
 #include <cgame/cg_main.h>
 #include <universal/com_memory.h>
 #include "destructibledef_load_obj.h"
-#include "physics_system.h"
 #include <cgame/cg_drawtools.h>
 #include <clientscript/cscr_stringlist.h>
 #include <cgame/cg_scr_main.h>

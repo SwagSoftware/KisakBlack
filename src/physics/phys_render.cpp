@@ -9,8 +9,7 @@
 #include <xanim/xmodel_utils.h>
 #include <cgame/cg_drawtools.h>
 #include <game/g_debug.h>
-#include <tl/tl_system.h>
-#include "physics_system.h"
+#include "tl/base/include/tl_system.h"
 #include "phys_convex_hull.h"
 
 float alpha = 1.0f;
@@ -27,74 +26,6 @@ debug_brush_info_t *debug_brush_info;
 debug_patch_info_t *debug_patch_info;
 
 int debugCollisionAabbTreeCount;
-
-// This version takes a Ref (&)
-void __cdecl make_rotate(phys_mat44 &m, const phys_vec3 *u, float ca, float sa)
-{
-    float yy;
-    float xsa;
-    float xy;
-    float zsa;
-    float zz;
-    float ysa;
-    float xz;
-    float yz;
-
-    xy = (u->x * u->y) * (1.0f - ca);
-    xz = (u->x * u->z) * (1.0f - ca);
-    yy = (u->y * u->y) * (1.0f - ca);
-    yz = (u->y * u->z) * (1.0f - ca);
-    zz = (u->z * u->z) * (1.0f - ca);
-    xsa = u->x * sa;
-    ysa = u->y * sa;
-    zsa = u->z * sa;
-
-    m.x.x = (u->x * u->x) * (1.0f - ca) + ca;
-    m.y.x = xy - zsa;
-    m.z.x = xz + ysa;
-    m.w.x = 0.0f;
-
-    m.x[1] = xy + zsa;
-    m.y[1] = yy + ca;
-    m.z[1] = yz - xsa;
-    m.w[1] = 0.0f;
-
-    m.x[2] = xz - ysa;
-    m.y[2] = yz + xsa;
-    m.z[2] = zz + ca;
-    m.w[2] = 0.0f;
-
-    m.fix_w_column();
-}
-
-void    make_rotate(
-                phys_mat44 *mat,
-                const phys_vec3 *v,
-                float theta_factor,
-                float max_rotation_radians)
-{
-    phys_vec3 v8; // [esp+18h] [ebp-3Ch] BYREF
-    float len; // [esp+44h] [ebp-10h]
-
-    len = Vec3Length(&v->x);
-    if (len >= 0.0000099999997)
-    {
-        v8.x = (1.0 / len) * v->x;
-        v8.y = (1.0 / len) * v->y;
-        v8.z = (1.0 / len) * v->z;
-
-        len = len * theta_factor;
-        if (len > max_rotation_radians)
-            len = max_rotation_radians;
-
-        make_rotate(*mat, &v8, cos(len), sin(len));
-    }
-    else
-    {
-        *mat = PHYS_IDENTITY_MATRIX;
-        //phys_mat44::operator=(mat, &PHYS_IDENTITY_MATRIX_34);
-    }
-}
 
 void __cdecl DebugPatchesAndBrushesProlog()
 {
@@ -166,8 +97,8 @@ void debug_brush_info_t::add_brush(
     }
 
     phys_vec3 brushMins, brushMaxs;
-    Phys_Vec3ToNitrousVec(brush->mins, &brushMins);
-    Phys_Vec3ToNitrousVec(brush->maxs, &brushMaxs);
+    Phys_Vec3ToNitrousVec(brush->mins, brushMins);
+    Phys_Vec3ToNitrousVec(brush->maxs, brushMaxs);
 
     phys_static_array<plane_lt, 512> planes;
 
@@ -175,7 +106,7 @@ void debug_brush_info_t::add_brush(
     {
         const cplane_s *plane = brush->sides[i].plane;
         phys_vec3 n;
-        Phys_Vec3ToNitrousVec(plane->normal, &n);
+        Phys_Vec3ToNitrousVec(plane->normal, n);
 
         plane_lt *p = planes.add(0, "phys array add overflow.");
         p->n = n;
@@ -214,8 +145,8 @@ void debug_brush_info_t::add_brush(
         phys_static_array<phys_vec3, 512> winding;
         calc_winding(planes, j, &winding);
 
-        uint8_t winding_count = (uint8_t)winding.m_alloc_count;
-        iassert(winding.m_alloc_count < 65536); // "winding.get_count() < 65536"
+        uint8_t winding_count = (uint8_t)winding.get_count();
+        iassert(winding.get_count() < 65536);
 
         windings[num_windings++] = winding_count;
 
@@ -321,7 +252,7 @@ void __thiscall debug_patch_info_t::add_patch(const CollisionAabbTree *tree)
             {
                 for ( ind_i = 0; ind_i < chull->ninds; ++ind_i )
                 {
-                    Phys_NitrousVecToVec3(&chull->verts[chull->inds[ind_i]], v);
+                    Phys_NitrousVecToVec3(chull->verts[chull->inds[ind_i]], v);
                     //ind = debug_patch_info_t::find_index_in_clipmap(this, tree, v);
                     ind = debug_patch_info_t::find_index_in_clipmap(tree, v);
                     this->indices[this->num_indices++] = ind;
@@ -649,8 +580,9 @@ void    render_brush(
         for (vi = 0; vi < chull->nverts; ++vi)
         {
             v10 = vert_list[vi];
-            v9 = phys_full_multiply(&v23, xform, &chull->verts[vi]);
-            Phys_NitrousVecToVec3(v9, v10);
+            v23 = phys_full_multiply(*xform, chull->verts[vi]);
+            v9 = &v23;
+            Phys_NitrousVecToVec3(*v9, v10);
         }
         for (ind_i = 0; ; ind_i += 3)
         {
@@ -764,9 +696,9 @@ void __cdecl render_convex_partition(const CollisionAabbTree *tree)
     {
         for ( ind_i = 0; ind_i < chull->ninds; ind_i += 3 )
         {
-            Phys_NitrousVecToVec3(&chull->verts[chull->inds[ind_i]], polygonVerts[0]);
-            Phys_NitrousVecToVec3(&chull->verts[chull->inds[ind_i + 1]], polygonVerts[1]);
-            Phys_NitrousVecToVec3(&chull->verts[chull->inds[ind_i + 2]], polygonVerts[2]);
+            Phys_NitrousVecToVec3(chull->verts[chull->inds[ind_i]], polygonVerts[0]);
+            Phys_NitrousVecToVec3(chull->verts[chull->inds[ind_i + 1]], polygonVerts[1]);
+            Phys_NitrousVecToVec3(chull->verts[chull->inds[ind_i + 2]], polygonVerts[2]);
             R_AddDebugPolygon(&frontEndDataOut->debugGlobals, 3, polygonVerts, faceColor, 1, edgeColor, 1);
         }
     }
@@ -801,8 +733,8 @@ void    render_chull(const chull_t *first, const phys_mat44 *xform, const float 
             for (int vi = 0; vi < first->nverts; ++vi)
             {
                 phys_vec3 transformedVert;
-                phys_full_multiply(&transformedVert, xform, &first->verts[vi]);
-                Phys_NitrousVecToVec3(&transformedVert, verts[vi]);
+                transformedVert = phys_full_multiply(*xform, first->verts[vi]);
+                Phys_NitrousVecToVec3(transformedVert, verts[vi]);
             }
 
             for (int ii = 0; ii < first->ninds; ii += 3)
@@ -864,8 +796,8 @@ void __cdecl render_line(const phys_vec3 *p0, const phys_vec3 *p1, const float *
     float _p1[3]; // [esp+0h] [ebp-18h] BYREF
     float _p0[3]; // [esp+Ch] [ebp-Ch] BYREF
 
-    Phys_NitrousVecToVec3(p0, _p0);
-    Phys_NitrousVecToVec3(p1, _p1);
+    Phys_NitrousVecToVec3(*p0, _p0);
+    Phys_NitrousVecToVec3(*p1, _p1);
     render_line(_p0, _p1, color, ztest, duration);
 }
 
@@ -937,7 +869,8 @@ void    render_box(
             }
             *((_DWORD *)&v[i].x + j) = v10;
         }
-        v6 = phys_full_multiply(&v9, xform, &v[i]);
+        v9 = phys_full_multiply(*xform, v[i]);
+        v6 = &v9;
         v8 = &v[i];
         v8->x = v6->x;
         v8->y = v6->y;
@@ -952,8 +885,8 @@ void    render_box(float *_mn, float *_mx, const float *color, int duration)
     phys_vec3 mx; // [esp-Ch] [ebp-2Ch] BYREF
     phys_vec3 mn; // [esp+4h] [ebp-1Ch] BYREF
 
-    Phys_Vec3ToNitrousVec(_mn, &mn);
-    Phys_Vec3ToNitrousVec(_mx, &mx);
+    Phys_Vec3ToNitrousVec(_mn, mn);
+    Phys_Vec3ToNitrousVec(_mx, mx);
     render_box(&mn, &mx, &PHYS_IDENTITY_MATRIX, color, duration);
 }
 
@@ -972,10 +905,10 @@ void    render_gjk_geom(gjk_base_t *geom, const phys_mat44 *cg2w)
     const gjk_partition_t *partition; // [esp+C4h] [ebp-60h]
     float faceColor[4]; // [esp+104h] [ebp-20h] BYREF
 
-    if (geom->get_brush())
+    if (gjk_get_cbrush(geom))
     {
-        calc_color((unsigned int)geom->get_brush(), alpha_1, faceColor);
-        render_brush(geom->get_brush(), cg2w, faceColor, 0, 0, 0, 1, edgeColor);
+        calc_color((unsigned int)gjk_get_cbrush(geom), alpha_1, faceColor);
+        render_brush(gjk_get_cbrush(geom), cg2w, faceColor, 0, 0, 0, 1, edgeColor);
     }
     else
     {
@@ -984,28 +917,28 @@ void    render_gjk_geom(gjk_base_t *geom, const phys_mat44 *cg2w)
         case GJK_AABB:
         case GJK_DOUBLE_SPHERE:
         case GJK_CYLINDER:
-            render_box(geom->get_aabb_mn(), geom->get_aabb_mx(), cg2w, colorMdRed, 0);
+            render_box(&geom->get_aabb_mn_loc(), &geom->get_aabb_mx_loc(), cg2w, colorMdRed, 0);
             break;
         case GJK_BRUSH:
-            calc_color((unsigned int)geom->get_brush(), alpha_0, &color);
+            calc_color((unsigned int)gjk_get_cbrush(geom), alpha_0, &color);
             memset(edgeColor, 0, 12);
             edgeColor[3] = 1.0f;
-            render_brush(geom->get_brush(), cg2w, &color, 0, 0, 0, 1, edgeColor);
+            render_brush(gjk_get_cbrush(geom), cg2w, &color, 0, 0, 0, 1, edgeColor);
             break;
         case GJK_PARTITION:
             partition = (gjk_partition_t *)geom;
-            render_convex_partition(partition->tree);
+            render_convex_partition(gjk_get_tree(partition));
             break;
         case GJK_OBB:
             obb = (const gjk_obb_t *)geom;
-            phys_full_multiply_mat(&mat, cg2w, &obb->m_xform);
+            phys_full_multiply_mat(mat, *cg2w, obb->m_xform);
             mins.x = -(obb->m_dims.x);
             mins.y = -(obb->m_dims.y);
             mins.z = -(obb->m_dims.z);
             render_box(&mins, &obb->m_dims, &mat, colorMdRed, 0);
             break;
         default:
-            render_box(geom->get_aabb_mn(), geom->get_aabb_mx(), cg2w, colorLtOrange, 0);
+            render_box(&geom->get_aabb_mn_loc(), &geom->get_aabb_mx_loc(), cg2w, colorLtOrange, 0);
             break;
         }
     }
@@ -1049,13 +982,13 @@ void    debug_render(PhysObjUserData *userData)
 
     // Build world matrix
     phys_full_multiply_mat(
-        &cg2w,
-        &body->m_mat,
-        &userData->cg2rb);
+        cg2w,
+        body->m_mat,
+        userData->cg2rb);
 
     // Convert body position to vec3
     Phys_NitrousVecToVec3(
-        (const phys_vec3 *)((char *)&body->m_mat + 48),
+        *(const phys_vec3 *)((char *)&body->m_mat + 48),
         starPos);
 
     G_DebugStar(starPos, colorYellow, 0);
@@ -1095,12 +1028,12 @@ void    clip_winding(phys_static_array<phys_vec3,512> &winding, const plane_lt &
 
     phys_vec3 n = clip.n;
     float     d = clip.d;
-    int       num_verts = winding.m_alloc_count;
+    int       num_verts = winding.get_count();
 
     // Classify each vertex against the plane
     for (int i = 0; i < num_verts; ++i)
     {
-        float dot = winding[i]->dot(n);
+        float dot = phys_dot(winding[i], n);
         float dist = dot - d;
 
         *dists.add(0, "phys array add overflow.") = dist;
@@ -1118,47 +1051,47 @@ void    clip_winding(phys_static_array<phys_vec3,512> &winding, const plane_lt &
     }
 
     // Wrap: copy first element to end (for edge testing)
-    *sides.add(0, "phys array add overflow.") = *sides[0];
-    *dists.add(0, "phys array add overflow.") = *dists[0];
+    *sides.add(0, "phys array add overflow.") = sides[0];
+    *dists.add(0, "phys array add overflow.") = dists[0];
 
-    // All verts are behind (or on) the plane — winding is completely clipped
+    // All verts are behind (or on) the plane â€” winding is completely clipped
     if (!counts[0])
     {
-        winding.m_alloc_count = 0;
+        winding.remove_all();
         return;
     }
 
-    // All verts are in front — winding is unmodified, nothing to clip
+    // All verts are in front â€” winding is unmodified, nothing to clip
     if (!counts[1])
         return;
 
-    // Mixed — need to clip
+    // Mixed â€” need to clip
     phys_static_array<phys_vec3, 512> clipped;
 
-    for (int j = 0; j < winding.m_alloc_count; ++j)
+    for (int j = 0; j < winding.get_count(); ++j)
     {
-        phys_vec3 *p = winding[j];
+        phys_vec3 *p = &winding[j];
 
-        if (*sides[j] == 2) // on plane — keep as-is
+        if (sides[j] == 2) // on plane â€” keep as-is
         {
             *clipped.add(0, "phys array add overflow.") = *p;
             continue;
         }
 
-        if (*sides[j] == 0) // front — keep
+        if (sides[j] == 0) // front â€” keep
             *clipped.add(0, "phys array add overflow.") = *p;
 
         // Check if the next edge crosses a side boundary
-        if (*sides[j + 1] == 2)
+        if (sides[j + 1] == 2)
             continue;
 
-        if (*sides[j + 1] == *sides[j])
+        if (sides[j + 1] == sides[j])
             continue;
 
-        // Edge crosses the plane — compute intersection
-        phys_vec3 *q = winding[(j + 1) % num_verts];
-        float      fj = *dists[j];
-        float      fj1 = *dists[j + 1];
+        // Edge crosses the plane â€” compute intersection
+        phys_vec3 *q = &winding[(j + 1) % num_verts];
+        float      fj = dists[j];
+        float      fj1 = dists[j + 1];
         float      t = fj / (fj - fj1);
 
         phys_vec3 mid;
@@ -1182,9 +1115,9 @@ void    clip_winding(phys_static_array<phys_vec3,512> &winding, const plane_lt &
     }
 
     // Replace winding with clipped result
-    winding.m_alloc_count = 0;
-    for (int i = 0; i < clipped.m_alloc_count; ++i)
-        *winding.add(0, "phys array add overflow.") = *clipped[i];
+    winding.remove_all();
+    for (int i = 0; i < clipped.get_count(); ++i)
+        *winding.add(0, "phys array add overflow.") = clipped[i];
 }
 
 void    init_winding(const plane_lt *plane, phys_static_array<phys_vec3,512> *winding)
@@ -1313,7 +1246,7 @@ void    init_winding(const plane_lt *plane, phys_static_array<phys_vec3,512> *wi
     org.x = dist * normal.x;
     org.y = dist * normal.y;
     org.z = dist * normal.z;
-    phys_cross(&right, &up, &normal);
+    right = phys_cross(up, normal);
     up.x = up.x * 131072.0;
     up.y = up.y * 131072.0;
     up.z = up.z * 131072.0;
@@ -1387,11 +1320,11 @@ void    calc_winding(
                 int plane_index,
                 phys_static_array<phys_vec3,512> *winding)
 {
-    const plane_lt *first_plane = planes[plane_index];
+    const plane_lt *first_plane = &planes[plane_index];
     init_winding(first_plane, winding);
 
     bool past = false;
-    int nplanes = planes.m_alloc_count;
+    int nplanes = planes.get_count();
     for (int i = 0; i < nplanes; ++i)
     {
         if (i == plane_index)
@@ -1400,16 +1333,16 @@ void    calc_winding(
             continue;
         }
 
-        plane_lt clip = *planes[i];
+        plane_lt clip = planes[i];
 
-        float dot = first_plane->n.dot(clip.n);
+        float dot = phys_dot(first_plane->n, clip.n);
         float ddelta = first_plane->d - clip.d;
 
         if (dot > 0.99989998f && fabsf(ddelta) < 0.001f)
         {
             if (past)
             {
-                winding->m_alloc_count = 0;
+                winding->remove_all();
                 return;
             }
             continue;
@@ -1422,7 +1355,7 @@ void    calc_winding(
 
         clip_winding(*winding, clip);
 
-        if (winding->m_alloc_count < 3)
+        if (winding->get_count() < 3)
             return;
     }
 }
@@ -1431,7 +1364,7 @@ void __cdecl Phys_DebugPoint(const phys_vec3 *pos, float radius, const float *co
 {
     float point[3]; // [esp+0h] [ebp-Ch] BYREF
 
-    Phys_NitrousVecToVec3(pos, point);
+    Phys_NitrousVecToVec3(*pos, point);
     G_DebugStar(point, color, 0);
 }
 
@@ -1451,8 +1384,8 @@ void __cdecl Phys_DebugBox(const phys_mat44 *mat, const float *color, float scal
     maxs[0] = scale * 7.0;
     maxs[1] = scale * 3.0;
     maxs[2] = scale * 3.0;
-    Phys_NitrousVecToVec3(&mat->w, origin);
-    Phys_NitrousMat44ToVec33(mat, rotation);
+    Phys_NitrousVecToVec3(mat->w, origin);
+    Phys_NitrousMat44ToVec33(*mat, rotation);
     CG_DebugBoxOriented(origin, mins, maxs, rotation, color, 0, 0);
 }
 
@@ -1464,15 +1397,15 @@ void __cdecl Phys_DebugBox(const phys_mat44 *mat, const phys_vec3 *dims, const f
     float rotation[3][3]; // [esp+48h] [ebp-30h] BYREF
     float maxs[3]; // [esp+6Ch] [ebp-Ch] BYREF
 
-    Phys_NitrousVecToVec3(dims, _dims);
+    Phys_NitrousVecToVec3(*dims, _dims);
     maxs[0] = _dims[0];
     maxs[1] = _dims[1];
     maxs[2] = _dims[2];
     mins[0] = -1.0 * _dims[0];
     mins[1] = -1.0 * _dims[1];
     mins[2] = -1.0 * _dims[2];
-    Phys_NitrousVecToVec3(&mat->w, origin);
-    Phys_NitrousMat44ToVec33(mat, rotation);
+    Phys_NitrousVecToVec3(mat->w, origin);
+    Phys_NitrousMat44ToVec33(*mat, rotation);
     CG_DebugBoxOriented(origin, mins, maxs, rotation, color, 0, 0);
 }
 
@@ -1831,38 +1764,6 @@ void    Phys_JointDebugRender(int id)
 #endif
 }
 
-void    make_rotate(phys_mat44 *mat, const phys_vec3 *v1, const phys_vec3 *v2)
-{
-    float len; // [esp+8h] [ebp-2Ch]
-    float co_; // [esp+Ch] [ebp-28h]
-    float si_; // [esp+14h] [ebp-20h]
-    float si_a; // [esp+14h] [ebp-20h]
-    phys_vec3 ud; // [esp+18h] [ebp-1Ch] BYREF
-    //_UNKNOWN *v9; // [esp+28h] [ebp-Ch]
-    //phys_mat44 *mata; // [esp+2Ch] [ebp-8h]
-    //const phys_vec3 *v2a; // [esp+34h] [ebp+0h]
-    //
-    //v9 = a1;
-    //mata = (phys_mat44 *)v2a;
-    phys_cross(&ud, v1, v2);
-    si_ = (float)((float)(ud.x * ud.x) + (float)(ud.y * ud.y)) + (float)(ud.z * ud.z);
-    if (si_ >= 0.0000099999997)
-    {
-        si_a = sqrtf(si_);
-        ud.x = ud.x * (float)(1.0 / si_a);
-        ud.y = ud.y * (float)(1.0 / si_a);
-        ud.z = ud.z * (float)(1.0 / si_a);
-        co_ = (float)((float)(v1->x * v2->x) + (float)(v1->y * v2->y)) + (float)(v1->z * v2->z);
-        len = sqrtf((float)(co_ * co_) + (float)(si_a * si_a));
-        make_rotate(*mat, &ud, co_ / len, si_a / len);
-    }
-    else
-    {
-        //phys_mat44::operator=(mat, &PHYS_IDENTITY_MATRIX_44);
-        *mat = PHYS_IDENTITY_MATRIX;
-    }
-}
-
 void    render_contact(rigid_body_constraint_contact *rbc)
 {
     const phys_vec3 *v2; // eax
@@ -1907,8 +1808,8 @@ void    render_contact(rigid_body_constraint_contact *rbc)
     int i; // [esp+B8h] [ebp-28h]
     contact_point_info *cpi; // [esp+BCh] [ebp-24h]
     contact_point_info *m_next_link; // [esp+C0h] [ebp-20h]
-    phys_simple_link_list<contact_point_info>::iterator cpi_i_end; // [esp+C4h] [ebp-1Ch]
-    phys_simple_link_list<contact_point_info>::iterator cpi_i; // [esp+C8h] [ebp-18h]
+    contact_point_info *cpi_i_end; // [esp+C4h] [ebp-1Ch]
+    contact_point_info *cpi_i; // [esp+C8h] [ebp-18h]
     contact_point_info *m_first; // [esp+CCh] [ebp-14h]
     phys_simple_link_list<contact_point_info> *list_cpi; // [esp+D0h] [ebp-10h]
     //_UNKNOWN *v48; // [esp+D4h] [ebp-Ch]
@@ -1921,12 +1822,12 @@ void    render_contact(rigid_body_constraint_contact *rbc)
     {
         list_cpi = &rbc->m_list_contact_point_info_buffer_1;
         m_first = rbc->m_list_contact_point_info_buffer_1.m_first;
-        cpi_i.m_ptr = m_first;
-        cpi_i_end.m_ptr = 0;
-        while (cpi_i_end.m_ptr != cpi_i.m_ptr)
+        cpi_i = m_first;
+        cpi_i_end = 0;
+        while (cpi_i_end != cpi_i)
         {
-            cpi = cpi_i.m_ptr;
-            if (cpi_i.m_ptr->m_point_pair_count <= 0
+            cpi = cpi_i;
+            if (cpi_i->m_point_pair_count <= 0
                 && _tlAssert(
                     "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_render.cpp",
                     1361,
@@ -1941,7 +1842,8 @@ void    render_contact(rigid_body_constraint_contact *rbc)
                 v39 = &cpi->m_list_b2_r_loc[i];
                 p_m_mat = &b2->m_mat;
                 p_w = &b2->m_mat.w;
-                v2 = phys_multiply(&v37, &b2->m_mat, v39);
+                v37 = phys_multiply(b2->m_mat, *v39);
+                v2 = &v37;
                 //operator+(&p0, v2, p_w);
                 p0 = *v2 + *p_w;
                 hitn = cpi->m_normal;
@@ -1992,8 +1894,8 @@ void    render_contact(rigid_body_constraint_contact *rbc)
                 v4.z = p1.z - box_size;
                 render_box(&v4, &v8, colorWhite, 0);
             }
-            m_next_link = cpi_i.m_ptr->m_next_link;
-            cpi_i.m_ptr = m_next_link;
+            m_next_link = cpi_i->m_next_link;
+            cpi_i = m_next_link;
         }
     }
 }

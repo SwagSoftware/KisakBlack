@@ -1,5 +1,5 @@
 #pragma once
-#include "rigid_body.h"
+#include "phys_collision.h"
 #include "phys_main.h"
 
 void __cdecl Phys_InitSoundAliases();

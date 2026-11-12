@@ -656,8 +656,8 @@ void __thiscall ai_gjk_slide_move_input_t::custom_process(gjk_trace_output_t *gt
     if ( this->m_pPhys->iHitEntnum == 1023 && (gto->m_hit_normal.x != 0.0 || gto->m_hit_normal.y != 0.0) )
     {
         this->m_pPhys->iHitEntnum = EntID;
-        Phys_NitrousVecToVec3(&gto->m_hit_point, this->m_pPhys->vHitOrigin);
-        Phys_NitrousVecToVec3(&gto->m_hit_normal, this->m_pPhys->vHitNormal);
+        Phys_NitrousVecToVec3(gto->m_hit_point, this->m_pPhys->vHitOrigin);
+        Phys_NitrousVecToVec3(gto->m_hit_normal,this->m_pPhys->vHitNormal);
     }
 }
 

@@ -3,7 +3,7 @@
 #include <game/teams.h>
 #include <gfx_d3d/r_material.h>
 #include <qcommon/graph.h>
-#include <physics/rigid_body.h>
+#include <physics/phys_collision.h>
 #include "nitrous_vehicle_controller.h"
 
 enum WheelEffectState : __int32

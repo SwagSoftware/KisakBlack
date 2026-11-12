@@ -167,8 +167,8 @@ void    SV_LinkEntity(gentity_s *gEnt)
     SnapAngles(currentAngles);
     if (gEnt->r.bmodel)
     {
-        Phys_Vec3ToNitrousVec(gEnt->r.mins, &mn);
-        Phys_Vec3ToNitrousVec(gEnt->r.maxs, &mx);
+        Phys_Vec3ToNitrousVec(gEnt->r.mins, mn);
+        Phys_Vec3ToNitrousVec(gEnt->r.maxs, mx);
         v48 = mx.x - mn.x;
         v47 = mx.y - mn.y;
         v46 = mx.z - mn.z;
@@ -200,11 +200,11 @@ void    SV_LinkEntity(gentity_s *gEnt)
         ctr.y = v28;
         ctr.z = v27;
         AnglesToAxis(gEnt->r.currentAngles, (float (*)[3])v22);
-        Phys_AxisToNitrousMat((float (*)[3])v22, &xform);
-        Phys_Vec3ToNitrousVec(gEnt->r.currentOrigin, &xform.w);
-        phys_calc_world_aabb(&ctr, &rvec, &xform, &aabb_mn, &aabb_mn_4);
-        Phys_NitrousVecToVec3(&aabb_mn, gEnt->r.absmin);
-        Phys_NitrousVecToVec3(&aabb_mn_4, gEnt->r.absmax);
+        Phys_AxisToNitrousMat((float (*)[3])v22, xform);
+        Phys_Vec3ToNitrousVec(gEnt->r.currentOrigin, xform.w);
+        phys_calc_world_aabb(ctr, rvec, xform, &aabb_mn, &aabb_mn_4);
+        Phys_NitrousVecToVec3(aabb_mn, gEnt->r.absmin);
+        Phys_NitrousVecToVec3(aabb_mn_4, gEnt->r.absmax);
     }
     else if (gEnt->sentient)
     {

@@ -513,7 +513,7 @@ char __cdecl IsConvex(const float (*pts)[3], unsigned int ptCount)
         normalMag = Vec3Normalize(normal2);
         if ( normalMag >= 0.01 )
         {
-            if ( phys_dot((const phys_vec3 *)normal, (const phys_vec3 *)normal2) < 0.5 )
+            if ( phys_dot(*(const phys_vec3 *)normal, *(const phys_vec3 *)normal2) < 0.5 )
                 return 0;
         }
         else if ( (float)((float)((float)(edge1[0] * edge2[0]) + (float)(edge1[1] * edge2[1])) + (float)(edge1[2] * edge2[2])) < 0.0 )

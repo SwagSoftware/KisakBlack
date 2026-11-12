@@ -4,7 +4,7 @@
 #include "assertive.h"
 #include <cstring>
 #include <gfx_d3d/r_foliage.h>
-#include <tl/tl_system.h>
+#include "tl/base/include/tl_system.h"
 #include <qcommon/threads.h>
 #include <Windows.h>
 #include <gfx_d3d/r_workercmds.h>
@@ -104,10 +104,10 @@ void __cdecl Sys_WaitWorkerCmdInternal(jqWorkerCmd *name)
 {
     unsigned __int64 startTime; // [esp+8h] [ebp-8h]
 
-    startTime = tlPcGetTick().QuadPart;
+    startTime = tlPcGetTick();
     jqSafeFlush(&name->module->Group, 0);
     if ( Sys_IsMainThread() )
-        gMainWaitWorker += tlPcGetTick().QuadPart - startTime;
+        gMainWaitWorker += tlPcGetTick() - startTime;
 }
 
 void __cdecl Sys_AssistAndWaitWorkerCmdInternal(jqWorkerCmd *name)

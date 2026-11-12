@@ -25,13 +25,6 @@ if (NOT EXISTS "${DXSDK_DIR}/Include/d3dx9.h")
     message(FATAL_ERROR "DirectX SDK (June 2010) not found at '${DXSDK_DIR}'. Install it or pass -DDXSDK_DIR=<folder>.")
 endif()
 
-# phys_gjk.cpp specific flag (experimental)
-set_source_files_properties(
-    "${SRC_DIR}/physics/phys_gjk.cpp"
-    PROPERTIES
-    COMPILE_OPTIONS "/arch:IA32"
-)
-
 # ----- Preprocessor Defines -----
 # Common to both Debug and Release
 target_compile_definitions(KisakBlack PUBLIC
@@ -70,6 +63,16 @@ target_link_directories(KisakBlack PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/nvapi
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT  /O2 /MP /W3 ${MSVC_WARNING_DISABLES} /permissive")
 set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd /Od /MP /W3 ${MSVC_WARNING_DISABLES} /permissive")
+
+# ----- Physics: TreyBO (git submodule; `git submodule update --init`) -----
+# Added after the flags above so the library is built with the same CRT (/MT, /MTd).
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/TreyBO/CMakeLists.txt")
+    message(FATAL_ERROR "TreyBO submodule is missing. Run: git submodule update --init")
+endif()
+set(TREYBO_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(TREYBO_BUILD_DEMO  OFF CACHE BOOL "" FORCE)
+add_subdirectory(TreyBO)
+target_link_libraries(KisakBlack PUBLIC treybo)
 
 if (MSVC AND WIN32 AND NOT MSVC_VERSION VERSION_LESS 142)
     target_link_options(KisakBlack PRIVATE $<$<CONFIG:Debug>:/INCREMENTAL>)

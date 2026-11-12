@@ -3,8 +3,6 @@
 #include "phys_local.h"
 #include "phys_traverse.h"
 #include "phys_colgeom.h"
-#include <tl/tl_system.h>
-#include "phys_transient_allocator.h"
 #include <qcommon/common.h>
 #include <qcommon/cm_load.h>
 #include <qcommon/cm_test.h>
@@ -17,283 +15,6 @@ struct gjk_base_t;
 struct Glass;
 struct DynEntityDef;
 struct CollisionPartition;
-
-
-struct phys_gjk_geom_id_pair_key // sizeof=0x8
-{                                       // XREF: phys_gjk_cache_info/r
-    unsigned int m_id1;                 // XREF: phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool)+8B/w
-    unsigned int m_id2;                 // XREF: phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool)+91/w
-};
-
-struct broad_phase_environment_info // sizeof=0x24
-{
-    struct avl_tree_accessor
-    {
-        using key_type = bpei_database_id;
-        using node_type = broad_phase_environment_info;
-
-        static bool less(const key_type &key, const node_type *node)
-        {
-            if (key.m_id1 < node->m_database_id.m_id1)
-                return true;
-            if (key.m_id1 > node->m_database_id.m_id1)
-                return false;
-
-            return key.m_id2 < node->m_database_id.m_id2;
-        }
-
-        static bool less(const node_type *node, const key_type &key)
-        {
-            if (node->m_database_id.m_id1 < key.m_id1)
-                return true;
-            if (node->m_database_id.m_id1 > key.m_id1)
-                return false;
-
-            return node->m_database_id.m_id2 < key.m_id2;
-        }
-
-        static bool equals(const node_type *node, const key_type &key)
-        {
-            return node->m_database_id.m_id1 == key.m_id1 &&
-                node->m_database_id.m_id2 == key.m_id2;
-        }
-
-        // Hacky aislop shit
-        static void set_key(node_type *node, const key_type &key)
-        {
-            node->m_database_id = key;  // uses m_database_id
-        }
-    };
-
-    void *m_data;
-    minspec_mutex m_mutex;
-    unsigned int m_gjk_geom_id;
-    broad_phase_environment_info *m_next_bpei;
-    phys_inplace_avl_tree_node<broad_phase_environment_info> m_avl_tree_node;
-    bpei_database_id m_database_id;
-};
-
-struct bpei_database_t // sizeof=0x10
-{                                       // XREF: broad_phase_memory/r
-    phys_inplace_avl_tree<bpei_database_id, broad_phase_environment_info, broad_phase_environment_info::avl_tree_accessor> m_bpei_map;
-    phys_simple_allocator<broad_phase_environment_info> m_bpei_allocator;
-    broad_phase_environment_info *m_bpei_list;
-    minspec_read_write_mutex m_mutex;
-
-    bpei_database_t()
-    {
-        m_bpei_list = NULL;
-    }
-
-    ~bpei_database_t()
-    {
-        purge_database();
-    }
-
-    void update_database();
-    void purge_database();
-
-    broad_phase_environment_info *get_bpei_mt(bpei_database_id database_id);
-
-    broad_phase_environment_info *get_bpei(bpei_database_id database_id);
-    broad_phase_environment_info *create_bpei(bpei_database_id database_id);
-};
-
-
-const struct cached_simplex_info // sizeof=0x30
-{                                                                             // XREF: phys_gjk_cache_info/r
-    phys_vec3 m_indices[3];
-
-    //cached_simplex_info& operator=(const cached_simplex_info *__that);
-    cached_simplex_info &operator=(const cached_simplex_info &) = default; // using default compiler operator
-};
-
-struct phys_gjk_cache_info // sizeof=0x80
-{
-//private:
-    phys_vec3 m_support_dir;
-    cached_simplex_info m_support_a;
-    cached_simplex_info m_support_b;
-    int m_support_count;
-    phys_gjk_geom_id_pair_key m_key;
-    unsigned int m_flags;
-public:
-    enum phys_gjk_cache_info_e
-    {
-        FLAG_WAS_TOUCHED = (1 << 0),          // 1
-        FLAG_IS_SWAPPED = (1 << 1),           // 2
-        FLAG_IS_SUPPORT_DIR_VALID = (1 << 2), // 4
-        FLAG_IS_SIMPLEX_VALID = (1 << 3),     // 8
-    };
-
-    phys_gjk_cache_info() = default;
-
-    inline void update_swapped(const bool swapped)
-    {
-        if (swapped != (get_flag(FLAG_IS_SWAPPED) ? true : false))
-        {
-            set_flag(FLAG_IS_SWAPPED, swapped);
-
-            if (get_flag(FLAG_IS_SUPPORT_DIR_VALID))
-                m_support_dir = -m_support_dir;
-
-            if (get_flag(FLAG_IS_SIMPLEX_VALID))
-            {
-                cached_simplex_info temp = m_support_a;
-                m_support_a = m_support_b;
-                m_support_b = temp;
-            }
-        }
-    }
-
-    const phys_vec3 &get_support_dir() const
-    {
-        iassert(get_flag(FLAG_IS_SUPPORT_DIR_VALID));
-        return m_support_dir;
-    }
-
-    void get_simplex(cached_simplex_info *support_a, cached_simplex_info *support_b, int *count)
-    {
-        iassert(get_flag(FLAG_IS_SIMPLEX_VALID));
-        *support_a = m_support_a;
-        *support_b = m_support_b;
-        *count = m_support_count;
-    }
-
-    void set_flag_was_touched()
-    {
-        set_flag(FLAG_WAS_TOUCHED, true);
-    }
-
-    const int get_flag_was_touched()
-    {
-        return get_flag(FLAG_WAS_TOUCHED);
-    }
-
-    void set_support_dir(const phys_vec3 &support_dir)
-    {
-        set_flag(FLAG_IS_SUPPORT_DIR_VALID, true);
-        m_support_dir = support_dir;
-    }
-
-    const uint get_flag(const uint f) const
-    {
-        return m_flags & f;
-    }
-
-    void set_flag(const uint f, const bool b)
-    {
-        b ? m_flags |= f : m_flags &= ~f;
-    }
-
-    const int is_support_dir_valid() const
-    {
-        return get_flag(FLAG_IS_SUPPORT_DIR_VALID);
-    }
-
-    const int is_simplex_valid() const
-    {
-        return get_flag(FLAG_IS_SIMPLEX_VALID);
-    }
-};
-
-struct phys_heap_gjk_cache_system_avl_tree // sizeof=0x10
-{                                       // XREF: broad_phase_memory/r
-                                        // gjkcc_info/r
-    struct phys_gjk_cache_info_internal : phys_gjk_cache_info // sizeof=0x90
-    {
-        struct avl_tree_accessor
-        {
-            using key_type = phys_gjk_geom_id_pair_key;
-            using node_type =
-                phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal;
-
-            // Lexicographic comparison: first ID1, then ID2
-            static bool less(const key_type &key, const node_type *node)
-            {
-                return (key.m_id1 < node->m_key.m_id1) ||
-                    (key.m_id1 == node->m_key.m_id1 && key.m_id2 < node->m_key.m_id2);
-            }
-
-            static bool less(const node_type *node, const key_type &key)
-            {
-                return (node->m_key.m_id1 < key.m_id1) ||
-                    (node->m_key.m_id1 == key.m_id1 && node->m_key.m_id2 < key.m_id2);
-            }
-
-            static bool equals(const node_type *node, const key_type &key)
-            {
-                return node->m_key.m_id1 == key.m_id1 &&
-                    node->m_key.m_id2 == key.m_id2;
-            }
-
-            // Hacky aislop shit
-            static void set_key(node_type *node, const key_type &key)
-            {
-                node->m_key = key;  // uses m_key, not m_avl_key
-            }
-        };
-
-        phys_inplace_avl_tree_node<phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal> m_avl_tree_node;
-        phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal *m_next_gjk_ci;
-    };
-    static_assert(sizeof(phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal) == 0x90);
-
-    phys_simple_allocator<phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal> m_list_phys_gjk_cache_info_internal;
-    phys_inplace_avl_tree<phys_gjk_geom_id_pair_key, phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal, phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal::avl_tree_accessor> m_search_tree;
-    int m_max_num_gjk_ci;
-    phys_gjk_cache_info_internal *m_list_head;
-
-
-    ~phys_heap_gjk_cache_system_avl_tree()
-    {
-        shutdown();
-    }
-
-    phys_gjk_cache_info_internal *get_gjk_cache_info(
-        unsigned int id1,
-        unsigned int id2,
-        bool __formal);
-
-    phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal *get_gjk_cache_info_mutex(
-        unsigned int id1,
-        unsigned int id2,
-        struct tlAtomicReadWriteMutex *query_mutex,
-        bool __formal);
-
-    // phys_heap_gjk_cache_system_avl_tree::shutdown()
-    inline void shutdown()
-    {
-        phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal *next; // [esp+154h] [ebp-4h]
-
-        while (this->m_list_head)
-        {
-            next = this->m_list_head->m_next_gjk_ci;
-
-            this->m_search_tree.remove(this->m_list_head->m_key);
-            //phys_inplace_avl_tree<phys_gjk_geom_id_pair_key,phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal,phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal::avl_tree_accessor>::remove(
-            //    &this->m_search_tree,
-            //    &this->m_list_head->m_key);
-            this->m_list_phys_gjk_cache_info_internal.free(this->m_list_head);
-            //phys_simple_allocator<phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal>::free(
-            //    &this->m_list_phys_gjk_cache_info_internal,
-            //    this->m_list_head);
-            this->m_list_head = next;
-        }
-        if (this->m_list_phys_gjk_cache_info_internal.m_count)
-        {
-            if (_tlAssert(
-                "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_gjk_cache_system.h",
-                260,
-                "m_list_phys_gjk_cache_info_internal.get_count() == 0",
-                ""))
-            {
-                __debugbreak();
-            }
-        }
-    }
-    void update_cache();
-};
 
 struct __declspec(align(16)) gjk_geom_info_t // sizeof=0x40
 {
@@ -357,7 +78,7 @@ const struct __declspec(align(16)) gjk_query_input // sizeof=0x80
     bool is_in_skip_list(const gjk_geom_info_t *gi_) const;
 };
 
-struct gjk_collision_visitor // sizeof=0x4
+struct gjk_collision_visitor : gjk_geom_allocator
 {                                                                             // XREF: create_gjk_geom_collision_visitor/r
 
     //struct /*VFT*/ gjk_collision_visitor_vtbl // sizeof=0x1C
@@ -372,9 +93,13 @@ struct gjk_collision_visitor // sizeof=0x4
     //
     // };
     virtual void *allocate(const int, const int, const bool) = 0;
-    virtual bool is_query()
+    virtual const bool is_query() override
     {
         return false;
+    }
+    virtual const phys_gjk_geom_id get_unique_id() override
+    {
+        return g_gjk_unique_id_database.get_unique_id();
     }
     virtual void get_local_query_aabb(float *, float *)
     {
@@ -425,14 +150,14 @@ struct gjk_physics_collision_visitor : gjk_collision_visitor // sizeof=0x80
     const centity_s *cent;
     const DynEntityDef *dynEntDef;
     const Glass *glass;
-    struct rigid_body *rb;
+    rigid_body *rb;
     const phys_mat44 *rb_to_world_xform;
     const phys_mat44 *cg_to_world_xform;
     const phys_mat44 *cg_to_rb_xform;
     unsigned int env_collision_flags;
-    const struct broad_phase_environment_query_input *bpeqi;
-    struct broad_phase_environement_query_results *bpeqr;
-    struct phys_auto_activate_callback *auto_activate_callback;
+    const broad_phase_environment_query_input *bpeqi;
+    broad_phase_environement_query_results *bpeqr;
+    phys_auto_activate_callback *auto_activate_callback;
     // padding byte
     // padding byte
     // padding byte
@@ -452,7 +177,7 @@ struct gjk_physics_collision_visitor : gjk_collision_visitor // sizeof=0x80
     //};
 
     virtual void *allocate(const int, const int, const bool) override;
-    virtual bool is_query() override // LWSS: re-used as gjk_obb_t::is_polyhedron() in binary
+    virtual const bool is_query() override // LWSS: re-used as gjk_obb_t::is_polyhedron() in binary
     {
         return true;
     }
@@ -526,7 +251,7 @@ struct gjk_query_output : gjk_collision_visitor // sizeof=0x150
     phys_vec3 m_local_query_aabb_max;
     const gjk_query_input *m_local_query_input;
     bpei_database_id m_local_database_id;
-    struct broad_phase_environment_info *m_local_bpei;
+    broad_phase_environment_info *m_local_bpei;
     gjk_entity_info_t *m_local_ent_info;
     bpei_database_t m_bpei_database;
     phys_transient_allocator m_allocator;
@@ -609,7 +334,7 @@ struct gjk_query_output : gjk_collision_visitor // sizeof=0x150
 
     //// VIRTUALS ////
     virtual void *allocate(int size, int alignment, bool no_error);
-    virtual bool is_query() override // LWSS: re-used in binary as "gjk_obb_t::is_polyhedron()"  ..i.,
+    virtual const bool is_query() override // LWSS: re-used in binary as "gjk_obb_t::is_polyhedron()"  ..i.,
     {
         return true;
     }
@@ -755,31 +480,10 @@ struct generic_avl_map_node_t // sizeof=0x14
     unsigned int m_avl_key;
     phys_inplace_avl_tree_node<generic_avl_map_node_t> m_avl_tree_node;
 
-    static inline bool less(unsigned int key, const generic_avl_map_node_t *node)
-    {
-        return key < node->m_avl_key;
-    }
-
-    static inline bool less(const generic_avl_map_node_t *node, unsigned int key)
-    {
-        return node->m_avl_key < key;
-    }
-
-    static inline bool less(const generic_avl_map_node_t *a, const generic_avl_map_node_t *b)
-    {
-        return a->m_avl_key < b->m_avl_key;
-    }
-
-    // aislop hacky shit
-    static inline bool equals(const generic_avl_map_node_t *node, unsigned int key)
-    {
-        return node->m_avl_key == key;
-    }
-
-    static inline void set_key(generic_avl_map_node_t *node, unsigned int key)
-    {
-        node->m_avl_key = key;
-    }
+    static unsigned int &get_avl_key(generic_avl_map_node_t *n) { return n->m_avl_key; }
+    static const unsigned int &get_avl_key(const generic_avl_map_node_t *n) { return n->m_avl_key; }
+    static phys_inplace_avl_tree_node<generic_avl_map_node_t> *get_avl_node(generic_avl_map_node_t *n) { return &n->m_avl_tree_node; }
+    static const phys_inplace_avl_tree_node<generic_avl_map_node_t> *get_avl_node(const generic_avl_map_node_t *n) { return &n->m_avl_tree_node; }
 };
 
 struct __declspec(align(4)) gjkcc_info_database_t // sizeof=0x10
@@ -942,172 +646,14 @@ struct list_gjk_trace_output // sizeof=0x10
         //this->m_list.m_first = 0;
         //this->m_list.m_last_next_ptr = (gjk_trace_output_t **)this;
         //this->m_list.m_alloc_count = 0;
-        this->m_list.clear();
+        this->m_list.remove_all();
         this->m_first_hit = 0;
     }
 };
 
-struct phys_gjk_geom;
-
-struct phys_gjk_collision_info // sizeof=0x30
-{                                       // XREF: phys_gjk_info/r
-    phys_vec3 m_p1;
-    phys_vec3 m_p2;
-    phys_vec3 m_n;
-};
-
-struct __declspec(align(8)) phys_gjk_input // sizeof=0x50
-{                                       // XREF: ?gjk_trace@@YAXABUgjk_trace_input_t@@PAUlist_gjk_trace_output@@@Z/r
-                                        // ?do_initial_tunnel_test@@YAXPAVbroad_phase_group@@ABVbroad_phase_environement_query_results@@@Z/r ...
-    phys_vec3 m_cg1_translation;
-    phys_vec3 m_cg2_translation;
-    float m_start_time;
-    float m_end_time;
-    //const phys_gjk_geom *gjk_cg1;
-    //const phys_gjk_geom *gjk_cg2;
-    const gjk_base_t *gjk_cg1; // lwss: I am changing this to the sub-class so I can call more methods.
-    const gjk_base_t *gjk_cg2;
-    const phys_mat44 *cg1_to_world_xform;
-    const phys_mat44 *cg2_to_world_xform;
-    phys_gjk_cache_info *gjk_ci;
-    float cg1_radius;
-    float cg2_radius;
-    float m_sep_thresh;
-    bool m_intersection_test_only;      // XREF: phys_collide_do_gjk_collide_and_contact_manifold(phys_collision_pair *,phys_gjk_info *,phys_contact_manifold_process *)+10/w
-    bool m_continuous_collision;
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-};
-
-struct phys_gjk_info // sizeof=0x3A0
-{                                       // XREF: ?gjk_trace@@YAXABUgjk_trace_input_t@@PAUlist_gjk_trace_output@@@Z/r
-    enum gjk_retval_e : __int32
-    {                                       // XREF: ?phys_collide_do_gjk_collide@phys_gjk_info@@QAE?B_NPBVphys_gjk_input@@@Z/r
-        GJK_SEPARATED   = 0x0,
-        GJK_VALID       = 0x1,
-        GJK_PENETRATING = 0x2,
-        GJK_INVALID     = 0x3,
-    };
-    struct phys_gjk_set_info // sizeof=0x14
-    {                                       // XREF: phys_gjk_info/r
-        float m_lamda[4];
-        int m_candidate;
-    };
-
-    phys_gjk_info()
-    {
-        memset(this, 0, sizeof(*this)); // LWSS ADD
-    }
-
-    gjk_retval_e gjk(const phys_gjk_input *d, const phys_vec3 *initial_support_dir, bool in_separation_loop);
-
-    int seed_simplex(int cached_vert_count);
-    int gjk_subalgorithm(int w_set, int new_index);
-    gjk_retval_e gjk_ray_cast(
-        const phys_gjk_input *d,
-        const phys_vec3 *initial_support_dir,
-        bool in_separation_loop);
-    gjk_retval_e collide(const phys_gjk_input *d);
-    char phys_collide_do_gjk_collide(const phys_gjk_input *d);
-    int compress_verts(char w_set);
-    void comp_closest_points(int w_set, phys_vec3 *a, phys_vec3 *b);
-    void gjk_cache_update_invalid(const phys_gjk_input *d);
-    const phys_vec3 *get_initial_support_dir(phys_vec3 *result, const phys_gjk_input *d);
-    void gjk_cache_update_test_only_valid(const phys_gjk_input *d);
-    void gjk_cache_update_colliding(const phys_gjk_input *d);
-    void gjk_cache_update_test_only_penetrating(const phys_gjk_input *d);
-    void comp_v(int w_set, phys_vec3 *v) const;
-    int init_gjk(
-        const phys_gjk_input *d,
-        const phys_vec3 *initial_support_dir,
-        bool in_separation_loop);
-
-    phys_mat44 cg2_to_cg1_xform;
-    phys_vec3 m_cg1_relative_translation_loc;
-    float m_continuous_collision_lambda;
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    phys_gjk_collision_info cg1_cinfo_loc;
-    phys_vec3 m_gjk_origin;
-    phys_vec3 m_w_verts[4];
-    phys_vec3 m_a_verts[4];
-    phys_vec3 m_b_verts[4];
-    phys_vec3 m_a_inds[4];
-    phys_vec3 m_b_inds[4];
-    phys_vec3 m_support_dir;
-    float m_geom_radii_sum;
-    int m_cc_reset_iter;
-    int m_flags; // 8 = use_ray_cast?
-    int m_w_set;
-    int m_last_w_set;
-    int m_gjk_iter;
-    float m_gjk_sep_thresh;
-    float m_gjk_pen_thresh_sq;
-    float m_upper_dist_sq;
-    float m_lower_dist_sq;
-    float m_dot_ij[4][4]; // unused
-    phys_gjk_info::phys_gjk_set_info m_set_list[16];
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-    // padding byte
-};
-
-struct gjk_unique_id_database_t // sizeof=0x4
-{                                                                             // XREF: .data:gjk_unique_id_database_t g_gjk_unique_id_database/r
-    volatile unsigned int m_counter;
-    unsigned int get_unique_id();
-};
-
-// local variable allocation has failed, the output may be wrong!
-void    phys_full_inv_multiply_mat(
-                phys_mat44 *dest,
-                const phys_mat44 *left,
-                const phys_mat44 *right);
-void __cdecl get_simplex(
-                const phys_gjk_geom *cg1,
-                const phys_gjk_geom *cg2,
-                phys_gjk_cache_info *gjk_ci,
-                phys_vec3 *a_verts,
-                phys_vec3 *a_inds,
-                phys_vec3 *b_verts,
-                phys_vec3 *b_inds,
-                int *vert_count);
-void __cdecl set_simplex(
-                const phys_gjk_geom *cg1,
-                const phys_gjk_geom *cg2,
-                phys_gjk_cache_info *gjk_ci,
-                const phys_vec3 *a_normal,
-                const phys_vec3 *b_normal,
-                const phys_vec3 *a_inds,
-                const phys_vec3 *b_inds,
-                int w_set);
-int    backup1(phys_gjk_info *gjk_info, int new_index, bool seed_simplex);
-
-void __cdecl setup_gjk_input_from_pcp(phys_gjk_input *pgi, struct phys_collision_pair *pcp);
-
-phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal *get_gjk_cache_info(
+phys_gjk_cache_info *get_gjk_cache_info(
     phys_heap_gjk_cache_system_avl_tree *gjk_cache,
     const gjk_base_t *cg1,
     const gjk_base_t *cg2);
 
 extern create_gjk_geom_collision_visitor g_empty_collision_visitor;
-extern gjk_unique_id_database_t g_gjk_unique_id_database;

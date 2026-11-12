@@ -23,7 +23,7 @@
 #include <bgame/bg_misctables.h>
 #include <server_mp/sv_init_mp.h>
 #include <universal/CurveManager.h>
-#include <physics/phys_assert.h>
+#include <physics/phys_collision.h>
 #include <cgame/cg_drawtools.h>
 #include "g_debug.h"
 #include <game_mp/g_active_mp.h>
@@ -3990,9 +3990,9 @@ void    VEH_Teleport(gentity_s *pSelf, float *origin, float *angles, float *vel)
             v19 = 3;
             for (i = phys_axis; --v19 >= 0; ++i)
                 ;
-            Phys_Vec3ToNitrousVec(newAxis[0], phys_axis);
-            Phys_Vec3ToNitrousVec(newAxis[1], &phys_axis[1]);
-            Phys_Vec3ToNitrousVec(newAxis[2], &phys_axis[2]);
+            Phys_Vec3ToNitrousVec(newAxis[0], phys_axis[0]);
+            Phys_Vec3ToNitrousVec(newAxis[1], phys_axis[1]);
+            Phys_Vec3ToNitrousVec(newAxis[2], phys_axis[2]);
             mat->x = phys_axis[0];
             mat->y = phys_axis[1];
             mat->z = phys_axis[2];
@@ -6694,7 +6694,7 @@ void NitrousVehicle::update_script_target(float *goal_position)
     //v6 = a2;
     //v7 = retaddr;
     v5 = this;
-    Phys_Vec3ToNitrousVec(goal_position, (phys_vec3 *)v4);
+    Phys_Vec3ToNitrousVec(goal_position, *(phys_vec3 *)v4);
     p_mVehicleController = &v5->mVehicleController;
     LODWORD(v5->mVehicleController.m_script_goal_position.x) = v4[0];
     LODWORD(p_mVehicleController->m_script_goal_position.y) = v4[1];
@@ -6976,7 +6976,7 @@ void    VEH_UpdatePath(gentity_s *ent)
                         goalSpeed = veh->nitrousVehicle->get_max_speed(true);
                         if (veh->manualMode == 1)
                             goalSpeed = veh->manualSpeed;
-                        Phys_Vec3ToNitrousVec(veh->goalPosition, &goalPosition);
+                        Phys_Vec3ToNitrousVec(veh->goalPosition, goalPosition);
                         //NitrousVehicleController::SetScriptTarget(
                             veh->nitrousVehicle->mVehicleController.SetScriptTarget(
                             veh->nitrousVehicle,
@@ -9520,7 +9520,7 @@ void    CMD_VEH_SetGoalPos(scr_entref_t entref)
         goalSpeed = veh->nitrousVehicle->get_max_speed(true);
         if (veh->manualMode == 1)
             goalSpeed = veh->manualSpeed;
-        Phys_Vec3ToNitrousVec(veh->goalPosition, &goalPosition);
+        Phys_Vec3ToNitrousVec(veh->goalPosition, goalPosition);
         //NitrousVehicleController::SetScriptTarget(
             veh->nitrousVehicle->mVehicleController.SetScriptTarget(
             veh->nitrousVehicle,

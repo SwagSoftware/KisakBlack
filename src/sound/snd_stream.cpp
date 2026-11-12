@@ -1,7 +1,7 @@
 #include "snd_stream.h"
 #include <qcommon/threads.h>
 #include <universal/physicalmemory.h>
-#include <tl/tl_system.h>
+#include "tl/base/include/tl_system.h"
 
 #include <Windows.h>
 #include <qcommon/common.h>
@@ -190,7 +190,7 @@ void __cdecl Snd_StreamOpen(
 
     pe.threshold = 0.0003f;
     pe.what = "Snd_StreamOpen";
-    pe.start = tlPcGetTick().QuadPart;
+    pe.start = tlPcGetTick();
     if ( !g_snd_streams
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp", 349, 0, "%s", "g_snd_streams") )
     {
@@ -307,7 +307,7 @@ void __cdecl Snd_StreamClose(unsigned int index)
 
     pe.threshold = 0.0003f;
     pe.what = "Snd_StreamClose";
-    pe.start = tlPcGetTick().QuadPart;
+    pe.start = tlPcGetTick();
     if ( index >= 0xA
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
@@ -395,7 +395,7 @@ snd_stream_status __cdecl Snd_StreamStatus(unsigned int index)
 
     pe.threshold = 0.0003f;
     pe.what = "Snd_StreamStatus";
-    pe.start = tlPcGetTick().QuadPart;
+    pe.start = tlPcGetTick();
     if ( index >= 0xA
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
@@ -489,7 +489,7 @@ unsigned int __cdecl Snd_StreamGetFreeWindows(unsigned int index)
 
     pe.threshold = 0.00009999999747378752;
     pe.what = "Snd_StreamGetFreeWindows";
-    pe.start = tlPcGetTick().QuadPart;
+    pe.start = tlPcGetTick();
     if ( index >= 0xA
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
@@ -547,7 +547,7 @@ snd_stream_status __cdecl Snd_StreamAcquireWindow(
 
     pe.threshold = 0.00009999999747378752;
     pe.what = "Snd_StreamAcquireWindow";
-    pe.start = tlPcGetTick().QuadPart;
+    pe.start = tlPcGetTick();
     if ( index >= 0xA
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_stream.cpp",
@@ -1293,7 +1293,7 @@ void __cdecl Snd_StreamGetRequest(snd_stream *s, snd_stream_request *r)
     {
         pe.threshold = 0.0003f;
         pe.what = "Snd_StreamSetRequest_if1";
-        pe.start = tlPcGetTick().QuadPart;
+        pe.start = tlPcGetTick();
         strncpy((char *)r, (char *)s, 0x104u);
         if ( s->read < s->stream_length )
             v2 = s->read;
@@ -1339,7 +1339,7 @@ bool __cdecl Snd_StreamSetRequest(snd_stream *s, snd_stream_request *r)
 
     pe.threshold = 0.0003f;
     pe.what = "Snd_StreamSetRequest";
-    pe.start = tlPcGetTick().QuadPart;
+    pe.start = tlPcGetTick();
     //tlAtomicMutex::Lock(&s->mutex);
     s->mutex.Lock();
 
@@ -1357,7 +1357,7 @@ bool __cdecl Snd_StreamSetRequest(snd_stream *s, snd_stream_request *r)
         used_buffer = 1;
         v6.threshold = 0.0003f;
         v6.what = "Snd_StreamSetRequest_if1";
-        v6.start = tlPcGetTick().QuadPart;
+        v6.start = tlPcGetTick();
 
         iassert(s->in_use);
         iassert(!s->buffers[0] || !s->buffers[1]);
@@ -1393,7 +1393,7 @@ snd_buffer *__cdecl Snd_FindBuffer(const char *filename, unsigned int offset)
 
     pe.threshold = 0.0003f;
     pe.what = "Snd_FindBuffer";
-    pe.start = tlPcGetTick().QuadPart;
+    pe.start = tlPcGetTick();
     for ( int i = 0; ; ++i )
     {
         if ( i >= 0x14 )

@@ -1,15 +1,8 @@
 #include "phys_collision.h"
-#include "phys_collision_multithreaded.h"
-#include "rigid_body.h"
-#include "phys_transient_allocator.h"
-#include "phys_assert.h"
 #include <DynEntity/DynEntity_client.h>
 #include <bgame/bg_slidemove.h>
 #include <cgame/cg_drawtools.h>
 #include "phys_render.h"
-#include "physics_system.h"
-#include "phys_contact_manifold.h"
-#include <tl/physics/rbc_def_generic.h>
 #include <universal/com_math_anglevectors.h>
 #include <DynEntity/DynEntity_load_obj.h>
 #include <new>
@@ -21,481 +14,11 @@
 #include "phys_auto_rigid_body.h"
 #include <cgame_mp/cg_vehicles_mp.h>
 #include <glass/glass_client.h>
+#include <cgame_mp/cg_local_mp.h>
 #include <algorithm>
 
-phys_assert_info pai_create_cpi = { 0, 2, true };
 phys_simple_allocator<generic_avl_map_node_t> g_generic_avl_map_node_allocator;
 standard_query g_standard_query;
-
-//rigid_body_constraint_contact *__cdecl avl_tree_find<rigid_body_pair_key, rigid_body_constraint_contact, rigid_body_constraint_contact::avl_tree_accessor>(
-rigid_body_constraint_contact *__cdecl avl_tree_find(rigid_body_constraint_contact *tree_root, const rigid_body_pair_key *key)
-{
-    rigid_body_constraint_contact *result; // eax
-    rigid_body *m_b1; // edx
-    rigid_body *v4; // ecx
-    bool v5; // cf
-
-    result = tree_root;
-    if (tree_root)
-    {
-        m_b1 = key->m_b1;
-        do
-        {
-            if (m_b1 == result->m_avl_key.m_b1 && key->m_b2 == result->m_avl_key.m_b2)
-                break;
-            v4 = result->m_avl_key.m_b1;
-            v5 = m_b1 < v4;
-            if (m_b1 == v4)
-                v5 = key->m_b2 < result->m_avl_key.m_b2;
-            result = v5 ? result->m_avl_tree_node.m_left : result->m_avl_tree_node.m_right;
-        } while (result);
-    }
-    return result;
-}
-
-void __thiscall contact_point_info::get_closest_psc(
-                const phys_vec3 *normal,
-                const phys_vec3 *b1_r_loc,
-                const phys_vec3 *b2_r_loc,
-                float *closest_error,
-                const contact_point_info::pulse_sum_cache_info **closest_psc)
-{
-    phys_vec3 *m_list_b1_r_loc; // edx
-    phys_vec3 *m_list_b2_r_loc; // esi
-    const phys_vec3 *v8; // edi
-    double v9; // st7
-    double v10; // st6
-    float v11; // [esp-30h] [ebp-3Ch]
-    float v12; // [esp-2Ch] [ebp-38h]
-    float v13; // [esp-28h] [ebp-34h]
-    float v14; // [esp-20h] [ebp-2Ch]
-    float v15; // [esp-20h] [ebp-2Ch]
-    float v16; // [esp-1Ch] [ebp-28h]
-    float v17; // [esp-1Ch] [ebp-28h]
-    float v18; // [esp-18h] [ebp-24h]
-    float v19; // [esp-18h] [ebp-24h]
-    float v20; // [esp-Ch] [ebp-18h]
-    float v21; // [esp-Ch] [ebp-18h]
-    float v22; // [esp-Ch] [ebp-18h]
-    float v23; // [esp-Ch] [ebp-18h]
-    int v24; // [esp-8h] [ebp-14h]
-    int v25; // [esp-4h] [ebp-10h]
-
-    m_list_b1_r_loc = this->m_list_b1_r_loc;
-    m_list_b2_r_loc = this->m_list_b2_r_loc;
-    v24 = 0;
-    if ( this->m_point_pair_count > 0 )
-    {
-        v8 = b1_r_loc;
-        v14 = normal->x - this->m_normal.x;
-        v16 = normal->y - this->m_normal.y;
-        v18 = normal->z - this->m_normal.z;
-        v20 = v14 * v14 + v16 * v16 + v18 * v18;
-        v9 = v20;
-        v25 = 0;
-        do
-        {
-            v15 = m_list_b1_r_loc->x - v8->x;
-            v17 = m_list_b1_r_loc->y - v8->y;
-            v19 = m_list_b1_r_loc->z - v8->z;
-            v11 = m_list_b2_r_loc->x - b2_r_loc->x;
-            v12 = m_list_b2_r_loc->y - b2_r_loc->y;
-            v13 = m_list_b2_r_loc->z - b2_r_loc->z;
-            v21 = v19 * v19 + v15 * v15 + v17 * v17;
-            v10 = v21 + v9;
-            v22 = v13 * v13 + v12 * v12 + v11 * v11;
-            v23 = v10 + v22;
-            if ( *closest_error > (double)v23 )
-            {
-                *closest_error = v23;
-                *closest_psc = &this->m_list_pulse_sum_cache_info[v25];
-                v8 = b1_r_loc;
-            }
-            ++v24;
-            ++v25;
-            ++m_list_b1_r_loc;
-            ++m_list_b2_r_loc;
-        }
-        while ( v24 < this->m_point_pair_count );
-    }
-}
-
-void phys_contact_manifold::xform_and_translate_mesh_points(
-                const phys_mat44 *xform,
-                const phys_vec3 *translation)
-{
-    phys_contact_manifold *v4; // esi
-    const phys_vec3 **m_list_sorted_mesh_point; // eax
-    const phys_vec3 **v6; // ecx
-    phys_vec3 *v7; // esi
-    const phys_vec3 *v8; // eax
-    double v9; // st7
-    const phys_vec3 **v10; // eax
-    const phys_vec3 *v11; // eax
-    phys_vec3 v12; // [esp-40h] [ebp-4Ch] BYREF
-    float v13; // [esp-30h] [ebp-3Ch]
-    float v14; // [esp-2Ch] [ebp-38h]
-    float v15; // [esp-28h] [ebp-34h]
-    float v16; // [esp-20h] [ebp-2Ch]
-    float v17; // [esp-1Ch] [ebp-28h]
-    float v18; // [esp-18h] [ebp-24h]
-    phys_contact_manifold *v19; // [esp-Ch] [ebp-18h]
-    const phys_vec3 **v20; // [esp-8h] [ebp-14h]
-    const phys_vec3 **v21; // [esp-4h] [ebp-10h]
-    int v22; // [esp+0h] [ebp-Ch]
-    //contact_manifold_mesh_point **last_mp_i; // [esp+4h] [ebp-8h]
-    //contact_manifold_mesh_point **retaddr; // [esp+Ch] [ebp+0h]
-
-    //v22 = a2;
-    //last_mp_i = retaddr;
-    v4 = this;
-    m_list_sorted_mesh_point = (const phys_vec3 **)this->m_list_sorted_mesh_point;
-    v6 = &m_list_sorted_mesh_point[this->m_list_mesh_point_count];
-    v19 = v4;
-    v20 = v6;
-    v21 = m_list_sorted_mesh_point;
-    if ( m_list_sorted_mesh_point != v6 )
-    {
-        while ( 1 )
-        {
-            v7 = (phys_vec3 *)*m_list_sorted_mesh_point;
-            v8 = phys_multiply(&v12, xform, *m_list_sorted_mesh_point);
-            v16 = v8->x + xform->w.x;
-            v17 = v8->y + xform->w.y;
-            v18 = v8->z + xform->w.z;
-            v13 = translation->x + v16;
-            v14 = translation->y + v17;
-            v9 = translation->z + v18;
-            v10 = ++v21;
-            v15 = v9;
-            v7->x = v13;
-            v7->y = v14;
-            v7->z = v15;
-            if ( v10 == v20 )
-                break;
-            m_list_sorted_mesh_point = v21;
-        }
-        v4 = v19;
-    }
-    v11 = phys_multiply(&v12, xform, &v4->m_feature_normal);
-    v4->m_feature_normal.x = v11->x;
-    v4->m_feature_normal.y = v11->y;
-    v4->m_feature_normal.z = v11->z;
-}
-
-
-
-void __thiscall phys_contact_manifold_process::comp_contact_mat(const phys_vec3 *contact_normal)
-{
-    double v3; // st6
-    double v4; // st7
-    float v5; // [esp-1Ch] [ebp-3Ch]
-    float v6; // [esp-1Ch] [ebp-3Ch]
-    float v7; // [esp-1Ch] [ebp-3Ch]
-    float v8; // [esp-18h] [ebp-38h]
-    float v9; // [esp-18h] [ebp-38h]
-    float v10; // [esp-18h] [ebp-38h]
-    float v11; // [esp-14h] [ebp-34h]
-    float v12; // [esp-14h] [ebp-34h]
-    float v13; // [esp-14h] [ebp-34h]
-    float v14; // [esp-Ch] [ebp-2Ch]
-    float v15; // [esp-Ch] [ebp-2Ch]
-    float v16; // [esp-8h] [ebp-28h]
-    float v17; // [esp-8h] [ebp-28h]
-    float v18; // [esp-4h] [ebp-24h]
-    float v19; // [esp+10h] [ebp-10h]
-    float y; // [esp+10h] [ebp-10h]
-    float v21; // [esp+10h] [ebp-10h]
-    float v22; // [esp+10h] [ebp-10h]
-    float v23; // [esp+10h] [ebp-10h]
-
-    v19 = fabs(contact_normal->x);
-    if ( v19 >= 0.800000011920929 )
-    {
-        y = contact_normal->y;
-        v15 = contact_normal->x * y;
-        v17 = y * y;
-        v18 = y * contact_normal->z;
-        v4 = 0.0;
-        v5 = 0.0 - v15;
-        v3 = 1.0 - v17;
-    }
-    else
-    {
-        v14 = contact_normal->x * contact_normal->x;
-        v16 = contact_normal->y * contact_normal->x;
-        v18 = contact_normal->x * contact_normal->z;
-        v5 = 1.0 - v14;
-        v3 = 0.0 - v16;
-        v4 = 0.0;
-    }
-    v8 = v3;
-    v11 = v4 - v18;
-    v21 = v8 * v8 + v5 * v5 + v11 * v11;
-    v22 = sqrt(v21);
-    if ( v22 <= 0.1000000014901161
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_contact_manifold.h",
-                 397,
-                 "nyrow > 0.1f",
-                 "") )
-    {
-        __debugbreak();
-    }
-    v23 = 1.0 / v22;
-    v6 = v23 * v5;
-    v9 = v8 * v23;
-    v12 = v23 * v11;
-    this->contact_mat.y.x = v6;
-    this->contact_mat.y.y = v9;
-    this->contact_mat.y.z = v12;
-    v7 = contact_normal->z * this->contact_mat.y.y - contact_normal->y * this->contact_mat.y.z;
-    v10 = contact_normal->x * this->contact_mat.y.z - contact_normal->z * this->contact_mat.y.x;
-    v13 = this->contact_mat.y.x * contact_normal->y - contact_normal->x * this->contact_mat.y.y;
-    this->contact_mat.x.x = v7;
-    this->contact_mat.x.y = v10;
-    this->contact_mat.x.z = v13;
-    this->contact_mat.z.x = contact_normal->x;
-    this->contact_mat.z.y = contact_normal->y;
-    this->contact_mat.z.z = contact_normal->z;
-}
-
-#if 0 // KISAKTODO 
-rigid_body_constraint_contact *__cdecl avl_tree_find<rigid_body_pair_key,rigid_body_constraint_contact,rigid_body_constraint_contact::avl_tree_accessor>(
-                rigid_body_constraint_contact *tree_root,
-                const rigid_body_pair_key *key)
-{
-    rigid_body_constraint_contact *result; // eax
-    rigid_body *m_b1; // edx
-    rigid_body *v4; // ecx
-    bool v5; // cf
-
-    result = tree_root;
-    if ( tree_root )
-    {
-        m_b1 = key->m_b1;
-        do
-        {
-            if ( m_b1 == result->m_avl_key.m_b1 && key->m_b2 == result->m_avl_key.m_b2 )
-                break;
-            v4 = result->m_avl_key.m_b1;
-            v5 = m_b1 < v4;
-            if ( m_b1 == v4 )
-                v5 = key->m_b2 < result->m_avl_key.m_b2;
-            result = v5 ? result->m_avl_tree_node.m_left : result->m_avl_tree_node.m_right;
-        }
-        while ( result );
-    }
-    return result;
-}
-#endif
-contact_point_info *__cdecl contact_point_info::create_cpi(
-                int point_pair_count,
-                bool no_error,
-                phys_transient_allocator *allocator)
-{
-    unsigned int v3; // edi
-    contact_point_info *result; // eax
-
-    if ( point_pair_count <= 0
-        && _tlAssert(
-                 "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\rbc_defs\\rbc_def_contact.h",
-                 159,
-                 "point_pair_count > 0",
-                 "") )
-    {
-        __debugbreak();
-    }
-    v3 = (32 * point_pair_count + 95) & 0xFFFFFFF0;
-    //result = (contact_point_info *)phys_transient_allocator::mt_allocate(
-    result = (contact_point_info *)allocator->mt_allocate(v3 + ((12 * point_pair_count + 15) & 0xFFFFFFF0), 16, 1, "contact_point_info buffer overflow");
-    if ( result )
-    {
-        result->m_fric_coef = -1.0;
-        result->m_bounce_coef = -1.0;
-        result->m_max_restitution_vel = -1.0;
-        result->m_list_b1_r_loc = &result[1].m_normal;
-        result->m_list_b2_r_loc = &result[1].m_normal + point_pair_count;
-        result->m_list_pulse_sum_cache_info = (contact_point_info::pulse_sum_cache_info *)((char *)result + v3);
-        result->m_point_pair_count = point_pair_count;
-        result->m_flags = 0;
-        result->m_rb2_entity = (const void *)-1;
-    }
-    else if ( !no_error )
-    {
-        if ( (pai_create_cpi.m_hits_total_count < pai_create_cpi.m_max_hits_total || !pai_create_cpi.m_max_hits_total)
-            && pai_create_cpi.m_hits_frame_count < pai_create_cpi.m_max_hits_per_frame )
-        {
-            if ( pai_create_cpi.m_use_warnings_only )
-            {
-                PHYS_WARNING(
-                    "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\rbc_defs\\rbc_def_contact.h",
-                    173,
-                    "cpi || no_error",
-                    "contact_point_info buffer overflow");
-            }
-            else if ( _tlAssert(
-                                    "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\rbc_defs\\rbc_def_contact.h",
-                                    173,
-                                    "cpi || no_error",
-                                    "contact_point_info buffer overflow") )
-            {
-                __debugbreak();
-            }
-        }
-        _InterlockedExchangeAdd(&pai_create_cpi.m_hits_total_count, 1u);
-        _InterlockedExchangeAdd(&pai_create_cpi.m_hits_frame_count, 1u);
-        return 0;
-    }
-    return result;
-}
-
-void __thiscall contact_point_info::set_solver_priority(unsigned int priority)
-{
-    if ((priority & 7) != priority
-        && _tlAssert(
-            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\rbc_defs\\rbc_def_contact.h",
-            78,
-            "(priority & FLAG_SOLVER_PRIORITY_MASK) == priority",
-            ""))
-    {
-        __debugbreak();
-    }
-    this->m_flags &= 0xFFFFFFF8;
-    this->m_flags |= priority;
-}
-
-void __thiscall contact_point_info::set_rb2_entity(const void *rb2_entity)
-{
-    this->m_flags |= 0x10u;
-    this->m_rb2_entity = rb2_entity;
-}
-
-void __thiscall contact_point_info::check_surface_properties()
-{
-    iassert(m_fric_coef >= 0.0f);
-    iassert(m_bounce_coef <= 1.0f && m_bounce_coef >= 0.0f);
-    iassert(m_max_restitution_vel >= 0.0f);
-}
-
-extern const char *g_contact_manifold_error_msg;
-void __thiscall phys_contact_manifold::set_get_feature_params(
-                const phys_vec3 *hitp,
-                const phys_vec3 *hitn,
-                float feature_distance_eps,
-                float sin_feautre_angular_eps_sq)
-{
-    phys_memory_heap *m_allocator; // edi
-    const char *v7; // ecx
-    unsigned int v8; // eax
-
-    this->m_feature_hitp.x = hitp->x;
-    this->m_feature_hitp.y = hitp->y;
-    this->m_feature_hitp.z = hitp->z;
-    this->m_feature_hitn.x = hitn->x;
-    this->m_feature_hitn.y = hitn->y;
-    this->m_feature_hitn.z = hitn->z;
-    m_allocator = this->m_allocator;
-    this->m_feature_distance_eps = feature_distance_eps;
-    this->m_sin_feautre_angular_eps_sq = sin_feautre_angular_eps_sq;
-    v7 = g_contact_manifold_error_msg;
-    v8 = (int)(m_allocator->m_buffer_cur + 15) & 0xFFFFFFF0;
-    m_allocator->m_buffer_cur = (char *)v8;
-    if ( (char *)v8 >= m_allocator->m_buffer_end
-        && _tlAssert(
-                 "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 114,
-                 "m_buffer_cur < m_buffer_end",
-                 v7) )
-    {
-        __debugbreak();
-    }
-    this->m_list_mesh_point = (contact_manifold_mesh_point *)m_allocator->m_buffer_cur;
-    this->m_list_mesh_point_count = 0;
-    this->m_close_mesh_point_count = 0;
-    this->m_list_sorted_mesh_point = 0;
-    this->m_list_contact_point = 0;
-}
-
-void __cdecl contact_point_info::set_closest_cached_psc(
-                contact_point_info *cached_cpi,
-                const phys_vec3 *normal,
-                const phys_vec3 *b1_r_loc,
-                const phys_vec3 *b2_r_loc,
-                contact_point_info::pulse_sum_cache_info *psc)
-{
-    contact_point_info *v5; // esi
-    const contact_point_info::pulse_sum_cache_info *v6; // eax
-    float closest_error; // [esp+4h] [ebp-8h] BYREF
-    const contact_point_info::pulse_sum_cache_info *closest_psc; // [esp+8h] [ebp-4h] BYREF
-
-    v5 = cached_cpi;
-    closest_error = 10000000.0;
-    closest_psc = 0;
-    if ( !cached_cpi )
-        goto LABEL_5;
-    do
-    {
-        //contact_point_info::get_closest_psc(v5, normal, b1_r_loc, b2_r_loc, &closest_error, &closest_psc);
-        v5->get_closest_psc(normal, b1_r_loc, b2_r_loc, &closest_error, &closest_psc);
-        v5 = v5->m_next_link;
-    }
-    while ( v5 );
-    v6 = closest_psc;
-    if ( closest_psc )
-    {
-        psc->m_ps_cache_list[0].m_pulse_sum = closest_psc->m_ps_cache_list[0].m_pulse_sum;
-        psc->m_ps_cache_list[1].m_pulse_sum = v6->m_ps_cache_list[1].m_pulse_sum;
-        psc->m_ps_cache_list[2].m_pulse_sum = v6->m_ps_cache_list[2].m_pulse_sum;
-    }
-    else
-    {
-LABEL_5:
-        if ( psc )
-        {
-            psc->m_ps_cache_list[0].m_pulse_sum = 0.0;
-            psc->m_ps_cache_list[1].m_pulse_sum = 0.0;
-            psc->m_ps_cache_list[2].m_pulse_sum = 0.0;
-        }
-    }
-}
-
-void __thiscall contact_point_info::set_closest_cached_psc(contact_point_info *cached_cpi)
-{
-    contact_point_info::pulse_sum_cache_info *m_list_pulse_sum_cache_info; // esi
-    phys_vec3 *m_list_b1_r_loc; // ebx
-    contact_point_info::pulse_sum_cache_info *last_psci_i; // [esp+Ch] [ebp-8h]
-    const phys_vec3 *b2_r_loc; // [esp+10h] [ebp-4h]
-
-    m_list_pulse_sum_cache_info = this->m_list_pulse_sum_cache_info;
-    m_list_b1_r_loc = this->m_list_b1_r_loc;
-    b2_r_loc = this->m_list_b2_r_loc;
-    for ( last_psci_i = &m_list_pulse_sum_cache_info[this->m_point_pair_count];
-                m_list_pulse_sum_cache_info != last_psci_i;
-                ++m_list_b1_r_loc )
-    {
-        contact_point_info::set_closest_cached_psc(
-            cached_cpi,
-            &this->m_normal,
-            m_list_b1_r_loc,
-            b2_r_loc++,
-            m_list_pulse_sum_cache_info++);
-    }
-}
-
-const phys_surface_type_info *__cdecl surface_type_info_database_get(int surface_type_1, int surface_type_2)
-{
-    if (!G_BPM->g_surface_type_info_database
-        && _tlAssert(
-            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
-            357,
-            "G_BPM->g_surface_type_info_database",
-            ""))
-    {
-        __debugbreak();
-    }
-    return &G_BPM->g_surface_type_info_database[surface_type_info_database_get_index(surface_type_1, surface_type_2)];
-}
 
 void __cdecl set_cpi_params(contact_point_info *cpi, phys_collision_pair *pcp)
 {
@@ -535,7 +58,7 @@ void __cdecl set_cpi_params(contact_point_info *cpi, phys_collision_pair *pcp)
     }
     else
     {
-        psti = surface_type_info_database_get(bpi1->m_surface_type, bpi2->m_surface_type);
+        psti = &surface_type_info_database_get(bpi1->m_surface_type, bpi2->m_surface_type);
         friction = userData1->friction * psti->m_friction_coef;
         bounce = userData1->bounce * psti->m_bounce_coef;
     }
@@ -571,523 +94,6 @@ const centity_s *get_entity(gjk_physics_collision_visitor *collision_visitor)
     //    __debugbreak();
     //}
     return (const centity_s *)collision_visitor->dynEntDef;
-}
-
-// aislop
-void phys_contact_manifold_process::process(
-                phys_collision_pair *pcp,
-                phys_gjk_info *gjk_info)
-{
-// -----------------------------------------------------------------------
-    // Init manifold lists and reset the bump allocator
-    // -----------------------------------------------------------------------
-    this->cman1.m_list_mesh_point        = nullptr;
-    this->cman1.m_list_sorted_mesh_point = nullptr;
-    this->cman1.m_list_contact_point     = nullptr;
-    this->cman2.m_list_mesh_point        = nullptr;
-    this->cman2.m_list_sorted_mesh_point = nullptr;
-    this->cman2.m_list_contact_point     = nullptr;
-    this->m_list_isect_point             = nullptr;
-    this->m_cpi                          = nullptr;
-    this->m_allocator.m_buffer_cur       = this->m_allocator.m_buffer_start;
- 
-    // -----------------------------------------------------------------------
-    // Cache commonly-used pointers
-    // -----------------------------------------------------------------------
-    broad_phase_info    *bpi1             = pcp->m_bpi1;
-    const phys_mat44    *cg1_to_rb1_xform = bpi1->m_cg_to_rb_xform;
-    //rigid_body          *rb1              = (rigid_body *)bpi1->m_cg_to_world_xform;
-    rigid_body *rb1                       = bpi1->m_rb;
-    const phys_mat44    *rb2_to_world     = pcp->m_bpi2->m_rb_to_world_xform;
- 
-    // cg1->rb2 = inv(rb2_to_world) * cg1_to_world
-    phys_full_inv_multiply_mat(
-        &this->cg1_to_rb2_xform,
-        rb2_to_world,
-        bpi1->m_cg_to_world_xform);   // rb1 is used here as cg1_to_world
- 
-    // -----------------------------------------------------------------------
-    // Compute penetration_t – how far along the translation we are
-    //
-    //   displacement = p1_orig - p2_orig   (before the 0.34 nudge)
-    //   dist_p1_p2_n = dot(n, displacement)
-    //   penetration_t = clamp(-dist_p1_p2_n / 10.2, 0, 1)
-    // -----------------------------------------------------------------------
-    phys_vec3 *contact_n = &gjk_info->cg1_cinfo_loc.m_n;
- 
-    // Save original p1/p2 before nudging them apart along the normal
-    phys_vec3 p1_orig = gjk_info->cg1_cinfo_loc.m_p1;
-    phys_vec3 p2_orig = gjk_info->cg1_cinfo_loc.m_p2;
- 
-    // Nudge p1 outward and p2 inward by 0.34 * n
-    const float NUDGE = 0.34f;
-    gjk_info->cg1_cinfo_loc.m_p1.x += contact_n->x * NUDGE;
-    gjk_info->cg1_cinfo_loc.m_p1.y += contact_n->y * NUDGE;
-    gjk_info->cg1_cinfo_loc.m_p1.z += contact_n->z * NUDGE;
- 
-    gjk_info->cg1_cinfo_loc.m_p2.x -= contact_n->x * NUDGE;
-    gjk_info->cg1_cinfo_loc.m_p2.y -= contact_n->y * NUDGE;
-    gjk_info->cg1_cinfo_loc.m_p2.z -= contact_n->z * NUDGE;
- 
-    // displacement = original p1 - original p2
-    phys_vec3 p1_minus_p2;
-    p1_minus_p2.x = p1_orig.x - p2_orig.x;
-    p1_minus_p2.y = p1_orig.y - p2_orig.y;
-    p1_minus_p2.z = p1_orig.z - p2_orig.z;
- 
-    float dist_p1_p2_n = contact_n->dot(p1_minus_p2);
- 
-    const float PENETRATION_SCALE = -10.2f;
-    float penetration_t = dist_p1_p2_n / PENETRATION_SCALE;
-    penetration_t = (penetration_t < 0.0f) ? 0.0f
-                  : (penetration_t > 1.0f) ? 1.0f
-                  : penetration_t;
- 
-    // -----------------------------------------------------------------------
-    // Get feature params scaled by penetration depth
-    // -----------------------------------------------------------------------
-    float feature_dist_eps    = phys_contact_manifold::get_STD_GET_FEATURE_DISTANCE_EPS(penetration_t);
-    float feature_angular_eps = phys_contact_manifold::get_STD_GET_FEATURE_SIN_ANGULAR_EPS_SQ(penetration_t);
- 
-    // --- Body 1 feature ---
-    this->cman1.set_get_feature_params(
-        &gjk_info->cg1_cinfo_loc.m_p1, contact_n,
-        feature_dist_eps, feature_angular_eps);
- 
-    pcp->m_bpi1->m_gjk_geom->get_feature(&this->cman1);
- 
-    // --- Body 2 feature: transform normal and contact point into cg2 space ---
-    phys_vec3 neg_n;
-    neg_n.x = -contact_n->x;
-    neg_n.y = -contact_n->y;
-    neg_n.z = -contact_n->z;
- 
-    // Rotate neg_n by the cg2->cg1 rotation (transpose multiply rows)
-    phys_vec3 n_in_cg2;
-    n_in_cg2.x = gjk_info->cg2_to_cg1_xform.x.x * neg_n.x
-               + gjk_info->cg2_to_cg1_xform.x.y * neg_n.y
-               + gjk_info->cg2_to_cg1_xform.x.z * neg_n.z;
-    n_in_cg2.y = gjk_info->cg2_to_cg1_xform.y.x * neg_n.x
-               + gjk_info->cg2_to_cg1_xform.y.y * neg_n.y
-               + gjk_info->cg2_to_cg1_xform.y.z * neg_n.z;
-    n_in_cg2.z = gjk_info->cg2_to_cg1_xform.z.x * neg_n.x
-               + gjk_info->cg2_to_cg1_xform.z.y * neg_n.y
-               + gjk_info->cg2_to_cg1_xform.z.z * neg_n.z;
- 
-    // Transform p2 into cg2 space
-    phys_vec3 tmp;
-    const phys_vec3 *p2_in_cg2 = phys_full_inv_multiply(
-        &tmp, &gjk_info->cg2_to_cg1_xform, &gjk_info->cg1_cinfo_loc.m_p2);
- 
-    this->cman2.set_get_feature_params(
-        p2_in_cg2, &n_in_cg2,
-        feature_dist_eps, feature_angular_eps);
- 
-    pcp->m_bpi2->m_gjk_geom->get_feature(&this->cman2);
- 
-    // -----------------------------------------------------------------------
-    // Continuous-collision translation offset (for swept contacts)
-    // -----------------------------------------------------------------------
-    float lambda = gjk_info->m_continuous_collision_lambda;
-    phys_vec3 cg1_rel_trans;
-    cg1_rel_trans.x = lambda * gjk_info->m_cg1_relative_translation_loc.x;
-    cg1_rel_trans.y = lambda * gjk_info->m_cg1_relative_translation_loc.y;
-    cg1_rel_trans.z = lambda * gjk_info->m_cg1_relative_translation_loc.z;
- 
-    // -----------------------------------------------------------------------
-    // Try to build a full polygon-polygon contact manifold.
-    // Fall back to a single-point contact if any step fails.
-    // -----------------------------------------------------------------------
-    bool full_manifold = false;
- 
-    if (this->cman1.m_list_mesh_point_count >= 2
-        && this->cman2.m_list_mesh_point_count >= 2
-        && !(this->cman1.m_list_mesh_point_count == 2 && this->cman2.m_list_mesh_point_count == 2))
-    {
-        // Re-compute feature normals with tighter tolerances
-        float comp_dist_eps    = phys_contact_manifold::get_STD_COMP_FEATURE_NORMAL_DISTANCE_EPS(penetration_t);
-        float comp_angular_eps = phys_contact_manifold::get_STD_COMP_FEATURE_NORMAL_SIN_ANGULAR_EPS_SQ(penetration_t);
- 
-        this->cman1.m_feature_distance_eps      = comp_dist_eps;
-        this->cman1.m_sin_feautre_angular_eps_sq = comp_angular_eps;
-        this->cman1.comp_feature_normal();
- 
-        this->cman2.m_feature_distance_eps      = comp_dist_eps;
-        this->cman2.m_sin_feautre_angular_eps_sq = comp_angular_eps;
-        this->cman2.comp_feature_normal();
- 
-        if (this->cman1.m_list_mesh_point_count >= 2
-            && this->cman2.m_list_mesh_point_count >= 2
-            && !(this->cman1.m_list_mesh_point_count == 2 && this->cman2.m_list_mesh_point_count == 2))
-        {
-            this->comp_contact_mat(contact_n);
-            this->cman1.generate_convex_poly(&this->contact_mat);
- 
-            // Move cman2 mesh points into cg1 space, offset by -cg1_rel_trans
-            phys_vec3 neg_rel_trans;
-            neg_rel_trans.x = -cg1_rel_trans.x;
-            neg_rel_trans.y = -cg1_rel_trans.y;
-            neg_rel_trans.z = -cg1_rel_trans.z;
-            this->cman2.xform_and_translate_mesh_points(&gjk_info->cg2_to_cg1_xform, &neg_rel_trans);
-            this->cman2.generate_convex_poly(&this->contact_mat);
- 
-            if (this->cman1.m_list_contact_point_count >= 2
-                && this->cman2.m_list_contact_point_count >= 2
-                && !(this->cman1.m_list_contact_point_count == 2 && this->cman2.m_list_contact_point_count == 2))
-            {
-                this->intersect_poly_poly();
-                full_manifold = (this->m_contact_point_count > 0);
-            }
-        }
-    }
- 
-    // -----------------------------------------------------------------------
-    // Single-point fallback
-    // -----------------------------------------------------------------------
-    if (!full_manifold)
-    {
-        this->m_cpi = (contact_point_info *)contact_point_info::create_cpi(
-            1, false, this->m_cpi_allocator);
- 
-        if (!this->m_cpi)
-            return;
- 
-        // Contact point on body 1 (in rb1 local space)
-        phys_vec3 scratch;
-        phys_vec3 *p1_rb1 = this->m_cpi->m_list_b1_r_loc;
-        const phys_vec3 *r1 = phys_full_multiply(&scratch, cg1_to_rb1_xform, &p1_orig);
-        p1_rb1->x = r1->x;
-        p1_rb1->y = r1->y;
-        p1_rb1->z = r1->z;
- 
-        // Contact point on body 2 (in rb2 local space)
-        phys_vec3 *p2_rb2 = this->m_cpi->m_list_b2_r_loc;
-        const phys_vec3 *r2 = phys_full_multiply(&scratch, &this->cg1_to_rb2_xform, &p2_orig);
-        p2_rb2->x = r2->x;
-        p2_rb2->y = r2->y;
-        p2_rb2->z = r2->z;
- 
-        this->m_contact_point_count = 1;
-        goto FINALIZE;
-    }
- 
-    // -----------------------------------------------------------------------
-    // Sanity checks
-    // -----------------------------------------------------------------------
-    if (this->m_contact_point_count <= 0
-        && _tlAssert("source/phys_collision.cpp", 83, "m_contact_point_count > 0", ""))
-    {
-        __debugbreak();
-    }
-    if (!this->m_list_isect_point
-        && _tlAssert("source/phys_collision.cpp", 84, "m_list_isect_point", ""))
-    {
-        __debugbreak();
-    }
- 
-    // -----------------------------------------------------------------------
-    // Project intersection points onto both feature planes and compute
-    // plane offsets (n1, n2) used later per-point.
-    // -----------------------------------------------------------------------
-    {
-        float d1 = contact_n->dot(this->cman1.m_feature_normal);
-        float d2 = contact_n->dot(this->cman2.m_feature_normal);
- 
-        if (fabsf(d1) <= 1e-7f)
-        {
-            if (_tlAssert("source/phys_collision.cpp", 88, "fabsf(d1) > 0.0000001f", ""))
-                __debugbreak();
-        }
-        if (fabsf(d2) <= 1e-7f)
-        {
-            if (_tlAssert("source/phys_collision.cpp", 89, "fabsf(d2) > 0.0000001f", ""))
-                __debugbreak();
-        }
- 
-        // Plane offsets: n1 = dot(cman1.normal, p1), n2 = dot(cman2.normal, p2)
-        float n1 = this->cman1.m_feature_normal.dot(p1_orig);
-        float n2 = this->cman2.m_feature_normal.dot(p2_orig);
- 
-        // -----------------------------------------------------------------------
-        // If more than 5 intersection points, reduce to 5 keeping the most
-        // "spread-out" set.  The algorithm picks a "closest to centroid" anchor
-        // point and iteratively discards the point that contributes the smallest
-        // triangle area to adjacent edges.
-        // -----------------------------------------------------------------------
-        if (this->m_contact_point_count > 5)
-        {
-            int count = this->m_contact_point_count;
-            contact_manifold_mesh_point **isect = this->m_list_isect_point;
-            contact_manifold_mesh_point **isect_end = isect + count;
- 
-            // Weighted centroid direction vectors:
-            //   dir1 = cman1.normal / d1,   dir2 = cman2.normal / d2
-            // Then delta = dir2 - dir1  projected into contact_mat axes
-            phys_vec3 dir1, dir2;
-            dir1.x = this->cman1.m_feature_normal.x / d1;
-            dir1.y = this->cman1.m_feature_normal.y / d1;
-            dir1.z = this->cman1.m_feature_normal.z / d1;
- 
-            dir2.x = this->cman2.m_feature_normal.x / d2;
-            dir2.y = this->cman2.m_feature_normal.y / d2;
-            dir2.z = this->cman2.m_feature_normal.z / d2;
- 
-            phys_vec3 delta;
-            delta.x = dir2.x - dir1.x;
-            delta.y = dir2.y - dir1.y;
-            delta.z = dir2.z - dir1.z;
- 
-            // Project delta into contact matrix axes to get a 2D bias
-            float bias_u = this->contact_mat.x.dot(delta);
-            float bias_v = this->contact_mat.y.dot(delta);
- 
-            // Find the intersection point whose contact_p is closest to the
-            // biased origin (smallest weighted 2D distance)
-            const float BIG = 1e7f;
-            float min_score = BIG;
-            contact_manifold_mesh_point *anchor = nullptr;
- 
-            contact_manifold_mesh_point **prev_i = isect_end - 2;
-            contact_manifold_mesh_point **cur_i  = isect_end - 1;
- 
-            for (contact_manifold_mesh_point **i = isect; i != isect_end; ++i)
-            {
-                contact_manifold_mesh_point *mp   = *cur_i;
-                contact_manifold_mesh_point *prev  = *prev_i;
-                contact_manifold_mesh_point *self  = *i;
- 
-                // Triangle area of (prev, self, mp) gives a "spread" measure
-                float ex = self->m_contact_p.x - prev->m_contact_p.x;
-                float ey = self->m_contact_p.y - prev->m_contact_p.y;
-                float fx = mp->m_contact_p.x   - prev->m_contact_p.x;
-                float fy = mp->m_contact_p.y   - prev->m_contact_p.y;
-                float area = fabsf(ey * fx - fy * ex);
-                mp->m_p.x = area;   // stash area in m_p.x for the reduction loop
- 
-                // Biased distance to origin
-                float score = mp->m_contact_p.y * bias_v + bias_u * mp->m_contact_p.x;
-                if (min_score > score)
-                {
-                    min_score = score;
-                    anchor    = mp;
-                }
-                prev_i = cur_i;
-                cur_i  = i;
-            }
- 
-            if (!anchor)
-            {
-                if (_tlAssert("source/phys_collision.cpp", 115, "closest_mp", ""))
-                    __debugbreak();
-            }
- 
-            // Reduce until at most 5 points remain, always keeping the anchor
-            contact_manifold_mesh_point **end = isect_end;
-            while ((end - isect) > 5)
-            {
-                // Find the point with the smallest area (excluding anchor)
-                contact_manifold_mesh_point **smallest_i = isect;
- 
-                // Walk neighbours: prev->cur->next to compute triangle areas,
-                // then remove the one that adds the least area.
-                contact_manifold_mesh_point **last = end - 1;
-                contact_manifold_mesh_point **second_last = last - 1;
- 
-                // Recompute areas for the two neighbours of the candidates
-                {
-                    contact_manifold_mesh_point *A = *second_last;
-                    contact_manifold_mesh_point *B = *last;
-                    // neighbour wrapping
-                    contact_manifold_mesh_point **nn = (smallest_i < last) ? smallest_i + 1 : isect;
-                    contact_manifold_mesh_point *C = *nn;
- 
-                    float ex2 = C->m_contact_p.x - A->m_contact_p.x;
-                    float ey2 = C->m_contact_p.y - A->m_contact_p.y;
-                    float fx2 = B->m_contact_p.x - A->m_contact_p.x;
-                    float fy2 = B->m_contact_p.y - A->m_contact_p.y;
-                    float area2 = fabsf(ey2 * fx2 - fy2 * ex2);
-                    B->m_p.x = area2;
- 
-                    // Also update next-next neighbour
-                    contact_manifold_mesh_point **nn2 = (nn < last) ? nn + 1 : isect;
-                    contact_manifold_mesh_point *D = *nn2;
-                    float ex3 = D->m_contact_p.x - B->m_contact_p.x;
-                    float ey3 = D->m_contact_p.y - B->m_contact_p.y;
-                    float fx3 = C->m_contact_p.x - B->m_contact_p.x;
-                    float fy3 = C->m_contact_p.y - B->m_contact_p.y;
-                    float area3 = fabsf(ey3 * fx3 - fy3 * ex3);
-                    C->m_p.x = area3;
-                }
- 
-                end = last;
- 
-                // Compact: remove smallest_i by shifting the rest left
-                if (smallest_i < last)
-                {
-                    int shift_count = (int)((char *)last - (char *)smallest_i - 1) / 4 + 1;
-                    memmove(smallest_i, smallest_i + 1, shift_count * sizeof(void *));
-                }
-            }
- 
-            this->m_contact_point_count = 5;
-        }
- 
-        // -----------------------------------------------------------------------
-        // Allocate contact_point_info and project each intersection point onto
-        // both feature planes to get body-local contact positions.
-        // -----------------------------------------------------------------------
-        contact_point_info *cpi = contact_point_info::create_cpi(
-            this->m_contact_point_count, false, this->m_cpi_allocator);
-        this->m_cpi = cpi;
- 
-        if (cpi)
-        {
-            phys_vec3 *out_b1 = cpi->m_list_b1_r_loc;
-            phys_vec3 *out_b2 = cpi->m_list_b2_r_loc;
- 
-            contact_manifold_mesh_point **mp_i    = this->m_list_isect_point;
-            contact_manifold_mesh_point **mp_end  = mp_i + this->m_contact_point_count;
- 
-            for (; mp_i != mp_end; ++mp_i, ++out_b1, ++out_b2)
-            {
-                // Convert 2D contact point back to 3D in cg1 space
-                phys_vec3 ip_3d;
-                phys_v2_to_v3_multiply(&ip_3d, &this->contact_mat,
-                    (const phys_vec2 *)((char *)(*mp_i) + 16)); // m_contact_p offset
- 
-                // --- Project onto cman1 feature plane -> body1 local ---
-                float dot_ip_n1 = this->cman1.m_feature_normal.dot(ip_3d);
-                float t1        = (n1 - dot_ip_n1) / d1;
- 
-                phys_vec3 ip_on_plane1;
-                ip_on_plane1.x = ip_3d.x + t1 * contact_n->x;
-                ip_on_plane1.y = ip_3d.y + t1 * contact_n->y;
-                ip_on_plane1.z = ip_3d.z + t1 * contact_n->z;
- 
-                phys_vec3 scratch2;
-                const phys_vec3 *r1 = phys_multiply(&scratch2, cg1_to_rb1_xform, &ip_on_plane1);
-                out_b1->x = r1->x + cg1_to_rb1_xform->w.x;
-                out_b1->y = r1->y + cg1_to_rb1_xform->w.y;
-                out_b1->z = r1->z + cg1_to_rb1_xform->w.z;
- 
-                // --- Project onto cman2 feature plane -> body2 local ---
-                // ip_3d shifted by the CCD translation
-                phys_vec3 ip_3d_shifted;
-                ip_3d_shifted.x = ip_3d.x + cg1_rel_trans.x;
-                ip_3d_shifted.y = ip_3d.y + cg1_rel_trans.y;
-                ip_3d_shifted.z = ip_3d.z + cg1_rel_trans.z;
- 
-                float dot_ip_n2 = this->cman2.m_feature_normal.dot(ip_3d_shifted);
-                float t2        = (n2 - dot_ip_n2) / d2;
- 
-                phys_vec3 ip_on_plane2;
-                ip_on_plane2.x = ip_3d_shifted.x + t2 * contact_n->x;
-                ip_on_plane2.y = ip_3d_shifted.y + t2 * contact_n->y;
-                ip_on_plane2.z = ip_3d_shifted.z + t2 * contact_n->z;
- 
-                phys_vec3 scratch3;
-                const phys_vec3 *r2 = phys_multiply(&scratch3, &this->cg1_to_rb2_xform, &ip_on_plane2);
-                out_b2->x = r2->x + this->cg1_to_rb2_xform.w.x;
-                out_b2->y = r2->y + this->cg1_to_rb2_xform.w.y;
-                out_b2->z = r2->z + this->cg1_to_rb2_xform.w.z;
-            }
-        }
-    }
- 
-FINALIZE:
-    if (!this->m_cpi
-        && _tlAssert("source/phys_collision.cpp", 155, "m_cpi", ""))
-    {
-        __debugbreak();
-    }
- 
-    // -----------------------------------------------------------------------
-    // Store the contact normal (negated n, rotated into rb1 space)
-    // -----------------------------------------------------------------------
-    {
-        phys_vec3 neg_contact_n = -(*contact_n);
- 
-        phys_vec3 scratch4;
-        const phys_vec3 *n_rb1 = phys_multiply(&scratch4, bpi1->m_cg_to_world_xform, &neg_contact_n);
- 
-        this->m_cpi->m_normal.x = n_rb1->x;     // stored as m_feature_normal in the raw struct
-        this->m_cpi->m_normal.y = n_rb1->y;
-        this->m_cpi->m_normal.z = n_rb1->z;
- 
-        PHYS_ASSERT_UNIT(&this->m_cpi->m_normal);
-    }
- 
-    // -----------------------------------------------------------------------
-    // Compute translation_lambda for continuous collision
-    // -----------------------------------------------------------------------
-    {
-        float vel_along_n = contact_n->dot(gjk_info->m_cg1_relative_translation_loc);
- 
-        if (vel_along_n >= -0.17f)
-        {
-            this->m_cpi->m_translation_lambda = 1.0f;
-        }
-        else
-        {
-            float t = -dist_p1_p2_n / vel_along_n;
-            t = (t < 0.0f) ? 0.0f : (t > 1.0f) ? 1.0f : t;
-            this->m_cpi->m_translation_lambda = t;
-        }
-    }
- 
-    // -----------------------------------------------------------------------
-    // Set surface properties and link into the CPI list
-    // -----------------------------------------------------------------------
-    set_cpi_params(this->m_cpi, pcp);
- 
-    if (this->m_list_cpi.m_last_next_ptr == nullptr
-        && _tlAssert("C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                     230, "m_last_next_ptr", ""))
-    {
-        __debugbreak();
-    }
- 
-    contact_point_info *cpi = this->m_cpi;
-    cpi->m_next_link = NULL;
-    ++this->m_list_cpi.m_alloc_count;
-    *this->m_list_cpi.m_last_next_ptr   = cpi;
-    this->m_list_cpi.m_last_next_ptr = &cpi->m_next_link;
- 
-    // -----------------------------------------------------------------------
-    // Look up any cached constraint for this body pair
-    // -----------------------------------------------------------------------
-    this->m_cpi->m_pcp = pcp;
- 
-    rigid_body *rb2 = pcp->m_bpi2->m_rb;
-    rigid_body_pair_key pair_key(rb1, rb2);
- 
-    rigid_body_constraint_contact *rbc = avl_tree_find(
-        this->m_rbc_contact_search_tree_root, &pair_key);
- 
-    this->m_cpi->m_rbc_contact = rbc;
- 
-    if (rbc)
-    {
-        // If the bodies are stored in reverse order in the constraint, flip
-        // the b1/b2 pointers and negate the normal.
-        if (rbc->b1 != rb1)
-        {
-            phys_vec3 *tmp_b1      = this->m_cpi->m_list_b1_r_loc;
-            this->m_cpi->m_list_b1_r_loc = this->m_cpi->m_list_b2_r_loc;
-            this->m_cpi->m_list_b2_r_loc = tmp_b1;
- 
-            this->m_cpi->m_normal.x = -this->m_cpi->m_normal.x;
-            this->m_cpi->m_normal.y = -this->m_cpi->m_normal.y;
-            this->m_cpi->m_normal.z = -this->m_cpi->m_normal.z;
-        }
- 
-        this->m_cpi->set_closest_cached_psc(
-            (contact_point_info *)rbc->m_list_contact_point_info_buffer_2.m_first);
-    }
-    else
-    {
-        this->m_cpi->set_closest_cached_psc(nullptr);
-    }
 }
 
 const bpei_database_id *__cdecl get_database_id(bpei_database_id *result, gjk_physics_collision_visitor *collision_visitor)
@@ -1151,15 +157,15 @@ phys_mat44 *__cdecl create_ent_mat(gjk_physics_collision_visitor *collision_visi
     {
         inVector = collision_visitor->cent->pose.origin;
         AnglesToAxis(collision_visitor->cent->pose.angles, (float (*)[3])axis);
-        Phys_AxisToNitrousMat((float (*)[3])axis, ent_mat);
-        Phys_Vec3ToNitrousVec(inVector, &ent_mat->w);
+        Phys_AxisToNitrousMat((float (*)[3])axis, *ent_mat);
+        Phys_Vec3ToNitrousVec(inVector, ent_mat->w);
     }
     else if (collision_visitor->glass)
     {
         origin = collision_visitor->glass->origin;
         AnglesToAxis(collision_visitor->glass->angles, (float (*)[3])v7);
-        Phys_AxisToNitrousMat((float (*)[3])v7, ent_mat);
-        Phys_Vec3ToNitrousVec(origin, &ent_mat->w);
+        Phys_AxisToNitrousMat((float (*)[3])v7, *ent_mat);
+        Phys_Vec3ToNitrousVec(origin, ent_mat->w);
     }
     else
     {
@@ -1178,8 +184,8 @@ phys_mat44 *__cdecl create_ent_mat(gjk_physics_collision_visitor *collision_visi
         dynEntId = DynEnt_GetId(collision_visitor->dynEntDef, v5);
         dynEntPose = DynEnt_GetClientPose(dynEntId, v5);
         UnitQuatToAxis(dynEntPose->pose.quat, (float (*)[3])v4);
-        Phys_AxisToNitrousMat((float (*)[3])v4, ent_mat);
-        Phys_Vec3ToNitrousVec(dynEntPose->pose.origin, &ent_mat->w);
+        Phys_AxisToNitrousMat((float (*)[3])v4, *ent_mat);
+        Phys_Vec3ToNitrousVec(dynEntPose->pose.origin, ent_mat->w);
     }
     return ent_mat;
 }
@@ -1370,15 +376,6 @@ void create_entity_bpi(gjk_physics_collision_visitor *collision_visitor, int mas
     }
 }
 
-void __cdecl phys_aabb_add_hace(phys_vec3 *aabb_min, phys_vec3 *aabb_max)
-{
-    aabb_min->x = aabb_min->x - 0.50999999;
-    aabb_min->y = aabb_min->y - 0.50999999;
-    aabb_min->z = aabb_min->z - 0.50999999;
-    aabb_max->x = aabb_max->x + 0.50999999;
-    aabb_max->y = aabb_max->y + 0.50999999;
-    aabb_max->z = aabb_max->z + 0.50999999;
-}
 
 void __cdecl set_bp_standard_query()
 {
@@ -1397,75 +394,6 @@ void __cdecl debug_callback(void*)
 void __cdecl set_debug_callback()
 {
     phys_set_debug_callback(debug_callback);
-}
-
-void broad_phase_info::set(
-    rigid_body *rb,
-    const phys_mat44 *rb_to_world_xform,
-    const phys_mat44 *cg_to_world_xform,
-    const phys_mat44 *cg_to_rb_xform,
-    const phys_gjk_geom *gjk_geom,
-    unsigned int gjk_geom_id,
-    bool calc_cg_to_world_xform,
-    int surface_type,
-    void *user_data,
-    unsigned int env_collision_flags)
-{
-    this->m_flags = 0;
-    this->m_list_bpb_next = 0;
-    this->m_sap_node = 0;
-    this->m_flags |= 1u;
-    this->m_rb = rb;
-    this->m_rb_to_world_xform = rb_to_world_xform;
-    this->m_cg_to_world_xform = cg_to_world_xform;
-    this->m_cg_to_rb_xform = cg_to_rb_xform;
-    this->m_gjk_geom = gjk_geom;
-    this->m_gjk_geom_id = gjk_geom_id;
-    if (calc_cg_to_world_xform)
-        this->m_flags |= 0x200u;
-    else
-        this->m_flags &= ~0x200u;
-    this->m_surface_type = surface_type;
-    this->m_user_data = user_data;
-    this->m_env_collision_flags = env_collision_flags;
-    this->m_my_collision_type_flags = 0;
-}
-
-void broad_phase_info::collision_prolog()
-{
-    float y; // [esp+18h] [ebp-2Ch]
-    float z; // [esp+1Ch] [ebp-28h]
-    rigid_body *m_rb; // [esp+30h] [ebp-14h]
-
-    if ((this->m_flags & 0x200) != 0)
-        phys_full_multiply_mat((phys_mat44 *)this->m_cg_to_world_xform, this->m_rb_to_world_xform, this->m_cg_to_rb_xform);
-
-    ((phys_gjk_geom *)this->m_gjk_geom)->calc_aabb(this->m_cg_to_world_xform, &this->m_trace_aabb_min_whace, &this->m_trace_aabb_max_whace);
-
-    phys_aabb_add_hace(&this->m_trace_aabb_min_whace, &this->m_trace_aabb_max_whace);
-    m_rb = this->m_rb;
-    y = m_rb->m_moved_vec.y;
-    z = m_rb->m_moved_vec.z;
-    this->m_trace_translation.x = m_rb->m_moved_vec.x;
-    this->m_trace_translation.y = y;
-    this->m_trace_translation.z = z;
-
-    if ((this->m_rb->m_flags & 0x30) == 0)
-        calc_largest_vel_sq(this);
-}
-
-
-void broad_phase_info::set_bpi_env(phys_auto_activate_callback *auto_activate_callback)
-{
-    iassert(is_bpi()); // "call broad_phase_info::set first."
-    iassert(m_sap_node == NULL);
-    this->m_flags = 0;
-    this->m_sap_node = auto_activate_callback;
-    this->m_flags |= 4u;
-    if (auto_activate_callback)
-        this->m_flags |= 0x80u;
-    else
-        this->m_flags &= ~0x80u;
 }
 
 generic_avl_map_node_t *__cdecl generic_avl_map_add(
@@ -1557,34 +485,6 @@ int __cdecl get_physics_contents_mask(char phys_env_collision_flags)
     return mask;
 }
 
-broad_phase_info *__cdecl allocate_bpi_env()
-{
-    signed __int32 v1; // [esp+0h] [ebp-4Ch]
-    void *v2; // [esp+40h] [ebp-Ch]
-    broad_phase_info *first; // [esp+44h] [ebp-8h]
-
-    _InterlockedExchangeAdd(&G_BPM->m_bpi_env_count, 1u);
-    //v2 = phys_transient_allocator::mt_allocate(
-    v2 = G_BPM->g_collision_memory_buffer.mt_allocate(
-        112,
-        16,
-        0,
-        "broad phase collision out of memory.");
-    if (v2)
-        v1 = (signed __int32)v2;
-    else
-        v1 = 0;
-    do
-    {
-        first = G_BPM->m_list_bpi_env;
-        *(_DWORD *)(v1 + 56) = (DWORD)first;
-    } while ((broad_phase_info *)_InterlockedCompareExchange(
-        (volatile unsigned __int32 *)&G_BPM->m_list_bpi_env,
-        v1,
-        (signed __int32)first) != first);
-    return (broad_phase_info *)v1;
-}
-
 char are_intersecting(
     const broad_phase_environment_query_input *bpeqi,
     const phys_vec3 *aabb_min,
@@ -1611,32 +511,34 @@ char are_intersecting(
     v7.y = trans_8;
     v7.z = trans_4;
     return phys_are_potentially_colliding(
-        &bpeqi->trace_aabb_min_wace,
-        &bpeqi->trace_aabb_max_wace,
-        &v7,
-        aabb_min,
-        aabb_max,
+        bpeqi->trace_aabb_min_wace,
+        bpeqi->trace_aabb_max_wace,
+        v7,
+        *aabb_min,
+        *aabb_max,
         &v6);
 }
 
 
 // aislop supervised
 void standard_query::query(
-    const broad_phase_environment_query_input *bpeqi,
+    const broad_phase_environment_query_input &bpeqi_ref,
     broad_phase_environement_query_results *bpeqr)
 {
+    const broad_phase_environment_query_input *bpeqi = &bpeqi_ref;
+
     // Compute swept AABB: union of start and end positions
     phys_vec3 aabb_end_min = bpeqi->trace_aabb_min_wace + bpeqi->trace_translation;
     phys_vec3 swept_min;
-    phys_min(&swept_min, &bpeqi->trace_aabb_min_wace, &aabb_end_min);
+    swept_min = phys_min(bpeqi->trace_aabb_min_wace, aabb_end_min);
 
     phys_vec3 aabb_end_max = bpeqi->trace_aabb_max_wace + bpeqi->trace_translation;
     phys_vec3 swept_max;
-    phys_max(&swept_max, &bpeqi->trace_aabb_max_wace, &aabb_end_max);
+    swept_max = phys_max(bpeqi->trace_aabb_max_wace, aabb_end_max);
 
     float mins[3], maxs[3];
-    Phys_NitrousVecToVec3(&swept_min, mins);
-    Phys_NitrousVecToVec3(&swept_max, maxs);
+    Phys_NitrousVecToVec3(swept_min, mins);
+    Phys_NitrousVecToVec3(swept_max, maxs);
 
     iassert(!isnan(mins[0]) && !isnan(mins[1]) && !isnan(mins[2]));
     iassert(!isnan(maxs[0]) && !isnan(maxs[1]) && !isnan(maxs[2]));
@@ -1649,11 +551,11 @@ void standard_query::query(
         render_box(&bpeqi->trace_aabb_min_wace, &bpeqi->trace_aabb_max_wace, colorBlue, 1000);
 
         float lineStart[3];
-        Phys_NitrousVecToVec3(&bpeqi->trace_aabb_min_wace, lineStart);
+        Phys_NitrousVecToVec3(bpeqi->trace_aabb_min_wace, lineStart);
 
         phys_vec3 aabb_end = bpeqi->trace_aabb_min_wace + bpeqi->trace_translation;
         float lineEnd[3];
-        Phys_NitrousVecToVec3(&aabb_end, lineEnd);
+        Phys_NitrousVecToVec3(aabb_end, lineEnd);
         CG_DebugLine(lineStart, lineEnd, colorRed, 1, 1000);
 
         lineEnd[0] = lineStart[0];
@@ -1688,15 +590,15 @@ void standard_query::query(
             const cbrush_t *brush = v76.brushes[i];
 
             phys_vec3 brush_min, brush_max;
-            Phys_Vec3ToNitrousVec(brush->mins, &brush_min);
-            Phys_Vec3ToNitrousVec(brush->maxs, &brush_max);
+            Phys_Vec3ToNitrousVec(brush->mins, brush_min);
+            Phys_Vec3ToNitrousVec(brush->maxs, brush_max);
 
             phys_vec3 zero_trans = PHYS_ZERO_VEC;
             if (!are_intersecting(bpeqi, &brush_min, &brush_max, &zero_trans))
                 continue;
 
             broad_phase_environment_info *bpei_mt =
-                G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)brush));
+                G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)brush, 0));
 
             if (!bpei_mt->m_data)
             {
@@ -1704,7 +606,7 @@ void standard_query::query(
                 if (!bpei_mt->m_data)
                 {
                     int stype = (brush->axial_sflags[0][0] & 0x3F00000) >> 20;
-                    gjk_brush_t *geom = gjk_brush_t::create(brush, stype, &v83);
+                    gjk_base_t *geom = create_brush_gjk_geom(brush, stype, &v83);
                     geom->set_geom_id_new(bpei_mt->m_gjk_geom_id);
 
                     broad_phase_info *bpi_env = allocate_bpi_env();
@@ -1742,8 +644,8 @@ void standard_query::query(
             const CollisionPartition *partition = &cm.partitions[tree->u.firstChildIndex];
 
             phys_vec3 tree_half, tree_origin;
-            Phys_Vec3ToNitrousVec(tree->halfSize, &tree_half);
-            Phys_Vec3ToNitrousVec(tree->origin, &tree_origin);
+            Phys_Vec3ToNitrousVec(tree->halfSize, tree_half);
+            Phys_Vec3ToNitrousVec(tree->origin, tree_origin);
 
             phys_vec3 tree_min = tree_origin - tree_half;
             phys_vec3 tree_max = tree_origin + tree_half;
@@ -1753,23 +655,23 @@ void standard_query::query(
 
             float hit_time;
             if (!phys_are_potentially_colliding(
-                &bpeqi->trace_aabb_min_wace,
-                &bpeqi->trace_aabb_max_wace,
-                &rel_trans,
-                &tree_min,
-                &tree_max,
+                bpeqi->trace_aabb_min_wace,
+                bpeqi->trace_aabb_max_wace,
+                rel_trans,
+                tree_min,
+                tree_max,
                 &hit_time))
                 continue;
 
             broad_phase_environment_info *bpei_mt =
-                G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)partition));
+                G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)partition, 0));
 
             if (!bpei_mt->m_data)
             {
                 bpei_mt->m_mutex.Lock();
                 if (!bpei_mt->m_data)
                 {
-                    gjk_partition_t *geom = gjk_partition_t::create(tree, &v83);
+                    gjk_partition_t *geom = create_partition_gjk_geom(tree, &v83);
                     geom->set_geom_id_new(bpei_mt->m_gjk_geom_id);
 
                     broad_phase_info *bpi_env = allocate_bpi_env();
@@ -1926,7 +828,7 @@ void standard_query::query(
                 gjk_base_t *first_geom = userRb->m_gjk_geom_list.m_first_geom;
 
                 broad_phase_environment_info *bpei_mt =
-                    G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)userRb));
+                    G_BPM->g_bpei_database.get_bpei_mt(bpei_database_id((unsigned int)userRb, 0));
 
                 if (!bpei_mt->m_data)
                 {
@@ -1986,9 +888,9 @@ void gjk_physics_collision_visitor::set_local_query_info(
     //v15 = retaddr;
     v13 = this;
     phys_calc_local_aabb(
-        &this->bpeqi->trace_aabb_min_wace,
-        &this->bpeqi->trace_aabb_max_wace,
-        this->cg_to_world_xform,
+        this->bpeqi->trace_aabb_min_wace,
+        this->bpeqi->trace_aabb_max_wace,
+        *this->cg_to_world_xform,
         &this->m_local_query_trace_aabb_min,
         &this->m_local_query_trace_aabb_max);
     rb = v13->rb;
@@ -2000,7 +902,8 @@ void gjk_physics_collision_visitor::set_local_query_info(
     v6.x = v9;
     v6.y = v8;
     v6.z = v7;
-    v3 = phys_inv_multiply(&v5, v13->cg_to_world_xform, &v6);
+    v5 = phys_inv_multiply(*v13->cg_to_world_xform, v6);
+    v3 = &v5;
     p_m_local_query_trace_translation = &v13->m_local_query_trace_translation;
     v13->m_local_query_trace_translation.x = v3->x;
     p_m_local_query_trace_translation->y = v3->y;
@@ -2042,7 +945,7 @@ void gjk_physics_collision_visitor::get_local_query_aabb(
     v12.x = v15;
     v12.y = v14;
     v12.z = v13;
-    phys_min(&m_local_query_aabb_min, &this->m_local_query_trace_aabb_min, &v12);
+    m_local_query_aabb_min = phys_min(this->m_local_query_trace_aabb_min, v12);
     v10 = &thisa->m_local_query_trace_translation;
     p_m_local_query_trace_aabb_max = &thisa->m_local_query_trace_aabb_max;
     v8 = thisa->m_local_query_trace_aabb_max.x + thisa->m_local_query_trace_translation.x;
@@ -2051,9 +954,9 @@ void gjk_physics_collision_visitor::get_local_query_aabb(
     m_local_query_aabb_max_4.x = v8;
     m_local_query_aabb_max_4.y = v7;
     m_local_query_aabb_max_4.z = v6;
-    phys_max(&v4, &thisa->m_local_query_trace_aabb_max, &m_local_query_aabb_max_4);
-    Phys_NitrousVecToVec3(&m_local_query_aabb_min, local_query_aabb_min);
-    Phys_NitrousVecToVec3(&v4, local_query_aabb_max);
+    v4 = phys_max(thisa->m_local_query_trace_aabb_max, m_local_query_aabb_max_4);
+    Phys_NitrousVecToVec3(m_local_query_aabb_min, local_query_aabb_min);
+    Phys_NitrousVecToVec3(v4, local_query_aabb_max);
 }
 
 bool gjk_physics_collision_visitor::query_create_prolog(const void *geom)
@@ -2103,15 +1006,15 @@ bool gjk_physics_collision_visitor::query_create_prolog_1(
     phys_vec3 pv_local_aabb_max; // [esp-8h] [ebp-3Ch] BYREF
     phys_vec3 pv_local_aabb_min; // [esp+8h] [ebp-2Ch] BYREF
 
-    Phys_Vec3ToNitrousVec(local_aabb_min, &pv_local_aabb_min);
-    Phys_Vec3ToNitrousVec(local_aabb_max, &pv_local_aabb_max);
+    Phys_Vec3ToNitrousVec(local_aabb_min, pv_local_aabb_min);
+    Phys_Vec3ToNitrousVec(local_aabb_max, pv_local_aabb_max);
 
     return phys_are_potentially_colliding(
-        &this->m_local_query_trace_aabb_min,
-        &this->m_local_query_trace_aabb_max,
-        &this->m_local_query_trace_translation,
-        &pv_local_aabb_min,
-        &pv_local_aabb_max,
+        this->m_local_query_trace_aabb_min,
+        this->m_local_query_trace_aabb_max,
+        this->m_local_query_trace_translation,
+        pv_local_aabb_min,
+        pv_local_aabb_max,
         &hit_time)
         && this->query_create_prolog(geom);
 }

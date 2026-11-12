@@ -1,7 +1,7 @@
 #include "flame_physics.h"
 #include "flame_system.h"
 #include "flame_class_stream.h"
-#include <tl/tl_system.h>
+#include "tl/base/include/tl_system.h"
 #include <DynEntity/DynEntity_coll.h>
 #include <server_mp/sv_main_mp.h>
 #include <qcommon/cm_tracebox.h>
@@ -209,7 +209,7 @@ void __cdecl Flame_Phys_Collision(
     }
     if ( is_server )
     {
-        sv_flame_proftimer.stamp = tlPcGetTick().QuadPart;
+        sv_flame_proftimer.stamp = tlPcGetTick();
         ++sv_flame_proftimer.calls;
         Flame_Server_Trace(
             trace,
@@ -227,12 +227,12 @@ void __cdecl Flame_Phys_Collision(
             close_characters_count,
             close_triggers,
             close_triggers_count);
-        //sv_flame_proftimer.value += tlPcGetTick().QuadPart - sv_flame_proftimer.stamp;
-        sv_flame_proftimer.value += tlPcGetTick().QuadPart - sv_flame_proftimer.stamp;
+        //sv_flame_proftimer.value += tlPcGetTick() - sv_flame_proftimer.stamp;
+        sv_flame_proftimer.value += tlPcGetTick() - sv_flame_proftimer.stamp;
     }
     else
     {
-        cl_flame_proftimer.stamp = tlPcGetTick().QuadPart;
+        cl_flame_proftimer.stamp = tlPcGetTick();
         ++cl_flame_proftimer.calls;
         Flame_Client_Trace(
             trace,
@@ -248,8 +248,8 @@ void __cdecl Flame_Phys_Collision(
             entsCount,
             close_characters,
             close_characters_count);
-        //cl_flame_proftimer.value += tlPcGetTick().QuadPart - cl_flame_proftimer.stamp;
-        cl_flame_proftimer.value += tlPcGetTick().QuadPart - cl_flame_proftimer.stamp;
+        //cl_flame_proftimer.value += tlPcGetTick() - cl_flame_proftimer.stamp;
+        cl_flame_proftimer.value += tlPcGetTick() - cl_flame_proftimer.stamp;
     }
 }
 
@@ -845,7 +845,7 @@ void __cdecl Flame_Phys_Update_Items(bool is_server)
         v3 = &sv_flames;
     else
         v3 = &cl_flames;
-    nflames = v3->m_alloc_count;
+    nflames = v3->get_count();
     if ( nflames )
     {
         if (is_server)
@@ -857,19 +857,19 @@ void __cdecl Flame_Phys_Update_Items(bool is_server)
             //PIXBeginNamedEvent(-1, "cl_flame_physics");
         }
         //v4 = &phys_static_array<flameGeneric_s *,1000>::operator[](v3, 0)[nflames];
-        v4 = v3->operator[](nflames);
+        v4 = v3->get_list_head() + nflames;
 
         //_First = phys_static_array<flameGeneric_s *,1000>::operator[](v3, 0);
         //std::_Sort<flameGeneric_s * *,int,Flame_SortByStream>(_First, v4, v4 - _First, 0);
-        std::sort(v3->operator[](0), v4, Flame_SortByStream{});
+        std::sort(v3->get_list_head(), v4, Flame_SortByStream{});
         //prevStream = (*phys_static_array<flameGeneric_s *,1000>::operator[](v3, 0))->stream;
-        prevStream = (flameStream_s*)((*v3->operator[](0))->stream);
+        prevStream = (flameStream_s*)((*v3)[0]->stream);
         startIndex = 0;
         count = 0;
         for ( i = 0; i < nflames; ++i )
         {
             //if ( (*phys_static_array<flameGeneric_s *,1000>::operator[](v3, i))->stream == prevStream )
-            if ( (*v3->operator[](i))->stream == prevStream )
+            if ( (*v3)[i]->stream == prevStream )
             {
                 ++count;
             }
@@ -881,7 +881,7 @@ void __cdecl Flame_Phys_Update_Items(bool is_server)
                     __debugbreak();
                 }
                 //v1 = phys_static_array<flameGeneric_s *,1000>::operator[](v3, startIndex);
-                v1 = v3->operator[](startIndex);
+                v1 = &(*v3)[startIndex];
                 Flame_Phys_Update_Items_PerStream(is_server, count, v1);
                 startIndex += count;
                 count = 0;
@@ -892,17 +892,17 @@ void __cdecl Flame_Phys_Update_Items(bool is_server)
                 else
                 {
                     //prevStream = (*phys_static_array<flameGeneric_s *, 1000>::operator[](v3, i + 1))->stream;
-                    prevStream = (*v3->operator[](i + 1))->stream;
+                    prevStream = (*v3)[i + 1]->stream;
                 }
             }
         }
         if ( count > 0 )
         {
             //v2 = phys_static_array<flameGeneric_s *,1000>::operator[](v3, startIndex);
-            v2 = v3->operator[](startIndex);
+            v2 = &(*v3)[startIndex];
             Flame_Phys_Update_Items_PerStream(is_server, count, v2);
         }
-        v3->m_alloc_count = 0;
+        v3->remove_all();
         //if ( g_DXDeviceThread == GetCurrentThreadId() )
             //D3DPERF_EndEvent();
     }
@@ -1259,7 +1259,7 @@ void __cdecl Flame_Phys_Update_Item_Chunk(
             gen->phys.newPos[0] = (float)(frametime * gen->phys.velocity[0]) + gen->phys.origin[0];
             gen->phys.newPos[1] = (float)(frametime * gen->phys.velocity[1]) + gen->phys.origin[1];
             gen->phys.newPos[2] = (float)(frametime * gen->phys.velocity[2]) + gen->phys.origin[2];
-            if ( flames->m_alloc_count != 1000 )
+            if ( flames->get_count() != 1000 )
             {
                 v7 = flames->add(0, "phys array add overflow.");
                 *v7 = gen;
@@ -1463,7 +1463,7 @@ void __cdecl Flame_Phys_Update_Item_Drip(
             gen->phys.newPos[0] = (float)(frametime * gen->phys.velocity[0]) + gen->phys.origin[0];
             gen->phys.newPos[1] = (float)(frametime * gen->phys.velocity[1]) + gen->phys.origin[1];
             gen->phys.newPos[2] = (float)(frametime * gen->phys.velocity[2]) + gen->phys.origin[2];
-            if ( flames->m_alloc_count != 1000 )
+            if ( flames->get_count() != 1000 )
             {
                 v5 = flames->add(0, "phys array add overflow.");
                 *v5 = gen;

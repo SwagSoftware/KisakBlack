@@ -5,7 +5,7 @@
 #include "DynEntity_gamestate.h"
 #include "DynEntity_server.h"
 #include "DynEntity_coll.h"
-#include <physics/phys_broad_phase.h>
+#include <physics/phys_collision.h>
 #include <qcommon/common.h>
 
 enum PhysWorld : __int32

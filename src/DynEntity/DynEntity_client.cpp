@@ -11,7 +11,6 @@
 #include <universal/com_math_anglevectors.h>
 #include <cgame_mp/cg_ents_mp.h>
 #include <physics/rope.h>
-#include <physics/physics_system.h>
 #include <bgame/bg_slidemove.h>
 #include <clientscript/cscr_vm.h>
 #include <clientscript/scr_const.h>
@@ -1057,7 +1056,7 @@ void    DynEnt_SetupConstraints(const DynEntityDef *dynEntDef)
                     dyn_ent1_anchor_loc[0] = c->pos[0];
                     dyn_ent1_anchor_loc[1] = c->pos[1];
                     dyn_ent1_anchor_loc[2] = c->pos[2];
-                    Phys_NitrousVecToVec3(&userData1->cg2rb.w, trans1);
+                    Phys_NitrousVecToVec3(userData1->cg2rb.w, trans1);
                     b1_anchor_loc[0] = dyn_ent1_anchor_loc[0] + trans1[0];
                     b1_anchor_loc[1] = dyn_ent1_anchor_loc[1] + trans1[1];
                     b1_anchor_loc[2] = dyn_ent1_anchor_loc[2] + trans1[2];
@@ -1099,8 +1098,8 @@ void    DynEnt_SetupConstraints(const DynEntityDef *dynEntDef)
                     rb1->m_stable_min_contact_count = 0;
                     if ((dedef1->flags & 2) == 0 && (c->type == CONSTRAINT_POINT || c->type == CONSTRAINT_HINGE))
                         Phys_ObjRemoveCollFlags(dynEnt1->physObjId, 450);
-                    Phys_Vec3ToNitrousVec(b1_anchor_loc, &b1loc);
-                    Phys_Vec3ToNitrousVec(b2_anchor_loc, &b2loc);
+                    Phys_Vec3ToNitrousVec(b1_anchor_loc, b1loc);
+                    Phys_Vec3ToNitrousVec(b2_anchor_loc, b2loc);
                     switch (c->type)
                     {
                     case CONSTRAINT_POINT:
@@ -1108,7 +1107,7 @@ void    DynEnt_SetupConstraints(const DynEntityDef *dynEntDef)
                         if (constraint)
                         {
                             //rigid_body_constraint_point::set(constraint, &b1loc, &b2loc);
-                            constraint->set(&b1loc, &b2loc);
+                            constraint->set(b1loc, b2loc);
                             c->constraintHandle = (int)constraint;
                         }
                         else
@@ -1122,7 +1121,7 @@ void    DynEnt_SetupConstraints(const DynEntityDef *dynEntDef)
                         if (rbc_dist)
                         {
                             //rigid_body_constraint_distance::set(rbc_dist, &b1loc, &b2loc, 0.0, c->distance);
-                            rbc_dist->set(&b1loc, &b2loc, 0.0, c->distance);
+                            rbc_dist->set(b1loc, b2loc, 0.0, c->distance);
                             c->constraintHandle = (int)rbc_dist;
                         }
                         else
@@ -1139,29 +1138,29 @@ void    DynEnt_SetupConstraints(const DynEntityDef *dynEntDef)
                             UnitQuatToAxis(dynEntDef->pose.quat, poseaxis);
                             MatrixTranspose(poseaxis, poseinvaxis);
                             MatrixMultiply(caxis, poseinvaxis, b1axis);
-                            Phys_Vec3ToNitrousVec(b1axis[2], &b1axisloc);
-                            Phys_Vec3ToNitrousVec(b1axis[0], &b1refloc);
+                            Phys_Vec3ToNitrousVec(b1axis[2], b1axisloc);
+                            Phys_Vec3ToNitrousVec(b1axis[0], b1refloc);
                             if (dedef2)
                             {
                                 UnitQuatToAxis(dedef2->pose.quat, poseaxis2);
                                 MatrixTranspose(poseaxis2, poseinvaxis2);
                                 MatrixMultiply(caxis, poseinvaxis2, b2axis);
-                                Phys_Vec3ToNitrousVec(b2axis[2], &b2axisloc);
-                                Phys_Vec3ToNitrousVec(b2axis[0], &b2refloc);
+                                Phys_Vec3ToNitrousVec(b2axis[2], b2axisloc);
+                                Phys_Vec3ToNitrousVec(b2axis[0], b2refloc);
                             }
                             else
                             {
-                                Phys_Vec3ToNitrousVec(caxis[2], &b2axisloc);
-                                Phys_Vec3ToNitrousVec(caxis[0], &b2refloc);
+                                Phys_Vec3ToNitrousVec(caxis[2], b2axisloc);
+                                Phys_Vec3ToNitrousVec(caxis[0], b2refloc);
                             }
                             //rigid_body_constraint_hinge::set(
                                 rbc_hinge->set(
-                                &b1loc,
-                                &b2loc,
-                                &b1axisloc,
-                                &b2axisloc,
-                                &b1refloc,
-                                &b2refloc,
+                                b1loc,
+                                b2loc,
+                                b1axisloc,
+                                b2axisloc,
+                                b1refloc,
+                                b2refloc,
                                 DEG2RAD(c->minAngle),
                                 DEG2RAD(c->maxAngle),
                                 c->damp);
@@ -1198,7 +1197,7 @@ void    DynEnt_SetupConstraints(const DynEntityDef *dynEntDef)
                     dyn_ent2_anchor_loc[0] = c->pos2[0];
                     dyn_ent2_anchor_loc[1] = c->pos2[1];
                     dyn_ent2_anchor_loc[2] = c->pos2[2];
-                    Phys_NitrousVecToVec3(&userData2->cg2rb.w, trans2);
+                    Phys_NitrousVecToVec3(userData2->cg2rb.w, trans2);
                     b2_anchor_loc[0] = dyn_ent2_anchor_loc[0] + trans2[0];
                     b2_anchor_loc[1] = dyn_ent2_anchor_loc[1] + trans2[1];
                     b2_anchor_loc[2] = dyn_ent2_anchor_loc[2] + trans2[2];

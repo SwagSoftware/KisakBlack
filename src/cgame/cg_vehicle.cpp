@@ -844,7 +844,7 @@ void    CG_Vehicle_PreControllers(
                     else
                     {
                         axis_loc = wheel->m_b1_wheel_axis_loc;
-                        Phys_NitrousVecToVec3(&axis_loc, axis_loc_vec3);
+                        Phys_NitrousVecToVec3(axis_loc,axis_loc_vec3);
                         vectoangles(axis_loc_vec3, angles_vec3);
                         cent->pose.vehicle.nitrousWheelYaw[j] = angles_vec3[1] - 90.0;
                     }

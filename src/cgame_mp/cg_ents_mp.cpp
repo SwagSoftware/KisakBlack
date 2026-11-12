@@ -685,9 +685,9 @@ static void __cdecl Phys_AnglesToMat44(const float *angles, const float *origin,
     float axis[3][3];
 
     AnglesToAxis(angles, axis);
-    Phys_Vec3ToNitrousVec(axis[0], &outMat->x);
-    Phys_Vec3ToNitrousVec(axis[1], &outMat->y);
-    Phys_Vec3ToNitrousVec(axis[2], &outMat->z);
+    Phys_Vec3ToNitrousVec(axis[0], outMat->x);
+    Phys_Vec3ToNitrousVec(axis[1], outMat->y);
+    Phys_Vec3ToNitrousVec(axis[2], outMat->z);
     outMat->w.x = origin[0];
     outMat->w.y = origin[1];
     outMat->w.z = origin[2];
@@ -791,10 +791,10 @@ void CG_AdjustPositionForMover(
     Phys_AnglesToMat44(moverAngFrom, moverPosFrom, &matFrom);
     Phys_AnglesToMat44(moverAngTo, moverPosTo, &matTo);
 
-    Phys_Vec3ToNitrousVec(in, &input);
-    phys_full_inv_multiply(&local, &matFrom, &input);
-    phys_full_multiply(&world, &matTo, &local);
-    Phys_NitrousVecToVec3(&world, out);
+    Phys_Vec3ToNitrousVec(in, input);
+    local = phys_full_inv_multiply(matFrom, input);
+    world = phys_full_multiply(matTo, local);
+    Phys_NitrousVecToVec3(world, out);
 
     if ( outDeltaAngles )
     {

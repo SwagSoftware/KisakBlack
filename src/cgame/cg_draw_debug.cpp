@@ -27,9 +27,9 @@
 #include <server_mp/sv_bot_mp.h>
 #include <gfx_d3d/r_foliage.h>
 #include "cg_perf.h"
-#include <physics/physics_system_internal.h>
+#include <physics/phys_collision.h>
 #include <gfx_d3d/r_dvars.h>
-#include <tl/tl_system.h>
+#include "tl/base/include/tl_system.h"
 
 __int16 entity_counts[65536];
 

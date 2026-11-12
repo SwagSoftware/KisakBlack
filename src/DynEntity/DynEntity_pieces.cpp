@@ -169,7 +169,7 @@ PhysObjUserData *__cdecl DynEntPieces_SpawnPhysObj(
                 float *angularVelocity,
                 const PhysPreset *physPreset)
 {
-    gjk_aabb_t *aabb_gjk_geom; // eax
+    gjk_base_t *aabb_gjk_geom; // eax
     PhysObjUserData *physObjId; // [esp+0h] [ebp-Ch]
     gjk_geom_list_t gjk_geom_list; // [esp+4h] [ebp-8h] BYREF
     int savedregs; // [esp+Ch] [ebp+0h] BYREF

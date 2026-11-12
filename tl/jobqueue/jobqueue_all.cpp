@@ -1,7 +1,6 @@
 #include "jobqueue_all.h"
 
 #include <Windows.h>
-#include "../tl_system.h"
 #include <universal/q_shared.h>
 #include <qcommon/threads.h>
 
@@ -32,238 +31,9 @@ jqWorker *jqWorkers;
 
 const char *jqCheckContext;
 
-unsigned int __cdecl tlAtomicAdd(volatile unsigned __int32 *var, unsigned int value)
+jqBatchGroup::jqBatchGroup()
 {
-  volatile signed __int32 i; // ecx
-
-  for ( i = *var; _InterlockedCompareExchange(var, *var + value, *var) != i; i = *var )
-    Sleep(0);
-  return i + value;
-}
-
-unsigned __int64 __cdecl tlAtomicAnd(volatile unsigned __int64 *var, unsigned __int64 value)
-{
-#if 0
-  volatile signed __int64 *v2; // edi
-  unsigned int v3; // esi
-  signed __int64 v4; // rax
-  unsigned int v6; // [esp+10h] [ebp-Ch]
-  volatile unsigned __int64 v; // [esp+14h] [ebp-8h]
-
-  v2 = (volatile signed __int64 *)var;
-  for ( v = *var; ; v = *var )
-  {
-    v6 = HIDWORD(v);
-    v3 = v;
-    v4 = _InterlockedCompareExchange64(v2, value & v, v);
-    if ( __PAIR64__(v4, HIDWORD(v4)) == __PAIR64__(v3, v6) )
-      break;
-    Sleep(0);
-    v2 = (volatile signed __int64 *)var;
-  }
-  return value & v;
-#else // aislop
-    uint64_t oldValue;
-    uint64_t newValue;
-
-    do
-    {
-        oldValue = *var;
-        newValue = oldValue & value;
-    } while (_InterlockedCompareExchange64(
-        (volatile LONG64 *)var,
-        newValue,
-        oldValue) != oldValue);
-
-    return newValue;
-#endif
-}
-
-unsigned __int64 __cdecl tlAtomicOr(volatile unsigned __int64 *var, unsigned __int64 value)
-{
-#if 0
-  volatile signed __int64 *v2; // edi
-  unsigned int v3; // esi
-  signed __int64 v4; // rax
-  unsigned int v6; // [esp+10h] [ebp-Ch]
-  volatile unsigned __int64 v; // [esp+14h] [ebp-8h]
-
-  v2 = (volatile signed __int64 *)var;
-  for ( v = *var; ; v = *var )
-  {
-    v6 = HIDWORD(v);
-    v3 = v;
-    v4 = _InterlockedCompareExchange64(v2, value | v, v);
-    if ( __PAIR64__(v4, HIDWORD(v4)) == __PAIR64__(v3, v6) )
-      break;
-    Sleep(0);
-    v2 = (volatile signed __int64 *)var;
-  }
-  return value | v;
-#else // aislop
-    uint64_t oldValue;
-    uint64_t newValue;
-
-    do
-    {
-        oldValue = *var;
-        newValue = oldValue | value;
-    } while (_InterlockedCompareExchange64(
-        (volatile LONG64 *)var,
-        newValue,
-        oldValue) != oldValue);
-
-    return newValue;
-#endif
-}
-
-void __thiscall tlAtomicMutex::Lock()
-{
-    //LONG Target; // [esp+1Ch] [ebp-10h] BYREF
-    tlAtomicMutex *ThisPtr2; // [esp+20h] [ebp-Ch]
-    unsigned __int64 CurThread; // [esp+24h] [ebp-8h]
-
-    CurThread = GetCurrentThreadId();
-
-    if (this->ThreadId == CurThread)
-    {
-        ++this->LockCount;
-    }
-    else
-    {
-        while (1)
-        {
-            if (!_InterlockedCompareExchange64(&this->ThisPtr->ThreadId, CurThread, 0))
-                break;
-            SwitchToThread();
-        }
-        //Target = 0;
-        //InterlockedExchange(&Target, 0);
-        this->LockCount = 1;
-    }
-}
-
-void tlAtomicMutex::Unlock()
-{
-  if ( this->LockCount-- == 1 )
-  {
-      volatile int barrier = 0;
-      InterlockedExchange((volatile long *)&barrier, 0);
-
-      ThreadId = 0;
-  }
-}
-
-bool __thiscall tlAtomicMutex::TryLock()
-{
-    volatile unsigned int Target; // [esp+1Ch] [ebp-10h] BYREF
-    tlAtomicMutex *ThisPtr2; // [esp+20h] [ebp-Ch]
-    unsigned __int64 CurThread; // [esp+24h] [ebp-8h]
-
-    CurThread = GetCurrentThreadId();
-    if (this->ThreadId == CurThread)
-    {
-        ++this->LockCount;
-        return 1;
-    }
-    else
-    {
-        ThisPtr2 = this->ThisPtr;
-        if (_InterlockedCompareExchange64((volatile signed __int64 *)ThisPtr2, CurThread, 0))
-        {
-            return 0;
-        }
-        else
-        {
-            Target = 0;
-            InterlockedExchange(&Target, 0);
-            this->LockCount = 1;
-            return 1;
-        }
-    }
-}
-
-// this was added later as aislop, seems inlined 
-void tlSharedAtomicMutex::Unlock()
-{
-    tlSharedAtomicMutex *m = ThisPtr;
-    const uint32_t tid = GetCurrentThreadId();
-
-    int newCount = InterlockedDecrement((volatile long *)&m->LockCount);
-
-    if (newCount == 0)
-    {
-        InterlockedExchange64((volatile long long *)&m->ThreadId, 0);
-    }
-}
-
-void tlSharedAtomicMutex::Lock()
-{
-#if 0
-  unsigned int CurrentThreadId; // ebx
-  tlSharedAtomicMutex *ThisPtr; // eax
-  int ThreadId; // ecx
-  int ThreadId_high; // eax
-  unsigned int CurThread; // [esp+8h] [ebp-Ch]
-  volatile unsigned int Target; // [esp+10h] [ebp-4h] BYREF
-
-  CurrentThreadId = GetCurrentThreadId();
-  ThisPtr = this->ThisPtr;
-  ThreadId = ThisPtr->ThreadId;
-  ThreadId_high = HIDWORD(ThisPtr->ThreadId);
-  CurThread = CurrentThreadId;
-  if ( ThreadId != CurrentThreadId || ThreadId_high )
-  {
-    while ( _InterlockedCompareExchange64((volatile signed __int64 *)this->ThisPtr, CurrentThreadId, 0) )
-    {
-      SwitchToThread();
-      CurrentThreadId = CurThread;
-    }
-    Target = 0;
-    InterlockedExchange(&Target, 0);
-    this->ThisPtr->LockCount = 1;
-  }
-  else
-  {
-    ++this->ThisPtr->LockCount;
-  }
-#else // aislop
-    const uint32_t tid = GetCurrentThreadId();
-    tlSharedAtomicMutex *m = ThisPtr;
-
-    uint32_t owner = (uint32_t)m->ThreadId;
-    uint32_t high = (uint32_t)(m->ThreadId >> 32);
-
-    // recursive lock
-    if (owner == tid && high == 0)
-    {
-        ++m->LockCount;
-        return;
-    }
-
-    // spin until CAS succeeds
-    for (;;)
-    {
-        uint64_t expected = 0;
-        uint64_t desired = tid;
-
-        if (_InterlockedCompareExchange64(
-            (volatile long long *)&m->ThreadId,
-            desired,
-            expected) == expected)
-        {
-            break;
-        }
-
-        SwitchToThread();
-    }
-
-    // weird compiler artifact from original code
-    volatile int target = 0;
-    InterlockedExchange((volatile long *)&target, 0);
-
-    m->LockCount = 1;
-#endif
+    this->BatchCount = 0;
 }
 
 bool jqAtomicHeap::GetAvailableBlock(jqAtomicHeap::LevelInfo *FitLevel, int *FitSlot)
@@ -1525,7 +1295,7 @@ void __cdecl jqWorkerLoop(jqWorker *Worker, jqBatchGroup *GroupID, bool BreakWhe
             {
                 jqCurBatch = &CurBatch;
                 ret = 1;
-                tick64 = tlPcGetTick().QuadPart;
+                tick64 = tlPcGetTick();
 
                 if (CachedConditionalAddress == CurBatch.ConditionalAddress
                     && CachedConditionalValue == CurBatch.ConditionalValue)
@@ -1652,7 +1422,7 @@ void __cdecl jqWorkerLoop(jqWorker *Worker, jqBatchGroup *GroupID, bool BreakWhe
             else
             {
                 //v9 = *(_QWORD *)&tlPcGetTick() - __PAIR64__(HighPart, LowPart);
-                totalTime = tlPcGetTick().QuadPart - tick64;
+                totalTime = tlPcGetTick() - tick64;
                 Worker->WorkTime += totalTime;
                 //v10 = __CFADD__((_DWORD)v9, v4->WorkTime);
                 //LODWORD(v4->WorkTime) += v9;

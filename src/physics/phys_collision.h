@@ -6,14 +6,16 @@
 #include "phys_local.h"
 #include "phys_gjk_collision_detection.h"
 
-void __cdecl phys_aabb_add_hace(phys_vec3 *aabb_min, phys_vec3 *aabb_max);
+void __cdecl set_cpi_params(contact_point_info *cpi, phys_collision_pair *pcp);
 void __cdecl set_bp_standard_query();
 void __cdecl set_debug_callback();
 
-struct pulse_sum_cache;
-struct pulse_sum_node;
-struct phys_auto_activate_callback;
 struct gjk_physics_collision_visitor;
+
+struct standard_query : broad_phase_terrain_query_callback // sizeof=0x4
+{                                       // XREF: .data:standard_query g_standard_query/r
+    void query(const broad_phase_environment_query_input &bpeqi, broad_phase_environement_query_results *bpeqr) override;
+};
 
 struct entity_bpi_header // sizeof=0x8
 {

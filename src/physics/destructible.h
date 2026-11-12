@@ -1,5 +1,5 @@
 #pragma once
-#include "rigid_body.h"
+#include "phys_collision.h"
 #include <qcommon/ent.h>
 
 struct XModel;
@@ -172,7 +172,6 @@ struct destructible_event_t // sizeof=0x34
 struct gentity_s;
 struct DObjModel_s;
 struct centity_s;
-struct environment_rigid_body;
 
 bool __cdecl hasLabel(DestructibleDef *ddef, unsigned __int16 label);
 int __cdecl Destructible_GetPieceIndexForLabel(DestructibleDef *ddef, unsigned __int16 enableLabel);

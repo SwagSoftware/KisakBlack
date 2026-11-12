@@ -253,12 +253,13 @@ void    parented_pathnode_list_update(gentity_s *gent, const phys_mat44 *mat)
         {
             for (node_parent = (pathnode_parent_t *)gamn->m_data; node_parent; node_parent = node_parent->m_next)
             {
-                Phys_Vec3ToNitrousVec(node_parent->origin_loc, &v5);
-                v3 = phys_full_multiply(&v4, mat, &v5);
+                Phys_Vec3ToNitrousVec(node_parent->origin_loc, v5);
+                v4 = phys_full_multiply(*mat, v5);
+                v3 = &v4;
                 v5.x = v3->x;
                 v5.y = v3->y;
                 v5.z = v3->z;
-                Phys_NitrousVecToVec3(&v5, node_parent->m_node->constant.vOrigin);
+                Phys_NitrousVecToVec3(v5, node_parent->m_node->constant.vOrigin);
             }
         }
     }
@@ -432,14 +433,15 @@ void    node_droptofloor(pathnode_t *node)
             if (is_moving_entity(gent))
             {
                 AnglesToAxis(gent->r.currentAngles, (float (*)[3])v7);
-                Phys_AxisToNitrousMat((float (*)[3])v7, &gent_mat);
-                Phys_Vec3ToNitrousVec(gent->r.currentOrigin, &gent_mat.w);
-                Phys_Vec3ToNitrousVec(node->constant.vOrigin, &node_pos);
-                v3 = phys_full_inv_multiply(&v4, &gent_mat, &node_pos);
+                Phys_AxisToNitrousMat((float (*)[3])v7, gent_mat);
+                Phys_Vec3ToNitrousVec(gent->r.currentOrigin, gent_mat.w);
+                Phys_Vec3ToNitrousVec(node->constant.vOrigin, node_pos);
+                v4 = phys_full_inv_multiply(gent_mat, node_pos);
+                v3 = &v4;
                 node_pos.x = v3->x;
                 node_pos.y = v3->y;
                 node_pos.z = v3->z;
-                Phys_NitrousVecToVec3(&node_pos, origin_loc);
+                Phys_NitrousVecToVec3(node_pos, origin_loc);
                 setup_pathnode_parent(node, gentnum, origin_loc);
             }
         }
@@ -1078,7 +1080,7 @@ void __cdecl Path_MovingNodesInCylinder()
     int v7; // [esp+105Ch] [ebp-10h]
     float mins[3]; // [esp+1060h] [ebp-Ch] BYREF
 
-    if (enable_moving_paths->current.integer == 1 && g_pathnode_parent_allocator.m_count > 0)
+    if (enable_moving_paths->current.integer == 1 && g_pathnode_parent_allocator.get_count() > 0)
     {
         if (first_time_called_0)
         {

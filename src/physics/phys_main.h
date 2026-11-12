@@ -1,11 +1,11 @@
 #pragma once
 #include <universal/dvar.h>
 
-#include "rigid_body.h"
+#include "phys_collision.h"
 #include "phys_colgeom.h"
 #include "phys_gjk_collision_detection.h"
 #include "physpreset_load_obj.h"
-#include "phys_broad_phase.h"
+#include <gfx_d3d/r_workercmds.h>
 
 enum PhysicsGeomType : __int32
 {                                       // XREF: BoneDef/r
@@ -82,7 +82,7 @@ struct PhysImpulse // sizeof=0x1C
 
 struct PhysObjUserData // sizeof=0x130
 {                                       // XREF: phys_free_list<PhysObjUserData>::T_internal/r
-    struct rigid_body *body;
+    rigid_body *body;
     struct NitrousVehicle *vehicle;
     gjk_geom_list_t m_gjk_geom_list;
     PhysObjUserData *m_next_link;
@@ -100,7 +100,7 @@ struct PhysObjUserData // sizeof=0x130
     // padding byte
     phys_mat44 cg2rb;
     phys_mat44 cg2w;
-    struct broad_phase_base *m_bpb;
+    broad_phase_base *m_bpb;
     float savedPos[3];
     float savedRot[3][3];
     float friction;
@@ -125,18 +125,12 @@ struct PhysObjUserData // sizeof=0x130
     // padding byte
     // padding byte
     // padding byte
+
+    // phys_link_list1 accessors
+    void set_next_link(PhysObjUserData *const p) { m_next_link = p; }
+    PhysObjUserData *get_next_link() const { return m_next_link; }
 };
 
-struct __declspec(align(4)) phys_surface_type_info // sizeof=0x10
-{                                       // XREF: ?Phys_Init@@YAXXZ/r
-    float m_friction_coef;              // XREF: Phys_Init(void)+8E5/w
-    float m_bounce_coef;                // XREF: Phys_Init(void)+8F2/w
-    unsigned int m_solver_priority;     // XREF: Phys_Init(void)+8F7/w
-    bool m_no_overflow_error;           // XREF: Phys_Init(void)+8FE/w
-    // padding byte
-    // padding byte
-    // padding byte
-};
 static_assert(sizeof(phys_surface_type_info) == 16);
 
 
@@ -182,21 +176,13 @@ struct cdl_proftimer // sizeof=0x60
     void reset();
 };
 
-struct broad_phase_base;
-struct rigid_body;
 struct cbrush_t;
 struct CollisionAabbTree;
 struct cLeafBrushNode_s;
-struct gjk_geom_list_t;
-struct rigid_body_constraint_ragdoll;
 struct XModel;
 
-void __cdecl destroy_gjk_geom(gjk_base_t *geom);
 void __cdecl Phys_Init();
-void __cdecl surface_type_info_database_set(int surface_type_1, int surface_type_2, const phys_surface_type_info *pst);
 void __cdecl create_broad_phase_info(rigid_body *body);
-void __cdecl environment_collision_list_add(broad_phase_base *bpb);
-void __cdecl environment_collision_list_remove(broad_phase_base *bpb);
 void __cdecl destroy_broad_phase_info(rigid_body *body);
 PhysObjUserData * Phys_CreateUserBody(
                 float *position,
@@ -208,8 +194,6 @@ PhysObjUserData * Phys_CreateBodyFromState(
                 const BodyState *state,
                 gjk_geom_list_t *gjk_geom_list,
                 bool do_collision_test);
-void    phys_full_inverse(phys_mat44 *dest, const phys_mat44 *source);
-void __cdecl destroy_gjk_geom(gjk_geom_list_t *gjk_geom_list);
 PhysObjUserData *__cdecl Phys_ObjCreate(
                 int worldIndex,
                 const float *position,
@@ -292,7 +276,7 @@ bool __cdecl Phys_ObjIsAsleep(int id);
 bool __cdecl Phys_ObjIsAsleepSingle(int id);
 
 void __cdecl Phys_SetHingeParams(rigid_body_constraint_ragdoll *id, float motorSpeed, float damp);
-struct rigid_body_constraint_ragdoll * Phys_CreateHinge(
+rigid_body_constraint_ragdoll * Phys_CreateHinge(
                 int obj1,
                 int obj2,
                 const float *anchor,
@@ -301,8 +285,8 @@ struct rigid_body_constraint_ragdoll * Phys_CreateHinge(
                 float damp,
                 float lowStop,
                 float highStop);
-void __cdecl Phys_SetAngularMotorParams(struct rigid_body_constraint_ragdoll *id, const float *motorSpeeds, float *damp);
-struct rigid_body_constraint_ragdoll * Phys_CreateSwivel(
+void __cdecl Phys_SetAngularMotorParams(rigid_body_constraint_ragdoll *id, const float *motorSpeeds, float *damp);
+rigid_body_constraint_ragdoll * Phys_CreateSwivel(
                 int obj1,
                 int obj2,
                 const float *anchor,
@@ -312,11 +296,8 @@ struct rigid_body_constraint_ragdoll * Phys_CreateSwivel(
                 const float *motorFMaxs,
                 float *lowStops,
                 float *highStops);
-void phys_inv_multiply_mat(phys_mat44 *dest, const phys_mat44 *left, const phys_mat44 *right);
 void __cdecl Phys_CalcPreset(PhysPreset *physPreset, float *dims, int surfaceType);
 int __cdecl Phys_GetCurrentTime();
-
-int __cdecl surface_type_info_database_get_index(int surface_type_1, int surface_type_2);
 
 extern const dvar_t *phys_gravity;
 extern const dvar_t *phys_gravity_dir;
@@ -376,7 +357,6 @@ extern const dvar_t *phys_fluid;
 
 extern cdl_proftimer proftimer_physics_frame_advance;
 extern PhysGlob physGlob;
-extern axis_aligned_sweep_and_prune *g_axis_aligned_sweep_and_prune;
 extern minspec_mutex g_render_mutex;
 
 extern int g_debug_partition;

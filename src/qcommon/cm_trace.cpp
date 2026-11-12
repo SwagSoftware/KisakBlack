@@ -3846,12 +3846,12 @@ void __cdecl calc_closest(const float *v0, const float *v1, const float *v2, con
                         -((float)((float)(v10[0] * v21[0]) + (float)(v10[1] * v21[1])) + (float)(v10[2] * v21[2])),
                         v21,
                         v21perp);
-                    y21 = phys_dot((const phys_vec3 *)pv1, (const phys_vec3 *)v21perp);
+                    y21 = phys_dot(*(const phys_vec3 *)pv1, *(const phys_vec3 *)v21perp);
                     if ( y21 < 0.0 || x21 < 0.0 || d_sqr21 < x21 )
                     {
                         //Vec3ScaleMad(COERCE_FLOAT(LODWORD(d_sqr02) ^ _mask__NegFloat_), v10, v02v10, v02, v02perp);
                         Vec3ScaleMad(-d_sqr02, v10, v02v10, v02, v02perp);
-                        y02 = phys_dot((const phys_vec3 *)pv0, (const phys_vec3 *)v02perp);
+                        y02 = phys_dot(*(const phys_vec3 *)pv0, *(const phys_vec3 *)v02perp);
                         if ( y02 < 0.0 || x02 < 0.0 || d_sqr02 < x02 )
                             Vec3Copy(p, res);
                         else

@@ -8,7 +8,7 @@
 #include <bgame/bg_misc.h>
 #include <gfx_d3d/r_stream.h>
 #include <cgame/cg_drawtools.h>
-#include <tl/tl_system.h>
+#include "tl/base/include/tl_system.h"
 #include <client/cl_debugdata.h>
 #include <gfx_d3d/r_model_lod.h>
 #include <gfx_d3d/r_primarylights.h>
@@ -3016,7 +3016,7 @@ void __thiscall ShardGroup::GenerateVerts(bool firstView, unsigned int localClie
             verts = baseVerts;
             vertsIndex = vertsBaseIndex;
             timer.counter = &clGlasses->renderer->genVertsTimer;
-            timer.start = tlPcGetTick().QuadPart;
+            timer.start = tlPcGetTick();
             clGlasses->renderer->genVertsCount += this->numVerts;
             for ( i = this->head; i; i = i->groupNext )
             {
@@ -3037,8 +3037,8 @@ void __thiscall ShardGroup::GenerateVerts(bool firstView, unsigned int localClie
                     v4 = i->mesh.numVertsLow;
                 vertsIndex += v4;
             }
-            //*timer.counter += tlPcGetTick().QuadPart - timer.start;
-            *timer.counter += tlPcGetTick().QuadPart - timer.start;
+            //*timer.counter += tlPcGetTick() - timer.start;
+            *timer.counter += tlPcGetTick() - timer.start;
         }
         if ( !this->renderIndices
             && !Assert_MyHandler(

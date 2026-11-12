@@ -1,19 +1,13 @@
 #include "phys_main.h"
 #include "phys_effects.h"
-#include <tl/tl_system.h>
-#include "phys_mem_new.h"
-#include "phys_task_manager.h"
-#include "physics_system.h"
+#include "tl/base/include/tl_system.h"
+#include "tl/physics/include/collision/phys_task_manager.h"
 #include <universal/surfaceflags.h>
 #include <gfx_d3d/rb_debug.h>
 #include "phys_render.h"
-#include "phys_broad_phase.h"
-#include "phys_util.h"
 #include <universal/com_math_anglevectors.h>
 #include "physpreset_load_obj.h"
-#include "phys_assert.h"
 #include <bgame/bg_slidemove.h>
-#include "physics_system_internal.h"
 #include <DynEntity/DynEntity_client.h>
 #include <cgame/cg_main.h>
 #include <xanim/xmodel_utils.h>
@@ -135,9 +129,8 @@ int gImpulseCacheNum;
 PhysImpulse gImpulseCache[16];
 
 float g_delta_t;
-phys_free_list<PhysObjUserData>::iterator g_pop_iter;
-phys_free_list<PhysObjUserData>::iterator g_pop_iter_end;
-axis_aligned_sweep_and_prune *g_axis_aligned_sweep_and_prune;
+phys_free_list<PhysObjUserData>::T_internal_base *g_pop_iter;
+phys_free_list<PhysObjUserData>::T_internal_base *g_pop_iter_end;
 
 bool gravityChange;
 static bool physInited = false;
@@ -434,28 +427,30 @@ void __cdecl Phys_Init()
         bpmi.m_max_num_sap_active_pairs = 2048;
         bpmi.m_max_num_surface_types = 35;
         broad_phase_system_init(
-            &bpmi,
+            bpmi,
             Phys_ShouldCollideCallback);
         phys_sys::set_collision_callback(Phys_CollisionCallback);
         phys_sys::set_max_delta_t(1.0);
         phys_sys::set_v_tol(8);
         set_bp_standard_query();
         set_debug_callback();
+        // retail process() called set_cpi_params directly
+        phys_set_cpi_params_callback(set_cpi_params);
         pst.m_friction_coef = 0.4f;
         pst.m_bounce_coef = 0.1f;
         pst.m_solver_priority = 0;
         pst.m_no_overflow_error = 1;
-        surface_type_info_database_set(31, 31, &pst);
+        surface_type_info_database_set(31, 31, pst);
         v3.m_friction_coef = 0.5f;
         v3.m_bounce_coef = 0.1f;
         v3.m_solver_priority = 0;
         v3.m_no_overflow_error = 1;
-        surface_type_info_database_set(31, 32, &v3);
+        surface_type_info_database_set(31, 32, v3);
         v2.m_friction_coef = 0.5f;
         v2.m_bounce_coef = 0.1f;
         v2.m_solver_priority = 0;
         v2.m_no_overflow_error = 1;
-        surface_type_info_database_set(32, 32, &v2);
+        surface_type_info_database_set(32, 32, v2);
         for ( i = 0; i < 31; ++i )
         {
             surfaceFriction = Com_SurfaceFrictionScale(i);
@@ -464,105 +459,14 @@ void __cdecl Phys_Init()
             v1.m_bounce_coef = surfaceBounce;
             v1.m_solver_priority = 1;
             v1.m_no_overflow_error = 0;
-            surface_type_info_database_set(31, i, &v1);
+            surface_type_info_database_set(31, i, v1);
             v0.m_friction_coef = surfaceFriction;
             v0.m_bounce_coef = surfaceBounce;
             v0.m_solver_priority = 1;
             v0.m_no_overflow_error = 0;
-            surface_type_info_database_set(32, i, &v0);
+            surface_type_info_database_set(32, i, v0);
         }
         RB_SetDebugBrushesAndPatchesCallback(render_debug_brushes_and_patches);
-    }
-}
-
-int __cdecl surface_type_info_database_get_index(int surface_type_1, int surface_type_2)
-{
-    int v3; // [esp+0h] [ebp-8h]
-
-    if ((surface_type_1 < 0 || surface_type_1 >= G_BPM->m_max_num_surface_types)
-        && _tlAssert(
-            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
-            336,
-            "surface_type_1 >= 0 && surface_type_1 < G_BPM->m_max_num_surface_types",
-            ""))
-    {
-        __debugbreak();
-    }
-    if ((surface_type_2 < 0 || surface_type_2 >= G_BPM->m_max_num_surface_types)
-        && _tlAssert(
-            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
-            337,
-            "surface_type_2 >= 0 && surface_type_2 < G_BPM->m_max_num_surface_types",
-            ""))
-    {
-        __debugbreak();
-    }
-    if (surface_type_1 < surface_type_2)
-        v3 = surface_type_1 + surface_type_2 * (surface_type_2 + 1) / 2;
-    else
-        v3 = surface_type_2 + surface_type_1 * (surface_type_1 + 1) / 2;
-    if (v3 < 0 || v3 >= G_BPM->m_max_num_surface_type_infos)
-    {
-        if (_tlAssert(
-            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
-            339,
-            "index >= 0 && index < G_BPM->m_max_num_surface_type_infos",
-            ""))
-        {
-            __debugbreak();
-        }
-    }
-    return v3;
-}
-
-void __cdecl surface_type_info_database_set(int surface_type_1, int surface_type_2, const phys_surface_type_info *pst)
-{
-    // LWSS: this is some temp debug kludge leftover
-    //if ( !G_BPM->g_surface_type_info_database )
-    //    break_here_27 = 1;
-    if ( !G_BPM->g_surface_type_info_database
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
-                 351,
-                 "G_BPM->g_surface_type_info_database",
-                 "") )
-    {
-        __debugbreak();
-    }
-    G_BPM->g_surface_type_info_database[surface_type_info_database_get_index(surface_type_1, surface_type_2)] = *pst;
-}
-
-broad_phase_info *__cdecl create_broad_phase_info()
-{
-    phys_free_list<broad_phase_info> *p_g_list_broad_phase_info; // edi
-    phys_free_list<broad_phase_info>::T_internal *v1; // eax
-    phys_free_list<broad_phase_info>::T_internal *v2; // esi
-
-    p_g_list_broad_phase_info = &G_BPM->g_list_broad_phase_info;
-    v1 = (phys_free_list<broad_phase_info>::T_internal *)PMM_ALLOC(0x90u, 0x10u);
-    v2 = v1;
-    if (v1)
-    {
-        v1->m_prev_T_internal = &p_g_list_broad_phase_info->m_dummy_head;
-        v1->m_next_T_internal = p_g_list_broad_phase_info->m_dummy_head.m_next_T_internal;
-        p_g_list_broad_phase_info->m_dummy_head.m_next_T_internal->m_prev_T_internal = v1;
-        ++p_g_list_broad_phase_info->m_list_count;
-        p_g_list_broad_phase_info->m_dummy_head.m_next_T_internal = v1;
-        //phys_free_list<broad_phase_info>::debug_add(p_g_list_broad_phase_info, v1);
-        p_g_list_broad_phase_info->debug_add(v1);
-        return &v2->m_data;
-    }
-    else
-    {
-        if (_tlAssert(
-            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-            470,
-            "no_error",
-            "phys_free_list error: out of memory."))
-        {
-            __debugbreak();
-        }
-        return 0;
     }
 }
 
@@ -661,138 +565,6 @@ void __cdecl create_broad_phase_info(rigid_body *body)
     aasap_list_add(userData->m_bpb);
 }
 
-unsigned int __thiscall rigid_body::get_flag(unsigned int f)
-{
-    if ( (f & 0xFFFFFF00) != 0
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\rigid_body.h",
-                 60,
-                 "(f & ~(FLAG_CLIENT_FLAGS_START - 1)) == 0",
-                 "invalid rigid body flag") )
-    {
-        __debugbreak();
-    }
-    return f & this->m_flags;
-}
-
-void __thiscall broad_phase_group::set()
-{
-    this->m_list_bpi_head = 0;
-    this->m_bpi_count = 0;
-    this->m_flags = 0;
-    this->m_rbvm = 0;
-    this->m_list_wci = 0;
-    this->m_sap_node = 0;
-    this->m_list_bpb_next = 0;
-    this->m_user_data = 0;
-    this->m_flags |= 2u;
-    this->m_env_collision_flags = 0;
-    this->m_my_collision_type_flags = 0;
-}
-
-void __thiscall broad_phase_group::add_bpi(broad_phase_info *bpi)
-{
-    if ( (bpi->m_flags & 0x40) != 0
-        && _tlAssert(
-                 "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase.h",
-                 92,
-                 "!bpi->get_flag(broad_phase_info::FLAG_ON_BPG_LIST)",
-                 "") )
-    {
-        __debugbreak();
-    }
-    environment_collision_list_remove(bpi);
-    bpi->m_flags |= 0x40u;
-    bpi->m_list_bpb_next = this->m_list_bpi_head;
-    this->m_list_bpi_head = bpi;
-    ++this->m_bpi_count;
-    this->m_env_collision_flags |= bpi->m_env_collision_flags;
-    this->m_my_collision_type_flags |= bpi->m_my_collision_type_flags;
-}
-
-void __cdecl environment_collision_list_add(broad_phase_base *bpb)
-{
-    broad_phase_memory *v1; // [esp+4h] [ebp-4h]
-
-    iassert(bpb->is_bpi() || bpb->is_bpg());
-
-    if ( (bpb->m_flags & 0x40) != 0
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
-                 236,
-                 "!bpb->get_flag(broad_phase_base::FLAG_ON_BPG_LIST)",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (bpb->m_flags & 0x20) == 0 )
-    {
-        if ( bpb->m_list_bpb_next )
-        {
-            if ( _tlAssert(
-                         "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
-                         239,
-                         "bpb->m_list_bpb_next == NULL",
-                         "") )
-            {
-                __debugbreak();
-            }
-        }
-        v1 = G_BPM;
-        bpb->m_list_bpb_next = G_BPM->g_list_bpb;
-        v1->g_list_bpb = bpb;
-        ++v1->g_list_bpb_count;
-        bpb->m_flags |= 0x20u;
-    }
-}
-
-void __cdecl environment_collision_list_remove(broad_phase_base *bpb)
-{
-    iassert(bpb->is_bpi() || bpb->is_bpg());
-
-    if ( (bpb->m_flags & 0x40) != 0
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
-                 248,
-                 "!bpb->get_flag(broad_phase_base::FLAG_ON_BPG_LIST)",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (bpb->m_flags & 0x20) != 0 )
-    {
-        //broad_phase_memory::list_bpb_remove(G_BPM, bpb);
-        G_BPM->list_bpb_remove(bpb);
-        bpb->m_list_bpb_next = 0;
-        bpb->m_flags &= ~0x20u;
-    }
-}
-
-void __thiscall broad_phase_memory::list_bpb_remove(broad_phase_base *bpb_to_remove)
-{
-    broad_phase_base *bpb; // [esp+4h] [ebp-8h]
-    broad_phase_base **bpb_cur; // [esp+8h] [ebp-4h]
-
-    bpb_cur = &this->g_list_bpb;
-    for ( bpb = this->g_list_bpb; bpb != bpb_to_remove; bpb = bpb->m_list_bpb_next )
-    {
-        if ( !bpb )
-        {
-            if ( _tlAssert(
-                         "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
-                         105,
-                         "bpb",
-                         "") )
-            {
-                __debugbreak();
-            }
-        }
-        bpb_cur = &bpb->m_list_bpb_next;
-    }
-    *bpb_cur = bpb->m_list_bpb_next;
-    --this->g_list_bpb_count;
-}
-
 void __cdecl destroy_broad_phase_info(rigid_body *body)
 {
     broad_phase_info *bpi; // eax
@@ -857,7 +629,6 @@ PhysObjUserData * Phys_CreateUserBody(float *position, int id, PhysicsGeomType g
     int bodyId; // [esp+16Ch] [ebp-C4h]
     PhysObjUserData *userData; // [esp+170h] [ebp-C0h]
     PhysGlob *v31; // [esp+174h] [ebp-BCh]
-    phys_free_list<PhysObjUserData>::iterator i; // [esp+178h] [ebp-B8h]
     phys_free_list<PhysObjUserData>::T_internal_base *m_next_T_internal; // [esp+17Ch] [ebp-B4h]
     float centerOfMass[3]; // [esp+180h] [ebp-B0h] BYREF
     phys_mat44 dictator; // [esp+1C4h] [ebp-6Ch] BYREF
@@ -870,7 +641,7 @@ PhysObjUserData * Phys_CreateUserBody(float *position, int id, PhysicsGeomType g
     //
     //*(float *)v40 = a1;
     //v40[1] = (_UNKNOWN *)geomTypea;
-    Phys_Vec3ToNitrousVec(position, &pos);
+    Phys_Vec3ToNitrousVec(position, pos);
     
     dictator.x.x = 1.0f;
     dictator.x.y = 0.0f;
@@ -1131,7 +902,7 @@ PhysObjUserData * Phys_CreateBodyFromState(
     int bodyId; // [esp+344h] [ebp-50h]
     PhysObjUserData *userData; // [esp+348h] [ebp-4Ch]
     PhysGlob *v100; // [esp+34Ch] [ebp-48h]
-    phys_free_list<PhysObjUserData>::iterator i; // [esp+350h] [ebp-44h]
+    phys_free_list<PhysObjUserData>::T_internal_base *i; // [esp+350h] [ebp-44h]
     phys_free_list<PhysObjUserData>::T_internal_base *m_next_T_internal; // [esp+354h] [ebp-40h]
     //_UNKNOWN *v115[2]; // [esp+388h] [ebp-Ch] BYREF
     //gjk_geom_list_t *gjk_geom_lista; // [esp+394h] [ebp+0h]
@@ -1151,15 +922,15 @@ PhysObjUserData * Phys_CreateBodyFromState(
     if (state->id != -1)
     {
         m_next_T_internal = physGlob.objects.m_dummy_head.m_next_T_internal;
-        for (i.m_ptr = physGlob.objects.m_dummy_head.m_next_T_internal; ; i.m_ptr = i.m_ptr->m_next_T_internal)
+        for (i = physGlob.objects.m_dummy_head.m_next_T_internal; ; i = i->m_next_T_internal)
         {
             v100 = &physGlob;
-            if (&physGlob == (PhysGlob *)i.m_ptr)
+            if (&physGlob == (PhysGlob *)i)
                 break;
-            userData = (PhysObjUserData *)&i.m_ptr[2];
-            if (i.m_ptr[29].m_next_T_internal == (phys_free_list<PhysObjUserData>::T_internal_base *)state->id)
+            userData = (PhysObjUserData *)&i[2];
+            if (i[29].m_next_T_internal == (phys_free_list<PhysObjUserData>::T_internal_base *)state->id)
             {
-                destroy_gjk_geom(gjk_geom_list);
+                destroy_game_gjk_geom(gjk_geom_list);
                 ++userData->refcount;
                 Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
                 return userData;
@@ -1171,7 +942,7 @@ PhysObjUserData * Phys_CreateBodyFromState(
 
     if (!body)
     {
-        destroy_gjk_geom(gjk_geom_list);
+        destroy_game_gjk_geom(gjk_geom_list);
         Com_PrintWarning(20, "Maximum number of physics bodies exceeded\n");
         Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
         return 0;
@@ -1181,7 +952,7 @@ PhysObjUserData * Phys_CreateBodyFromState(
 
     if (!userData)
     {
-        destroy_gjk_geom(gjk_geom_list);
+        destroy_game_gjk_geom(gjk_geom_list);
         phys_sys::destroy(body);
         Com_PrintWarning(20, "Maximum number of Phys User Data exceeded\n");
         Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
@@ -1191,7 +962,7 @@ PhysObjUserData * Phys_CreateBodyFromState(
     dim.x = 3.0f;
     dim.y = 3.0f;
     dim.z = 3.0f;
-    nuge::calc_box_inertia(&dim, &inertia, &volume);
+    nuge::calc_box_inertia(dim, &inertia, &volume);
 
     inertiaScale = state->mass / volume;
     inertia.x *= inertiaScale;
@@ -1245,7 +1016,7 @@ PhysObjUserData * Phys_CreateBodyFromState(
     center.x = 0.5 * (float)(gjk_geom_list_aabb_mn_loc.x + gjk_geom_list_aabb_mx_loc.x);
     center.y = 0.5 * (float)(gjk_geom_list_aabb_mn_loc.y + gjk_geom_list_aabb_mx_loc.y);
     center.z = 0.5 * (float)(gjk_geom_list_aabb_mn_loc.z + gjk_geom_list_aabb_mx_loc.z);
-    Phys_Vec3ToNitrousVec(state->centerOfMassOffset, &com_offset);
+    Phys_Vec3ToNitrousVec(state->centerOfMassOffset, com_offset);
     center.x = center.x + com_offset.x;
     center.y = center.y + com_offset.y;
     center.z = center.z + com_offset.z;
@@ -1253,16 +1024,16 @@ PhysObjUserData * Phys_CreateBodyFromState(
     userData->cg2rb.w.x = -(center.x);
     userData->cg2rb.w.y = -(center.y);
     userData->cg2rb.w.z = -(center.z);
-    phys_full_inverse(&rb2m, &userData->cg2rb);
-    phys_full_multiply_mat(&rb2w, &m2w, &rb2m);
+    phys_full_inverse(rb2m, userData->cg2rb);
+    phys_full_multiply_mat(rb2w, m2w, rb2m);
 
     iassert(Abs(t_vel) < 100000.0f);
     iassert(Abs(a_vel) < 1000.0f);
 
     //rigid_body::set(body, state->mass, &inertia, &rb2w, &t_vel, &a_vel, minStableContactCount);
-    body->set(state->mass, &inertia, &rb2w, &t_vel, &a_vel, minStableContactCount);
+    body->set(state->mass, inertia, rb2w, t_vel, a_vel, minStableContactCount);
     body->m_userdata = userData;
-    Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, &gravity_dir);
+    Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, gravity_dir);
     value = phys_gravity->current.value;
 
     body->m_gravity_acc_vec.x = value * gravity_dir.x;
@@ -1311,12 +1082,12 @@ PhysObjUserData * Phys_CreateBodyFromState(
 
     iassert(Abs(dim) < 10000.0f);
 
-    nuge::calc_box_inertia(&dim, &inertia, &volume);
+    nuge::calc_box_inertia(dim, &inertia, &volume);
     inertia.x *= (float)(mass / volume);
     inertia.y *= (float)(mass / volume);
     inertia.z *= (float)(mass / volume);
 
-    body2->set_inertia(&inertia);
+    body2->set_inertia(inertia);
     create_broad_phase_info(userData->body);
 
     //if (do_collision_test)
@@ -1325,69 +1096,6 @@ PhysObjUserData * Phys_CreateBodyFromState(
     Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
 
     return (PhysObjUserData *)bodyId;
-}
-
-void    phys_full_inverse(phys_mat44 *dest, const phys_mat44 *source)
-{
-    phys_mat44 mat; // [esp-Ch] [ebp-8Ch] BYREF
-    phys_vec3 *p_w; // [esp+40h] [ebp-40h]
-    float v5; // [esp+48h] [ebp-38h]
-    float v6; // [esp+4Ch] [ebp-34h]
-    float v7; // [esp+54h] [ebp-2Ch]
-    float v8; // [esp+58h] [ebp-28h]
-    float v9; // [esp+5Ch] [ebp-24h]
-    const phys_vec3 *v10; // [esp+60h] [ebp-20h]
-    phys_vec3 v11; // [esp+64h] [ebp-1Ch] BYREF
-    //_UNKNOWN *v12[2]; // [esp+74h] [ebp-Ch] BYREF
-    //int vars0; // [esp+80h] [ebp+0h]
-    //
-    //v12[0] = a1;
-    //v12[1] = (_UNKNOWN *)vars0;
-    if (dest == source)
-    {
-        phys_full_inverse(&mat, source);
-        //phys_mat44::operator=(dest, &mat);
-        *dest = mat;
-    }
-    else
-    {
-        phys_transpose(dest, source);
-        v10 = phys_multiply(&v11, dest, &source->w);
-        (v9) = -(v10->x);
-        (v8) = -(v10->y);
-        (v7) = -(v10->z);
-        v5 = v8;
-        v6 = v7;
-        p_w = &dest->w;
-        dest->w.x = v9;
-        p_w->y = v5;
-        p_w->z = v6;
-    }
-}
-
-void __cdecl destroy_gjk_geom(gjk_geom_list_t *gjk_geom_list)
-{
-    gjk_base_t *next_geom; // [esp+0h] [ebp-8h]
-    gjk_base_t *geom; // [esp+4h] [ebp-4h]
-
-    if (gjk_geom_list->m_geom_count < 0
-        && _tlAssert(
-            "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-            1035,
-            "m_geom_count >= 0",
-            ""))
-    {
-        __debugbreak();
-    }
-
-    for (geom = gjk_geom_list->m_first_geom; geom; geom = next_geom)
-    {
-        next_geom = geom->m_next_geom;
-        destroy_gjk_geom(geom);
-    }
-
-    gjk_geom_list->m_first_geom = 0;
-    gjk_geom_list->m_geom_count = 0;
 }
 
 PhysObjUserData *__cdecl Phys_ObjCreate(
@@ -1475,7 +1183,7 @@ void    Phys_ObjSetPosition(int id, float *newPosition)
 
     iassert(!IS_NAN((newPosition)[0]) && !IS_NAN((newPosition)[1]) && !IS_NAN((newPosition)[2]));
     
-    Phys_Vec3ToNitrousVec(newPosition, &pos);
+    Phys_Vec3ToNitrousVec(newPosition, pos);
     userData = Phys_GetUserData(id);
 
     newPos.x = pos.x + userData->cg2rb.w.x;
@@ -1528,7 +1236,7 @@ void __cdecl Phys_ObjSetOrientation(int id, const float *newPosition, const floa
 
     userData = Phys_GetUserData(id);
     rb2w = &userData->body->m_mat;
-    Phys_NitrousVecToVec3(&userData->cg2rb.w, trans);
+    Phys_NitrousVecToVec3(userData->cg2rb.w, trans);
     QuatToAxis(newOrientation, newRotation);
     AxisTransformVec3(newRotation, trans, rotatedCGOffset);
     newCenterOfGravity[0] = *newPosition - rotatedCGOffset[0];
@@ -1539,8 +1247,8 @@ void __cdecl Phys_ObjSetOrientation(int id, const float *newPosition, const floa
     savedPos[1] = newCenterOfGravity[1];
     savedPos[2] = newCenterOfGravity[2];
     AxisCopy(newRotation, userData->savedRot);
-    Phys_Vec3ToNitrousVec(newCenterOfGravity, &rb2w->w);
-    Phys_AxisToNitrousMat(newRotation, rb2w);
+    Phys_Vec3ToNitrousVec(newCenterOfGravity, rb2w->w);
+    Phys_AxisToNitrousMat(newRotation, *rb2w);
     p_w = &rb2w->w;
     body = userData->body;
     body->m_last_position.x = rb2w->w.x;
@@ -1578,20 +1286,7 @@ void    Phys_ObjSetAngularVelocity(int id, float *angularVel)
     angVel.y = angularVel[0];
     angVel.z = angularVel[1];
 
-    body->dangerous_set_a_vel(&angVel);
-}
-
-void __thiscall rigid_body::dangerous_set_a_vel(const phys_vec3 *a_vel)
-{
-    this->m_a_vel.x = a_vel->x;
-    this->m_a_vel.y = a_vel->y;
-    this->m_a_vel.z = a_vel->z;
-    if ( fabs(this->m_a_vel.x) > 100000.0
-        || fabs(this->m_a_vel.y) > 100000.0
-        || fabs(this->m_a_vel.z) > 100000.0 )
-    {
-        phys_exec_debug_callback(this);
-    }
+    body->dangerous_set_a_vel(angVel);
 }
 
 void Phys_ObjSetVelocity(int id, float *velocity)
@@ -1603,20 +1298,7 @@ void Phys_ObjSetVelocity(int id, float *velocity)
     vel.y = velocity[1];
     vel.z = velocity[2];
 
-    body->dangerous_set_t_vel(&vel);
-}
-
-void __thiscall rigid_body::dangerous_set_t_vel(const phys_vec3 *t_vel)
-{
-    this->m_t_vel.x = t_vel->x;
-    this->m_t_vel.y = t_vel->y;
-    this->m_t_vel.z = t_vel->z;
-    if ( fabs(this->m_t_vel.x) > 100000.0
-        || fabs(this->m_t_vel.y) > 100000.0
-        || fabs(this->m_t_vel.z) > 100000.0 )
-    {
-        phys_exec_debug_callback(this);
-    }
+    body->dangerous_set_t_vel(vel);
 }
 
 void    Phys_ObjSetAngularVelocityRaw(int id, float *angularVel)
@@ -1640,7 +1322,7 @@ void    Phys_ObjSetAngularVelocityRaw(int id, float *angularVel)
     v3.y = v5;
     v3.z = v4;
     ///rigid_body::dangerous_set_a_vel(body, &v3);
-    body->dangerous_set_a_vel(&v3);
+    body->dangerous_set_a_vel(v3);
 }
 
 void    Phys_ObjGetPosition(int id, float *outPosition, float (*outRotation)[3])
@@ -1656,9 +1338,9 @@ void    Phys_ObjGetPosition(int id, float *outPosition, float (*outRotation)[3])
     //rb2w = retaddr;
     UserData = Phys_GetUserData(id);
     rb2w = &UserData->body->m_mat;
-    phys_full_multiply_mat(&m2w, rb2w, &UserData->cg2rb);
-    Phys_NitrousVecToVec3(&m2w.w, outPosition);
-    Phys_NitrousMat44ToVec33(&m2w, outRotation);
+    phys_full_multiply_mat(m2w, *rb2w, UserData->cg2rb);
+    Phys_NitrousVecToVec3(m2w.w, outPosition);
+    Phys_NitrousMat44ToVec33(m2w, outRotation);
 }
 
 void __cdecl Phys_ObjGetVelocities(int id, float *tvel, float *avel)
@@ -1671,8 +1353,8 @@ void __cdecl Phys_ObjGetVelocities(int id, float *tvel, float *avel)
         __debugbreak();
     }
     body = Phys_GetUserData(id)->body;
-    Phys_NitrousVecToVec3(&body->m_t_vel, tvel);
-    Phys_NitrousVecToVec3(&body->m_a_vel, avel);
+    Phys_NitrousVecToVec3(body->m_t_vel, tvel);
+    Phys_NitrousVecToVec3(body->m_a_vel, avel);
 }
 
 void __cdecl Phys_ObjGetCenterOfMass(int id, float *outPosition)
@@ -1685,7 +1367,7 @@ void __cdecl Phys_ObjGetCenterOfMass(int id, float *outPosition)
         __debugbreak();
     }
     UserData = Phys_GetUserData(id);
-    Phys_NitrousVecToVec3(&UserData->body->m_mat.w, outPosition);
+    Phys_NitrousVecToVec3(UserData->body->m_mat.w, outPosition);
 }
 
 void __cdecl Phys_ObjAddCollFlags(int physObjId, int collFlags)
@@ -1795,7 +1477,7 @@ void __cdecl Phys_ObjDestroy(int worldIndex, int id)
             phys_sys::destroy(userData->body);
         }
         userData->body = 0;
-        destroy_gjk_geom(&userData->m_gjk_geom_list);
+        destroy_game_gjk_geom(&userData->m_gjk_geom_list);
         Phys_DestroyUserData(worldIndex, userData);
         Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
     }
@@ -1841,8 +1523,8 @@ void    Phys_AddCacheImpulses()
         body = Phys_GetUserData(id)->body;
         if (body)
         {
-            Phys_Vec3ToNitrousVec(impulse->hitp, &pos);
-            Phys_Vec3ToNitrousVec(impulse->hitd, &force);
+            Phys_Vec3ToNitrousVec(impulse->hitp, pos);
+            Phys_Vec3ToNitrousVec(impulse->hitd, force);
             if (Vec3Length(&force.x) >= 1000000.0
                 && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
@@ -1860,7 +1542,7 @@ void    Phys_AddCacheImpulses()
             v1.y = 0.001 * force.y;
             v1.z = 0.001 * force.z;
             //rigid_body::add_force(body, &v1, &pos, 1.0);
-            body->add_force(&v1, &pos, 1.0);
+            body->add_force(v1, pos, 1.0);
         }
     }
 
@@ -1967,7 +1649,7 @@ void    Phys_ObjAddForce(int id, float *worldPos, float *impulse, bool relative)
         if (relative)
         {
             p_m_mat = &body->m_mat;
-            phys_multiply(&v16, &body->m_mat, &pos);
+            v16 = phys_multiply(body->m_mat, pos);
             //operator+(&v15, v5, p_w);
             v15 = v16 + body->m_mat.w;
             pos.x = v15.x;
@@ -1982,7 +1664,7 @@ void    Phys_ObjAddForce(int id, float *worldPos, float *impulse, bool relative)
             v11.x = 0.001 * force.x;
             v11.y = 0.001 * force.y;
             v11.z = 0.001 * force.z;
-            body->add_force(&v11);
+            body->add_force(v11);
             //rigid_body::add_force(body, &v11);
         }
         else
@@ -1990,7 +1672,7 @@ void    Phys_ObjAddForce(int id, float *worldPos, float *impulse, bool relative)
             v7.x = 0.001 * force.x;
             v7.y = 0.001 * force.y;
             v7.z = 0.001 * force.z;
-            body->add_force(&v7, &pos, 1.0f);
+            body->add_force(v7, pos, 1.0f);
             //rigid_body::add_force(body, &v7, &pos, 1.0);
         }
     }
@@ -2003,7 +1685,7 @@ void    Phys_ObjAddTorque(int id, float *torque)
     rigid_body *body; // [esp+10h] [ebp-10h]
 
     body = Phys_GetUserData(id)->body;
-    Phys_Vec3ToNitrousVec(torque, &_torque);
+    Phys_Vec3ToNitrousVec(torque, _torque);
 
     iassert(Abs(_torque) < 1000000.0f);
 
@@ -2012,20 +1694,7 @@ void    Phys_ObjAddTorque(int id, float *torque)
     torq.z = 0.001 * _torque.z;
 
     //rigid_body::add_torque(body, &v3);
-    body->add_torque(&torq);
-}
-
-void __thiscall rigid_body::add_torque(const phys_vec3 *torque)
-{
-    this->m_torque_sum.x = this->m_torque_sum.x + torque->x;
-    this->m_torque_sum.y = this->m_torque_sum.y + torque->y;
-    this->m_torque_sum.z = this->m_torque_sum.z + torque->z;
-    if ( fabs(this->m_torque_sum.x) > 100000.0
-        || fabs(this->m_torque_sum.y) > 100000.0
-        || fabs(this->m_torque_sum.z) > 100000.0 )
-    {
-        phys_exec_debug_callback(this);
-    }
+    body->add_torque(torq);
 }
 
 void __cdecl Phys_ObjBulletImpact(
@@ -2043,7 +1712,7 @@ void __cdecl Phys_ObjBulletImpact(
     int savedregs; // [esp+3Ch] [ebp+0h] BYREF
 
     body = Phys_GetUserData(id)->body;
-    Phys_NitrousVecToVec3(&body->m_mat.w, centerOfMass);
+    Phys_NitrousVecToVec3(body->m_mat.w, centerOfMass);
     bulletDir[0] = *bulletDirRaw;
     bulletDir[1] = bulletDirRaw[1];
     bulletDir[2] = bulletDirRaw[2];
@@ -2384,8 +2053,8 @@ void    Phys_FindAndRenderEntityBrushes(const float *pos, int contentmask)
     {
         v40 = &g_entities[v43[i]];
         AnglesToAxis(v40->r.currentAngles, (float (*)[3])v39);
-        Phys_AxisToNitrousMat((float (*)[3])v39, &v38);
-        Phys_Vec3ToNitrousVec(v40->r.currentOrigin, &v38.w);
+        Phys_AxisToNitrousMat((float (*)[3])v39, v38);
+        Phys_Vec3ToNitrousVec(v40->r.currentOrigin, v38.w);
         ServerDObj = Com_GetServerDObj(v43[i]);
         if ( ServerDObj )
         {
@@ -2419,8 +2088,8 @@ void    Phys_FindAndRenderEntityBrushes(const float *pos, int contentmask)
             {
                 Entity = CG_GetEntity(v32, v43[j]);
                 AnglesToAxis(Entity->pose.angles, (float (*)[3])v29);
-                Phys_AxisToNitrousMat((float (*)[3])v29, &v28);
-                Phys_Vec3ToNitrousVec(Entity->pose.origin, &v28.w);
+                Phys_AxisToNitrousMat((float (*)[3])v29, v28);
+                Phys_Vec3ToNitrousVec(Entity->pose.origin, v28.w);
                 ClientDObj = Com_GetClientDObj(v43[j], v32);
                 if ( ClientDObj )
                 {
@@ -2469,8 +2138,8 @@ void    Phys_FindAndRenderEntityBrushes(const float *pos, int contentmask)
                 EntityDef = DynEnt_GetEntityDef(*v14, k);
                 v12 = DynEnt_GetClientPose(*v14, k);
                 UnitQuatToAxis(v12->pose.quat, (float (*)[3])v11);
-                Phys_AxisToNitrousMat((float (*)[3])v11, &v10);
-                Phys_Vec3ToNitrousVec(v12->pose.origin, &v10.w);
+                Phys_AxisToNitrousMat((float (*)[3])v11, v10);
+                Phys_Vec3ToNitrousVec(v12->pose.origin, v10.w);
                 if ( k )
                 {
                     render_brushmodel_chull(EntityDef->brushModel, (unsigned int)EntityDef, &v10, v46);
@@ -3012,7 +2681,7 @@ int __cdecl buoyancy_worker()
 {
     phys_free_list<PhysObjUserData>::T_internal_base *i; // [esp+14h] [ebp-4h]
 
-    for ( i = g_pop_iter.m_ptr; g_pop_iter_end.m_ptr != i; i = g_pop_iter.m_ptr )
+    for ( i = g_pop_iter; g_pop_iter_end != i; i = g_pop_iter )
     {
         if ( (phys_free_list<PhysObjUserData>::T_internal_base *)_InterlockedCompareExchange(
                                                                                                                              (volatile unsigned __int32 *)&g_pop_iter,
@@ -3037,7 +2706,7 @@ void __cdecl Phys_BodyGrabSnapshotNitrous(PhysObjUserData *userData, float delta
     if ( !body && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 1360, 0, "%s", "body") )
         __debugbreak();
     rb2w = &userData->body->m_mat;
-    phys_full_multiply_mat(&userData->cg2w, rb2w, &userData->cg2rb);
+    phys_full_multiply_mat(userData->cg2w, *rb2w, userData->cg2rb);
     if ( (body->m_flags & 0x20) == 0 )
     {
         drag_scale = 1.0f;
@@ -3193,8 +2862,6 @@ void    UpdateRigidBody(float delta_t)
     float value; // [esp+54h] [ebp-2Ch]
     phys_free_list<rigid_body> *p_m_list_rigid_body; // [esp+58h] [ebp-28h]
     phys_free_list<rigid_body>::T_internal_base *m_next_T_internal; // [esp+5Ch] [ebp-24h]
-    phys_free_list<rigid_body>::iterator i_end; // [esp+64h] [ebp-1Ch] BYREF
-    phys_free_list<rigid_body>::iterator i; // [esp+68h] [ebp-18h]
     float v10; // [esp+6Ch] [ebp-14h]
     phys_vec3 gravity_dir; // [esp+70h] [ebp-10h] BYREF
     //float retaddr; // [esp+80h] [ebp+0h]
@@ -3211,7 +2878,7 @@ void    UpdateRigidBody(float delta_t)
         Sys_EnterCriticalSection(CRITSECT_PHYSICS_UPDATE);
         if (gravityChange)
         {
-            Phys_Vec3ToNitrousVec(phys_gravity_dir->current.vector, &gravity_dir);
+            Phys_Vec3ToNitrousVec(phys_gravity_dir->current.vector, gravity_dir);
             //m_next_T_internal = g_physics_system->m_list_rigid_body.m_dummy_head.m_next_T_internal;
             //p_m_list_rigid_body = &g_physics_system->m_list_rigid_body;
             //while ( p_m_list_rigid_body != (phys_free_list<rigid_body> *)m_next_T_internal )
@@ -3400,13 +3067,13 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
             {
                 memset(&phys_zerovec, 0, 12);
                 //rigid_body_constraint_wheel::get_wheel_collide_segment(v33, v41, &rb->m_mat, &v30, &v31);
-                v33->get_wheel_collide_segment(&rb->m_mat, &v30, &v31);
+                v33->get_wheel_collide_segment(rb->m_mat, &v30, &v31);
                 v29 = (float)(v30.z - v31.z) * 0.30000001;
                 LODWORD(p0[3]) = (DWORD)&v30.z;
                 v30.z = v30.z + v29;
-                Phys_NitrousVecToVec3(&v30, p0);
-                Phys_NitrousVecToVec3(&v31, p1);
-                Phys_NitrousVecToVec3(&phys_zerovec, zero);
+                Phys_NitrousVecToVec3(v30, p0);
+                Phys_NitrousVecToVec3(v31, p1);
+                Phys_NitrousVecToVec3(phys_zerovec, zero);
 
                 trace_t traceResults; // [esp+104h] [ebp-4A0h] BYREF
                 //col_context_t::col_context_t(&v24);
@@ -3422,24 +3089,26 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
                 {
                     ++v35;
                     Vec3Lerp(p0, p1, traceResults.fraction, v22);
-                    Phys_Vec3ToNitrousVec(v22, &v21);
-                    Phys_Vec3ToNitrousVec(traceResults.normal.vec.v, &v20);
+                    Phys_Vec3ToNitrousVec(v22, v21);
+                    Phys_Vec3ToNitrousVec(traceResults.normal.vec.v, v20);
                     TraceResultsRigidBody = (environment_rigid_body*)GetTraceResultsRigidBody(&traceResults);
                     p_m_t_vel = &TraceResultsRigidBody->m_t_vel;
                     p_m_ground_vel = &vehicle->m_ground_vel;
                     vehicle->m_ground_vel.x = TraceResultsRigidBody->m_t_vel.x;
                     p_m_ground_vel->y = p_m_t_vel->y;
                     p_m_ground_vel->z = p_m_t_vel->z;
-                    v15 = phys_full_inv_multiply(&v16, &TraceResultsRigidBody->m_mat, &v21);
+                    v16 = phys_full_inv_multiply(TraceResultsRigidBody->m_mat, v21);
+                    v15 = &v16;
                     v21.x = v15->x;
                     v21.y = v15->y;
                     v21.z = v15->z;
-                    LODWORD(v14.z) = (DWORD)phys_inv_multiply(&localNormal, &TraceResultsRigidBody->m_mat, &v20);
+                    localNormal = phys_inv_multiply(TraceResultsRigidBody->m_mat, v20);
+                    LODWORD(v14.z) = (DWORD)&localNormal;
                     v20.x = *(float *)LODWORD(v14.z);
                     v20.y = *(float *)(LODWORD(v14.z) + 4);
                     v20.z = *(float *)(LODWORD(v14.z) + 8);
                     //rigid_body_constraint_wheel::set_collision(v33, TraceResultsRigidBody, &v21, &v20);
-                    v33->set_collision(TraceResultsRigidBody, &v21, &v20);
+                    v33->set_collision(TraceResultsRigidBody, v21, v20);
                     LODWORD(v14.y) = (traceResults.sflags & 0x3F00000) >> 20;
                     vehicle->m_wheel_surf_types[j] = LODWORD(v14.y);
                     v14.x = Com_SurfaceFrictionScale(SLODWORD(v14.y));
@@ -3481,7 +3150,7 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
 
 
                         //rigid_body_constraint_wheel::get_wheel_state_accelerating(v5, &v2, &v3);
-                        v5->get_wheel_state_accelerating(&v2, &v3);
+                        v5->get_wheel_state_accelerating(v2, v3);
                         //rigid_body_constraint_wheel::set_wheel_state_accelerating(v5, v2, v3 * acceleration_proportion);
                         v5->set_wheel_state_accelerating(v2, v3 *acceleration_proportion);
                     }
@@ -3491,29 +3160,23 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
     }
 }
 
-int __cdecl wheel_collision_worker(jqBatch *__);
-phys_free_list<PhysObjUserData>::iterator g_wpop_iter;
-phys_free_list<PhysObjUserData>::iterator g_wpop_iter_end;
-jqModule wheelCollisionModule =
-{
-    .Name = "wheelCollision",
-    .Type = JQ_WORKER_GENERIC,
-    .Code = wheel_collision_worker,
-};
+void __cdecl wheel_collision_worker(void *input, int job_index);
+phys_free_list<PhysObjUserData>::T_internal_base *g_wpop_iter;
+phys_free_list<PhysObjUserData>::T_internal_base *g_wpop_iter_end;
 void __cdecl prop_system_collision_process()
 {
-    g_wpop_iter.m_ptr = physGlob.objects.m_dummy_head.m_next_T_internal;
+    g_wpop_iter = physGlob.objects.m_dummy_head.m_next_T_internal;
     //g_wpop_iter_end.m_ptr = (phys_free_list<PhysObjUserData>::T_internal_base *)&physGlob;
-    g_wpop_iter_end.m_ptr = (phys_free_list<PhysObjUserData>::T_internal_base *)&physGlob;
-    phys_task_manager_process(&wheelCollisionModule, 0, physGlob.objects.m_list_count);
+    g_wpop_iter_end = (phys_free_list<PhysObjUserData>::T_internal_base *)&physGlob;
+    phys_task_manager_process(wheel_collision_worker, 0, physGlob.objects.m_list_count);
     phys_task_manager_flush();
 }
 
-int __cdecl wheel_collision_worker(jqBatch *__)
+void __cdecl wheel_collision_worker(void *input, int job_index)
 {
     phys_free_list<PhysObjUserData>::T_internal_base *i; // [esp+10h] [ebp-4h]
 
-    for (i = g_wpop_iter.m_ptr; g_wpop_iter_end.m_ptr != i; i = g_wpop_iter.m_ptr)
+    for (i = g_wpop_iter; g_wpop_iter_end != i; i = g_wpop_iter)
     {
         if ((phys_free_list<PhysObjUserData>::T_internal_base *)_InterlockedCompareExchange(
             (volatile unsigned __int32 *)&g_wpop_iter,
@@ -3521,7 +3184,6 @@ int __cdecl wheel_collision_worker(jqBatch *__)
             (signed __int32)i) == i)
             collide_vehicle_wheels((PhysObjUserData *)&i[2]);
     }
-    return 0;
 }
 
 
@@ -3540,8 +3202,8 @@ void    Phys_CollisionCallback()
     float integer; // [esp+60h] [ebp-40h]
     phys_vec3 player_origin; // [esp+64h] [ebp-3Ch] BYREF
     centity_s *player_cent; // [esp+7Ch] [ebp-24h]
-    phys_free_list<rigid_body_constraint_contact>::iterator rbc_i_end; // [esp+80h] [ebp-20h]
-    phys_free_list<rigid_body_constraint_contact>::iterator rbc_i; // [esp+84h] [ebp-1Ch]
+    phys_free_list<rigid_body_constraint_contact>::T_internal_base *rbc_i_end; // [esp+80h] [ebp-20h]
+    phys_free_list<rigid_body_constraint_contact>::T_internal_base *rbc_i; // [esp+84h] [ebp-1Ch]
     phys_free_list<rigid_body_constraint_contact>::T_internal_base *m_next_T_internal; // [esp+88h] [ebp-18h]
     int v19; // [esp+8Ch] [ebp-14h]
     int m_alloc_count; // [esp+90h] [ebp-10h]
@@ -3550,8 +3212,8 @@ void    Phys_CollisionCallback()
     //
     //v21[0] = a1;
     //v21[1] = (_UNKNOWN *)vars0;
-    m_alloc_count = physGlob.objects_by_world[0].m_alloc_count;
-    if (physGlob.objects_by_world[0].m_alloc_count >= 10 || (v19 = physGlob.objects_by_world[1].m_alloc_count, physGlob.objects_by_world[1].m_alloc_count >= 4))
+    m_alloc_count = physGlob.objects_by_world[0].get_count();
+    if (physGlob.objects_by_world[0].get_count() >= 10 || (v19 = physGlob.objects_by_world[1].get_count(), physGlob.objects_by_world[1].get_count() >= 4))
     {
         //cdl_proftimer::start_capture(&proftimer_physics_frame_advance);
         proftimer_physics_frame_advance.start_capture();
@@ -3562,18 +3224,18 @@ void    Phys_CollisionCallback()
     if (phys_drawcontacts->current.enabled)
     {
         m_next_T_internal = g_physics_system->m_list_rbc_contact.m_dummy_head.m_next_T_internal;
-        rbc_i.m_ptr = m_next_T_internal;
-        rbc_i_end.m_ptr = &g_physics_system->m_list_rbc_contact.m_dummy_head;
-        while (rbc_i_end.m_ptr != rbc_i.m_ptr)
+        rbc_i = m_next_T_internal;
+        rbc_i_end = &g_physics_system->m_list_rbc_contact.m_dummy_head;
+        while (rbc_i_end != rbc_i)
         {
-            render_contact((rigid_body_constraint_contact *)&rbc_i.m_ptr[1]);
-            rbc_i.m_ptr = rbc_i.m_ptr->m_next_T_internal;
+            render_contact((rigid_body_constraint_contact *)&rbc_i[1]);
+            rbc_i = rbc_i->m_next_T_internal;
         }
     }
     if (render_bpi_env_collision->current.integer > 0)
     {
         player_cent = CG_GetEntity(0, 0);
-        Phys_Vec3ToNitrousVec(player_cent->pose.origin, &player_origin);
+        Phys_Vec3ToNitrousVec(player_cent->pose.origin, player_origin);
         integer = (float)render_bpi_env_collision->current.integer;
         max_draw_dist_sq = integer * integer;
         for (bpi_env = G_BPM->m_list_bpi_env; bpi_env; bpi_env = (broad_phase_info *)bpi_env->m_list_bpb_cluster_next)
@@ -3582,11 +3244,12 @@ void    Phys_CollisionCallback()
             geom = (gjk_base_t *)bpi_env->m_gjk_geom;
             //((void(__thiscall *)(gjk_base_t *, _DWORD, _DWORD))geom->comp_aabb_loc)(geom, LODWORD(v2), LODWORD(v3));
             geom->comp_aabb_loc();
-            phys_full_inv_multiply(&player_origin_loc, geom_mat, &player_origin);
+            player_origin_loc = phys_full_inv_multiply(*geom_mat, player_origin);
             //v1 = phys_max(&v5, &m_aabb_mn_loc, &player_origin_loc);
-            v1 = phys_max(&v5, geom->get_aabb_mn(), &player_origin_loc);
+            v5 = phys_max(geom->get_aabb_mn_loc(), player_origin_loc);
+            v1 = &v5;
             //phys_min(&v4, &m_aabb_mx_loc, v1);
-            phys_min(&v4, geom->get_aabb_mx(), v1);
+            v4 = phys_min(geom->get_aabb_mx_loc(), *v1);
             v2 = v4.x - player_origin_loc.x;
             v3 = v4.y - player_origin_loc.y;
             if (max_draw_dist_sq >= (float)((float)((float)((float)(v4.x - player_origin_loc.x)
@@ -3702,7 +3365,7 @@ void __cdecl Phys_RunToTime(int timeNow)
     int time_msec; // [esp+34h] [ebp-4h]
     int savedregs; // [esp+38h] [ebp+0h] BYREF
 
-    proftimer_physics_frame_advance.stamp = tlPcGetTick().QuadPart;
+    proftimer_physics_frame_advance.stamp = tlPcGetTick();
     ++proftimer_physics_frame_advance.calls;
 
     {
@@ -3733,7 +3396,7 @@ void __cdecl Phys_RunToTime(int timeNow)
             }
             physGlob.timeLastUpdate = timeNow;
         }
-        proftimer_physics_frame_advance.value += tlPcGetTick().QuadPart - proftimer_physics_frame_advance.stamp;
+        proftimer_physics_frame_advance.value += tlPcGetTick() - proftimer_physics_frame_advance.stamp;
     }
 
     {
@@ -3790,7 +3453,7 @@ void    Phys_SetUserBody(int id, float *position)
     //ida = vars0;
     userData = Phys_GetUserData(id);
     body = (user_rigid_body *)userData->body;
-    Phys_Vec3ToNitrousVec(position, &pos);
+    Phys_Vec3ToNitrousVec(position, pos);
     dictator_52 = 1.0f;
     dictator_56 = 0.0f;
     dictator_60 = 0.0f;
@@ -3827,7 +3490,7 @@ bool __cdecl Phys_ObjIsAsleep(int id)
     {
         //minspec_mutex::Lock(&g_render_mutex);
         g_render_mutex.Lock();
-        Phys_NitrousVecToVec3(&body->m_last_position, _p0);
+        Phys_NitrousVecToVec3(body->m_last_position, _p0);
         _p1[0] = _p0[0];
         _p1[1] = _p0[1];
         _p1[2] = _p0[2] + 10000.0;
@@ -3845,11 +3508,6 @@ bool __cdecl Phys_ObjIsAsleep(int id)
     return body->is_group_stable() || body->is_dangerous()|| body->m_mat.w.z < -10000.0;
 }
 
-unsigned int __thiscall rigid_body::is_dangerous()
-{
-    return this->m_flags & 0x80;
-}
-
 bool __cdecl Phys_ObjIsAsleepSingle(int id)
 {
     const char *v1; // eax
@@ -3863,7 +3521,7 @@ bool __cdecl Phys_ObjIsAsleepSingle(int id)
     {
         //minspec_mutex::Lock(&g_render_mutex);
         g_render_mutex.Lock();
-        Phys_NitrousVecToVec3(&body->m_last_position, _p0);
+        Phys_NitrousVecToVec3(body->m_last_position, _p0);
         _p1[0] = _p0[0];
         _p1[1] = _p0[1];
         _p1[2] = _p0[2] + 10000.0;
@@ -3879,11 +3537,6 @@ bool __cdecl Phys_ObjIsAsleepSingle(int id)
     }
     //return rigid_body::is_stable(body) || rigid_body::is_dangerous(body) || body->m_mat.w.z < -10000.0;
     return body->is_stable() || body->is_dangerous() || body->m_mat.w.z < -10000.0;
-}
-
-unsigned int __thiscall rigid_body::is_stable()
-{
-    return this->m_flags & 4;
 }
 
 void __cdecl Phys_SetHingeParams(rigid_body_constraint_ragdoll *id, float motorSpeed, float damp)
@@ -3961,18 +3614,22 @@ rigid_body_constraint_ragdoll * Phys_CreateHinge(
         ref_abs.x = 1.0f;
         ref_abs.y = 0.0f;
         ref_abs.z = 0.0f;
-        v28 = phys_full_inv_multiply(&v29, &body1->m_mat, &anchor_abs);
+        v29 = phys_full_inv_multiply(body1->m_mat, anchor_abs);
+        v28 = &v29;
         *(_QWORD *)&b1_anchor_loc.x = *(_QWORD *)&v28->x;
         b1_anchor_loc.z = v28->z;
-        v25 = phys_full_inv_multiply(&v26, &body2->m_mat, &anchor_abs);
+        v26 = phys_full_inv_multiply(body2->m_mat, anchor_abs);
+        v25 = &v26;
         b2_anchor_loc.x = v25->x;
         b2_anchor_loc.y = v25->y;
         b2_anchor_loc.z = v25->z;
-        v22 = phys_inv_multiply(&v23, &body1->m_mat, &axis_abs);
+        v23 = phys_inv_multiply(body1->m_mat, axis_abs);
+        v22 = &v23;
         b1_axis_loc.x = v22->x;
         b1_axis_loc.y = v22->y;
         b1_axis_loc.z = v22->z;
-        v19 = phys_inv_multiply(&v20, &body2->m_mat, &axis_abs);
+        v20 = phys_inv_multiply(body2->m_mat, axis_abs);
+        v19 = &v20;
         b2_axis_loc.x = v19->x;
         b2_axis_loc.y = v19->y;
         b2_axis_loc.z = v19->z;
@@ -3989,13 +3646,13 @@ rigid_body_constraint_ragdoll * Phys_CreateHinge(
         b2_ref_loc.y = 0.0f;
         b2_ref_loc.z = 0.0f;
         //rigid_body_constraint_ragdoll::set(joint, &b1_anchor_loc, &b2_anchor_loc);
-        joint->set(&b1_anchor_loc, &b2_anchor_loc);
+        joint->set(b1_anchor_loc, b2_anchor_loc);
         //rigid_body_constraint_ragdoll::set_hinge(
             joint->set_hinge(
-            &b1_axis_loc,
-            &b2_axis_loc,
-            &b1_ref_loc,
-            &b2_ref_loc,
+            b1_axis_loc,
+            b2_axis_loc,
+            b1_ref_loc,
+            b2_ref_loc,
             lowStop,
             highStop);
         //rigid_body_constraint_ragdoll::set_damp_k(joint, damp);
@@ -4141,7 +3798,7 @@ rigid_body_constraint_ragdoll * Phys_CreateSwivel(
         v11 = &v59;
         //v11 = operator-(&v59, &anchor_abs, &body1->m_mat.w);
         v59 = anchor_abs - body1->m_mat.w;
-        phys_inv_multiply(&v58, p_m_mat, v11);
+        v58 = phys_inv_multiply(*p_m_mat, *v11);
         b1_anchor_loc.x = v58.x;
         b1_anchor_loc.y = v58.y;
         b1_anchor_loc.z = v58.z;
@@ -4149,27 +3806,31 @@ rigid_body_constraint_ragdoll * Phys_CreateSwivel(
         v12 = &v55;
         v55 = anchor_abs - body2->m_mat.w;
         //v12 = operator-(&v55, &anchor_abs, &body2->m_mat.w);
-        phys_inv_multiply(&v54, v56, v12);
+        v54 = phys_inv_multiply(*v56, *v12);
         b2_anchor_loc.x = v54.x;
         b2_anchor_loc.y = v54.y;
         b2_anchor_loc.z = v54.z;
-        v51 = phys_inv_multiply(&v52, &body1->m_mat, &axis_abs);
+        v52 = phys_inv_multiply(body1->m_mat, axis_abs);
+        v51 = &v52;
         b1_axis_loc.x = v51->x;
         b1_axis_loc.y = v51->y;
         b1_axis_loc.z = v51->z;
-        v48 = phys_inv_multiply(&v49, &body2->m_mat, &axis_abs);
+        v49 = phys_inv_multiply(body2->m_mat, axis_abs);
+        v48 = &v49;
         b2_axis_loc.x = v48->x;
         b2_axis_loc.y = v48->y;
         b2_axis_loc.z = v48->z;
-        v45 = phys_inv_multiply(&v46, &body1->m_mat, &ref_abs);
+        v46 = phys_inv_multiply(body1->m_mat, ref_abs);
+        v45 = &v46;
         b1_ref_loc.x = v45->x;
         b1_ref_loc.y = v45->y;
         b1_ref_loc.z = v45->z;
-        v42 = phys_inv_multiply(&v43, &body2->m_mat, &ref_abs);
+        v43 = phys_inv_multiply(body2->m_mat, ref_abs);
+        v42 = &v43;
         *(_QWORD *)&b2_ref_loc.x = *(_QWORD *)&v42->x;
         b2_ref_loc.z = v42->z;
         //rigid_body_constraint_ragdoll::set(joint, &b1_anchor_loc, &b2_anchor_loc);
-        joint->set(&b1_anchor_loc, &b2_anchor_loc);
+        joint->set(b1_anchor_loc, b2_anchor_loc);
         limit = 1.2f;
         //LODWORD(v39) = LODWORD(FLOAT_1_2) ^ _mask__NegFloat_;
         (v39) = -(1.2f);
@@ -4198,10 +3859,10 @@ rigid_body_constraint_ragdoll * Phys_CreateSwivel(
         (v27.z) = -(b1_ref_loc.z);
         //rigid_body_constraint_ragdoll::set_swivel(
             joint->set_swivel(
-            &b1_axis_loc,
-            &b2_axis_loc,
-            &v27,
-            &v31,
+            b1_axis_loc,
+            b2_axis_loc,
+            v27,
+            v31,
             min_angle,
             theta_max);
         for (i = 1; i < (int)numAxes; ++i)
@@ -4214,9 +3875,9 @@ rigid_body_constraint_ragdoll * Phys_CreateSwivel(
             b1_ud_abs.z = v23;
             angle_extents = (float)(highStops[i] - lowStops[i]) * 0.5;
             angle_rotate = highStops[i] + lowStops[i];
-            phys_inv_multiply(&b1_ud_loc, &body1->m_mat, &b1_ud_abs);
-            Phys_AxisToNitrousMat(axes, &axes_loc);
-            phys_inv_multiply_mat(&axes_loc, &body1->m_mat, &axes_loc);
+            b1_ud_loc = phys_inv_multiply(body1->m_mat, b1_ud_abs);
+            Phys_AxisToNitrousMat(axes, axes_loc);
+            phys_inv_multiply_mat(axes_loc, body1->m_mat, axes_loc);
             if (i == 1)
             {
                 p_y = &axes_loc.y;
@@ -4231,9 +3892,9 @@ rigid_body_constraint_ragdoll * Phys_CreateSwivel(
                 z = axes_loc.z.z;
             }
             rot_axes.z = z;
-            make_rotate(&axes_loc, &rot_axes, angle_rotate, 1000.0);
+            make_rotate(&axes_loc, rot_axes, angle_rotate, 1000.0);
             //rigid_body_constraint_ragdoll::add_joint_limit(joint, &b1_ud_loc, angle_extents);
-            joint->add_joint_limit(&b1_ud_loc, angle_extents);
+            joint->add_joint_limit(b1_ud_loc, angle_extents);
         }
         return joint;
     }
@@ -4241,36 +3902,6 @@ rigid_body_constraint_ragdoll * Phys_CreateSwivel(
     {
         Com_PrintWarning(20, "Physics: Out of hinge joints (%d max)\n", 256);
         return 0;
-    }
-}
-
-void phys_inv_multiply_mat(phys_mat44 *dest, const phys_mat44 *left, const phys_mat44 *right)
-{
-    if ( dest == left )
-    {
-        phys_mat44 temp;
-        memcpy(&temp, left, sizeof(phys_mat44));
-        phys_inv_multiply_mat(dest, &temp, right);
-        return;
-    }
-    else
-    {
-        phys_vec3 tmp;
-
-        phys_inv_multiply(&tmp, left, &right->x);
-        dest->x.x = tmp.x;
-        dest->x.y = tmp.y;
-        dest->x.z = tmp.z;
-
-        phys_inv_multiply(&tmp, left, &right->y);
-        dest->y.x = tmp.x;
-        dest->y.y = tmp.y;
-        dest->y.z = tmp.z;
-
-        phys_inv_multiply(&tmp, left, &right->z);
-        dest->z.x = tmp.x;
-        dest->z.y = tmp.y;
-        dest->z.z = tmp.z;
     }
 }
 
@@ -4362,8 +3993,6 @@ PhysGlob::PhysGlob()
     v2 = 3;
     for ( i = this->objects_by_world; --v2 >= 0; ++i )
     {
-        i->m_first = 0;
-        i->m_last = 0;
-        i->m_alloc_count = 0;
+        i->remove_all();
     }
 }

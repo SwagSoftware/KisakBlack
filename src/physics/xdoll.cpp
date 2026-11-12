@@ -4,13 +4,11 @@
 #include <cgame_mp/cg_local_mp.h>
 #include <qcommon/dobj_management.h>
 #include <cgame_mp/cg_ents_mp.h>
-#include "physics_system.h"
 #include <xanim/dobj_utils.h>
 #include <qcommon/common.h>
 #include <xanim/xmodel_utils.h>
 #include <xanim/xmodel.h>
 #include <win32/win_common.h>
-#include "phys_broad_phase.h"
 #include <clientscript/cscr_stringlist.h>
 #include <bgame/bg_misc.h>
 #include <bgame/bg_slidemove.h>
@@ -386,7 +384,7 @@ char __cdecl XDoll_CreatePhysObj(
                 bool collide)
 {
     char *v6; // eax
-    gjk_aabb_t *aabb_gjk_geom; // eax
+    gjk_base_t *aabb_gjk_geom; // eax
     int surfFlags; // [esp+0h] [ebp-60h]
     DObj *obj; // [esp+8h] [ebp-58h]
     float origin[3]; // [esp+Ch] [ebp-54h] BYREF
@@ -709,11 +707,12 @@ void    XDoll_CreateConstraint(
         switch (type)
         {
         case CONSTRAINT_POINT:
-            Phys_Vec3ToNitrousVec(constraint->offset, &anchor_loc);
+            Phys_Vec3ToNitrousVec(constraint->offset, anchor_loc);
             m_userdata = (char *)rb1->m_userdata;
             v22 = m_userdata + 32;
             power = (const phys_vec3 *)(m_userdata + 80);
-            v4 = phys_multiply(&v21, (const phys_mat44 *)(m_userdata + 32), &anchor_loc);
+            v21 = phys_multiply(*(const phys_mat44 *)(m_userdata + 32), anchor_loc);
+            v4 = &v21;
             //operator+(&b1_anchor_loc, v4, power);
             b1_anchor_loc = *v4 + *power;
             cinfo->constraint = XDoll_CreatePointConstraint(
@@ -722,14 +721,15 @@ void    XDoll_CreateConstraint(
                 &b1_anchor_loc);
             break;
         case CONSTRAINT_HINGE:
-            Phys_Vec3ToNitrousVec(constraint->offset, &v19);
+            Phys_Vec3ToNitrousVec(constraint->offset, v19);
             v18 = (char *)rb1->m_userdata;
             damp = constraint->damp;
             lowStop = DEG2RAD(constraint->minAngle);
             highStop = DEG2RAD(constraint->maxAngle);
             v14 = v18 + 32;
             powera = (const phys_vec3 *)(v18 + 80);
-            v5 = phys_multiply(&v13, (const phys_mat44 *)(v18 + 32), &v19);
+            v13 = phys_multiply(*(const phys_mat44 *)(v18 + 32), v19);
+            v5 = &v13;
             //operator+(&v12, v5, powera);
             v12 = *v5 + *powera;
             hinge_axis_loc.x = 0.0f;
@@ -738,8 +738,8 @@ void    XDoll_CreateConstraint(
             ref_axis_loc.x = 0.0f;
             ref_axis_loc.y = 1.0f;
             ref_axis_loc.z = 0.0f;
-            phys_multiply(&b1_hinge_axis_loc, (const phys_mat44 *)(v18 + 32), &hinge_axis_loc);
-            phys_multiply(&b1_ref_axis_loc, (const phys_mat44 *)(v18 + 32), &ref_axis_loc);
+            b1_hinge_axis_loc = phys_multiply(*(const phys_mat44 *)(v18 + 32), hinge_axis_loc);
+            b1_ref_axis_loc = phys_multiply(*(const phys_mat44 *)(v18 + 32), ref_axis_loc);
             cinfo->constraint = XDoll_CreateHingeConstraint(
                 (environment_rigid_body *)rb1,
                 (environment_rigid_body *)rb2,
@@ -785,20 +785,20 @@ rigid_body_constraint_hinge * XDoll_CreateHingeConstraint(
     constraint = phys_sys::create_rbc_hinge(rb1, rb2, 0);
     if (constraint)
     {
-        phys_full_multiply(&anchor_abs, &rb1->m_mat, b1_anchor_loc);
-        phys_full_inv_multiply(&b2_anchor_loc, &rb2->m_mat, &anchor_abs);
-        phys_multiply(&hinge_axis_abs, &rb1->m_mat, b1_hinge_axis_loc);
-        phys_inv_multiply(&b2_hinge_axis_loc, &rb2->m_mat, &hinge_axis_abs);
-        phys_multiply(&ref_axis_abs, &rb1->m_mat, b1_ref_axis_loc);
-        phys_inv_multiply(&b2_ref_axis_loc, &rb2->m_mat, &ref_axis_abs);
+        anchor_abs = phys_full_multiply(rb1->m_mat, *b1_anchor_loc);
+        b2_anchor_loc = phys_full_inv_multiply(rb2->m_mat, anchor_abs);
+        hinge_axis_abs = phys_multiply(rb1->m_mat, *b1_hinge_axis_loc);
+        b2_hinge_axis_loc = phys_inv_multiply(rb2->m_mat, hinge_axis_abs);
+        ref_axis_abs = phys_multiply(rb1->m_mat, *b1_ref_axis_loc);
+        b2_ref_axis_loc = phys_inv_multiply(rb2->m_mat, ref_axis_abs);
         //rigid_body_constraint_hinge::set(
             constraint->set(
-            b1_anchor_loc,
-            &b2_anchor_loc,
-            b1_hinge_axis_loc,
-            &b2_hinge_axis_loc,
-            b1_ref_axis_loc,
-            &b2_ref_axis_loc,
+            *b1_anchor_loc,
+            b2_anchor_loc,
+            *b1_hinge_axis_loc,
+            b2_hinge_axis_loc,
+            *b1_ref_axis_loc,
+            b2_ref_axis_loc,
             lowStop,
             highStop,
             damp);
@@ -827,10 +827,10 @@ rigid_body_constraint_point * XDoll_CreatePointConstraint(
     constraint = phys_sys::create_rbc_point(rb1, rb2, 0);
     if (constraint)
     {
-        phys_full_multiply(&anchor_abs, &rb1->m_mat, b1_anchor_loc);
-        phys_full_inv_multiply(&v5, &rb2->m_mat, &anchor_abs);
+        anchor_abs = phys_full_multiply(rb1->m_mat, *b1_anchor_loc);
+        v5 = phys_full_inv_multiply(rb2->m_mat, anchor_abs);
         //rigid_body_constraint_point::set(constraint, b1_anchor_loc, &v5);
-        constraint->set(b1_anchor_loc, &v5);
+        constraint->set(*b1_anchor_loc, v5);
         return constraint;
     }
     else
@@ -859,9 +859,9 @@ rigid_body_constraint_angular_actuator * XDoll_CreateActuatorConstraint(
     {
         rb1_mat = &rb1->m_mat;
         rb2_mat = &rb2->m_mat;
-        phys_inv_multiply_mat(&target_mat, &rb1->m_mat, &rb2->m_mat);
+        phys_inv_multiply_mat(target_mat, rb1->m_mat, rb2->m_mat);
         //rigid_body_constraint_angular_actuator::set(constraint, power / rb1->m_inv_mass, &target_mat);
-        constraint->set(power / rb1->m_inv_mass, &target_mat);
+        constraint->set(power / rb1->m_inv_mass, target_mat);
         return constraint;
     }
     else

@@ -39,8 +39,9 @@ void __cdecl Ragdoll_Clear_f()
 
 void __cdecl Ragdoll_ResetBodiesUsingDef()
 {
-    for (RagdollBody *body : g_ragdoll_body_pool)
+    for (RagdollBody &bodyRef : g_ragdoll_body_pool)
     {
+        RagdollBody *body = &bodyRef;
         iassert(Ragdoll_BodyInUse(body));
 
         if (Ragdoll_BodyBound(body))

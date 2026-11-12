@@ -2,9 +2,9 @@
 #include "glass.h"
 #include "glass_renderer.h"
 #include <universal/q_shared.h>
-#include <physics/phys_util.h>
+#include <physics/phys_local.h>
 #include <bgame/bg_slidemove.h>
-#include <tl/tl_system.h>
+#include "tl/base/include/tl_system.h"
 #include "glass_client.h"
 #include <physics/physpreset_load_obj.h>
 #include <client/cl_debugdata.h>
@@ -220,8 +220,8 @@ void GlassPhysics::CreateAxis(
     // Compute local bounding box dimensions
     // --------------------------------------------------
     phys_vec3 bbMin, bbMax;
-    Phys_Vec3ToNitrousVec(localBBoxMin, &bbMin);
-    Phys_Vec3ToNitrousVec(localBBoxMax, &bbMax);
+    Phys_Vec3ToNitrousVec(localBBoxMin, bbMin);
+    Phys_Vec3ToNitrousVec(localBBoxMax, bbMax);
 
     phys_vec3 dim;
     dim.x = bbMax.x - bbMin.x;
@@ -234,7 +234,7 @@ void GlassPhysics::CreateAxis(
     phys_vec3 inertia;
     float volume;
 
-    nuge::calc_box_inertia(&dim, &inertia, &volume);
+    nuge::calc_box_inertia(dim, &inertia, &volume);
 
     float scale = mass / volume;
     inertia.x *= scale;
@@ -270,10 +270,10 @@ void GlassPhysics::CreateAxis(
     cg2rb.w.z = -center.z;
 
     phys_mat44 rb2w;
-    phys_full_inverse(&rb2w, &cg2rb);
+    phys_full_inverse(rb2w, cg2rb);
 
     phys_mat44 finalMat;
-    phys_full_multiply_mat(&finalMat, &m2w, &rb2w);
+    phys_full_multiply_mat(finalMat, m2w, rb2w);
 
     // --------------------------------------------------
     // Store mass + inertia
@@ -378,7 +378,8 @@ void  GlassPhysics::AddForce(float *worldPos, float *impulse)
         v7.x = v10;
         v7.y = v9;
         v7.z = v8;
-        v4 = phys_cross(&v6, &v7, &force);
+        v6 = phys_cross(v7, force);
+        v4 = &v6;
         p_m_torque_sum = &this->m_torque_sum;
         this->m_torque_sum.x = this->m_torque_sum.x + v4->x;
         p_m_torque_sum->y = p_m_torque_sum->y + v4->y;
@@ -844,7 +845,7 @@ void GlassPhysics::IntegrateVelocity(float deltaTime)
     // Gravity acceleration
     // --------------------------------------------
     phys_vec3 gravityDir;
-    Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, &gravityDir);
+    Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, gravityDir);
 
     const float gravityMag = phys_gravity->current.value;
 
@@ -873,7 +874,7 @@ void GlassPhysics::IntegrateVelocity(float deltaTime)
     tensor_transform_principle(&m_inv_inertia, &m_mat, &worldInvInertia);
 
     phys_vec3 angAcc;
-    phys_multiply(&angAcc, &worldInvInertia, &m_torque_sum);
+    angAcc = phys_multiply(worldInvInertia, m_torque_sum);
 
     // Integrate angular velocity
     m_a_vel.x += angAcc.x * deltaTime;
@@ -884,7 +885,7 @@ void GlassPhysics::IntegrateVelocity(float deltaTime)
     // Gyroscopic term
     // --------------------------------------------
     phys_vec3 omegaLocal;
-    phys_inv_multiply(&omegaLocal, &m_mat, &m_a_vel);
+    omegaLocal = phys_inv_multiply(m_mat, m_a_vel);
 
     phys_vec3 angMomentumLocal;
     angMomentumLocal.x = omegaLocal.x / m_inv_inertia.x;
@@ -892,14 +893,14 @@ void GlassPhysics::IntegrateVelocity(float deltaTime)
     angMomentumLocal.z = omegaLocal.z / m_inv_inertia.z;
 
     phys_vec3 gyroLocal;
-    phys_cross(&gyroLocal, &angMomentumLocal, &omegaLocal);
+    gyroLocal = phys_cross(angMomentumLocal, omegaLocal);
 
     phys_vec3 gyroWorld;
     gyroLocal.x *= m_inv_inertia.x;
     gyroLocal.y *= m_inv_inertia.y;
     gyroLocal.z *= m_inv_inertia.z;
 
-    phys_multiply(&gyroWorld, &m_mat, &gyroLocal);
+    gyroWorld = phys_multiply(m_mat, gyroLocal);
 
     m_a_vel.x += gyroWorld.x * deltaTime;
     m_a_vel.y += gyroWorld.y * deltaTime;
@@ -969,14 +970,14 @@ void GlassPhysics::IntegratePos(float deltaTime)
     this->m_mat.w.x = this->m_mat.w.x + v10;
     p_w->y = p_w->y + v6;
     p_w->z = p_w->z + v7;
-    make_rotate(&v3, &this->m_a_vel, deltaTime, 1000.0);
-    phys_multiply_mat( &this->m_mat, &v3, &this->m_mat);
+    make_rotate(&v3, this->m_a_vel, deltaTime, 1000.0);
+    phys_multiply_mat(this->m_mat, v3, this->m_mat);
 }
 
 void __thiscall GlassPhysics::GetPosition(float *position, float (*axis)[3])
 {
-    Phys_NitrousVecToVec3(&this->m_mat.w, position);
-    Phys_NitrousMat44ToVec33(&this->m_mat, axis);
+    Phys_NitrousVecToVec3(this->m_mat.w, position);
+    Phys_NitrousMat44ToVec33(this->m_mat, axis);
 }
 
 int __thiscall GlassShard::Outline::Init(
@@ -1806,7 +1807,7 @@ char __thiscall GlassShard::Triangles::Triangulate()
     int hullVtxIndex[64]; // [esp+BCh] [ebp-100h]
 
     timer_8 = &clGlasses->renderer->triangulateTimer;
-    timer = tlPcGetTick();
+    timer.QuadPart = tlPcGetTick();
     num = this->outline->numVerts;
     for ( i = 0; i < num; ++i )
         hullVtxIndex[i] = i;
@@ -1852,10 +1853,10 @@ char __thiscall GlassShard::Triangles::Triangulate()
     if ( !GlassShard::Triangles::AddTri(hullVtxIndex[0], hullVtxIndex[1], hullVtxIndex[2]) )
     {
 LABEL_14:
-        *timer_8 += tlPcGetTick().QuadPart - timer.QuadPart;
+        *timer_8 += tlPcGetTick() - timer.QuadPart;
         return 0;
     }
-    *timer_8 += tlPcGetTick().QuadPart - timer.QuadPart;
+    *timer_8 += tlPcGetTick() - timer.QuadPart;
     return 1;
 }
 
@@ -2043,7 +2044,7 @@ int __thiscall GlassShard::Shatter(const GlassShard **newShards, int maxNewShard
     PROF_SCOPED("GlassShard.Shatter");
 
     timer_8 = &clGlasses->renderer->shatterTimer;
-    timer = tlPcGetTick();
+    timer.QuadPart = tlPcGetTick();
     ++clGlasses->renderer->numShatters;
     if ( !this->group
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\glass\\glass_shard.cpp", 1266, 0, "%s", "group") )
@@ -2134,7 +2135,7 @@ int __thiscall GlassShard::Shatter(const GlassShard **newShards, int maxNewShard
             GlassShard::splitFailCount[7],
             GlassShard::splitFailCount[5]);
     }
-    *timer_8 += tlPcGetTick().QuadPart - timer.QuadPart;
+    *timer_8 += tlPcGetTick() - timer.QuadPart;
 
     return numNewShards;
 }
@@ -3332,7 +3333,7 @@ void __thiscall GlassShard::GenerateVerts(
     tangent.array[2] = (int)(this->axis[0][2] * 127.0f + 127.5f);
     tangent.array[3] = 63;
 
-    // Mesh data pointer — indexes into positions/normals/uvs arrays
+    // Mesh data pointer â€” indexes into positions/normals/uvs arrays
     // Each mesh vertex entry is 2 bytes: [positionIndex, normalIndex]
     const unsigned char *meshVerts = (const unsigned char *)clGlasses->renderer->vertexList[this->outline.numVerts - 1];
 
@@ -3420,7 +3421,7 @@ int GlassShard::Split(
     TempOutline newOutline; // [esp+7A8h] [ebp-610h] BYREF
 
     timer.counter = &clGlasses->renderer->splitTimer;
-    timer.start = tlPcGetTick().QuadPart;
+    timer.start = tlPcGetTick();
     ++clGlasses->renderer->numSplits;
     renderer = clGlasses->renderer;
     minEdgeLength = this->outline.Length() * renderer->shardEdgeSize->current.value;
@@ -3566,7 +3567,7 @@ int GlassShard::Split(
             if ( !found )
             {
                 ++GlassShard::splitFailCount[1];
-                *timer.counter += tlPcGetTick().QuadPart - timer.start;
+                *timer.counter += tlPcGetTick() - timer.start;
                 return 0;
             }
         }
@@ -3594,20 +3595,20 @@ int GlassShard::Split(
         if ( otherOutline.CloseOutline() )
         {
             inited = GlassShard::InitSplitShards(&newOutline, &otherOutline, newShards, minShardSize);
-            *timer.counter += tlPcGetTick().QuadPart - timer.start;
+            *timer.counter += tlPcGetTick() - timer.start;
             return inited;
         }
         else
         {
 LABEL_36:
-            *timer.counter += tlPcGetTick().QuadPart - timer.start;
+            *timer.counter += tlPcGetTick() - timer.start;
             return 0;
         }
     }
     else
     {
         ++GlassShard::splitFailCount[0];
-        *timer.counter += tlPcGetTick().QuadPart - timer.start;
+        *timer.counter += tlPcGetTick() - timer.start;
         return 0;
     }
 }
@@ -3636,7 +3637,7 @@ int GlassShard::Chip(
     TempOutline outline2; // [esp+694h] [ebp-610h] BYREF
 
     timer.counter = &clGlasses->renderer->splitTimer;
-    timer.start = tlPcGetTick().QuadPart;
+    timer.start = tlPcGetTick();
     ++clGlasses->renderer->numSplits;
     outline1.verts = outline1.v;
     outline1.numVerts = 0;
@@ -3687,12 +3688,12 @@ int GlassShard::Chip(
         }
         outline2.CloseOutline();
         inited = GlassShard::InitSplitShards(&outline1, &outline2, newShards, minShardSize);
-        *timer.counter += tlPcGetTick().QuadPart - timer.start;
+        *timer.counter += tlPcGetTick() - timer.start;
         return inited;
     }
     else
     {
-        *timer.counter += tlPcGetTick().QuadPart - timer.start;
+        *timer.counter += tlPcGetTick() - timer.start;
         return 0;
     }
 }
@@ -3848,7 +3849,7 @@ double __thiscall GlassShard::GetMass()
 
 bool __thiscall GlassShard::InitPhysicsObj(bool enableCollisions)
 {
-    gjk_aabb_t *aabb_gjk_geom; // eax
+    gjk_base_t *aabb_gjk_geom; // eax
     float mass; // [esp+0h] [ebp-C4h]
     GlassShard *other; // [esp+30h] [ebp-94h]
     PhysPreset physPreset; // [esp+34h] [ebp-90h] BYREF

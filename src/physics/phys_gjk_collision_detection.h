@@ -1,7 +1,6 @@
 #pragma once
 #include "phys_local.h"
 #include "phys_gjk.h"
-#include "rigid_body.h"
 
 enum $067C566A97EEC6E7D3DB7B726B5C1A66 : __int32
 {
@@ -19,15 +18,6 @@ struct gjk_query_output;
 struct gjk_entity_info_t;
 struct gjk_trace_output_t;
 
-struct phys_auto_activate_callback // sizeof=0x4
-{                                       // XREF: destructible_ent_aa/r
-                                        // dynamic_ent_aa/r
-    //phys_auto_activate_callback_vtbl *__vftable;00000000 struct /*VFT*/ phys_auto_activate_callback_vtbl // sizeof=0x8
-
-    virtual bool has_auto_activated() = 0;
-    virtual void auto_activate(struct broad_phase_info *) = 0;
-};
-
 struct destructible_ent_aa : phys_auto_activate_callback // sizeof=0xC
 {
     bool m_has_auto_activated;
@@ -41,7 +31,7 @@ struct destructible_ent_aa : phys_auto_activate_callback // sizeof=0xC
     {
         return m_has_auto_activated;
     }
-    void auto_activate(struct broad_phase_info *bpi_impactor);
+    void auto_activate(broad_phase_info *bpi_impactor);
 };
 static_assert(sizeof(destructible_ent_aa) == 12);
 
@@ -120,14 +110,8 @@ struct __declspec(align(8)) gjk_entity_info_t // sizeof=0x50
     }
 };
 
-phys_vec3 *__cdecl phys_Unitize(phys_vec3 *result, const phys_vec3 *a);
 void __cdecl gjk_collision_epilog(bool is_server_thread);
 
-bool __cdecl phys_are_aabb_overlapping(
-    const phys_vec3 *aabb1_min,
-    const phys_vec3 *aabb1_max,
-    const phys_vec3 *aabb2_min,
-    const phys_vec3 *aabb2_max);
 
 bool query_should_pass_gentity(const gjk_query_input &input, const gentity_s *gent);
 
@@ -177,6 +161,10 @@ void __cdecl fill_results(const gjk_trace_output_t &gto, bool is_walkable, trace
 void __cdecl fill_results_type_and_id(const gjk_trace_output_t *gto, trace_t *results);
 void __cdecl fill_results_no_hit(trace_t *results);
 bool    is_walkable(const gjk_trace_output_t *gto);
+
+// Free-function replacements for the old gjk_base_t::is_walkable / is_foot virtuals (dispatch on get_type()).
+bool gjk_is_walkable(const gjk_base_t *geom, const phys_vec3 *hit_point, const phys_vec3 *up);
+bool gjk_is_foot(const gjk_base_t *geom, const phys_vec3 *hit_point);
 
 //phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal *__thiscall phys_simple_allocator<phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal>::allocate(
 //                phys_simple_allocator<phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal> *this);

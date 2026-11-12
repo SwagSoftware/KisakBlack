@@ -1,32 +1,16 @@
 #pragma once
-#include "rigid_body.h"
+#include "phys_collision.h"
 #include "phys_gjk_collision_detection.h"
 
 struct centity_s;
 
 struct auto_rigid_body // sizeof=0x1C
 {
-    // for avl tree access 
-    static inline bool less(const centity_s *key, const auto_rigid_body *node)
-    {
-        return key < node->cent;
-    }
-    static inline bool less(const auto_rigid_body *node, const centity_s *key)
-    {
-        return node->cent < key;
-    }
-    static inline bool less(const auto_rigid_body *a, const auto_rigid_body *b)
-    {
-        return a->cent < b->cent;
-    }
-    static inline bool equals(const auto_rigid_body *node, const centity_s *key)
-    {
-        return node->cent == key;
-    }
-    static inline void set_key(auto_rigid_body *node, const centity_s *key)
-    {
-        node->cent = key;
-    }
+    // for avl tree access
+    static const centity_s *&get_avl_key(auto_rigid_body *n) { return n->cent; }
+    static const centity_s *const &get_avl_key(const auto_rigid_body *n) { return n->cent; }
+    static phys_inplace_avl_tree_node<auto_rigid_body> *get_avl_node(auto_rigid_body *n) { return &n->m_avl_tree_node; }
+    static const phys_inplace_avl_tree_node<auto_rigid_body> *get_avl_node(const auto_rigid_body *n) { return &n->m_avl_tree_node; }
 
     user_rigid_body *rb;
     const centity_s *cent;

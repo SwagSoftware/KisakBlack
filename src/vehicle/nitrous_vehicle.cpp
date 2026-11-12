@@ -4,16 +4,12 @@
 #include <game/g_scr_vehicle.h>
 #include <qcommon/dobj_management.h>
 #include <xanim/dobj_utils.h>
-#include <physics/phys_assert.h>
 #include <client_mp/cl_main_mp.h>
 #include <cgame_mp/cg_actors_mp.h>
 #include <cgame_mp/cg_ents_mp.h>
 #include <cgame_mp/cg_vehicles_mp.h>
 #include <physics/physpreset_load_obj.h>
-#include <physics/phys_broad_phase.h>
-#include <physics/physics_system.h>
 #include <bgame/bg_slidemove.h>
-#include <physics/phys_util.h>
 #include <clientscript/cscr_stringlist.h>
 #include <ragdoll/ragdoll_update.h>
 #include <clientscript/scr_const.h>
@@ -224,8 +220,8 @@ void NitrousVehicle::init(gentity_s *owner, const VehicleParameter *parameter)
     this->m_flags &= ~0x80u;
     this->m_flags &= ~4u;
     AnglesToAxis(this->m_angles, (float (*)[3])axis);
-    Phys_AxisToNitrousMat((float (*)[3])axis, &this->m_prev_rb_mat);
-    Phys_Vec3ToNitrousVec(this->m_origin, &this->m_prev_rb_mat.w);
+    Phys_AxisToNitrousMat((float (*)[3])axis, this->m_prev_rb_mat);
+    Phys_Vec3ToNitrousVec(this->m_origin, this->m_prev_rb_mat.w);
     if ( fabs(this->m_prev_rb_mat.w.x) > 100000.0
         || fabs(this->m_prev_rb_mat.w.y) > 100000.0
         || fabs(this->m_prev_rb_mat.w.z) > 100000.0 )
@@ -334,8 +330,8 @@ void NitrousVehicle::init(
         this->m_boost_time_pool = this->m_vehicle_info->boostDuration;
         this->m_throttle_held_down = 0;
         AnglesToAxis(this->m_angles, (float (*)[3])axis);
-        Phys_AxisToNitrousMat((float (*)[3])axis, &this->m_prev_rb_mat);
-        Phys_Vec3ToNitrousVec(this->m_origin, &this->m_prev_rb_mat.w);
+        Phys_AxisToNitrousMat((float (*)[3])axis, this->m_prev_rb_mat);
+        Phys_Vec3ToNitrousVec(this->m_origin, this->m_prev_rb_mat.w);
         if ( fabs(this->m_prev_rb_mat.w.x) > 100000.0
             || fabs(this->m_prev_rb_mat.w.y) > 100000.0
             || fabs(this->m_prev_rb_mat.w.z) > 100000.0 )
@@ -480,7 +476,7 @@ void    NitrousVehicle::unpause_physics()
                 i->m_env_collision_flags = i->m_env_collision_flags | (8 * (thisa->m_vehicle_info->remoteControl != 0) + 8) & 0xFFFFFF7F;
             }
         }
-        Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, (phys_vec3 *)v8);
+        Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, *(phys_vec3 *)v8);
         value = phys_gravity->current.value;
         v6 = phys_vehicleGravityMultiplier->current.value;
         v4 = v6 * (float)(value * v8[1]);
@@ -545,28 +541,6 @@ void __thiscall NitrousVehicle::_update_pause()
         //NitrousVehicle::unpause_physics(this, (int)&savedregs);
         NitrousVehicle::unpause_physics();
     }
-}
-
-void __thiscall rigid_body::set_flag(unsigned int f, int b)
-{
-    if ( (f & 0xFFFFFF00) != 0
-        && _tlAssert(
-                 "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\rigid_body.h",
-                 59,
-                 "(f & ~(FLAG_CLIENT_FLAGS_START - 1)) == 0",
-                 "invalid rigid body flag") )
-    {
-        __debugbreak();
-    }
-    if ( b )
-        this->m_flags |= f;
-    else
-        this->m_flags &= ~f;
-}
-
-unsigned int __thiscall rigid_body::is_group_stable()
-{
-    return this->m_flags & 8;
 }
 
 void NitrousVehicle::update_parms(
@@ -693,8 +667,8 @@ void NitrousVehicle::update_parms(
             //    (int)v92,
             //    &gjk_geom_list_aabb_mn_loc,
             //    &gjk_geom_list_aabb_mx_loc);
-            Phys_NitrousVecToVec3(&gjk_geom_list_aabb_mn_loc, vmin);
-            Phys_NitrousVecToVec3(&gjk_geom_list_aabb_mx_loc, vmax);
+            Phys_NitrousVecToVec3(gjk_geom_list_aabb_mn_loc, vmin);
+            Phys_NitrousVecToVec3(gjk_geom_list_aabb_mx_loc, vmax);
         }
         else
         {
@@ -714,8 +688,8 @@ void NitrousVehicle::update_parms(
         dim[0] = vmax[0] - vmin[0];
         dim[1] = vmax[1] - vmin[1];
         dim[2] = vmax[2] - vmin[2];
-        Phys_Vec3ToNitrousVec(dim, &phys_dim);
-        nuge::calc_box_inertia(&phys_dim, &phys_vec3_unit_inertia, &volume);
+        Phys_Vec3ToNitrousVec(dim, phys_dim);
+        nuge::calc_box_inertia(phys_dim, &phys_vec3_unit_inertia, &volume);
         v80 = thisa->m_parameter;
         v79 = v80->m_body_mass / volume;
         phys_vec3_unit_inertia.x = phys_vec3_unit_inertia.x * v79;
@@ -725,7 +699,7 @@ void NitrousVehicle::update_parms(
         com[0] = com[0] + *m_mass_center_offset;
         com[1] = com[1] + m_mass_center_offset[1];
         com[2] = com[2] + m_mass_center_offset[2];
-        Phys_Vec3ToNitrousVec(com, &_com);
+        Phys_Vec3ToNitrousVec(com, _com);
         v76 = -(_com.x);
         v75 = -(_com.y);
         v74 = -(_com.z);
@@ -749,7 +723,7 @@ void NitrousVehicle::update_parms(
         //rigid_body::set_mass(rb, v69->m_body_mass);
         rb->set_mass(v69->m_body_mass);
         //rigid_body::set_inertia(rb, &phys_vec3_unit_inertia);
-        rb->set_inertia(&phys_vec3_unit_inertia);
+        rb->set_inertia(phys_vec3_unit_inertia);
         p_w = &thisa->m_wheel_orig_relpo[2].w;
         v67 = &thisa->m_wheel_orig_relpo[0].w;
         v66 = thisa->m_wheel_orig_relpo[0].w.x - thisa->m_wheel_orig_relpo[2].w.x;
@@ -838,9 +812,9 @@ void NitrousVehicle::update_parms(
                     side_fric_max = thisa->m_parameter->m_tire_fric_side_max;
                 //rigid_body_constraint_wheel::set(
                     rbc_wheel->set(
-                    &wheel_center_loc,
-                    &susp_dir,
-                    &gWheelAxisLoc,
+                    wheel_center_loc,
+                    susp_dir,
+                    gWheelAxisLoc,
                     wheel_radius,
                     thisa->m_parameter->m_tire_fric_fwd / phys_vehicleGravityMultiplier->current.value,
                     thisa->m_parameter->m_tire_fric_side / phys_vehicleGravityMultiplier->current.value,
@@ -1032,7 +1006,7 @@ void NitrousVehicle::_setup_wheels(int localClientNum)
 
             iassert(!IS_NAN((mat34[3])[0]) && !IS_NAN((mat34[3])[1]) && !IS_NAN((mat34[3])[2]));
 
-            Phys_Mat4ToNitrousMat(mat34, thisa->m_wheel_orig_relpo);
+            Phys_Mat4ToNitrousMat(mat34, thisa->m_wheel_orig_relpo[0]);
             //phys_mat44::operator=(&thisa->m_wheel_orig_relpo[1], thisa->m_wheel_orig_relpo);
             thisa->m_wheel_orig_relpo[1] = thisa->m_wheel_orig_relpo[0];
             pos_4 = thisa->m_wheel_orig_relpo[0].w.y;
@@ -1065,7 +1039,7 @@ void NitrousVehicle::_setup_wheels(int localClientNum)
 
             iassert(!IS_NAN((mat34[3])[0]) && !IS_NAN((mat34[3])[1]) && !IS_NAN((mat34[3])[2]));
             
-            Phys_Mat4ToNitrousMat(mat34, &thisa->m_wheel_orig_relpo[2]);
+            Phys_Mat4ToNitrousMat(mat34, thisa->m_wheel_orig_relpo[2]);
             //phys_mat44::operator=(&thisa->m_wheel_orig_relpo[3], &thisa->m_wheel_orig_relpo[2]);
             thisa->m_wheel_orig_relpo[3] = thisa->m_wheel_orig_relpo[2];
             y = thisa->m_wheel_orig_relpo[2].w.y;
@@ -1109,7 +1083,7 @@ void NitrousVehicle::_setup_wheels(int localClientNum)
             {
                 DObjGetBasePoseMatrix(obj, index, &mat);
                 Ragdoll_AnimMatToMat43(&mat, mat34);
-                Phys_Mat4ToNitrousMat(mat34, &thisa->m_wheel_orig_relpo[i]);
+                Phys_Mat4ToNitrousMat(mat34, thisa->m_wheel_orig_relpo[i]);
             }
             else
             {
@@ -1121,14 +1095,6 @@ void NitrousVehicle::_setup_wheels(int localClientNum)
             thisa->m_wheel_damage[i] = 0;
         }
     }
-}
-
-void __cdecl Phys_Mat4ToNitrousMat(float (*inMat)[3], phys_mat44 *outMat)
-{
-    Phys_Vec3ToNitrousVec((float *)inMat, &outMat->x);
-    Phys_Vec3ToNitrousVec(&(*inMat)[3], &outMat->y);
-    Phys_Vec3ToNitrousVec(&(*inMat)[6], &outMat->z);
-    Phys_Vec3ToNitrousVec(&(*inMat)[9], &outMat->w);
 }
 
 double __thiscall NitrousVehicle::_calc_initial_susp_spring_k(rigid_body_constraint_wheel *wheel_constraint)
@@ -1959,8 +1925,8 @@ void __thiscall NitrousVehicle::start_path(int attach_mode)
             origin[2] = currentOrigin[2];
             origin[2] = origin[2] + 40.0;
             AnglesToAxis(this->m_owner->r.currentAngles, (float (*)[3])axis);
-            Phys_AxisToNitrousMat((float (*)[3])axis, &this->m_prev_rb_mat);
-            Phys_Vec3ToNitrousVec(origin, &this->m_prev_rb_mat.w);
+            Phys_AxisToNitrousMat((float (*)[3])axis, this->m_prev_rb_mat);
+            Phys_Vec3ToNitrousVec(origin, this->m_prev_rb_mat.w);
             if ( fabs(this->m_prev_rb_mat.w.x) > 100000.0
                 || fabs(this->m_prev_rb_mat.w.y) > 100000.0
                 || fabs(this->m_prev_rb_mat.w.z) > 100000.0 )
@@ -2356,8 +2322,8 @@ void    NitrousVehicle::debug_render()
         Phys_DebugBox(&thisa->m_phys_user_data->body->m_mat, colorYellow, 1.0);
         if (thisa->m_parameter->m_bbox_min[0] != 0.0)
         {
-            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_bbox_min, &vmin);
-            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_bbox_max, &vmax);
+            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_bbox_min, vmin);
+            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_bbox_max, vmax);
             v115 = vmax.x - vmin.x;
             v114 = vmax.y - vmin.y;
             v113 = vmax.z - vmin.z;
@@ -2384,7 +2350,7 @@ void    NitrousVehicle::debug_render()
             transform = PHYS_IDENTITY_MATRIX;
             //phys_vec3::operator=(&transform.w, &com);
             transform.w = com;
-            phys_full_multiply_mat(&transform, &transform, &thisa->m_phys_user_data->body->m_mat);
+            phys_full_multiply_mat(transform, transform, thisa->m_phys_user_data->body->m_mat);
             v99 = 0.5 * dim.x;
             v98 = 0.5 * dim.y;
             v97 = 0.5 * dim.z;
@@ -2395,8 +2361,8 @@ void    NitrousVehicle::debug_render()
         }
         if (thisa->m_parameter->m_buoyancybox_min[0] != 0.0)
         {
-            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_buoyancybox_min, &buoyancyMins);
-            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_buoyancybox_max, &v92);
+            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_buoyancybox_min, buoyancyMins);
+            Phys_Vec3ToNitrousVec(thisa->m_parameter->m_buoyancybox_max, v92);
             v91 = v92.x - buoyancyMins.x;
             v90 = v92.y - buoyancyMins.y;
             v89 = v92.z - buoyancyMins.z;
@@ -2419,7 +2385,7 @@ void    NitrousVehicle::debug_render()
             v75 = PHYS_IDENTITY_MATRIX;
             //phys_vec3::operator=(&v75.w, &v76);
             v75.w = v76;
-            phys_full_multiply_mat(&v75, &v75, &thisa->m_phys_user_data->body->m_mat);
+            phys_full_multiply_mat(v75, v75, thisa->m_phys_user_data->body->m_mat);
             v74 = 0.5 * v86;
             v73 = 0.5 * v87;
             v72 = 0.5 * v88;
@@ -2446,7 +2412,8 @@ void    NitrousVehicle::debug_render()
                 wheel_pos = rbc_wheel->m_b1_wheel_center_loc - v64;
                 v62 = &b1->m_mat;
                 scale_4 = &b1->m_mat.w;
-                v3 = phys_multiply(&v61, &b1->m_mat, &wheel_pos);
+                v61 = phys_multiply(b1->m_mat, wheel_pos);
+                v3 = &v61;
                 //operator+(&v60, v3, scale_4);
                 v60 = *v3 + *scale_4;
                 wheel_pos.x = v60.x;
@@ -2455,7 +2422,8 @@ void    NitrousVehicle::debug_render()
                 hit_pos = rbc_wheel->m_b2_hitp_loc;
                 m_roll_stability_factor = rbc_wheel->m_roll_stability_factor;
                 m_b1_suspension_dir_loc = rbc_wheel->m_b1_suspension_dir_loc;
-                v55 = phys_multiply(&v56, &b1->m_mat, &m_b1_suspension_dir_loc);
+                v56 = phys_multiply(b1->m_mat, m_b1_suspension_dir_loc);
+                v55 = &v56;
                 v54 = m_roll_stability_factor * v55->x;
                 v53 = m_roll_stability_factor * v55->y;
                 v52 = m_roll_stability_factor * v55->z;
@@ -2502,7 +2470,8 @@ void    NitrousVehicle::debug_render()
                     limit_pos.z = m_b1_wheel_center_loc.z - v39;
                     v30 = &b1->m_mat;
                     scale_4a = &b1->m_mat.w;
-                    v4 = phys_multiply(&v29, &b1->m_mat, &limit_pos);
+                    v29 = phys_multiply(b1->m_mat, limit_pos);
+                    v4 = &v29;
                     //operator+(&v28, v4, scale_4a);
                     v28 = *v4 + *scale_4a;
                     limit_pos.x = v28.x;
@@ -2519,9 +2488,9 @@ void    NitrousVehicle::debug_render()
                 if (thisa->m_vehicle_info->type == 2 || render_wheel_cir)
                 {
                     m_b1_wheel_axis_loc = rbc_wheel->m_b1_wheel_axis_loc;
-                    phys_multiply(&dir, &b1->m_mat, &m_b1_wheel_axis_loc);
-                    Phys_NitrousVecToVec3(&dir, _dir);
-                    Phys_NitrousVecToVec3(&wheel_pos, _pos);
+                    dir = phys_multiply(b1->m_mat, m_b1_wheel_axis_loc);
+                    Phys_NitrousVecToVec3(dir, _dir);
+                    Phys_NitrousVecToVec3(wheel_pos, _pos);
                     G_DebugCircleEx(_pos, radius, _dir, colorWhite, 0, 0);
                 }
                 arm_col[0] = 0.0f;
@@ -2564,7 +2533,7 @@ void    NitrousVehicle::debug_render()
             pos.y = pos.y + v11;
             pos.z = pos.z + v10;
         }
-        Phys_NitrousVecToVec3(&pos, textPos);
+        Phys_NitrousVecToVec3(pos, textPos);
         textPos[2] = textPos[2] + 50.0;
         sprintf(buffer, "Speed %.1f %.0f", (float)(thisa->m_forward_vel / 17.6), thisa->m_forward_vel);
         CL_AddDebugString(textPos, colorWhite, 1.0, buffer, 1);
@@ -2579,59 +2548,6 @@ void    NitrousVehicle::debug_render()
         }
     }
     NitrousVehicle::debug_render_effects();
-}
-
-// local variable allocation has failed, the output may be wrong!
-void    phys_full_multiply_mat(phys_mat44 *dest, const phys_mat44 *left, const phys_mat44 *right)
-{
-    phys_mat44 v4; // [esp-Ch] [ebp-CCh] BYREF
-    phys_vec3 *temp_60; // [esp+3Ch] [ebp-84h]
-    const phys_vec3 *v6; // [esp+40h] [ebp-80h]
-    phys_vec3 v7; // [esp+44h] [ebp-7Ch] BYREF
-    phys_vec3 *p_z; // [esp+5Ch] [ebp-64h]
-    const phys_vec3 *v9; // [esp+60h] [ebp-60h]
-    phys_vec3 v10; // [esp+64h] [ebp-5Ch] BYREF
-    phys_vec3 *p_y; // [esp+7Ch] [ebp-44h]
-    const phys_vec3 *v12; // [esp+80h] [ebp-40h]
-    phys_vec3 v13; // [esp+84h] [ebp-3Ch] BYREF
-    const phys_vec3 *v14; // [esp+A0h] [ebp-20h]
-    phys_vec3 v15; // [esp+A4h] [ebp-1Ch] BYREF
-    //_UNKNOWN *v16[2]; // [esp+B4h] [ebp-Ch] BYREF
-    //const phys_mat44 *righta; // [esp+C0h] [ebp+0h]
-    //
-    //v16[0] = a1;
-    //v16[1] = righta;
-
-    assert_mat44_initialized(*left);
-    assert_mat44_initialized(*right);
-
-    if (dest == left)
-    {
-        memcpy(&v4, left, sizeof(v4));
-        phys_full_multiply_mat(dest, &v4, right);
-    }
-    else
-    {
-        v14 = phys_multiply(&v15, left, &right->x);
-        dest->x.x = v14->x;
-        dest->x.y = v14->y;
-        dest->x.z = v14->z;
-        v12 = phys_multiply(&v13, left, &right->y);
-        p_y = &dest->y;
-        dest->y.x = v12->x;
-        p_y->y = v12->y;
-        p_y->z = v12->z;
-        v9 = phys_multiply(&v10, left, &right->z);
-        p_z = &dest->z;
-        dest->z.x = v9->x;
-        p_z->y = v9->y;
-        p_z->z = v9->z;
-        v6 = phys_full_multiply(&v7, left, &right->w);
-        temp_60 = &dest->w;
-        dest->w.x = v6->x;
-        temp_60->y = v6->y;
-        temp_60->z = v6->z;
-    }
 }
 
 void __thiscall NitrousVehicle::remove_wheels()
@@ -2952,19 +2868,6 @@ void __thiscall NitrousVehicle::update_braking_and_acceleration(float __formal)
     }
 }
 
-phys_vec3 *__cdecl phys_cross(phys_vec3 *result, const phys_vec3 *a, const phys_vec3 *b)
-{
-    float v4; // [esp+4h] [ebp-8h]
-    float v5; // [esp+8h] [ebp-4h]
-
-    v4 = (float)(a->z * b->x) - (float)(a->x * b->z);
-    v5 = (float)(a->x * b->y) - (float)(a->y * b->x);
-    result->x = (float)(a->y * b->z) - (float)(a->z * b->y);
-    result->y = v4;
-    result->z = v5;
-    return result;
-}
-
 void __thiscall NitrousVehicle::set_boosting(bool boosting)
 {
     if ( boosting != ((this->m_flags & 0x800) != 0) )
@@ -3105,9 +3008,9 @@ void NitrousVehicle::update_from_network(
         mat = &thisa->m_phys_user_data->body->m_mat;
         velocity = &thisa->m_phys_user_data->body->m_t_vel;
         aVelocity = &thisa->m_phys_user_data->body->m_a_vel;
-        Phys_NitrousVecToVec3(&mat->w, localPos);
+        Phys_NitrousVecToVec3(mat->w, localPos);
         AnglesToAxis(apos.trBase, networkAxis);
-        Phys_NitrousVecToVec3(&thisa->m_phys_user_data->cg2rb.w, localTrans);
+        Phys_NitrousVecToVec3(thisa->m_phys_user_data->cg2rb.w, localTrans);
         MatrixTranspose(networkAxis, networkAxisTranspose);
         MatrixVecMultiply(networkAxisTranspose, localTrans, translation);
         networkRBPos[0] = pos.trBase[0] - translation[0];
@@ -3116,15 +3019,15 @@ void NitrousVehicle::update_from_network(
         networkAngles[0] = apos.trBase[0];
         networkAngles[1] = apos.trBase[1];
         networkAngles[2] = apos.trBase[2];
-        Phys_Vec3ToNitrousVec(networkRBPos, &position);
+        Phys_Vec3ToNitrousVec(networkRBPos, position);
         v50 = 3;
         for (i = phys_axis; --v50 >= 0; ++i)
             ;
-        Phys_Vec3ToNitrousVec(networkAxis[0], phys_axis);
-        Phys_Vec3ToNitrousVec(networkAxis[1], &phys_axis[1]);
-        Phys_Vec3ToNitrousVec(networkAxis[2], &phys_axis[2]);
-        Phys_NitrousMat44ToVec33(mat, localPhysAxis);
-        Phys_Vec3ToNitrousVec(pos.trDelta, &networkVel);
+        Phys_Vec3ToNitrousVec(networkAxis[0], phys_axis[0]);
+        Phys_Vec3ToNitrousVec(networkAxis[1], phys_axis[1]);
+        Phys_Vec3ToNitrousVec(networkAxis[2], phys_axis[2]);
+        Phys_NitrousMat44ToVec33(*mat, localPhysAxis);
+        Phys_Vec3ToNitrousVec(pos.trDelta, networkVel);
         v45 = fabs(timeDifference);
         if (timeCap > (fabs(timeDifference)))
         {
@@ -3144,9 +3047,9 @@ void NitrousVehicle::update_from_network(
             networkPredictedRBPosition.y = v37;
             networkPredictedRBPosition.z = v36;
             if (!CompareVec3ToPhysVec(pos.trDelta, velocity, acceptableVelError))
-                Phys_Vec3ToNitrousVec(pos.trDelta, velocity);
+                Phys_Vec3ToNitrousVec(pos.trDelta, *velocity);
             if (!CompareVec3ToPhysVec(apos.trDelta, aVelocity, acceptableAVelError))
-                Phys_Vec3ToNitrousVec(apos.trDelta, aVelocity);
+                Phys_Vec3ToNitrousVec(apos.trDelta, *aVelocity);
             acceptablePosError = acceptablePosErrorBase;
             phys_vec3 tmp;
             //v6 = operator-((phys_vec3 *)&v30.w, &networkPredictedRBPosition, &mat->w);
@@ -3157,8 +3060,8 @@ void NitrousVehicle::update_from_network(
             v28 = acceptablePosError * acceptablePosError > v7;
             if (acceptablePosError * acceptablePosError <= v7)
             {
-                Phys_Vec3ToNitrousVec(pos.trDelta, velocity);
-                Phys_Vec3ToNitrousVec(apos.trDelta, aVelocity);
+                Phys_Vec3ToNitrousVec(pos.trDelta, *velocity);
+                Phys_Vec3ToNitrousVec(apos.trDelta, *aVelocity);
                 //phys_vec3::operator=(&mat->x, phys_axis);
                 mat->x = phys_axis[0];
                 mat->y = phys_axis[1];
@@ -3194,14 +3097,14 @@ void NitrousVehicle::update_from_network(
                 LABEL_19:
                     phys_exec_debug_callback(thisa->m_phys_user_data->body);
                 }
-                Phys_NitrousVecToVec3(&networkPredictedRBPosition, predictedPos);
+                Phys_NitrousVecToVec3(networkPredictedRBPosition, predictedPos);
                 Vec3Sub(localPos, predictedPos, currentOriginError);
                 Vec3Add(currentOriginError, thisa->m_networkErrorOrigin, thisa->m_networkErrorOrigin);
                 //XAnimClientNotifyList::GetNotifyList((XAnimClientNotifyList *)&rv);
-                make_rotate(&rv, aVelocity, timeDifference, 1000.0);
-                phys_multiply_mat(mat, &rv, mat);
+                make_rotate(&rv, *aVelocity, timeDifference, 1000.0);
+                phys_multiply_mat(*mat, rv, *mat);
                 AxisToAngles(localPhysAxis, localPhysicsAngles);
-                Phys_NitrousMat44ToVec33(mat, predictedPhysAxis);
+                Phys_NitrousMat44ToVec33(*mat, predictedPhysAxis);
                 AxisToAngles(predictedPhysAxis, predictedAngles);
                 AnglesSubtract(localPhysicsAngles, predictedAngles, currentAnglesError);
                 Vec3Add(currentAnglesError, thisa->m_networkErrorAngles, thisa->m_networkErrorAngles);
@@ -3221,51 +3124,6 @@ void NitrousVehicle::update_from_network(
 double __cdecl AbsSquared(const phys_vec3 *a)
 {
     return a->x * a->x + a->y * a->y + a->z * a->z;
-}
-
-// local variable allocation has failed, the output may be wrong!
-void    phys_multiply_mat(phys_mat44 *dest, const phys_mat44 *left, const phys_mat44 *right)
-{
-    phys_mat44 v4; // [esp-Ch] [ebp-ACh] BYREF
-    phys_vec3 *temp_60; // [esp+3Ch] [ebp-64h]
-    const phys_vec3 *v6; // [esp+40h] [ebp-60h]
-    phys_vec3 v7; // [esp+44h] [ebp-5Ch] BYREF
-    phys_vec3 *p_y; // [esp+5Ch] [ebp-44h]
-    const phys_vec3 *v9; // [esp+60h] [ebp-40h]
-    phys_vec3 v10; // [esp+64h] [ebp-3Ch] BYREF
-    const phys_vec3 *v11; // [esp+80h] [ebp-20h]
-    phys_vec3 v12; // [esp+84h] [ebp-1Ch] BYREF
-    //_UNKNOWN *v13[2]; // [esp+94h] [ebp-Ch] BYREF
-    //const phys_mat44 *righta; // [esp+A0h] [ebp+0h]
-    //
-    //v13[0] = a1;
-    //v13[1] = righta;
-
-    assert_mat44_initialized(*left);
-    //assert_mat44_initialized(*right);
-
-    if (dest == left)
-    {
-        memcpy(&v4, left, sizeof(v4));
-        phys_multiply_mat(dest, &v4, right);
-    }
-    else
-    {
-        v11 = phys_multiply(&v12, left, &right->x);
-        dest->x.x = v11->x;
-        dest->x.y = v11->y;
-        dest->x.z = v11->z;
-        v9 = phys_multiply(&v10, left, &right->y);
-        p_y = &dest->y;
-        dest->y.x = v9->x;
-        p_y->y = v9->y;
-        p_y->z = v9->z;
-        v6 = phys_multiply(&v7, left, &right->z);
-        temp_60 = &dest->z;
-        dest->z.x = v6->x;
-        temp_60->y = v6->y;
-        temp_60->z = v6->z;
-    }
 }
 
 // defined in phys_render
@@ -3360,21 +3218,6 @@ void    phys_multiply_mat(phys_mat44 *dest, const phys_mat44 *left, const phys_m
 //    //phys_mat44::fix_w_column(m);
 //    m->fix_w_column();
 //}
-
-void __cdecl Phys_NitrousMat44ToVec33(const phys_mat44 *inMat, float (*outAxis)[3])
-{
-    assert_mat44_initialized(*inMat);
-
-    (*outAxis)[0] = inMat->x.x;
-    (*outAxis)[1] = inMat->x.y;
-    (*outAxis)[2] = inMat->x.z;
-    (*outAxis)[3] = inMat->y.x;
-    (*outAxis)[4] = inMat->y.y;
-    (*outAxis)[5] = inMat->y.z;
-    (*outAxis)[6] = inMat->z.x;
-    (*outAxis)[7] = inMat->z.y;
-    (*outAxis)[8] = inMat->z.z;
-}
 
 bool __cdecl CompareVec3ToPhysVec(const float *a, const phys_vec3 *b, float acceptableError)
 {
@@ -3545,7 +3388,7 @@ void __cdecl G_SetVehDriverInputs(int localClientNum, int vehEntNum, usercmd_s *
                     mat = &self->scr_vehicle->nitrousVehicle->m_phys_user_data->body->m_mat;
                     velocity = &self->scr_vehicle->nitrousVehicle->m_phys_user_data->body->m_t_vel;
                     aVelocity = &self->scr_vehicle->nitrousVehicle->m_phys_user_data->body->m_a_vel;
-                    Phys_NitrousVecToVec3(&mat->w, localPos);
+                    Phys_NitrousVecToVec3(mat->w, localPos);
                     origin = svs.clients[ent->s.clientNum].header.vehicle.origin;
                     currentOriginError[0] = localPos[0] - *origin;
                     currentOriginError[1] = localPos[1] - origin[1];
@@ -3555,7 +3398,7 @@ void __cdecl G_SetVehDriverInputs(int localClientNum, int vehEntNum, usercmd_s *
                     *m_networkErrorOrigin = currentOriginError[0] + *v8;
                     m_networkErrorOrigin[1] = currentOriginError[1] + v8[1];
                     m_networkErrorOrigin[2] = currentOriginError[2] + v8[2];
-                    Phys_NitrousMat44ToVec33(mat, localPhysAxis);
+                    Phys_NitrousMat44ToVec33(*mat, localPhysAxis);
                     AxisToAngles(localPhysAxis, localAngles);
                     AnglesSubtract(localAngles, svs.clients[ent->s.clientNum].header.vehicle.angles, currentAnglesError);
                     m_networkErrorAngles = self->scr_vehicle->nitrousVehicle->m_networkErrorAngles;
@@ -3563,12 +3406,12 @@ void __cdecl G_SetVehDriverInputs(int localClientNum, int vehEntNum, usercmd_s *
                     *m_networkErrorAngles = currentAnglesError[0] + *v6;
                     m_networkErrorAngles[1] = currentAnglesError[1] + v6[1];
                     m_networkErrorAngles[2] = currentAnglesError[2] + v6[2];
-                    Phys_Vec3ToNitrousVec(svs.clients[ent->s.clientNum].header.vehicle.tVel, velocity);
-                    Phys_Vec3ToNitrousVec(svs.clients[ent->s.clientNum].header.vehicle.aVel, aVelocity);
+                    Phys_Vec3ToNitrousVec(svs.clients[ent->s.clientNum].header.vehicle.tVel, *velocity);
+                    Phys_Vec3ToNitrousVec(svs.clients[ent->s.clientNum].header.vehicle.aVel, *aVelocity);
                     inVector = svs.clients[ent->s.clientNum].header.vehicle.origin;
                     AnglesToAxis(svs.clients[ent->s.clientNum].header.vehicle.angles, (float (*)[3])axis);
-                    Phys_AxisToNitrousMat((float (*)[3])axis, mat);
-                    Phys_Vec3ToNitrousVec(inVector, &mat->w);
+                    Phys_AxisToNitrousMat((float (*)[3])axis, *mat);
+                    Phys_Vec3ToNitrousVec(inVector, mat->w);
                     if ( phys_drawNitrousVehicle->current.enabled )
                     {
                         G_DebugStar(svs.clients[ent->s.clientNum].header.vehicle.origin, colorGreen, duration_0);
