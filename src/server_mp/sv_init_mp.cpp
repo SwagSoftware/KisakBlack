@@ -818,7 +818,7 @@ char *__cdecl SV_AllocateClientMemory_SizeRequired(int maxLocalClients, int maxC
     else
         v3 = 2;
 
-    return (char *)(0x118D00 * maxClients
+    return (char *)((sizeof(client_t) + 0x94000) * maxClients
         + 0x1A00 * maxClients * maxClients
         + 0x4880
         + (maxClients << 7)
@@ -834,8 +834,8 @@ void __cdecl SV_AllocateClientMemory(HunkUser *hunk, int maxLocalClients, int ma
     int v3; // [esp+0h] [ebp-8h]
     int v4; // [esp+4h] [ebp-4h]
 
-    svs.clients = (client_t *)Hunk_UserAlloc(hunk, 544000 * maxClients, 4, "svs.clients");
-    memset(svs.clients, 0, 544000 * maxClients);
+    svs.clients = (client_t *)Hunk_UserAlloc(hunk, sizeof(client_t) * maxClients, 4, "svs.clients");
+    memset(svs.clients, 0, sizeof(client_t) * maxClients);
     svs.numSnapshotMatchStates = 32 * maxClients;
     svs.snapshotMatchStates = (MatchState *)Hunk_UserAlloc(hunk, maxClients << 12, 4, "svs.snapshotMatchStates");
     memset(svs.snapshotMatchStates, 0, svs.numSnapshotMatchStates << 7);

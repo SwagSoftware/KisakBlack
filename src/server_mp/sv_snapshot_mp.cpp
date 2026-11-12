@@ -2005,7 +2005,7 @@ void __cdecl SV_AddModifiedStats(unsigned int clientNum)
         startOffset = 0;
         endOffset = 0;
         memset(msgBuff, 0, 0x41u);
-        if ( svs.clients[clientNum].statsSentIndex >= 5021
+        if ( svs.clients[clientNum].statsSentIndex >= 5120
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
                         2850,
@@ -2015,9 +2015,9 @@ void __cdecl SV_AddModifiedStats(unsigned int clientNum)
         {
             __debugbreak();
         }
-        if ( svs.clients[clientNum].statsSentIndex >= 5021 )
+        if ( svs.clients[clientNum].statsSentIndex >= 5120 )
             svs.clients[clientNum].statsSentIndex = 0;
-        for ( i = svs.clients[clientNum].statsSentIndex; i < 5021; ++i )
+        for ( i = svs.clients[clientNum].statsSentIndex; i < 5120; ++i )
         {
             dirtyByte = &svs.clients[clientNum].modifiedStatBytes[i];
             if ( *dirtyByte )

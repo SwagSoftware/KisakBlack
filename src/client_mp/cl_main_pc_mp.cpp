@@ -1469,7 +1469,7 @@ char __cdecl CL_RequestCACValidate(unsigned __int64 serverId)
     char payload[2]; // [esp+28h] [ebp-9D00h] BYREF
     unsigned int v8; // [esp+2Ah] [ebp-9CFEh]
     int v9; // [esp+2Eh] [ebp-9CFAh]
-    unsigned __int8 to[40178]; // [esp+32h] [ebp-9CF6h] BYREF
+    unsigned __int8 to[40970]; // [esp+32h] [ebp-9CF6h] BYREF
 
     Com_DPrintf(14, "CACValidate: Compressing stats\n");
     v6 = 0;
@@ -1485,7 +1485,7 @@ char __cdecl CL_RequestCACValidate(unsigned __int64 serverId)
         }
         else
         {
-            v5 = MSG_CompressWithZLib(buffer->statsBuffer, 0x9CE8u, to, 0x9CE8u);
+            v5 = MSG_CompressWithZLib(buffer->statsBuffer, 0xA000u, to, 0xA000u);
             payload[0] = 3;
             payload[1] = 0;
             v8 = v5;

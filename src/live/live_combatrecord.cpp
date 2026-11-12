@@ -927,7 +927,7 @@ void __cdecl LiveCombatRecord_BuildSortedItem(
     int j; // [esp+88h] [ebp-9D2Ch]
     int v87; // [esp+8Ch] [ebp-9D28h]
     int i; // [esp+90h] [ebp-9D24h]
-    char backupBuffer[40172]; // [esp+94h] [ebp-9D20h] BYREF
+    char backupBuffer[40964]; // [esp+94h] [ebp-9D20h] BYREF
     int HeaderVersion; // [esp+9D84h] [ebp-30h]
     const char *PlayerStatStringByKey; // [esp+9D88h] [ebp-2Ch]
     char *buffer; // [esp+9D8Ch] [ebp-28h]
@@ -968,10 +968,10 @@ void __cdecl LiveCombatRecord_BuildSortedItem(
             if ( LiveStats_GetStatsDDL() && LiveStats_GetStatsDDL()->version != HeaderVersion )
             {
                 StatsDDL = LiveStats_GetStatsDDL();
-                if ( !DDL_FixBufferVersion(buffer, StatsDDL, "ddl_mp/stats_archive.ddl", backupBuffer, 40168) )
+                if ( !DDL_FixBufferVersion(buffer, StatsDDL, "ddl_mp/stats_archive.ddl", backupBuffer, 40960) )
                 {
                     v8 = LiveStats_GetStatsDDL();
-                    if ( !DDL_FixBufferVersion(buffer, v8, "ddl_mp/stats.ddl", backupBuffer, 40168) )
+                    if ( !DDL_FixBufferVersion(buffer, v8, "ddl_mp/stats.ddl", backupBuffer, 40960) )
                     {
                         v9 = LiveStats_GetStatsDDL();
                         Com_PrintError(
