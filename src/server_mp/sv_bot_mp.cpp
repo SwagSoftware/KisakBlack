@@ -2952,12 +2952,12 @@ void __cdecl Bot_Clear(bot_info_t *botInfo)
 
 void __cdecl SV_BotRegisterDvars()
 {
-    sv_botsAllowMovement = _Dvar_RegisterBool("sv_botsAllowMovement", 0, 0, "Allow testclients to pathfind and move");
+    sv_botsAllowMovement = _Dvar_RegisterBool("sv_botsAllowMovement", 1, 0, "Allow testclients to pathfind and move");
     sv_botsForceStand = _Dvar_RegisterBool("sv_botsForceStand", 0, 0, "Make testclients always stand");
     sv_botsForceCrouch = _Dvar_RegisterBool("sv_botsForceCrouch", 0, 0, "Make testclients always crouch");
     sv_botsForceProne = _Dvar_RegisterBool("sv_botsForceProne", 0, 0, "Make testclients always prone");
-    sv_botsPressAttackBtn = _Dvar_RegisterBool("sv_botsPressAttackBtn", 0, 0, "Allow testclients to press attack button");
-    sv_botsPressMeleeBtn = _Dvar_RegisterBool("sv_botsPressMeleeBtn", 0, 0, "Allow testclients to press melee button");
+    sv_botsPressAttackBtn = _Dvar_RegisterBool("sv_botsPressAttackBtn", 1, 0, "Allow testclients to press attack button");
+    sv_botsPressMeleeBtn = _Dvar_RegisterBool("sv_botsPressMeleeBtn", 1, 0, "Allow testclients to press melee button");
     sv_botsForceFragOnly = _Dvar_RegisterBool("sv_botsForceFragOnly", 0, 0, "Force testclients to Frag grenades only");
     sv_botsForceSpecialOnly = _Dvar_RegisterBool(
                                                             "sv_botsForceSpecialOnly",
