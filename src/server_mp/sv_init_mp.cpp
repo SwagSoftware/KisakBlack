@@ -15,7 +15,7 @@
 #include <qcommon/com_profilemapload.h>
 #include <server/sv_game.h>
 #include <win32/win_net.h>
-#include <live/live_steam_server.h>
+#include <universal/offline.h>
 #include <win32/win_shared.h>
 #include <client_mp/cl_cgame_mp.h>
 #include <qcommon/com_clients.h>
@@ -31,9 +31,6 @@
 #include <qcommon/com_gamemodes.h>
 #include <qcommon/threads.h>
 #include <stringed/stringed_hooks.h>
-#include <live/live_sessions_win.h>
-#include <live/live_win.h>
-#include <DW/dwUtils_pc.h>
 #include <client_mp/cl_main_pc_mp.h>
 #include <qcommon/files.h>
 
@@ -67,7 +64,7 @@ const dvar_t *sv_floodProtect;
 const dvar_t *sv_showCommands;
 const dvar_t *sv_writeConfigStrings;
 const dvar_t *scr_writeConfigStrings;
-const dvar_t *sv_dwlsgerror;
+const dvar_t *sv_lsgerror;
 const dvar_t *sv_allowAnonymous;
 const dvar_t *sv_disableClientConsole;
 const dvar_t *sv_privatePassword;
@@ -352,7 +349,7 @@ void __cdecl SV_SetXUIDConfigStrings()
         client = &svs.clients[i];
         if ( client->header.state == CS_ACTIVE )
         {
-            XUIDToString(&client->dw_userID, xuidStr);
+            XUIDToString(&client->onlineUserID, xuidStr);
             I_strncpyz(filteredName, client->name, 32);
             for ( j = 0; filteredName[j] && j < 32; ++j )
             {
@@ -373,24 +370,9 @@ void __cdecl SV_Startup(int controllerIndex)
 
     if (IsDedicatedServer())
     {
-        SV_ResetDWState();
+        SV_ResetOnlineState();
         Dvar_SetBoolByName("r_gfxopt_water_simulation", 0);
 
-#ifdef KISAK_LIVE
-        dwNetStart(1);
-        while (g_dwNetStatus == DW_NET_STARTING_ONLINE)
-            dwNetPump();
-
-        if (g_svdedicatedauthstate != SV_DWAUTHORIZED)
-        {
-            DW_DedicatedLogonStart(controllerIndex);
-            while (g_svdedicatedauthstate == SV_DWAUTHORIZING)
-                DW_DedicatedLogonComplete(0);
-            if (g_svdedicatedauthstate != SV_DWAUTHORIZED)
-                Com_Error(ERR_DROP, "Dedicated server authentication failure.\n");
-            Com_Printf(0, "should be logged in ok\n");
-        }
-#endif
     }
 
     //BLOPS_NULLSUB();
@@ -520,9 +502,6 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
     int i; // [esp+80h] [ebp-4h]
 
     Com_SyncThreads();
-#ifdef KISAK_LIVE
-    MatchRecord_InitMatchData();
-#endif
     iassert(SV_GetServerThreadOwnsGame() == 0);
 
     if ( useFastFile->current.enabled && !mapIsPreloaded )
@@ -702,8 +681,6 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
         }
         else
         {
-            //I_strncpyz(g_matchmakingInfo->m_membermapname, sv_mapname->current.string, 0x21);
-            //g_matchmakingInfo->m_memberGAME_TYPE = Com_GametypeToInt(g_gametype->current.string);
             //Session_Modify(0, &g_serverSession, 1, Com_GetPrivateClients(), 0x20 - Com_GetPrivateClients());
         }
     }
@@ -1041,7 +1018,7 @@ void __cdecl SV_Init()
                                                          0,
                                                          "Special script mode for writing config string files");
     _Dvar_RegisterString("sv_keywords", (char *)"", 0, "Server keywords");
-    sv_dwlsgerror = _Dvar_RegisterBool("sv_dwlsgerror", 0, 0, "Demonware LSG error");
+    sv_lsgerror = _Dvar_RegisterBool("sv_dwlsgerror", 0, 0, "LSG error");
     sv_allowAnonymous = _Dvar_RegisterBool("sv_allowAnonymous", 0, 0, "Allow anonymous access");
     sv_disableClientConsole = _Dvar_RegisterBool(
                                                             "sv_disableClientConsole",

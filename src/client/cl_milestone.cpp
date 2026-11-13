@@ -2,7 +2,7 @@
 #include <universal/assertive.h>
 #include <universal/q_shared.h>
 #include <universal/com_stringtable.h>
-#include <live/live_stats.h>
+#include <universal/offline.h>
 #include <ui/ui_main.h>
 #include <bgame/bg_weapons_attachment.h>
 #include <cstring>

@@ -14,7 +14,7 @@
 #include <clientscript/cscr_stringlist.h>
 #include <bgame/bg_pmove.h>
 #include <cgame/cg_drawtools.h>
-#include <live/live_friends_pc.h>
+#include <universal/offline.h>
 #include <client_mp/sv_client_mp.h>
 #include <client_mp/g_client_mp.h>
 #include <game/g_debug.h>

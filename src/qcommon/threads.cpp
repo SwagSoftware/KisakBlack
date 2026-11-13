@@ -4,7 +4,7 @@
 #include <universal/q_shared.h>
 #include "common.h"
 #include <tl/jobqueue/jobqueue_all.h>
-#include <live/live_win_common.h>
+#include <universal/offline.h>
 #include <gfx_d3d/r_cinematic.h>
 #include <gfx_d3d/rb_resource.h>
 #include <win32/win_common.h>
@@ -33,7 +33,7 @@ DWORD threadId[15];
 void *threadHandle[15];
 void *g_threadValues[15][5];
 
-thread_local void **g_dwTlsIndex;
+thread_local void **g_onlineTlsIndex;
 thread_local unsigned int g_currentThreadId;
 
 DWORD_PTR s_affinityMaskForProcess;
@@ -108,7 +108,7 @@ void __cdecl Sys_InitMainThread()
     DuplicateHandle(process, pseudoHandle, process, threadHandle, 0, 0, 2u);
     Win_InitThreads();
     SetThreadIdealProcessor(threadHandle[0], 0);
-    g_dwTlsIndex = g_threadValues[0];
+    g_onlineTlsIndex = g_threadValues[0];
     Com_InitThreadData(0);
 }
 
@@ -189,7 +189,7 @@ unsigned int Win_InitThreads()
 
 void __cdecl Sys_InitThread(int threadContext)
 {
-    g_dwTlsIndex = g_threadValues[threadContext];
+    g_onlineTlsIndex = g_threadValues[threadContext];
     Com_InitThreadData(threadContext);
 }
 
@@ -689,13 +689,13 @@ int __cdecl Sys_GetThreadContext()
 void __cdecl Sys_SetValue(int valueIndex, void *data)
 {
     //*(unsigned int *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 20) + 4 * valueIndex) = data;
-    g_dwTlsIndex[valueIndex] = data;
+    g_onlineTlsIndex[valueIndex] = data;
 }
 
 void *__cdecl Sys_GetValue(int valueIndex)
 {
     //return *(void **)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 20) + 4 * valueIndex);
-    return g_dwTlsIndex[valueIndex];
+    return g_onlineTlsIndex[valueIndex];
 }
 
 void __cdecl Sys_SetWorkerCmdEvent()

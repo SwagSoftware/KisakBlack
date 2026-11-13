@@ -1,10 +1,10 @@
 #pragma once
 #include "ui_utils.h"
 
-struct dwFileShareReadFileTask;
+struct FileShareReadFileTask;
 
-void __cdecl UI_Screenshot_Success(dwFileShareReadFileTask *task);
-void __cdecl UI_Screenshot_Failure(dwFileShareReadFileTask *task);
+void __cdecl UI_Screenshot_Success(FileShareReadFileTask *task);
+void __cdecl UI_Screenshot_Failure(FileShareReadFileTask *task);
 void __cdecl UI_ScreenshotAlloc();
 void __cdecl UI_ScreenshotShutdown();
 void __cdecl UI_ScreenshotDecompressCallback(void *data);

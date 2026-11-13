@@ -8,7 +8,7 @@
 #include <server/sv_game.h>
 #include <universal/com_files.h>
 #include "sv_init_mp.h"
-#include <live/live_storage_win.h>
+#include <universal/offline.h>
 #include "sv_main_pc_mp.h"
 #include <game_mp/g_cmds_mp.h>
 #include <monkey/monkey.h>
@@ -18,7 +18,6 @@
 #include <game_mp/g_client_script_cmd_mp.h>
 #include <ui/ui_main_pc.h>
 #include <ui/ui_playlists.h>
-#include <live/live_storage_pub.h>
 #include <universal/q_parse.h>
 #include <game_mp/g_main_mp.h>
 
@@ -703,7 +702,7 @@ void __cdecl SV_RankUp_f()
             if ( client )
             {
                 SV_RankUpClient(client);
-                SV_DWWriteClientStats(client);
+                SV_OnlineWriteClientStats(client);
             }
             else
             {

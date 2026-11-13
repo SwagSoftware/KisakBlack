@@ -13,7 +13,7 @@
 #include "win_gamepad.h"
 #include <client_mp/cl_main_mp.h>
 #include <cgame_mp/cg_local_mp.h>
-#include <live/live_win.h>
+#include <universal/offline.h>
 #include <ui/ui_playlists.h>
 #include <client_mp/cl_input_mp.h>
 

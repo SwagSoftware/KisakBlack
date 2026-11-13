@@ -2,13 +2,13 @@
 #include "q_shared.h"
 
 struct TaskRecord;
-struct bdRemoteTask;
+struct RemoteTask;
 struct TaskDefinition;
 
 enum TaskState : __int32;
 
 void __cdecl TaskManager2_Init();
-void __cdecl TaskManager2_DeferTaskToMainThread(bdRemoteTask *dwTask, const TaskDefinition *taskDef, void *payload);
+void __cdecl TaskManager2_DeferTaskToMainThread(RemoteTask *remoteTask, const TaskDefinition *taskDef, void *payload);
 void __cdecl TaskManager2_PickUpDeferredTasks();
 void __cdecl TaskManager2_ProcessXOverlappedTask(TaskRecord *task);
 void __cdecl TaskManager2_CancelEndlessTasks(int localControllerIndex);
@@ -20,7 +20,7 @@ void __cdecl TaskManager2_FreeDeadTasks(int localControllerIndex);
 void __cdecl TaskManager2_FreeAllPendingTasksForController(int localControllerIndex);
 void __cdecl TaskManager2_FreeAllPendingTasksInternal(int localControllerIndex);
 void __cdecl TaskManager2_HandleTimedOutTask(TaskRecord *TimedOutTask);
-void __cdecl TaskManager2_ProcessDemonwareTask(TaskRecord *task);
+void __cdecl TaskManager2_ProcessRemoteTask(TaskRecord *task);
 void __cdecl TaskManager2_ProcessNestedTask(TaskRecord *task);
 void __cdecl TaskManager2_ProcessTasks(int localControllerIndex);
 void TaskManager2_CreateDeferredTasks();

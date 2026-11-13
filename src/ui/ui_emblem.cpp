@@ -3,13 +3,10 @@
 #include <client/cl_main.h>
 #include "ui_utils.h"
 #include <universal/com_expressions_eval.h>
-#include <live/live_pcache.h>
+#include <universal/offline.h>
 #include <qcommon/com_clients.h>
 #include "ui_shared.h"
 #include <client/cl_keys.h>
-#include <live/live_win.h>
-#include <live/live_pcache_profile.h>
-#include <live/live_counter.h>
 #include <gfx_d3d/r_rendercmds.h>
 
 CompositeEmblemLayer s_emblem[12];

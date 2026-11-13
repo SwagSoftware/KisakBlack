@@ -190,10 +190,6 @@ void __cdecl player_die(
     weapDef = BG_GetWeaponDef(iWeapon);
     if ( weapDef )
         weaponName = (char *)BG_WeaponName(iWeapon);
-#ifdef KISAK_LIVE
-    if ( onlinegame->current.enabled && com_sv_running->current.enabled && self && attacker )
-        MatchRecordDeath(self->client, attacker->client, weaponName, hitLoc);
-#endif
     if ( Com_GetServerDObj(self->client->ps.clientNum)
         && (self->client->ps.pm_type < 2u
          || self->client->ps.pm_type == 6
@@ -501,13 +497,6 @@ void __cdecl G_DamageClient(
         }
         if ( damage <= 0 )
             damage = 1;
-#ifdef KISAK_LIVE
-        if ( onlinegame->current.enabled && com_sv_running->current.enabled )
-        {
-            if ( attacker )
-                MatchRecordHit(attacker->client, hitLoc);
-        }
-#endif
         Scr_PlayerDamage(targ, inflictor, attacker, damage, dflags, mod, weapon, point, dir, hitLoc, timeOffset);
     }
 }

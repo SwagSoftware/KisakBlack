@@ -5,9 +5,6 @@
 #include <server_mp/sv_snapshot_mp.h>
 #include <server_mp/sv_voice_mp.h>
 
-#ifdef KISAK_DEMON 
-#define KISAK_STATS
-#endif
 
 #define ALL_STATS_PACKETS_RECEIVED 0x7FFFFFFFF
 
@@ -151,7 +148,7 @@ struct client_t // sizeof=0x84D00
     int snapshotHistoryTime;
     int snapshotHistoryFrames;
     int messageHistorySize;
-    unsigned __int64 dw_userID;
+    unsigned __int64 onlineUserID;
     int notifyJoin;
     unsigned int dwchallenge;
 };

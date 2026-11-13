@@ -5,8 +5,7 @@
 #include "demo_files.h"
 #include "demo_playback.h"
 #include <qcommon/threads.h>
-#include <live/live_storage.h>
-#include <live/live_win.h>
+#include <universal/offline.h>
 #include <qcommon/common.h>
 #include <qcommon/cmd.h>
 #include <win32/win_shared.h>
@@ -1503,8 +1502,8 @@ void __cdecl Demo_InfoPlayerConnected(int clientNum)
         demo.info.connectedPlayers[index].connectTime = svs.time;
         v1 = index;
         clients = svs.clients;
-        LODWORD(demo.info.connectedPlayers[v1].xuid) = svs.clients[clientNum].dw_userID;
-        HIDWORD(demo.info.connectedPlayers[v1].xuid) = HIDWORD(clients[clientNum].dw_userID);
+        LODWORD(demo.info.connectedPlayers[v1].xuid) = svs.clients[clientNum].onlineUserID;
+        HIDWORD(demo.info.connectedPlayers[v1].xuid) = HIDWORD(clients[clientNum].onlineUserID);
         if ( demo.info.connectedPlayers[index].clientNum != clientNum
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\demo\\demo_recording.cpp",

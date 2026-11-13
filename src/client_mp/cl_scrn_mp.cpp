@@ -11,7 +11,7 @@
 #include <bgame/bg_weapons_def.h>
 #include <cgame_mp/cg_consolecmds_mp.h>
 #include <qcommon/com_clients.h>
-#include <live/live.h>
+#include <universal/offline.h>
 #include <demo/demo_playback.h>
 #include <cgame/cg_weapons.h>
 #include <cgame/cg_camera.h>
@@ -21,7 +21,6 @@
 #include <qcommon/threads.h>
 #include <win32/win_main.h>
 #include <sound/snd_public_async.h>
-#include <DW/dwLogOn_pc.h>
 #include <cgame/cg_sound.h>
 #include <client/cl_compositing.h>
 #include <glass/glass_client.h>
@@ -30,7 +29,6 @@
 #include <ui/ui_viewer.h>
 #include <client/splitscreen.h>
 #include <gfx_d3d/r_ui3d.h>
-#include <DW/dwLogOn_pc.h>
 #include <client/cl_cin.h>
 #include <cgame_mp/cg_newDraw_mp.h>
 #include <win32/win_shared.h>

@@ -46,7 +46,7 @@
 #include "g_team_mp.h"
 #include "g_spawnsystem_mp.h"
 #include <game/actor_corpse.h>
-#include <live/live_steam_server.h>
+#include <universal/offline.h>
 #include <bgame/bg_pmove.h>
 #include <server/sv_world.h>
 #include <flame/flame_damage.h>
@@ -2997,10 +2997,6 @@ void    G_RunFrame(int levelTime)
         }
     }
 
-#ifdef KISAK_LIVE
-    if ( onlinegame->current.enabled && com_sv_running->current.enabled )
-        MatchRecordMovement();
-#endif
     G_DebugTimedDamage();
     Time = G_GetTime();
     SV_Flame_Age_All_Objects(Time);

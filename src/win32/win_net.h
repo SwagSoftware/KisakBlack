@@ -2,8 +2,6 @@
 
 #include <Windows.h>
 
-struct bdNetStartParams;
-
 struct socketpool_t // sizeof=0x10
 {                                       // XREF: .data:poolsockets/r
     int sendtime;                       // XREF: Sys_CheckForNATOverflow(void)+9C/r
@@ -29,7 +27,6 @@ bool __cdecl Sys_IsLANAddress_IgnoreSubnet(netadr_t adr);
 int __cdecl Sys_IsLANAddress(netadr_t adr);
 void __cdecl Sys_ShowIP();
 void __cdecl NET_OpenIP();
-int __cdecl dwPlatformInit(bdNetStartParams *params);
 void __cdecl NET_SocketPool_Init();
 void __cdecl Sys_CheckForNATOverflow();
 int __cdecl Sys_SocketPool_GetPacket(netadr_t *net_from, msg_t *net_message);

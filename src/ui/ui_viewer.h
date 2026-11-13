@@ -2,7 +2,7 @@
 #include <xanim/dobj.h>
 #include <universal/dvar.h>
 #include <cgame_mp/cg_predict_mp.h>
-#include <live/live_combatrecord.h>
+#include <universal/offline.h>
 
 struct __declspec(align(8)) UIViewer // sizeof=0xA16C0
 {                                       // XREF: .data:uiViewer/r

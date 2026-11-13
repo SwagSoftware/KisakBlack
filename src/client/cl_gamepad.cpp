@@ -15,7 +15,7 @@
 #include <cgame_mp/cg_newDraw_mp.h>
 #include <ui/keycodes.h>
 #include <demo/demo_playback.h>
-#include <live/live_win.h>
+#include <universal/offline.h>
 #include <bgame/bg_unlockable_items.h>
 #include <qcommon/com_clients.h>
 #include <cgame/cg_compass.h>

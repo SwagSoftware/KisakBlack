@@ -2,7 +2,7 @@
 #include <gfx_d3d/r_shader_constant_set.h>
 #include <gfx_d3d/r_scene.h>
 #include <gfx_d3d/r_model_lod.h>
-#include <live/live_pcache.h>
+#include <universal/offline.h>
 #include <database/db_registry.h>
 
 const dvar_t *weaponCamoLodDist;

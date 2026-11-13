@@ -11,7 +11,7 @@
 #include <bgame/bg_unlockable_items.h>
 #include <ui_mp/ui_gametype_custom_mp.h>
 #include <ui_mp/ui_gametype_variants_mp.h>
-#include <live/live_stats.h>
+#include <universal/offline.h>
 #include <client_mp/sv_client_mp.h>
 #include <cgame/cg_weapon_options.h>
 #include <clientscript/scr_const.h>
@@ -34,7 +34,6 @@
 #include <game/g_player_corpse.h>
 #include <qcommon/dobj_management.h>
 #include "g_cmds_mp.h"
-#include <live/live_sessions.h>
 #include <server/sv_live_stats.h>
 #include <bgame/bg_perks.h>
 #include <server_mp/sv_init_mp.h>
@@ -42,7 +41,6 @@
 #include <turret/turret_placement.h>
 #include <cgame/cg_scr_main.h>
 #include <sound/snd_bank.h>
-#include <live/live_sessions_win.h>
 
 static void __cdecl METHOD_NULLSUB(scr_entref_t entref)
 {
@@ -5178,14 +5176,6 @@ void __cdecl PlayerCmd_spawn(scr_entref_t entref)
     Scr_GetVector(0, spawn_origin, SCRIPTINSTANCE_SERVER);
     Scr_GetVector(1u, spawn_angles, SCRIPTINSTANCE_SERVER);
     ClientSpawn(pSelf, spawn_origin, spawn_angles);
-#ifdef KISAK_LIVE // lol lets invent another ifdef name
-    if ( onlinegame->current.enabled
-        && com_sv_running->current.enabled
-        && pSelf->client->sess.sessionState == SESS_STATE_PLAYING )
-    {
-        MatchRecordSpawn(pSelf->client);
-    }
-#endif
 }
 
 void __cdecl PlayerCmd_setEnterTime(scr_entref_t entref)

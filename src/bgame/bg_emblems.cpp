@@ -1,9 +1,7 @@
 #include "bg_emblems.h"
-#include <live/live_stats.h>
-#include <live/live_storage.h>
+#include <universal/offline.h>
 #include <ddl/ddl_api.h>
 #include <qcommon/common.h>
-#include <live/live_counter.h>
 #include <ui/ui_main.h>
 #include <client/cl_compositing.h>
 #include <universal/com_encode.h>

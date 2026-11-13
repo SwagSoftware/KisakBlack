@@ -8,7 +8,6 @@ set(CMAKE_GENERATOR_PLATFORM "WIN32")
 
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(TL_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/tl")
-set(DW_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/DemonWare")
 
 include(cmake_files.cmake)
 

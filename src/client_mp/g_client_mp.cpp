@@ -293,7 +293,7 @@ void __cdecl ClientUserinfoChanged(unsigned int clientNum)
             I_strncpyz(client->sess.cs.clanAbbrev, s, 8);
         else
             client->sess.cs.clanAbbrev[0] = 0;
-        v1 = Info_ValueForKey(userinfo, "bdOnlineUserID");
+        v1 = Info_ValueForKey(userinfo, "onlineUserID");
         StringToXUID(v1, &xuid);
         if ( (xuid & 0xFFFFFF00) == 0xFFFFFF00 && HIDWORD(xuid) == -1 )
         {

@@ -450,7 +450,7 @@ struct __declspec(align(4)) server_t // sizeof=0x5C28C
 };
 static_assert(sizeof(server_t) == 377548);
 
-struct bdSecurityID;
+struct XNKID;
 
 char *__cdecl SV_ExpandNewlines(char *in);
 void __cdecl SV_AddServerCommand(client_t *client, svscmd_type type, char *cmd);
@@ -460,9 +460,9 @@ void __cdecl SV_CullIgnorableServerCommands(client_t *client);
 void SV_SendServerCommand(client_t *cl, svscmd_type type, const char *fmt, ...);
 client_t *__cdecl SV_FindClientByAddress(netadr_t from, int qport);
 void __cdecl SV_VoicePacket(netadr_t from, msg_t *msg);
-void __cdecl SVC_Status(netadr_t from, bdSecurityID *secID);
-void __cdecl SVC_StatusScoreBoard(netadr_t from, bdSecurityID *secID);
-void __cdecl SVC_Info(netadr_t from, bdSecurityID *secID, bool quick);
+void __cdecl SVC_Status(netadr_t from, XNKID *secID);
+void __cdecl SVC_StatusScoreBoard(netadr_t from, XNKID *secID);
+void __cdecl SVC_Info(netadr_t from, XNKID *secID, bool quick);
 void __cdecl SV_ConnectionlessPacket(netadr_t from, msg_t *msg);
 void __cdecl SV_PacketEvent(netadr_t from, msg_t *msg);
 void __cdecl SV_CalcPings();

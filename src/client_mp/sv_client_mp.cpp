@@ -1,11 +1,9 @@
 #include "sv_client_mp.h"
 #include <server_mp/sv_main_mp.h>
-#include <live/live_storage_win.h>
+#include <universal/offline.h>
 #include <server_mp/sv_init_mp.h>
 #include <qcommon/com_gamemodes.h>
-#include <live/live_stats.h>
 #include <universal/mem_largelocal.h>
-#include <live/live_steam_server.h>
 #include <universal/com_files.h>
 #include <universal/q_parse.h>
 #include "g_client_mp.h"
@@ -18,7 +16,6 @@
 #include <server_mp/sv_bot_mp.h>
 #include <server_mp/sv_ccmds_mp.h>
 #include <stringed/stringed_hooks.h>
-#include <DW/MatchRecorder.h>
 #include <qcommon/sv_msg_write_mp.h>
 #include <server_mp/sv_net_chan_mp.h>
 #include <server_mp/sv_snapshot_mp.h>
@@ -35,7 +32,6 @@
 #include <universal/com_memory.h>
 #include <qcommon/com_clients.h>
 #include <win32/win_voice.h>
-#include <live/live_sessions_win.h>
 #include <universal/com_shared.h>
 #include <server/sv_game.h>
 #include <bgame/bg_weapons.h>
@@ -72,7 +68,7 @@ int sv_serverId_value;
 unsigned __int16 botport;
 unsigned __int64 g_notifyLeave[32];
 
-void __cdecl SV_HandleDWChallengeResponse(netadr_t from, msg_t *msg)
+void __cdecl SV_HandleChallengeResponse(netadr_t from, msg_t *msg)
 {
     client_t *client; // [esp+0h] [ebp-10h]
     unsigned int serverchallenge; // [esp+4h] [ebp-Ch] BYREF
@@ -82,23 +78,23 @@ void __cdecl SV_HandleDWChallengeResponse(netadr_t from, msg_t *msg)
     {
         qport = MSG_ReadShort(msg);
         MSG_ReadData(msg, (unsigned __int8 *)&serverchallenge, 4);
-        Com_DPrintf(15, "DWCHALLENGERESPONSE: Read server challenge %u\n", serverchallenge);
+        Com_DPrintf(15, "CHALLENGERESPONSE: Read server challenge %u\n", serverchallenge);
         client = SV_FindClientByAddress(from, qport);
         if ( client )
         {
             if ( serverchallenge == client->dwchallenge )
             {
-                Com_DPrintf(15, "DWCHALLENGERESPONSE: Matches\n");
+                Com_DPrintf(15, "CHALLENGERESPONSE: Matches\n");
                 client->dwchallenge = 0;
-                client->guid = client->dw_userID;
-                SV_DWReadClientCAC(client);
-                SV_DWReadClientStats(client);
+                client->guid = client->onlineUserID;
+                SV_OnlineReadClientCAC(client);
+                SV_OnlineReadClientStats(client);
             }
             else
             {
                 Com_DPrintf(
                     15,
-                    "DWCHALLENGERESPONSE: serverchallenge %u doesn't match what we sent client: %u. Ask Ewan.\n",
+                    "CHALLENGERESPONSE: serverchallenge %u doesn't match what we sent client: %u. Ask Ewan.\n",
                     serverchallenge,
                     client->dwchallenge);
                 NET_OutOfBandPrint(NS_SERVER, client->header.netchan.remoteAddress, "error\nEXE_BAD_CHALLENGE");
@@ -121,7 +117,7 @@ void __cdecl SV_GetChallenge(netadr_t from)
         Com_Printf(0, "Dedicated server: Rejecting incoming connection, we're re-authing\n");
         return;
     }
-    else if ( sv_dwlsgerror->current.enabled )
+    else if ( sv_lsgerror->current.enabled )
     {
         Com_PrintWarning(0, "Dedicated server: Session update failure, rejecting incoming connection\n");
         return;
@@ -513,7 +509,7 @@ void __cdecl SV_UploadStats(int clientNum)
     {
         SV_SendServerCommand(client, SV_CMD_RELIABLE, "%c", 81);
         if ( !xblive_wagermatch->current.enabled )
-            SV_DWWriteClientStats(client);
+            SV_OnlineWriteClientStats(client);
     }
 }
 
@@ -994,7 +990,7 @@ void __cdecl SV_DirectConnect(netadr_t from)
             newcl->reservedSlot = slot;
         }
         uid = 0;
-        StringToXUID(Info_ValueForKey(userinfo, "bdOnlineUserID"), &uid);
+        StringToXUID(Info_ValueForKey(userinfo, "onlineUserID"), &uid);
         if (SV_IsBannedGuid(uid) || SV_IsTempBannedGuid(uid))
         {
             NET_OutOfBandPrint(NS_SERVER, from, "error\nPATCH_BANNED_FROM_SERVER");
@@ -1023,33 +1019,6 @@ void __cdecl SV_DirectConnect(netadr_t from)
             __debugbreak();
         }
         iassert(!newcl->scriptId);
-#ifdef KISAK_LIVE_SERVICE
-        if (live_service && live_service->current.enabled)
-        {
-            clientChallange = 0;
-            nonce = 0;
-            v17 = Info_ValueForKey(userinfo, "challengeNum");
-            sscanf(v17, "%u", &clientChallange);
-            v18 = Info_ValueForKey(userinfo, "nonce");
-            sscanf(v18, "%u", &nonce);
-            Com_DPrintf(
-                15,
-                "CHALLENGE RESPONSE: Read userID %llu, clientChallenge %u, nonce %u\n",
-                uid,
-                clientChallange,
-                nonce);
-            if (uid && clientChallange && nonce)
-            {
-                v19 = SV_SendClientChallenge(nonce, clientChallange, uid);
-                newcl->dwchallenge = v19;
-                newcl->dw_userID = uid;
-            }
-            else
-            {
-                Com_PrintWarning(15, "Failed to parse userId!\n");
-            }
-        }
-#endif
         if (!newcl->bIsTestClient && !newcl->bIsDemoClient)
             newcl->notifyJoin = 1;
         scriptId = Scr_AllocArray(SCRIPTINSTANCE_SERVER);
@@ -1234,18 +1203,18 @@ void __cdecl SV_DropClient(client_t *drop, const char *reason, bool tellThem, bo
         {
             if (g_notifyLeave[j] == 0)
             {
-                g_notifyLeave[j] = drop->dw_userID;
+                g_notifyLeave[j] = drop->onlineUserID;
             }
             //if (!(HIDWORD(g_notifyLeave[j]) | LODWORD(g_notifyLeave[j])))
             //{
-            //    LODWORD(g_notifyLeave[j]) = drop->dw_userID;
-            //    HIDWORD(g_notifyLeave[j]) = HIDWORD(drop->dw_userID);
+            //    LODWORD(g_notifyLeave[j]) = drop->onlineUserID;
+            //    HIDWORD(g_notifyLeave[j]) = HIDWORD(drop->onlineUserID);
             //}
         }
 
 #ifdef KISAK_STATS
         if (drop->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED && writeStats)
-            SV_DWWriteClientStats(drop);
+            SV_OnlineWriteClientStats(drop);
 #endif
 
         if (drop->reservedSlot > 0)
@@ -1264,10 +1233,6 @@ void __cdecl SV_DropClient(client_t *drop, const char *reason, bool tellThem, bo
         {
             __debugbreak();
         }
-#ifdef KISAK_LIVE
-        if (onlinegame->current.enabled && com_sv_running->current.enabled)
-            MatchRecordPlayerDetails(&level.clients[clientNum], reason);
-#endif
         // LWSS ADD
         if (IsDedicatedServer() && !drop->bIsDemoClient)
         {
@@ -2481,7 +2446,7 @@ void __cdecl SV_UserinfoChanged(client_t *cl)
         clientNum = cl - svs.clients;
         bcassert(clientNum, com_maxclients->current.integer);
 
-        val = Info_ValueForKey(cl->userinfo, "bdOnlineUserID");
+        val = Info_ValueForKey(cl->userinfo, "onlineUserID");
         StringToXUID(val, &newXuid);
         if ( newXuid ) // KISAKTODO: prob should ifdef off this branch
         {
@@ -3231,7 +3196,7 @@ gentity_s *__cdecl SV_AddTestClient()
         sprintf(
             file,
             "connect \"\\cg_predictItems\\1\\cl_punkbuster\\0\\cl_anonymous\\0\\color\\4\\head\\default\\model\\multi\\snaps\\2"
-            "0\\rate\\5000\\name\\%s\\clanAbbrev\\3arc\\bdOnlineUserID\\%s\\protocol\\%d\\qport\\%d\"",
+            "0\\rate\\5000\\name\\%s\\clanAbbrev\\3arc\\onlineUserID\\%s\\protocol\\%d\\qport\\%d\"",
             name,
             xuidStr,
             1044,

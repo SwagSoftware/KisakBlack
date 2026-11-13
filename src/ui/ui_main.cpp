@@ -27,10 +27,9 @@
 #include "ui_localvars.h"
 #include "ui_shared_obj.h"
 #include <client_mp/cl_ui_pc_mp.h>
-#include <live/live_leaderboard.h>
+#include <universal/offline.h>
 #include <client_mp/cl_main_pc_mp.h>
 #include "ui_feeders.h"
-#include <live/live_groups_dw.h>
 #include <game_mp/ui_gameinfo_mp.h>
 #include <client_mp/cl_input_mp.h>
 #include <win32/win_voice.h>
@@ -42,14 +41,10 @@
 #include "ui_playlists.h"
 #include <qcommon/com_gamemodes.h>
 #include <client_mp/cl_ui_mp.h>
-#include <live/live_clans.h>
-#include <live/live_stats.h>
 #include <client/cl_rank.h>
-#include <live/live_ticker.h>
 #include <database/db_file_load.h>
 #include <sound/snd_driver_xaudio2.h>
 #include <game_mp/g_main_mp.h>
-#include <live/live_win.h>
 #include <stringed/stringed_hooks.h>
 
 const dvar_t *ui_netGameType;
@@ -1398,7 +1393,7 @@ void __cdecl UI_RunMenuScript(int localClientNum, int contextIndex, __int64 args
                                                                                 *(_DWORD *)&sharedUiInfo.serverStatusAddress[4
                                                                                 * sharedUiInfo.serverStatus.currentServer
                                                                                 - 81328],
-                                                                                (bdSecurityID *)sharedUiInfo.serverStatusSecurityID,
+                                                                                (XNKID *)sharedUiInfo.serverStatusSecurityID,
                                                                                 8);
                                                                             UI_BuildServerStatusScoreBoard(localClientNum, uiInfoArray, 1);
                                                                         }
@@ -1416,7 +1411,7 @@ void __cdecl UI_RunMenuScript(int localClientNum, int contextIndex, __int64 args
                                                                             *(_DWORD *)&sharedUiInfo.serverStatusAddress[4
                                                                             * sharedUiInfo.serverStatus.currentServer
                                                                             - 81328],
-                                                                            (bdSecurityID *)sharedUiInfo.serverStatusSecurityID,
+                                                                            (XNKID *)sharedUiInfo.serverStatusSecurityID,
                                                                             8);
                                                                         UI_BuildServerStatus(localClientNum, uiInfoArray, 1);
                                                                     }

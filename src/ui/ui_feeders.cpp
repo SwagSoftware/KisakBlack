@@ -6,21 +6,14 @@
 #include <ui_mp/ui_feeders_mp.h>
 #include "ui_utils.h"
 #include "ui_playlists.h"
-#include <live/live_leaderboard.h>
-#include <live/live_friends_pc.h>
-#include <live/live_win.h>
-#include <live/live_meetplayer.h>
+#include <universal/offline.h>
 #include "ui_friends.h"
-#include <live/live_fileshare.h>
 #include <client_mp/cl_ui_mp.h>
 #include <client_mp/cl_cgame_mp.h>
-#include <live/live_pcache.h>
-#include <live/live_pcache_profile.h>
 #include <client/cl_rank.h>
 #include <client_mp/cl_scrn_mp.h>
 #include <client_mp/cl_main_pc_mp.h>
 #include "ui_emblem.h"
-#include <live/live_fileshare_search.h>
 #include <cgame/cg_compass.h>
 
 

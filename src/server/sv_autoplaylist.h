@@ -1,5 +1,5 @@
 #pragma once
-#include <live/live_storage.h>
+#include <universal/offline.h>
 
 enum sv_apstate_t : __int32
 {

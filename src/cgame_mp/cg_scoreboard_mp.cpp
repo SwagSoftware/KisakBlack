@@ -2,14 +2,13 @@
 #include <universal/assertive.h>
 #include "cg_local_mp.h"
 #include <client_mp/cl_ui_pc_mp.h>
-#include <live/live_friends_pc.h>
+#include <universal/offline.h>
 #include <client_mp/cl_main_pc_mp.h>
 #include <client/cl_rank.h>
 #include <cgame/cg_draw_names.h>
 #include <game/g_client_fields.h>
 #include <client/cl_voice.h>
 #include <stringed/stringed_hooks.h>
-#include <live/live_win.h>
 #include "cg_main_mp.h"
 #include <cgame/cg_drawtools.h>
 #include <demo/demo_playback.h>

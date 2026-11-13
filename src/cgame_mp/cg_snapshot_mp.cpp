@@ -20,7 +20,7 @@
 #include <cgame/cg_spawn.h>
 #include <demo/demo_playback.h>
 #include "cg_servercmds_mp.h"
-#include <live/live_pcache.h>
+#include <universal/offline.h>
 #include <client_mp/cl_cgame_mp.h>
 #include <EffectsCore/fx_marks.h>
 #include <EffectsCore/fx_unique_handle.h>

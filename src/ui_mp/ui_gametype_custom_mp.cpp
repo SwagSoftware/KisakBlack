@@ -12,9 +12,7 @@
 #include <bgame/bg_perks.h>
 #include <bgame/bg_misc.h>
 #include <ddl/ddl_api.h>
-#include <live/live_win.h>
-#include <live/live_fileshare.h>
-#include <live/live_counter.h>
+#include <universal/offline.h>
 #include <qcommon/com_clients.h>
 #include <ctime>
 #include <client_mp/cl_main_mp.h>
@@ -1721,26 +1719,26 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
     int LocalClientNum; // eax
     char *v12; // [esp-8h] [ebp-568h]
     int v13; // [esp+10h] [ebp-550h]
-    bdTaskResult *j; // [esp+14h] [ebp-54Ch]
+    TaskResult *j; // [esp+14h] [ebp-54Ch]
     int v15; // [esp+18h] [ebp-548h]
-    bdTaskResult *k; // [esp+1Ch] [ebp-544h]
+    TaskResult *k; // [esp+1Ch] [ebp-544h]
     int v17; // [esp+20h] [ebp-540h]
-    bdTaskResult *m; // [esp+24h] [ebp-53Ch]
+    TaskResult *m; // [esp+24h] [ebp-53Ch]
     int v19; // [esp+28h] [ebp-538h]
-    bdTaskResult *n; // [esp+2Ch] [ebp-534h]
+    TaskResult *n; // [esp+2Ch] [ebp-534h]
     int v21; // [esp+30h] [ebp-530h]
-    bdTaskResult *ii; // [esp+34h] [ebp-52Ch]
+    TaskResult *ii; // [esp+34h] [ebp-52Ch]
     int v23; // [esp+38h] [ebp-528h]
-    bdTaskResult *jj; // [esp+3Ch] [ebp-524h]
+    TaskResult *jj; // [esp+3Ch] [ebp-524h]
     unsigned int value; // [esp+40h] [ebp-520h]
     int v26; // [esp+48h] [ebp-518h]
-    bdTaskResult *kk; // [esp+4Ch] [ebp-514h]
+    TaskResult *kk; // [esp+4Ch] [ebp-514h]
     int v28; // [esp+50h] [ebp-510h]
-    bdTaskResult *mm; // [esp+54h] [ebp-50Ch]
+    TaskResult *mm; // [esp+54h] [ebp-50Ch]
     int v30; // [esp+58h] [ebp-508h]
-    bdTaskResult *nn; // [esp+5Ch] [ebp-504h]
+    TaskResult *nn; // [esp+5Ch] [ebp-504h]
     //int v32; // [esp+60h] [ebp-500h]
-    bdTag *i; // [esp+64h] [ebp-4FCh]
+    FileShareTag *i; // [esp+64h] [ebp-4FCh]
     char backup[260]; // [esp+68h] [ebp-4F8h] BYREF
     const char *result; // [esp+170h] [ebp-3F0h]
     int index; // [esp+174h] [ebp-3ECh]
@@ -1749,7 +1747,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
     const StringTable *gameTypesTable; // [esp+18Ch] [ebp-3D4h] BYREF
     int numTags; // [esp+190h] [ebp-3D0h] BYREF
     int metaDataSize; // [esp+194h] [ebp-3CCh]
-    bdTag tags[40]; // [esp+198h] [ebp-3C8h] BYREF
+    FileShareTag tags[40]; // [esp+198h] [ebp-3C8h] BYREF
     int v43; // [esp+558h] [ebp-8h] BYREF
     int bitSize; // [esp+55Ch] [ebp-4h]
 
@@ -1757,7 +1755,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
     numTags = 0;
     //v32 = 40;
     //for ( i = tags; --v32 >= 0; ++i )
-    //    bdTag::bdTag(i);
+    //    FileShareTag::FileShareTag(i);
     ClientName = Live_ControllerIndex_GetClientName(controllerIndex);
     I_strncpyz(gamerTag, ClientName, 32);
     memset(metaData, 0, sizeof(metaData));
@@ -1847,14 +1845,14 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
                                     UI_OpenToastPopup(LocalClientNum, "menu_mp_killstreak_select", "", v12, 2700);
                                     Z_VirtualFree(s_fileShareBuffer, 0);
                                     //v13 = 40;
-                                    //for ( j = (bdTaskResult *)&v43; --v13 >= 0; bdTag::~bdTag(j) )
+                                    //for ( j = (TaskResult *)&v43; --v13 >= 0; FileShareTag::~FileShareTag(j) )
                                     //    j -= 6;
                                 }
                                 else
                                 {
                                     Com_PrintError(16, "Could not set 'isModifiedDescription' in the file share ddl.\n");
                                     //v15 = 40;
-                                    //for ( k = (bdTaskResult *)&v43; --v15 >= 0; bdTag::~bdTag(k) )
+                                    //for ( k = (TaskResult *)&v43; --v15 >= 0; FileShareTag::~FileShareTag(k) )
                                     //    k -= 6;
                                 }
                             }
@@ -1862,7 +1860,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
                             {
                                 Com_PrintError(16, "Could not set 'description' in the file share ddl.\n");
                                 //v17 = 40;
-                                //for ( m = (bdTaskResult *)&v43; --v17 >= 0; bdTag::~bdTag(m) )
+                                //for ( m = (TaskResult *)&v43; --v17 >= 0; FileShareTag::~FileShareTag(m) )
                                 //    m -= 6;
                             }
                         }
@@ -1870,7 +1868,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
                         {
                             Com_PrintError(16, "Could not set 'isModifiedName' in the file share ddl.\n");
                             //v19 = 40;
-                            //for ( n = (bdTaskResult *)&v43; --v19 >= 0; bdTag::~bdTag(n) )
+                            //for ( n = (TaskResult *)&v43; --v19 >= 0; FileShareTag::~FileShareTag(n) )
                             //    n -= 6;
                         }
                     }
@@ -1878,7 +1876,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
                     {
                         Com_PrintError(16, "Could not set 'name' in the file share ddl.\n");
                         //v21 = 40;
-                        //for ( ii = (bdTaskResult *)&v43; --v21 >= 0; bdTag::~bdTag(ii) )
+                        //for ( ii = (TaskResult *)&v43; --v21 >= 0; FileShareTag::~FileShareTag(ii) )
                         //    ii -= 6;
                     }
                 }
@@ -1886,7 +1884,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
                 {
                     Com_PrintError(16, "Could not set 'createTime' in the file share ddl.\n");
                     //v23 = 40;
-                    //for ( jj = (bdTaskResult *)&v43; --v23 >= 0; bdTag::~bdTag(jj) )
+                    //for ( jj = (TaskResult *)&v43; --v23 >= 0; FileShareTag::~FileShareTag(jj) )
                     //    jj -= 6;
                 }
             }
@@ -1894,7 +1892,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
             {
                 Com_PrintError(16, "Could not set 'authorXuid' in the file share ddl.\n");
                 //v26 = 40;
-                //for ( kk = (bdTaskResult *)&v43; --v26 >= 0; bdTag::~bdTag(kk) )
+                //for ( kk = (TaskResult *)&v43; --v26 >= 0; FileShareTag::~FileShareTag(kk) )
                 //    kk -= 6;
             }
         }
@@ -1902,7 +1900,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
         {
             Com_PrintError(16, "Could not set 'authorName' in the file share ddl.\n");
             //v28 = 40;
-            //for ( mm = (bdTaskResult *)&v43; --v28 >= 0; bdTag::~bdTag(mm) )
+            //for ( mm = (TaskResult *)&v43; --v28 >= 0; FileShareTag::~FileShareTag(mm) )
             //    mm -= 6;
         }
     }
@@ -1910,7 +1908,7 @@ void __cdecl UI_Gametype_Custom_UploadToFileShareSuccess(int controllerIndex, un
     {
         Com_PrintError(16, "Could not read file share meta data buffer.\n");
         //v30 = 40;
-        //for ( nn = (bdTaskResult *)&v43; --v30 >= 0; bdTag::~bdTag(nn) )
+        //for ( nn = (TaskResult *)&v43; --v30 >= 0; FileShareTag::~FileShareTag(nn) )
         //    nn -= 6;
     }
 }
@@ -1958,7 +1956,7 @@ void __cdecl UI_Gametype_UploadToFileShare_f()
     UI_Gametype_Custom_UploadToFileShare(0, v1, header.name, &memFile);
 }
 
-void __cdecl UI_Gametype_FileShareDownloadComplete(dwFileShareReadFileTask *task)
+void __cdecl UI_Gametype_FileShareDownloadComplete(FileShareReadFileTask *task)
 {
     int localClientNum; // [esp+0h] [ebp-8034h]
     MemoryFile memFile; // [esp+4h] [ebp-8030h] BYREF
@@ -1978,7 +1976,7 @@ void __cdecl UI_Gametype_FileShareDownloadComplete(dwFileShareReadFileTask *task
     Z_VirtualFree(task->buffer, 0);
 }
 
-void __cdecl UI_Gametype_FileShareDownloadFailed(dwFileShareReadFileTask *task)
+void __cdecl UI_Gametype_FileShareDownloadFailed(FileShareReadFileTask *task)
 {
     int LocalClientNum; // eax
 

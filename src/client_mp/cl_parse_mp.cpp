@@ -9,7 +9,7 @@
 #include <ui_mp/ui_gametype_custom_mp.h>
 #include <qcommon/files.h>
 #include <client/cl_console.h>
-#include <live/live_storage_win.h>
+#include <universal/offline.h>
 #include <universal/com_constantconfigstrings.h>
 #include <universal/com_files.h>
 #include <win32/win_net.h>

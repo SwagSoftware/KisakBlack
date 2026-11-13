@@ -22,7 +22,7 @@ enum svc_ops_e : __int32
     svc_EOF               = 0xE,
 };
 
-void __cdecl SV_HandleDWChallengeResponse(netadr_t from, msg_t *msg);
+void __cdecl SV_HandleChallengeResponse(netadr_t from, msg_t *msg);
 void __cdecl SV_GetChallenge(netadr_t from);
 void __cdecl SV_CacheClientStatChange(unsigned int clientNum, ddlState_t *searchState);
 void __cdecl SV_SetClientDIntStat(unsigned int clientNum, ddlState_t *searchState, unsigned int value);

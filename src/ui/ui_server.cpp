@@ -6,7 +6,7 @@
 #include <game_mp/ui_gameinfo_mp.h>
 #include <qcommon/com_clients.h>
 #include <universal/com_shared.h>
-#include <live/live_win.h>
+#include <universal/offline.h>
 #include <win32/win_shared.h>
 
 int ui_toolTipColumns[8] = { 0, 1, 3, 2, 4, 5, 6, 7 };

@@ -4,7 +4,7 @@
 #include <ui/ui_main.h>
 #include <qcommon/com_clients.h>
 #include <client/cl_keys.h>
-#include <live/live_fileshare.h>
+#include <universal/offline.h>
 #include "demo_playback.h"
 #include <client/client.h>
 #include <win32/win_shared.h>

@@ -142,7 +142,7 @@ extern const dvar_t *sv_floodProtect;
 extern const dvar_t *sv_showCommands;
 extern const dvar_t *sv_writeConfigStrings;
 extern const dvar_t *scr_writeConfigStrings;
-extern const dvar_t *sv_dwlsgerror;
+extern const dvar_t *sv_lsgerror;
 extern const dvar_t *sv_allowAnonymous;
 extern const dvar_t *sv_disableClientConsole;
 extern const dvar_t *sv_privatePassword;

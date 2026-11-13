@@ -1,7 +1,7 @@
 #pragma once
 #include <ui/ui_shared.h>
 #include "bg_weapons_attachment.h"
-#include <live/live_combatrecord.h>
+#include <universal/offline.h>
 
 enum clanTagFeatureColumn_t : __int32
 {                                       // XREF: ?BG_UnlockablesGetClanTagFeature@@YAPBDIW4clanTagFeatureColumn_t@@@Z/r

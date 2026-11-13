@@ -2,7 +2,7 @@
 
 #include "com_expressions.h"
 #include <ddl/ddl_api.h>
-#include <live/live_stats.h>
+#include <universal/offline.h>
 #include "com_stringtable.h"
 #include <ui/ui_main.h>
 #include <client/cl_milestone.h>
@@ -331,7 +331,7 @@ void __cdecl AreStatsFetched(int localClientNum, itemDef_s *item, OperandStack *
 void __cdecl AreContractsFetched(int localClientNum, itemDef_s *item, OperandStack *dataStack);
 void __cdecl IsTimeSynced(int localClientNum, itemDef_s *item, OperandStack *dataStack);
 void __cdecl IsContentRatingAllowed(int localClientNum, itemDef_s *item, OperandStack *dataStack);
-void __cdecl IsDemonwareFetchingDone(int localClientNum, itemDef_s *item, OperandStack *dataStack);
+void __cdecl IsOnlineFetchingDone(int localClientNum, itemDef_s *item, OperandStack *dataStack);
 void __cdecl GetUIRect(int localClientNum, itemDef_s *item, OperandStack *dataStack);
 void __cdecl GetDStat(int localClientNum, itemDef_s *item, OperandStack *dataStack);
 char __cdecl GetSearchState(ddlState_t *searchState, OperandList *operandList, int listStartIndex);

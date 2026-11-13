@@ -3,7 +3,7 @@
 #include "sv_live_stats.h"
 #include <qcommon/common.h>
 
-int __cdecl SV_GetClientNumForBdOnlineUserID(unsigned __int64 uid)
+int __cdecl SV_GetClientNumForOnlineUserID(unsigned __int64 uid)
 {
     int i; // [esp+8h] [ebp-8h]
     int retval; // [esp+Ch] [ebp-4h]
@@ -11,7 +11,7 @@ int __cdecl SV_GetClientNumForBdOnlineUserID(unsigned __int64 uid)
     retval = -1;
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
-        if ( svs.clients[i].header.state > CS_ZOMBIE && svs.clients[i].dw_userID == uid )
+        if ( svs.clients[i].header.state > CS_ZOMBIE && svs.clients[i].onlineUserID == uid )
             return i;
     }
     return retval;
@@ -33,10 +33,10 @@ client_t *__cdecl SV_GetClientFromFileInfo(_QWORD *data)
     {
         uid = data[34];
         Com_DPrintf(15, "Read uid %llu, finding client\n", uid);
-        clientNum = SV_GetClientNumForBdOnlineUserID(uid);
+        clientNum = SV_GetClientNumForOnlineUserID(uid);
         if ( clientNum < 0 )
         {
-            Com_DPrintf(15, "Warning: Couldn't find matching client for bdOnlineUserId %llu\n", uid);
+            Com_DPrintf(15, "Warning: Couldn't find matching client for onlineUserID %llu\n", uid);
         }
         else
         {
@@ -70,6 +70,6 @@ unsigned __int64 __cdecl SV_GetPlayerXuid(unsigned int clientNum)
     {
         __debugbreak();
     }
-    return svs.clients[clientNum].dw_userID;
+    return svs.clients[clientNum].onlineUserID;
 }
 

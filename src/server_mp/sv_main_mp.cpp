@@ -13,13 +13,12 @@
 #include <qcommon/cmd.h>
 #include <game_mp/g_cmds_mp.h>
 #include <qcommon/files.h>
-#include <DW/dwNet.h>
 #include <game_mp/g_main_mp.h>
 #include <qcommon/com_gamemodes.h>
 #include <game_mp/pregame.h>
 #include <universal/com_files.h>
 #include "sv_main_pc_mp.h"
-#include <live/live_steam.h>
+#include <universal/offline.h>
 #include "sv_net_chan_mp.h"
 #include <server/sv_game.h>
 #include <win32/win_shared.h>
@@ -332,7 +331,7 @@ void __cdecl SV_VoicePacket(netadr_t from, msg_t *msg)
     }
 }
 
-void __cdecl SVC_Status(netadr_t from, bdSecurityID *secID)
+void __cdecl SVC_Status(netadr_t from, XNKID *secID)
 {
     char *v2; // eax
     const char *v3; // eax
@@ -417,17 +416,13 @@ void __cdecl SVC_Status(netadr_t from, bdSecurityID *secID)
     Info_SetValueForKey(s, (char *)"mod", v5);
     dst[0] = 5;
     v17 = &dst[1];
-    *(bdSecurityID *)&dst[1] = *secID;
+    *(XNKID *)&dst[1] = *secID;
     v17 = &dst[9];
     memcpy(&dst[9], (unsigned __int8 *)s, strlen(s));
-#ifdef KISAK_LIVE
-    dwRawSendTo(&from, dst, strlen(s) + 9);
-#else
     NET_OutOfBandPrint(NS_SERVER, from, (char*)dst);
-#endif
 }
 
-void __cdecl SVC_StatusScoreBoard(netadr_t from, bdSecurityID *secID)
+void __cdecl SVC_StatusScoreBoard(netadr_t from, XNKID *secID)
 {
     team_t ClientTeam; // eax
     int v3; // eax
@@ -515,17 +510,13 @@ void __cdecl SVC_StatusScoreBoard(netadr_t from, bdSecurityID *secID)
     }
     dst[0] = 7;
     v18 = &dst[1];
-    *(bdSecurityID *)&dst[1] = *secID;
+    *(XNKID *)&dst[1] = *secID;
     v18 = &dst[9];
     memcpy(&dst[9], tempServerMsgBuf, count);
-#ifdef KISAK_LIVE
-    dwRawSendTo(&from, dst, strlen((const char *)tempServerMsgBuf) + 9);
-#else
     NET_OutOfBandPrint(NS_SERVER, from, (char*)dst);
-#endif
 }
 
-void __cdecl SVC_Info(netadr_t from, bdSecurityID *secID, bool quick)
+void __cdecl SVC_Info(netadr_t from, XNKID *secID, bool quick)
 {
     const char *v3; // eax
     const char *v4; // eax
@@ -730,17 +721,13 @@ void __cdecl SVC_Info(netadr_t from, bdSecurityID *secID, bool quick)
             Info_SetValueForKey(infostring, "customclass", "1");
         response[0] = quick ? 9 : 3;
         ptr = &response[1];
-        *(bdSecurityID *)&response[1] = *secID;
+        *(XNKID *)&response[1] = *secID;
         ptr = &response[9];
         memcpy(
             (unsigned __int8 *)&response[9],
             (unsigned __int8 *)infostring,
             &infostring[strlen(infostring) + 1] - &infostring[1] + 1);
-#ifdef KISAK_LIVE
-        dwRawSendTo(&from, (unsigned __int8 *)response, &infostring[strlen(infostring) + 1] - &infostring[1] + 10);
-#else
         NET_OutOfBandPrint(NS_SERVER, from, response); // this should work, it's still used in other places in the codebase
-#endif
     }
 }
 
@@ -818,12 +805,6 @@ void __cdecl SV_ConnectionlessPacket(netadr_t from, msg_t *msg)
         //}
         SV_DirectConnect(from);
     }
-#ifdef KISAK_DW
-    else if (!I_stricmp(c, "dwcr"))
-    {
-        SV_HandleDWChallengeResponse(from, msg);
-    }
-#endif
     else if (!I_stricmp(c, "steamauth"))
     {
         SV_SteamAuthClient(from, msg);
@@ -1048,9 +1029,6 @@ void __cdecl SV_CheckTimeouts()
             Com_Printf(15, "Going from CS_ZOMBIE to CS_FREE for client #%i\n", clientNum);
             drop->header.state = CS_FREE;
             drop->lastPacketTime = 0;
-#ifdef KISAK_LIVE // why is this here? I dont see this in kcod4
-            dwCloseConnection(&drop->header.netchan.remoteAddress);
-#endif
         }
         else if ( drop->header.state == CS_ACTIVE && drop->lastPacketTime < droppoint )
         {

@@ -6,7 +6,7 @@
 #include <monkey/monkey.h>
 #include <qcommon/threads.h>
 #include "win_syscon.h"
-#include <live/live_steam.h>
+#include <universal/offline.h>
 #include "win_input.h"
 #include <client/cl_keys.h>
 #include <clientscript/cscr_stringlist.h>

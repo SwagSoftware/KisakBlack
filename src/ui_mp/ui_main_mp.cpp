@@ -16,18 +16,13 @@
 #include <ragdoll/ragdoll_controller.h>
 #include <universal/com_memory.h>
 #include <gfx_d3d/r_image.h>
-#include <DW/MatchRecorder.h>
-#include <live/live_win.h>
+#include <universal/offline.h>
 #include <gfx_d3d/rb_resource.h>
-#include <live/live_stats.h>
 #include <ui/ui_atoms.h>
 #include <universal/com_expressions_eval.h>
-#include <live/live_fileshare.h>
 #include <ui/ui_screenshot.h>
 #include <client_mp/cl_cgame_mp.h>
 #include <gfx_d3d/r_ui3d.h>
-#include <live/live_combatrecord.h>
-#include <live/live_contracts.h>
 #include <bgame/bg_unlockable_items.h>
 #include <cgame/cg_weapon_options.h>
 #include <ui/ui_playlists.h>
@@ -425,79 +420,10 @@ unsigned int __cdecl UI_GetOffsetForTextureCoords(
 
 void __cdecl UI_GenerateHeatMapTextureCallback(GfxImage *param)
 {
-#ifdef KISAK_HEATMAP // probably requires DW? for MatchRecord stuff
-    _D3DLOCKED_RECT lock; // [esp+0h] [ebp-Ch] BYREF
-    GfxImage *img; // [esp+8h] [ebp-4h]
-
-    img = param;
-    ((void (__stdcall *)(unsigned int, unsigned int, _D3DLOCKED_RECT *, unsigned int, int))param->texture.basemap->__vftable[1].Release)(
-        (GfxTexture)param->texture.basemap,
-        0,
-        &lock,
-        0,
-        0x2000);
-    memcpy((unsigned __int8 *)lock.pBits, img->pixels, 4 * img->height * img->width);
-    img->texture.basemap->__vftable[1].GetDevice(img->texture.basemap, 0);
-
-    Z_VirtualFree(img->pixels, 19);
-    img->pixels = 0;
-#endif
 }
 
 void __cdecl UI_GenerateHeatMapTexture(int controllerIndex)
 {
-#ifdef KISAK_HEATMAP // probably requires DW? for MatchRecord stuff
-    const char *String; // eax
-    unsigned __int64 v2; // rax
-    unsigned __int8 *pixels; // [esp+0h] [ebp-1Ch]
-    LargeLocal heatmap_large_local(0x10000); // [esp+4h] [ebp-18h] BYREF
-    unsigned __int8 (*heatmap)[65536]; // [esp+Ch] [ebp-10h]
-    GfxImage *img; // [esp+10h] [ebp-Ch]
-    unsigned __int64 xuid; // [esp+14h] [ebp-8h]
-
-    //LargeLocal::LargeLocal(&heatmap_large_local, 0x10000);
-    //heatmap = (unsigned __int8 (*)[65536])LargeLocal::GetBuf(&heatmap_large_local);
-    heatmap = (unsigned __int8 (*)[65536])heatmap_large_local.GetBuf();
-    img = Image_Register("heatmap", 0, 3);
-    pixels = (unsigned __int8 *)Z_VirtualAlloc(4 * img->height * img->width, "UI_GenerateHeatMapTexture", 19);
-    img->pixels = pixels;
-    if ( !img && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\ui_mp\\ui_main_mp.cpp", 1258, 0, "%s", "img") )
-        __debugbreak();
-    if ( img->height * (unsigned int)img->width > 0x10000
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\ui_mp\\ui_main_mp.cpp",
-                    1259,
-                    0,
-                    "%s",
-                    "img->width * img->height <= sizeof( heatmap )") )
-    {
-        __debugbreak();
-    }
-    if ( img->width > 1u || img->height > 1u )
-    {
-        xuid = 0;
-        MatchRecord_GenerateHeatMapData((unsigned __int8 *)heatmap, 0x10000, img->width, img->height, 0);
-        UI_GenerateHeatMapTextureInternal(img, (unsigned __int8 *)heatmap, 0x10000, xuid, ui_heatMapColor);
-        if ( Dvar_GetBool("ui_showFriendsCombatRecord") || Dvar_GetBool("ui_playercardOpen") )
-        {
-            String = Dvar_GetString("selectedPlayerXuid");
-            xuid = I_atoi64(String);
-        }
-        else
-        {
-            LODWORD(v2) = Live_GetXuid(controllerIndex);
-            xuid = v2;
-        }
-        MatchRecord_GenerateHeatMapData((unsigned __int8 *)heatmap, 0x10000, img->width, img->height, xuid);
-        UI_GenerateHeatMapTextureInternal(img, (unsigned __int8 *)heatmap, 0x10000, xuid, ui_heatMapColorForPlayer);
-        RB_Resource_CallbackParam((void (__cdecl *)(void *))UI_GenerateHeatMapTextureCallback, img);
-        LargeLocal::~LargeLocal(&heatmap_large_local);
-    }
-    else
-    {
-        LargeLocal::~LargeLocal(&heatmap_large_local);
-    }
-#endif
 }
 
 void __cdecl UI_GenerateHeatMapTextureInternal(
@@ -1443,40 +1369,6 @@ void __cdecl UI_DrawCombatRecordHitLocHeatMap(int contextIndex, rectDef_s *rect)
 
 void __cdecl UI_DrawHeatMap(int contextIndex, const rectDef_s *rect, const float *color)
 {
-#ifdef KISAK_HEATMAP
-    unsigned __int8 MapIndex; // al
-    char *OverlayMapNameFromIndex; // eax
-    Material *v5; // eax
-    Material *material; // [esp+20h] [ebp-4h]
-
-    if ( MatchRecord_IsHeatMapDataGenerated() )
-    {
-        MapIndex = MatchRecord_GetMapIndex();
-        OverlayMapNameFromIndex = (char *)UI_GetOverlayMapNameFromIndex(MapIndex);
-        v5 = Material_RegisterHandle(OverlayMapNameFromIndex, 3);
-        UI_DrawHandlePic(
-            &scrPlaceView[contextIndex],
-            rect->x,
-            rect->y,
-            rect->w,
-            rect->h,
-            rect->horzAlign,
-            rect->vertAlign,
-            color,
-            v5);
-        material = Material_RegisterHandle("heatmap_default", 3);
-        UI_DrawHandlePic(
-            &scrPlaceView[contextIndex],
-            rect->x,
-            rect->y,
-            rect->w,
-            rect->h,
-            rect->horzAlign,
-            rect->vertAlign,
-            color,
-            material);
-    }
-#endif
 }
 
 const char *__cdecl UI_GetOverlayMapNameFromIndex(int mapIndex)

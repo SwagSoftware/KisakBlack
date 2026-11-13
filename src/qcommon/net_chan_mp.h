@@ -113,7 +113,7 @@ struct DeferredQueue // sizeof=0x5088
 };
 
 char *__cdecl NET_AdrToString(netadr_t a);
-char *__cdecl NET_AdrToStringDW(netadr_t a);
+char *__cdecl NET_AdrToStringOnline(netadr_t a);
 void __cdecl NetProf_PrepProfiling(netProfileInfo_t *prof);
 void __cdecl NetProf_AddPacket(netProfileStream_t *pProfStream, int iSize, int bFragment);
 void __cdecl NetProf_NewSendPacket(netchan_t *pChan, int iSize, int bFragment);

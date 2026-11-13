@@ -46,17 +46,14 @@
 #include <client/cl_debugdata.h>
 #include <ik/ik.h>
 #include <universal/physicalmemory.h>
-#include <live/live_steam.h>
+#include <universal/offline.h>
 #include <win32/win_stream.h>
 #include <client/cl_gamepad.h>
 #include <ddl/ddl_api.h>
-#include <DW/dwLogOn_pc.h>
 #include <gfx_d3d/r_stream.h>
 #include <universal/reliablemsg.h>
 #include <client_mp/cl_scrn_mp.h>
 #include <win32/win_workercmds.h>
-#include <live/live.h>
-#include <live/live_win.h>
 #include <ui/ui_playlists.h>
 #include <bgame/bg_emblems.h>
 #include <demo/demo_files.h>
@@ -77,7 +74,6 @@
 #include "dobj_management.h"
 #include "cm_load.h"
 #include <ui/ui_screenshot.h>
-#include <live/live_fileshare_cache.h>
 #include <server/sv_game.h>
 #include <cgame_mp/cg_ents_mp.h>
 #include <bgame/bg_weapons_def.h>
@@ -103,7 +99,7 @@ cmd_function_s Com_WriteDefaults_f_VAR;
 char asc_CD51B0[3] = { '[', ']', '\0'};
 
 char cl_cdkey[34];
-char cl_cdkey_dw[34];
+char cl_cdkey_online[34];
 char cl_cdkeychecksum[10] =
 { ' ', ' ', ' ', ' ', '\0', '\0', '\0', '\0', '\0', '\0' };
 
@@ -1107,7 +1103,7 @@ void __cdecl Com_ReadCDKey()
                     //byte_E0AA3C = 0,
                     CL_LocalClient_GetActiveCount()) )
         {
-            CL_ConvertRegKeytoDWKey(cl_cdkey, 0x15u);
+            CL_ConvertRegKeytoOnlineKey(cl_cdkey, 0x15u);
         }
         else
         {
@@ -1122,15 +1118,15 @@ int Com_ClearCDKey()
     return 538976288;
 }
 
-void __cdecl CL_ConvertRegKeytoDWKey(char *key, unsigned int size)
+void __cdecl CL_ConvertRegKeytoOnlineKey(char *key, unsigned int size)
 {
     int i; // [esp+0h] [ebp-4h]
 
-    memcpy((unsigned __int8 *)cl_cdkey_dw, (unsigned __int8 *)key, size);
+    memcpy((unsigned __int8 *)cl_cdkey_online, (unsigned __int8 *)key, size);
     for (i = 4; i < 24; i += 5)
     {
-        memcpy((unsigned __int8 *)&cl_cdkey_dw[i + 1], (unsigned __int8 *)&cl_cdkey_dw[i], 25 - i);
-        cl_cdkey_dw[i] = '-';
+        memcpy((unsigned __int8 *)&cl_cdkey_online[i + 1], (unsigned __int8 *)&cl_cdkey_online[i], 25 - i);
+        cl_cdkey_online[i] = '-';
     }
 }
 
@@ -1797,9 +1793,6 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
     Con_InitChannels();
     TaskManager2_Init();
 
-#ifdef KISAK_LIVE
-    dwInit();
-#endif
 
     DDL_Init();
     Com_InitClientGameStates();
@@ -2915,9 +2908,6 @@ unsigned int Com_Frame_Try_Block_Function()
     if (IsDedicatedServer())
     {
         Phys_RunToTime(svsHeader.time);
-#ifdef KISAK_LIVE
-        DWDedicatedLobbyPump();
-#endif
     }
     else
     {

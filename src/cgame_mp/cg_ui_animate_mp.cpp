@@ -9,13 +9,11 @@
 #include <demo/demo_playback.h>
 #include <client/cl_rank.h>
 #include <cgame/cg_draw_names.h>
-#include <live/live_stats.h>
+#include <universal/offline.h>
 #include <client/cl_milestone.h>
 #include <stringed/stringed_hooks.h>
 #include <client_mp/cl_cgame_mp.h>
 #include <client/cl_medal.h>
-#include <live/live.h>
-#include <live/live_contracts.h>
 
 void __cdecl UI_AnimateLocalItem(
                 int localClientNum,

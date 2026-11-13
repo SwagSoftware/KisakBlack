@@ -2,22 +2,17 @@
 
 #include <qcommon/cmd.h>
 #include <ui/ui_shared.h>
-#include <live/live_fileshare.h>
+#include <universal/offline.h>
 #include <client_mp/sv_client_mp.h>
-#include <live/live_win.h>
 #include <qcommon/common.h>
-#include <live/live_stats.h>
 #include <server_mp/sv_main_mp.h>
 #include <qcommon/com_clients.h>
-#include <DW/MatchRecorder.h>
 #include "demo_recording.h"
-#include <live/live_storage.h>
 #include <universal/com_shared.h>
 
 #include <cstring>
 #include <new>
 #include <ui_mp/ui_gametype_custom_mp.h>
-#include <live/live_sessions.h>
 #include <game_mp/g_cmds_mp.h>
 #include <client/client.h>
 #include "demo_playback.h"
@@ -30,13 +25,11 @@
 #include "demo_ui.h"
 #include <client/cl_keys.h>
 #include <ctime>
-#include <live/live_counter.h>
 #include <game_mp/g_main_mp.h>
 #include <qcommon/com_gamemodes.h>
 #include <mjpeg/mjpeg.h>
 #include "demo_profile.h"
 #include <universal/com_workercmds.h>
-#include <live/live_sessions_win.h>
 
 const char *demo_tags_enum_string_37[8] =
 {
@@ -396,7 +389,7 @@ void __cdecl Demo_RemoveDemoClient_f()
 void __cdecl Demo_SetTags(
                 int controllerIndex,
                 int *numTags,
-                bdTag *tags,
+                FileShareTag *tags,
                 demoMetaInfo *info,
                 fileShareSearchFileType fileType)
 {
@@ -448,7 +441,7 @@ void __cdecl Demo_SetTags(
 void __cdecl Demo_SetTags(
                 int controllerIndex,
                 int *numTags,
-                bdTag *tags,
+                FileShareTag *tags,
                 screenshotMetaInfo *info,
                 fileShareSearchFileType fileType)
 {
@@ -633,15 +626,15 @@ void __cdecl Demo_StreamingSuccessCallback(int controllerIndex, unsigned __int64
     int v3; // eax
     char *ClientName; // eax
     int v5; // [esp+18h] [ebp-3F0h]
-    bdTaskResult *k; // [esp+1Ch] [ebp-3ECh]
+    TaskResult *k; // [esp+1Ch] [ebp-3ECh]
     int v7; // [esp+20h] [ebp-3E8h]
-    bdTag *j; // [esp+24h] [ebp-3E4h]
+    FileShareTag *j; // [esp+24h] [ebp-3E4h]
     signed int i; // [esp+28h] [ebp-3E0h]
     int numTags; // [esp+2Ch] [ebp-3DCh] BYREF
     ddlState_t localState; // [esp+30h] [ebp-3D8h] BYREF
     char *matchRecordBuffer; // [esp+40h] [ebp-3C8h] BYREF
     int matchRecordBufferSize; // [esp+44h] [ebp-3C4h] BYREF
-    bdTag tags[40]; // [esp+48h] [ebp-3C0h] BYREF
+    FileShareTag tags[40]; // [esp+48h] [ebp-3C0h] BYREF
     int savedregs; // [esp+408h] [ebp+0h] BYREF
 
     RootDDLState = LiveStats_GetRootDDLState();
@@ -658,14 +651,6 @@ void __cdecl Demo_StreamingSuccessCallback(int controllerIndex, unsigned __int64
     matchRecordBufferSize = 0;
     if ( fileID )
     {
-#ifdef KISAK_LIVE
-        if ( onlinegame->current.enabled )
-        {
-            v3 = Com_LocalClient_GetControllerIndex(0);
-            GenerateRecordedMatchData(v3, &matchRecordBuffer, &matchRecordBufferSize);
-        }
-        else
-#endif
         {
             ClientName = Live_ControllerIndex_GetClientName(controllerIndex);
             I_strncpyz(gamerTag_0, ClientName, 32);
@@ -675,8 +660,8 @@ void __cdecl Demo_StreamingSuccessCallback(int controllerIndex, unsigned __int64
         v7 = 40;
         for (j = tags; --v7 >= 0; ++j)
         {
-            //bdTag::bdTag(j);
-            new (j) bdTag();
+            //FileShareTag::FileShareTag(j);
+            new (j) FileShareTag();
         }
         numTags = 0;
         Demo_SetTags(controllerIndex, &numTags, tags, &demo.info, FILESHARE_FILETYPE_FILM);
@@ -704,7 +689,7 @@ void __cdecl Demo_StreamingSuccessCallback(int controllerIndex, unsigned __int64
             0);
         v5 = 40;
 
-        //for ( k = (bdTaskResult *)&savedregs; --v5 >= 0; bdTag::~bdTag(k) )
+        //for ( k = (TaskResult *)&savedregs; --v5 >= 0; FileShareTag::~FileShareTag(k) )
         // 
         //    k -= 6;
 
@@ -2700,7 +2685,7 @@ void __cdecl Demo_ReadDataCallback(char *data, unsigned int dataSize)
     Demo_Write(data, dataSize, s_demoFileHandle);
 }
 
-void __cdecl Demo_ReadDataSuccessPlayIt(dwFileShareReadFileTask *task)
+void __cdecl Demo_ReadDataSuccessPlayIt(FileShareReadFileTask *task)
 {
     const char *v1; // eax
 
@@ -2709,7 +2694,7 @@ void __cdecl Demo_ReadDataSuccessPlayIt(dwFileShareReadFileTask *task)
     Cbuf_AddText(0, v1);
 }
 
-void __cdecl Demo_ReadDataSuccessRenderIt(dwFileShareReadFileTask *task)
+void __cdecl Demo_ReadDataSuccessRenderIt(FileShareReadFileTask *task)
 {
     const char *v1; // eax
 
@@ -2760,7 +2745,7 @@ void __cdecl Demo_DownloadFile(
         fileInfo.successCallback = Demo_ReadDataSuccessRenderIt;
     else
         fileInfo.successCallback = Demo_ReadDataSuccessPlayIt;
-    fileInfo.failureCallback = (void (__cdecl *)(dwFileShareReadFileTask *))Demo_ReadDataFailure;
+    fileInfo.failureCallback = (void (__cdecl *)(FileShareReadFileTask *))Demo_ReadDataFailure;
     fileInfo.cacheBuffer = Demo_GetStreamAllocatedBuffer();
     LiveStorage_FileShare_ReadFile(controllerIndex, &fileInfo);
 }
@@ -2771,7 +2756,7 @@ void __cdecl Demo_DownloadFile(
 //    int *i; // [esp+8h] [ebp-4h]
 //
 //    v1 = 40;
-//    for ( i = &this->numTags; --v1 >= 0; bdTag::~bdTag((bdTaskResult *)i) )
+//    for ( i = &this->numTags; --v1 >= 0; FileShareTag::~FileShareTag((TaskResult *)i) )
 //        i -= 6;
 //}
 //

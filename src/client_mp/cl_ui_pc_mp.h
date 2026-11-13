@@ -20,7 +20,7 @@ struct FriendInfo // sizeof=0xB8
 
 int __cdecl LAN_AddServer(int source, const char *name, const char *address);
 void __cdecl LAN_GetServerAddressString(int source, int n, char *buf, int buflen);
-void __cdecl LAN_GetServerSecurityId(int source, int n, bdSecurityID *buf, int buflen);
+void __cdecl LAN_GetServerSecurityId(int source, int n, XNKID *buf, int buflen);
 void __cdecl LAN_ResetPings(int source);
 int __cdecl LAN_GetServerCount(int source);
 int __cdecl LAN_WaitServerResponse();

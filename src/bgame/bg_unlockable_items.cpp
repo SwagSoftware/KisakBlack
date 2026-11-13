@@ -1,12 +1,10 @@
 #include "bg_unlockable_items.h"
 #include <qcommon/com_gamemodes.h>
 #include <ddl/ddl_api.h>
-#include <live/live_storage.h>
-#include <live/live_stats.h>
+#include <universal/offline.h>
 #include <ui_mp/ui_gametype_custom_mp.h>
 #include <universal/com_stringtable_obj.h>
 #include <universal/q_parse.h>
-#include <live/live_counter.h>
 #include "bg_weapons_def.h"
 #include <ui_mp/ui_gametype_variants_mp.h>
 #include <client_mp/cl_main_mp.h>

@@ -5,7 +5,7 @@
 
 #include "ui_gametype_variants_mp.h"
 
-struct dwFileShareReadFileTask;
+struct FileShareReadFileTask;
 struct MemoryFile;
 
 struct UIGametypeFileHeader // sizeof=0xC8
@@ -137,8 +137,8 @@ void __cdecl UI_Gametype_Custom_UploadToFileShare(
                 const char *fileName,
                 MemoryFile *customGameMode);
 void __cdecl UI_Gametype_UploadToFileShare_f();
-void __cdecl UI_Gametype_FileShareDownloadComplete(dwFileShareReadFileTask *task);
-void __cdecl UI_Gametype_FileShareDownloadFailed(dwFileShareReadFileTask *task);
+void __cdecl UI_Gametype_FileShareDownloadComplete(FileShareReadFileTask *task);
+void __cdecl UI_Gametype_FileShareDownloadFailed(FileShareReadFileTask *task);
 void __cdecl UI_Gametype_DownloadFromFileShare_f();
 void __cdecl SV_GameType_DownloadFromFileshare_f();
 void __cdecl UI_Gametype_DisableCheats_f();

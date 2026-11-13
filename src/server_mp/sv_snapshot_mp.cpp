@@ -16,7 +16,7 @@
 #include <bgame/bg_misc.h>
 #include <game_mp/g_active_mp.h>
 #include <qcommon/com_gamemodes.h>
-#include <live/live_stats.h>
+#include <universal/offline.h>
 #include <server/sv_game.h>
 #include <qcommon/cm_test.h>
 #include <qcommon/cm_load.h>

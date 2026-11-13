@@ -9,7 +9,7 @@
 #include "ui_atoms.h"
 #include <universal/com_files.h>
 #include "ui_utils.h"
-#include <live/live_win.h>
+#include <universal/offline.h>
 #include <stringed/stringed_hooks.h>
 #include <database/db_registry.h>
 

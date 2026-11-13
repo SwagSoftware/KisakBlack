@@ -1,33 +1,26 @@
 #pragma once
 #include <qcommon/msg_mp.h>
 #include <ddl/ddl_api.h>
-#include <DemonWare/bdCore/bdMemory/bdMemory.h>
-#include <DemonWare/bdCore/bdReference/bdReferencable.h>
-#include <DemonWare/bdCore/bdContainers/bdByteBuffer.h>
-#include <DemonWare/bdCore/bdSocket/bdAddr.h>
+#include <server_mp/sv_main_mp.h>
 #include <cstring>
 #include <cgame_mp/cg_scoreboard_mp.h>
 
 
-struct bdDownloadInterceptor // sizeof=0x4
+struct DownloadInterceptor // sizeof=0x4
 {                                                                             // XREF: fileShareDownloadInterceptor/r
-        //bdDownloadInterceptor_vtbl *__vftable;
+        //DownloadInterceptor_vtbl *__vftable;
                                                                                 // XREF: LiveStorage_FileShare_ReadFile(int,fileShareReadFileInfo *)+29/w
-        virtual ~bdDownloadInterceptor() = default;
+        virtual ~DownloadInterceptor() = default;
         virtual unsigned int handleDownload(void *, unsigned int);
 };
 
-struct bdTaskResult // sizeof=0x4
+struct TaskResult // sizeof=0x4
 {                                                                             // XREF: .data:s_quickMatchServers/r
-    bdTaskResult()
+    TaskResult()
     {
 
     }
-    virtual ~bdTaskResult() = default;
-    //virtual bool deserialize(bdReference<bdByteBuffer>) = 0;
-    //virtual unsigned int sizeOf() = 0;
-
-    // HACK: I really dont give 2 shits about this class
+    virtual ~TaskResult() = default;
 
     inline bool deserialize()
     {
@@ -39,13 +32,13 @@ struct bdTaskResult // sizeof=0x4
     }
 };
 
-struct bdSessionID : bdTaskResult // sizeof=0xC
-{                                       // XREF: .data:bdSessionID g_sessionID/r
-    bdSecurityID m_sessionID;           // XREF: CL_Disconnect(int,bool)+271/w
+struct MatchSessionID : TaskResult // sizeof=0xC
+{                                       // XREF: .data:MatchSessionID g_sessionID/r
+    XNKID m_sessionID;           // XREF: CL_Disconnect(int,bool)+271/w
 };
 
-struct bdTag : bdTaskResult // sizeof=0x18
-{                                                                             // XREF: bdFileMetaData/r
+struct FileShareTag : TaskResult // sizeof=0x18
+{                                                                             // XREF: FileShareMetaData/r
                                                                                 // demoRecordedFileUploadInfo/r ...
         // padding byte
         // padding byte
@@ -54,10 +47,10 @@ struct bdTag : bdTaskResult // sizeof=0x18
         unsigned __int64 m_priTag;
         unsigned __int64 m_secTag;
 
-        bdTag() : bdTaskResult()
+        FileShareTag() : TaskResult()
         {
-            //bdTaskResult::bdTaskResult(this);
-            //this->__vftable = (bdTaskResult_vtbl *)&bdTag::`vftable';
+            //TaskResult::TaskResult(this);
+            //this->__vftable = (TaskResult_vtbl *)&FileShareTag::`vftable';
             //* ((_DWORD *)this + 2) = 0;
             //*((_DWORD *)this + 3) = 0;
             //*((_DWORD *)this + 4) = 0;
@@ -66,24 +59,16 @@ struct bdTag : bdTaskResult // sizeof=0x18
             m_secTag = 0;
         }
 
-        virtual ~bdTag() = default;
+        virtual ~FileShareTag() = default;
 
         void set(unsigned __int64 a2, unsigned __int64 a3)
         {
             this->m_priTag = a2;
             this->m_secTag = a3;
         }
-
-        void serialize(struct bdByteBuffer *a2)
-        {
-            //bdByteBuffer::writeUInt64(a2, this->m_priTag);
-            a2->writeUInt64(this->m_priTag);
-            //bdByteBuffer::writeUInt64(a2, this->m_secTag);
-            a2->writeUInt64(this->m_secTag);
-        }
 };
 
-struct bdFileMetaData : bdTaskResult // sizeof=0x838
+struct FileShareMetaData : TaskResult // sizeof=0x838
 {                                                                             // XREF: .data:s_theaterFileMetaData/r
                                                                                 // .data:descriptor/r ...
         // padding byte
@@ -113,7 +98,7 @@ struct bdFileMetaData : bdTaskResult // sizeof=0x838
                                                                                 // Live_FileShare_Theater_GetLength(int *)+6/o ...
         unsigned int m_metaDataSize;
         unsigned int m_summaryFileSize;
-        bdTag m_tags[40];                                     // XREF: LiveStorage_FileShare_TransferFromPooled(int,unsigned __int64,uint)+1DE/o
+        FileShareTag m_tags[40];                                     // XREF: LiveStorage_FileShare_TransferFromPooled(int,unsigned __int64,uint)+1DE/o
 
         void resetArrays()
         {
@@ -126,15 +111,15 @@ struct bdFileMetaData : bdTaskResult // sizeof=0x838
 
             for (i = 0; i < this->m_numTags; ++i)
             {
-                //bdTag::set(&this->m_tags[i], 0, 0);
+                //FileShareTag::set(&this->m_tags[i], 0, 0);
                 this->m_tags[i].set(0, 0);
             }
         }
 
-        bdFileMetaData() : bdTaskResult()
+        FileShareMetaData() : TaskResult()
         {
-            //bdTaskResult::bdTaskResult(this);
-            //this->__vftable = (bdFileMetaData_vtbl *)&bdFileMetaData::`vftable';
+            //TaskResult::TaskResult(this);
+            //this->__vftable = (FileShareMetaData_vtbl *)&FileShareMetaData::`vftable';
                 LODWORD(this->m_fileID) = 0;
             HIDWORD(this->m_fileID) = 0;
             this->m_createTime = 0;
@@ -146,22 +131,22 @@ struct bdFileMetaData : bdTaskResult // sizeof=0x838
             this->m_numTags = 0;
             this->m_metaDataSize = 0;
             this->m_summaryFileSize = 0;
-            //`eh vector constructor iterator'(this->m_tags, 0x18u, 40, (void (__thiscall *)(void *))bdTag::bdTag, bdTag::~bdTag);
-            //    bdFileMetaData::resetArrays(this);
+            //`eh vector constructor iterator'(this->m_tags, 0x18u, 40, (void (__thiscall *)(void *))FileShareTag::FileShareTag, FileShareTag::~FileShareTag);
+            //    FileShareMetaData::resetArrays(this);
             resetArrays();
             //return this;
         }
 
-        virtual ~bdFileMetaData() = default;
+        virtual ~FileShareMetaData() = default;
 
         // aislop 
-        bdFileMetaData &operator=(const bdFileMetaData &that)
+        FileShareMetaData &operator=(const FileShareMetaData &that)
         {
             if (this == &that)
                 return *this;
 
             // Base class
-            bdTaskResult::operator=(that);
+            TaskResult::operator=(that);
 
             // Scalars
             m_fileID = that.m_fileID;
@@ -726,8 +711,8 @@ struct __declspec(align(128)) demoMain // sizeof=0xB0B00
         // padding byte
         demoMemBlock memBlock;                            // XREF: Demo_Load(void)+12/o
                                                                                 // Demo_Load(void)+5C/w ...
-        demoPlayback *playback;                         // XREF: Demo_SetTags(int,int *,bdTag *,screenshotMetaInfo *,fileShareSearchFileType):loc_9B7624/r
-                                                                                // Demo_SetTags(int,int *,bdTag *,screenshotMetaInfo *,fileShareSearchFileType)+104/r ...
+        demoPlayback *playback;                         // XREF: Demo_SetTags(int,int *,FileShareTag *,screenshotMetaInfo *,fileShareSearchFileType):loc_9B7624/r
+                                                                                // Demo_SetTags(int,int *,FileShareTag *,screenshotMetaInfo *,fileShareSearchFileType)+104/r ...
         bool playbackInited;                                // XREF: Demo_End(bool)+F9/w
                                                                                 // Demo_IsPlaybackInited(void)+3/r ...
         // padding byte
@@ -839,7 +824,7 @@ struct __declspec(align(128)) demoMain // sizeof=0xB0B00
 
 enum fileShareLocation : __int32;
 
-struct dwFileShareReadFileTask // sizeof=0x878
+struct FileShareReadFileTask // sizeof=0x878
 {                                                                             // XREF: playerFileOperations/r
         fileShareLocation location;
         // padding byte
@@ -852,20 +837,20 @@ struct dwFileShareReadFileTask // sizeof=0x878
         // padding byte
         // padding byte
         // padding byte
-        bdFileMetaData descriptor;
+        FileShareMetaData descriptor;
         const char *menuDef;
         void *buffer;
         void *cacheBuffer;
         unsigned int bufferSize;
         unsigned int bytesDownloaded;
-        bdDownloadInterceptor *downloadHandler;
+        DownloadInterceptor *downloadHandler;
         bool loadedFromCache;
         // padding byte
         // padding byte
         // padding byte
         void (__cdecl *dataCallback)(void *, unsigned int, unsigned int, unsigned int);
-        void (__cdecl *successCallback)(dwFileShareReadFileTask *);
-        void (__cdecl *failureCallback)(dwFileShareReadFileTask *);
+        void (__cdecl *successCallback)(FileShareReadFileTask *);
+        void (__cdecl *failureCallback)(FileShareReadFileTask *);
 };
 
 struct __declspec(align(8)) demoRecordedFileUploadInfo // sizeof=0x5D8
@@ -879,7 +864,7 @@ struct __declspec(align(8)) demoRecordedFileUploadInfo // sizeof=0x5D8
     // padding byte
     // padding byte
     // padding byte
-    bdTag tags[40];                     // XREF: Demo_StreamingSuccessCallback(int,unsigned __int64)+1EB/o
+    FileShareTag tags[40];                     // XREF: Demo_StreamingSuccessCallback(int,unsigned __int64)+1EB/o
                                         // _dynamic_initializer_for__s_demoUploadInfo__+D/o
     int numTags;                        // XREF: Demo_StreamingSuccessCallback(int,unsigned __int64)+1F8/w
     // padding byte
@@ -902,13 +887,13 @@ void __cdecl Demo_RemoveDemoClient_f();
 void __cdecl Demo_SetTags(
                 int controllerIndex,
                 int *numTags,
-                bdTag *tags,
+                FileShareTag *tags,
                 demoMetaInfo *info,
                 fileShareSearchFileType fileType);
 void __cdecl Demo_SetTags(
                 int controllerIndex,
                 int *numTags,
-                bdTag *tags,
+                FileShareTag *tags,
                 screenshotMetaInfo *info,
                 fileShareSearchFileType fileType);
 char __cdecl Demo_SetMetaData(
@@ -965,8 +950,8 @@ bool __cdecl Demo_InitRead();
 void __cdecl Demo_Frame(int msec);
 void __cdecl Demo_End(bool abnormalTermination);
 void __cdecl Demo_ReadDataCallback(char *data, unsigned int dataSize);
-void __cdecl Demo_ReadDataSuccessPlayIt(dwFileShareReadFileTask *task);
-void __cdecl Demo_ReadDataSuccessRenderIt(dwFileShareReadFileTask *task);
+void __cdecl Demo_ReadDataSuccessPlayIt(FileShareReadFileTask *task);
+void __cdecl Demo_ReadDataSuccessRenderIt(FileShareReadFileTask *task);
 void __cdecl Demo_ReadDataFailure();
 void __cdecl Demo_DownloadFile(
                 int controllerIndex,

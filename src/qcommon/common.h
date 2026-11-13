@@ -144,7 +144,7 @@ void __cdecl Com_PacketEventLoop(int localClientNum, msg_t *netmsg);
 void __cdecl Com_DispatchClientPacketEvent(netadr_t adr, msg_t *netmsg);
 void __cdecl Com_ReadCDKey();
 int Com_ClearCDKey();
-void __cdecl CL_ConvertRegKeytoDWKey(char *key, unsigned int size);
+void __cdecl CL_ConvertRegKeytoOnlineKey(char *key, unsigned int size);
 void __cdecl Com_SetRecommended(int localClientNum, int restart);
 int __cdecl Com_ConfigureChecksum(const char *csv, int filesize);
 char __cdecl Com_SetRecommendedCpu(int localClientNum, const SysInfo *info, char **text);

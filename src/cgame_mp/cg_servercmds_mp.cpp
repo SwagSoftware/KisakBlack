@@ -6,7 +6,7 @@
 #include <universal/com_files.h>
 #include <server_mp/sv_main_pc_mp.h>
 #include <gfx_d3d/r_dpvs.h>
-#include <live/live_win.h>
+#include <universal/offline.h>
 #include <universal/q_parse.h>
 #include <gfx_d3d/r_fog.h>
 #include <client_mp/cl_parse_mp.h>
@@ -36,9 +36,6 @@
 #include <qcommon/com_clients.h>
 #include <cgame/offhandweapons.h>
 #include <client_mp/cl_main_pc_mp.h>
-#include <live/live_leaderboard.h>
-#include <live/live_stats.h>
-#include <live/live_storage_win.h>
 #include <cgame/cg_hudelem.h>
 #include <stringed/stringed_hooks.h>
 #include <cgame/cg_drawtools.h>
@@ -894,7 +891,7 @@ void __cdecl CG_DeployServerCommand(int localClientNum)
             if ( !LB_UploadPlayerStats(v30) )
                 Com_PrintError(
                     22,
-                    "there was an error uploading player stats for local client on %i Demonware Leaderboard for PS3\n",
+                    "there was an error uploading player stats for local client on %i online leaderboard for PS3\n",
                     localClientNum);
             break;
         case 0x51:

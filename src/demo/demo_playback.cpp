@@ -2,8 +2,7 @@
 #include "demo_common.h"
 #include <universal/physicalmemory.h>
 #include "demo_ui.h"
-#include <live/live_win.h>
-#include <live/live_fileshare.h>
+#include <universal/offline.h>
 #include <cgame_mp/cg_local_mp.h>
 #include <win32/win_shared.h>
 #include "demo_files.h"
@@ -15,7 +14,6 @@
 #include <win32/win_net.h>
 #include <cgame/cg_draw_names.h>
 #include <qcommon/com_clients.h>
-#include <DW/dwRecordEvent.h>
 #include <cgame_mp/cg_ui_animate_mp.h>
 #include <cgame_mp/cg_newDraw_mp.h>
 #include <client/cl_keys.h>
@@ -50,7 +48,6 @@
 #include <ui_mp/ui_main_mp.h>
 #include <physics/rope_gamestate.h>
 #include <ui_mp/ui_gametype_custom_mp.h>
-#include <live/live_counter.h>
 #include <sound/snd_public_async.h>
 #include <win32/win_gamepad.h>
 #include <game/g_scr_helicopter.h>
@@ -451,23 +448,23 @@ void __cdecl Demo_SaveScreenshotSuccessful(int controllerIndex, unsigned __int64
     int v5; // eax
     char *v6; // [esp-4h] [ebp-50Ch]
     int v7; // [esp+10h] [ebp-4F8h]
-    bdTaskResult *k; // [esp+14h] [ebp-4F4h]
+    TaskResult *k; // [esp+14h] [ebp-4F4h]
     int v9; // [esp+18h] [ebp-4F0h]
-    bdTaskResult *m; // [esp+1Ch] [ebp-4ECh]
+    TaskResult *m; // [esp+1Ch] [ebp-4ECh]
     int v11; // [esp+20h] [ebp-4E8h]
-    bdTag *j; // [esp+24h] [ebp-4E4h]
+    FileShareTag *j; // [esp+24h] [ebp-4E4h]
     int i; // [esp+28h] [ebp-4E0h]
     int numTags; // [esp+2Ch] [ebp-4DCh] BYREF
     char metaData[260]; // [esp+30h] [ebp-4D8h] BYREF
     unsigned __int64 playerXuid; // [esp+138h] [ebp-3D0h]
     int metaDataSize; // [esp+144h] [ebp-3C4h] BYREF
-    bdTag tags[40]; // [esp+148h] [ebp-3C0h] BYREF
+    FileShareTag tags[40]; // [esp+148h] [ebp-3C0h] BYREF
     int savedregs; // [esp+508h] [ebp+0h] BYREF
 
     numTags = 0;
     //v11 = 40;
     //for ( j = tags; --v11 >= 0; ++j )
-    //    bdTag::bdTag(j);
+    //    FileShareTag::FileShareTag(j);
     metaDataSize = 0;
     LocalClientNum = Com_ControllerIndex_GetLocalClientNum(controllerIndex);
     Demo_Error(LocalClientNum, "", "MENU_DEMO_SCREENSHOT_UPLOAD_SUCCESS");
@@ -505,18 +502,15 @@ void __cdecl Demo_SaveScreenshotSuccessful(int controllerIndex, unsigned __int64
         v6 = va("userPublishNews TICKER_SCREENSHOTUPLOADED\n");
         v5 = Com_ControllerIndex_GetLocalClientNum(controllerIndex);
         Cmd_ExecuteSingleCommand(v5, controllerIndex, v6);
-#ifdef KISAK_DW_TELEMETRY
-        dwRecordEventFormat(0, 2u, "JPG{id:%lld location:%d}", fileID, 2);
-#endif
         //v7 = 40;
-        //for ( k = (bdTaskResult *)&savedregs; --v7 >= 0; bdTag::~bdTag(k) )
+        //for ( k = (TaskResult *)&savedregs; --v7 >= 0; FileShareTag::~FileShareTag(k) )
         //    k -= 6;
     }
     else
     {
         Com_PrintError(16, "Could not set meta data for uploaded file ID %llu. This is now an untagged file.\n", fileID);
         //v9 = 40;
-        //for ( m = (bdTaskResult *)&savedregs; --v9 >= 0; bdTag::~bdTag(m) )
+        //for ( m = (TaskResult *)&savedregs; --v9 >= 0; FileShareTag::~FileShareTag(m) )
         //    m -= 6;
     }
 }
@@ -4520,15 +4514,15 @@ void __cdecl Demo_UploadClipSuccess(int controllerIndex, unsigned __int64 fileID
     int v6; // eax
     char *v7; // [esp-4h] [ebp-4F8h]
     int v8; // [esp+10h] [ebp-4E4h]
-    bdTaskResult *j; // [esp+14h] [ebp-4E0h]
+    TaskResult *j; // [esp+14h] [ebp-4E0h]
     int v10; // [esp+18h] [ebp-4DCh]
-    bdTaskResult *k; // [esp+1Ch] [ebp-4D8h]
+    TaskResult *k; // [esp+1Ch] [ebp-4D8h]
     int v12; // [esp+20h] [ebp-4D4h]
-    bdTag *i; // [esp+24h] [ebp-4D0h]
+    FileShareTag *i; // [esp+24h] [ebp-4D0h]
     int numTags; // [esp+28h] [ebp-4CCh] BYREF
     char metaData[256]; // [esp+2Ch] [ebp-4C8h] BYREF
     int metaDataSize; // [esp+130h] [ebp-3C4h] BYREF
-    bdTag tags[40]; // [esp+134h] [ebp-3C0h] BYREF
+    FileShareTag tags[40]; // [esp+134h] [ebp-3C0h] BYREF
     int savedregs; // [esp+4F4h] [ebp+0h] BYREF
 
     Demo_SetClipState(3);
@@ -4542,7 +4536,7 @@ void __cdecl Demo_UploadClipSuccess(int controllerIndex, unsigned __int64 fileID
     Demo_SetCmdCompleted();
     //v12 = 40;
     //for ( i = tags; --v12 >= 0; ++i )
-    //    bdTag::bdTag(i);
+    //    FileShareTag::FileShareTag(i);
     numTags = 0;
     metaDataSize = 0;
     ClientName = Live_ControllerIndex_GetClientName(controllerIndex);
@@ -4574,14 +4568,14 @@ void __cdecl Demo_UploadClipSuccess(int controllerIndex, unsigned __int64 fileID
         v6 = Com_ControllerIndex_GetLocalClientNum(controllerIndex);
         Cmd_ExecuteSingleCommand(v6, controllerIndex, v7);
         //v8 = 40;
-        //for ( j = (bdTaskResult *)&savedregs; --v8 >= 0; bdTag::~bdTag(j) )
+        //for ( j = (TaskResult *)&savedregs; --v8 >= 0; FileShareTag::~FileShareTag(j) )
         //    j -= 6;
     }
     else
     {
         Com_PrintError(16, "Could not set meta data for uploaded file ID %llu. This is now an untagged file.\n", fileID);
         //v10 = 40;
-        //for ( k = (bdTaskResult *)&savedregs; --v10 >= 0; bdTag::~bdTag(k) )
+        //for ( k = (TaskResult *)&savedregs; --v10 >= 0; FileShareTag::~FileShareTag(k) )
         //    k -= 6;
     }
 }

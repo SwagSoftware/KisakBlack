@@ -5,7 +5,6 @@
 #include <win32/win_shared.h>
 #include <client_mp/cl_net_chan_mp.h>
 #include <universal/com_files.h>
-#include <DW/dwNet.h>
 #include <win32/win_net.h>
 
 #include <Windows.h>
@@ -75,7 +74,7 @@ char *__cdecl NET_AdrToString(netadr_t a)
 }
 
 char s_2[64];
-char *__cdecl NET_AdrToStringDW(netadr_t a)
+char *__cdecl NET_AdrToStringOnline(netadr_t a)
 {
     Com_sprintf(s_2, 0x40u, "unknown");
     if ( a.type == NA_LOOPBACK )
@@ -779,11 +778,7 @@ void __cdecl NET_SetNetAdrLoopbackIP(netadr_t *src)
     src->ip[1] = 0;
     src->ip[2] = 0;
     src->ip[3] = 1;
-#ifdef KISAK_LIVE
-    src->addrHandleIndex = dwGetLoopbackIndex();
-#else
     src->addrHandleIndex = -1;
-#endif
     src->type = NA_LOOPBACK;
     src->port = 0;
 }

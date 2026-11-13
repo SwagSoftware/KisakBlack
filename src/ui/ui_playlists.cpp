@@ -5,18 +5,15 @@
 #include <universal/q_parse.h>
 #include <qcommon/common.h>
 #include <stringed/stringed_hooks.h>
-#include <live/live_storage_pub.h>
+#include <universal/offline.h>
 #include <win32/win_gamerprofile.h>
 #include "ui_main.h"
 #include <universal/memfile.h>
 #include <qcommon/com_clients.h>
-#include <live/live.h>
-#include <live/live_presence_win.h>
 #include <win32/win_content.h>
 #include <client_mp/cl_main_mp.h>
 #include <qcommon/com_gamemodes.h>
 #include <server_mp/sv_main_pc_mp.h>
-#include <live/live_storage_win.h>
 
 const dvar_t *party_linearMapCycle;
 const dvar_t *party_linearMapCycleRandom;

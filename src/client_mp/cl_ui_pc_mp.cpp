@@ -1,6 +1,5 @@
 #include "cl_ui_pc_mp.h"
-#include <live/live_win.h>
-#include <live/live_friends_pc.h>
+#include <universal/offline.h>
 #include "cl_main_pc_mp.h"
 
 int __cdecl LAN_AddServer(int source, const char *name, const char *address)
@@ -43,7 +42,7 @@ void __cdecl LAN_GetServerAddressString(int source, int n, char *buf, int buflen
     *buf = 0;
 }
 
-void __cdecl LAN_GetServerSecurityId(int source, int n, bdSecurityID *buf, int buflen)
+void __cdecl LAN_GetServerSecurityId(int source, int n, XNKID *buf, int buflen)
 {
     serverInfo_t *servers; // [esp+4h] [ebp-8h] BYREF
     int *count; // [esp+8h] [ebp-4h] BYREF
@@ -56,7 +55,7 @@ void __cdecl LAN_GetServerSecurityId(int source, int n, bdSecurityID *buf, int b
                     127,
                     0,
                     "%s",
-                    "buflen >= BD_SECURITY_ID_LENGTH") )
+                    "buflen >= XNKID_LENGTH") )
     {
         __debugbreak();
     }
@@ -98,7 +97,7 @@ int __cdecl LAN_GetServerCount(int source)
 
 int __cdecl LAN_WaitServerResponse()
 {
-    return cls.waitdwfindsessionsresponse;
+    return cls.waitfindsessionsresponse;
 }
 
 void __cdecl LAN_GetServerInfo(int source, int n, char *buf, int buflen)
@@ -203,11 +202,11 @@ void __cdecl LAN_GetServerInfo(int source, int n, char *buf, int buflen)
         Info_SetValueForKey(info, "licensetype", v26);
         Info_SetValueForKey(info, "countrycode", server->countrycode);
         memset(xuidstring, 0, sizeof(xuidstring));
-        XUIDToString(&server->bdUserID, xuidstring);
+        XUIDToString(&server->serverUID, xuidstring);
         Info_SetValueForKey(info, "dwuserid", xuidstring);
         if ( source == 4 )
         {
-            Live_GetFriendsOnServer(server->bdUserID, userIDs, &numFriends);
+            Live_GetFriendsOnServer(server->serverUID, userIDs, &numFriends);
             stringpos = 0;
             strptr = userString;
             for ( i = 0; i < numFriends && i < 3; ++i )

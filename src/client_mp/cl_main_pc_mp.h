@@ -17,14 +17,14 @@ struct serverStatusInfoResponse_s // sizeof=0x402C
     netadr_t address;                   // XREF: CL_ServerStatus(char *,char *,int)+39/w
                                         // CL_ServerStatusScoreBoard(char *,char *,int)+39/w
     int time;
-    int startTime;                      // XREF: CL_GetServerStatus(bdSecurityID *)+C6/r
-                                        // CL_GetServerStatus(bdSecurityID *)+E0/r ...
+    int startTime;                      // XREF: CL_GetServerStatus(XNKID *)+C6/r
+                                        // CL_GetServerStatus(XNKID *)+E0/r ...
     int pending;
     int print;
-    int retrieved;                      // XREF: CL_GetServerStatus(bdSecurityID *)+73/r
-                                        // CL_GetServerStatusScoreBoard(bdSecurityID *)+73/r ...
-    bdSecurityID secId;                 // XREF: CL_GetServerStatus(bdSecurityID *)+27/o
-                                        // CL_GetServerStatusScoreBoard(bdSecurityID *)+27/o ...
+    int retrieved;                      // XREF: CL_GetServerStatus(XNKID *)+73/r
+                                        // CL_GetServerStatusScoreBoard(XNKID *)+73/r ...
+    XNKID secId;                 // XREF: CL_GetServerStatus(XNKID *)+27/o
+                                        // CL_GetServerStatusScoreBoard(XNKID *)+27/o ...
 };
 
 struct TaskRecord;
@@ -32,9 +32,9 @@ struct MatchMakingInfo;
 
 netadr_t *__cdecl CL_GetLastRconAddress();
 void __cdecl CL_SetServerInfo(serverInfo_t *server, char *info, __int16 ping);
-void __cdecl CL_ServerInfoPacket(bdSecurityID *secID, msg_t *msg, int time);
+void __cdecl CL_ServerInfoPacket(XNKID *secID, msg_t *msg, int time);
 void __cdecl CL_Connect(serverInfo_t *server);
-void __cdecl CL_ConnectHackDW();
+void __cdecl CL_ConnectHackOnline();
 void __cdecl CL_Connect_f();
 void __cdecl CL_PC_SignInLive();
 void __cdecl CL_InitServerInfo(serverInfo_t *server, netadr_t adr);
@@ -42,7 +42,7 @@ int __cdecl CL_RawPingSetupBuffer(
                 unsigned __int8 *buffer,
                 int buffersize,
                 unsigned __int8 opcode,
-                const bdSecurityID *secID);
+                const XNKID *secID);
 void __cdecl CL_RawPingServer(serverInfo_t *server, unsigned __int8 opcode);
 void __cdecl CL_ServersResponsePacket(struct MatchMakingInfo *mminfo, int numResults, bool geo);
 void __cdecl CL_FindServers_f();
@@ -51,12 +51,12 @@ void __cdecl CL_Rcon_f();
 void CL_RconLogin();
 void CL_RconLogout();
 void CL_RconHost();
-serverStatusInfoResponse_s *__cdecl CL_GetServerStatus(bdSecurityID *secID);
-serverStatusInfoResponse_s *__cdecl CL_GetServerStatusScoreBoard(bdSecurityID *secID);
+serverStatusInfoResponse_s *__cdecl CL_GetServerStatus(XNKID *secID);
+serverStatusInfoResponse_s *__cdecl CL_GetServerStatusScoreBoard(XNKID *secID);
 int __cdecl CL_ServerStatus(char *serversecurityID, char *serverStatusString, int maxLen);
 int __cdecl CL_ServerStatusScoreBoard(char *serversecurityID, char *serverStatusString, int maxLen);
-void __cdecl CL_ServerStatusScoreBoardResponse(msg_t *msg, bdSecurityID *secID);
-void __cdecl CL_ServerStatusResponse(msg_t *msg, bdSecurityID *secID);
+void __cdecl CL_ServerStatusScoreBoardResponse(msg_t *msg, XNKID *secID);
+void __cdecl CL_ServerStatusResponse(msg_t *msg, XNKID *secID);
 void __cdecl CL_ResetPlayerMuting(unsigned int muteClientIndex);
 void __cdecl CL_MutePlayer(int localClientNum, unsigned int muteClientIndex);
 bool __cdecl CL_IsPlayerMuted(int localClientNum, unsigned int muteClientIndex);
@@ -99,7 +99,7 @@ void __cdecl CL_QuickMatch_Init();
 bool __cdecl CL_QuickMatch_ServerMatches(struct MatchMakingInfo *server);
 void __cdecl CL_QuickMatch_PingServers();
 bool __cdecl CL_QuickMatch_GoodSessionFound();
-void __cdecl CL_QuickMatch_PingResponse(bdSecurityID *secID, msg_t *msg);
+void __cdecl CL_QuickMatch_PingResponse(XNKID *secID, msg_t *msg);
 char __cdecl CL_QuickMatch_ChooseSession();
 int __cdecl CL_QuickMatch_CompareServers(unsigned int *sv1, unsigned int *sv2);
 void __cdecl CL_QuickMatch_Frame();

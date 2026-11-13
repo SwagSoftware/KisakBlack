@@ -19,7 +19,7 @@
 #include <clientscript/cscr_stringlist.h>
 #include <win32/win_localize.h>
 #include <client/splitscreen.h>
-#include <live/live_win_common.h>
+#include <universal/offline.h>
 #include <universal/physicalmemory.h>
 #include "db_memory.h"
 #include <gfx_d3d/rb_shade.h>
@@ -4722,16 +4722,16 @@ void DB_ExternalInitAssets()
 }
 
 // this is a hack, the real one is ifdef'd out
-static void r_PumpDemonware()
+static void r_PumpOnline()
 {
 
 }
-//extern void __cdecl r_PumpDemonware(); // KISAKTODO: remove
+//extern void __cdecl r_PumpOnline(); // KISAKTODO: remove
 void DB_StreamCompletePreload()
 {
     R_StreamUpdate_SetupInitialImageList();
     if ( DB_IsZoneTypeLoaded(0x4000) )
-        R_StreamUpdate_CompletePreload(r_PumpDemonware);
+        R_StreamUpdate_CompletePreload(r_PumpOnline);
 }
 
 void DB_UnarchiveAssets()

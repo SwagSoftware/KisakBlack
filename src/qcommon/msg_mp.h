@@ -1,6 +1,7 @@
 #pragma once
 #include <universal/q_shared.h>
 #include <qcommon/bitarray.h>
+#include <qcommon/xn_types.h>
 #include "ent.h"
 
 enum compressionType_t : unsigned __int8 // LWSS: Not a real enum name

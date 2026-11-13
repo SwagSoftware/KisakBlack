@@ -4,17 +4,14 @@
 #include <client_mp/sv_client_mp.h>
 #include "sv_init_mp.h"
 #include <game_mp/g_main_mp.h>
-#include <live/live_win.h>
+#include <universal/offline.h>
 #include <game_mp/pregame.h>
-#include <DW/dwUtils_pc.h>
-#include <live/live_storage_pub.h>
 #include <ui/ui_playlists.h>
 #include <win32/win_main.h>
 #include <cstring>
 #include <win32/win_shared.h>
 #include <game_mp/g_cmds_mp.h>
 #include <client/cl_console.h>
-#include <live/live_storage_win.h>
 #include <client_mp/cl_main_mp.h>
 
 int s_region = 1;
@@ -27,7 +24,7 @@ bool sessionCreateFinished;
 int s_numslotpasses;
 reservedslot_t s_reservedSlots[6];
 
-void __cdecl SV_ResetDWState()
+void __cdecl SV_ResetOnlineState()
 {
     Com_Printf(0, "resetting state..\n");
     sessionCreated = 0;
@@ -64,7 +61,7 @@ int __cdecl SV_GetTime()
     return s_LSGTime;
 }
 
-void __cdecl SV_DWUserDisconnected(unsigned __int64 userID)
+void __cdecl SV_OnlineUserDisconnected(unsigned __int64 userID)
 {
     int i; // [esp+8h] [ebp-4h]
 
@@ -75,7 +72,7 @@ void __cdecl SV_DWUserDisconnected(unsigned __int64 userID)
             if ( svs.clients[i].header.state >= CS_CONNECTED
                 && !svs.clients[i].bIsTestClient
                 && !svs.clients[i].bIsDemoClient
-                && svs.clients[i].dw_userID == userID )
+                && svs.clients[i].onlineUserID == userID )
             {
                 Com_Printf(
                     0,
@@ -233,95 +230,7 @@ unsigned int __cdecl SV_GetClientCount()
 
 bool __cdecl SV_HasInfoChanged()
 {
-#ifdef KISAK_LIVE
-    int LicenseType; // eax
-    int v1; // eax
-    bool retval; // [esp+7h] [ebp-1h]
-
-    retval = 0;
-    if ( I_strcmp(g_matchmakingInfo->m_membermapname, sv_mapname->current.string) )
-    {
-        I_strncpyz(g_matchmakingInfo->m_membermapname, sv_mapname->current.string, 32);
-        retval = 1;
-    }
-    if ( I_strcmp(g_matchmakingInfo->m_memberservername, sv_hostname->current.string) )
-    {
-        I_strncpyz(g_matchmakingInfo->m_memberservername, sv_hostname->current.string, 64);
-        retval = 1;
-    }
-    if ( sv_maxclients->current.integer != g_matchmakingInfo->m_maxPlayers )
-    {
-        g_matchmakingInfo->m_maxPlayers = sv_maxclients->current.unsignedInt;
-        retval = 1;
-    }
-#ifdef KISAK_LIVE
-    if ( Com_GametypeToInt(g_gametype->current.string) != g_matchmakingInfo->m_memberGAME_TYPE )
-    {
-        g_matchmakingInfo->m_memberGAME_TYPE = Com_GametypeToInt(g_gametype->current.string);
-        retval = 1;
-    }
-#endif
-    if ( LiveStorage_DoWeHavePlaylists() )
-    {
-        if ( g_matchmakingInfo->m_memberPLAYLIST_VERSION != Playlist_GetVersionNumber() )
-        {
-            g_matchmakingInfo->m_memberPLAYLIST_VERSION = Playlist_GetVersionNumber();
-            retval = 1;
-        }
-        if ( playlist && g_matchmakingInfo->m_memberPLAYLIST != playlist->current.integer )
-        {
-            g_matchmakingInfo->m_memberPLAYLIST = playlist->current.integer;
-            retval = 1;
-        }
-    }
-    switch ( g_matchmakingInfo->m_memberserverType )
-    {
-        case 0:
-        case 1:
-            if ( SV_IsWagerServer() )
-            {
-                g_matchmakingInfo->m_memberserverType = 2;
-                retval = 1;
-            }
-            break;
-        case 2:
-            if ( !SV_IsWagerServer() )
-            {
-                LicenseType = SV_GetLicenseType();
-                g_matchmakingInfo->m_memberserverType = SV_IsServerRanked(LicenseType);
-                retval = 1;
-            }
-            break;
-        case 0x63:
-            if ( SV_IsWagerServer() )
-            {
-                g_matchmakingInfo->m_memberserverType = 2;
-            }
-            else
-            {
-                v1 = SV_GetLicenseType();
-                g_matchmakingInfo->m_memberserverType = SV_IsServerRanked(v1);
-            }
-            retval = 1;
-            break;
-        default:
-            if ( !"Unhandled server type %i\n"
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_main_pc_mp.cpp",
-                            503,
-                            0,
-                            "%s\n\t%s",
-                            "\"Unhandled server type %i\\n\"",
-                            (const char *)g_matchmakingInfo->m_memberserverType) )
-            {
-                __debugbreak();
-            }
-            break;
-    }
-    return retval;
-#else
     return false;
-#endif
 }
 
 bool __cdecl SV_IsServerRanked(int licensetype)
@@ -333,344 +242,6 @@ bool __cdecl SV_IsServerRanked(int licensetype)
 
 void __cdecl SV_MasterHeartbeat(int controllerIndex)
 {
-#ifdef KISAK_LIVE
-    int LicenseType; // eax
-    bdTrulyRandomImpl *Instance; // eax
-    const struct bdSecurityID *SessionSecID; // eax
-    const struct bdSecurityID *v4; // eax
-    unsigned intv5; // esi
-    unsigned intv6; // esi
-    int PlaylistFetchedTime; // eax
-    int v8; // eax
-    unsigned int v9; // ecx
-    client_t *clients; // edx
-    const bdSessionID *SessionID; // eax
-    const bdSessionID *v12; // eax
-    unsigned int v13; // [esp-4h] [ebp-1FCh]
-    bdReference<bdCommonAddr> v14; // [esp+60h] [ebp-198h] BYREF
-    bdReference<bdCommonAddr> v15; // [esp+64h] [ebp-194h] BYREF
-    client_t *drop; // [esp+68h] [ebp-190h]
-    int j; // [esp+6Ch] [ebp-18Ch]
-    bdMatchMaking *v18; // [esp+70h] [ebp-188h]
-    bdMatchMaking *matchmaking; // [esp+74h] [ebp-184h]
-    int i; // [esp+78h] [ebp-180h]
-    unsigned int notifyCount; // [esp+7Ch] [ebp-17Ch]
-    unsigned __int64 toNotify[32]; // [esp+80h] [ebp-178h] BYREF
-    char tmp[68]; // [esp+180h] [ebp-78h] BYREF
-    bdQoSProbe *qosProbe; // [esp+1C4h] [ebp-34h]
-    bdSecurityKey seckey; // [esp+1C8h] [ebp-30h] BYREF
-    taskCompleteResults result; // [esp+1D8h] [ebp-20h]
-    bdSecurityKey secKey; // [esp+1DCh] [ebp-1Ch] BYREF
-    bdQoSProbe *qosprobe; // [esp+1F0h] [ebp-8h]
-    bool forceSessionUpdate; // [esp+1F7h] [ebp-1h]
-
-    if ( !G_ExitAfterToolComplete() )
-    {
-        forceSessionUpdate = 0;
-        if ( !sv_authenticating )
-            sv_authenticating = _Dvar_RegisterBool("sv_authenticating", 0, 0x40u, "");
-        if ( sessionCreateFinished )
-        {
-            qosprobe = dwGetQoSProbe();
-            bdQoSProbe::pump(qosprobe);
-        }
-        if ( (_S1_9 & 1) == 0 )
-        {
-            _S1_9 |= 1u;
-            sessionupdatetimer = svs.g_msgTime;
-        }
-        if ( g_svdedicatedauthstate == SV_DWAUTHORIZED )
-        {
-            LiveStorage_CheckOngoingSessionTasks();
-            if ( sessionCreated || (int)(Sys_Milliseconds() - lastdwattempt) <= s_dwBackOff )
-            {
-                if ( !sessionCreateFinished )
-                {
-                    result = dwCreateSessionComplete(createSessionTask);
-                    if ( result == TASK_COMPLETE )
-                    {
-                        Com_Printf(0, "Session creation complete!\n");
-                        sessionCreateFinished = 1;
-                        Dvar_SetBool((dvar_s *)sv_dwlsgerror, 0);
-                        lastdwattempt = 0;
-                        s_dwBackOff = 2000;
-                        qosProbe = dwGetQoSProbe();
-                        memset(tmp, 0, 64);
-                        bdSecurityKey::bdSecurityKey(&seckey);
-                        SessionSecID = dwGetSessionSecID();
-                        bdSecurityInfo::toString(SessionSecID, tmp, 0x24u);
-                        Com_Printf(0, "listening for secid %s\n", tmp);
-                        MatchMakingInfo::getSessionKey(g_matchmakingInfo, &seckey);
-                        bdSecurityInfo::toString(&seckey, tmp, 0x24u);
-                        Com_Printf(0, "listening for seckey %s\n", tmp);
-                        if ( qosProbe && (v4 = dwGetSessionSecID(), bdQoSProbe::listen(qosProbe, v4, 0, 0)) )
-                            Com_Printf(0, "Qos listener started\n");
-                        else
-                            SV_QuitIfNeeded();
-                        LiveCounter_Init();
-                        LiveCounter_SetupCounters();
-                        s_lastDwGoodUpdate = Sys_Milliseconds();
-                    }
-                    else if ( result == TASK_ERROR )
-                    {
-                        SV_QuitIfNeeded();
-                        sessionCreated = 0;
-                        sessionCreateFinished = 1;
-                        s_dwBackOff *= 2;
-                    }
-                }
-            }
-            else
-            {
-                lastdwattempt = Sys_Milliseconds();
-                createSessionTask = TaskManager_GetOpenTaskSlot(overlappedTasks_1, 0, 2);
-                g_matchmakingInfo->m_memberNETCODE_VERSION = 1044;
-                if ( SV_IsWagerServer() )
-                {
-                    g_matchmakingInfo->m_memberserverType = 2;
-                }
-                else
-                {
-                    LicenseType = SV_GetLicenseType();
-                    g_matchmakingInfo->m_memberserverType = SV_IsServerRanked(LicenseType);
-                }
-                I_strncpyz(g_matchmakingInfo->m_membermapname, sv_mapname->current.string, 32);
-                I_strncpyz(g_matchmakingInfo->m_memberservername, sv_hostname->current.string, 64);
-                g_matchmakingInfo->m_memberGAME_TYPE = Com_GametypeToInt(g_gametype->current.string);
-                g_matchmakingInfo->m_maxPlayers = sv_maxclients->current.unsignedInt;
-                g_matchmakingInfo->m_memberLICENSE = SV_GetLicenseType();
-                if ( Dvar_GetBool("sv_nocacvalidate") )
-                    g_matchmakingInfo->m_memberDDL_VERSION = LiveStats_GetStatsDDL()->version + 100;
-                else
-                    g_matchmakingInfo->m_memberDDL_VERSION = LiveStats_GetStatsDDL()->version;
-                bdSecurityKey::bdSecurityKey(&secKey);
-                Instance = bdSingleton<bdTrulyRandomImpl>::getInstance();
-                bdTrulyRandomImpl::getRandomUByte8(Instance, secKey.ab, 0x10u);
-                MatchMakingInfo::setSessionKey(g_matchmakingInfo, &secKey);
-                dwGetOnlineUserID(0, &g_matchmakingInfo->m_memberdemonwareID);
-                g_matchmakingInfo->m_memberGEOGRAPHICAL_LOCATION = SV_GetRegion();
-                dwCreateSession((bdReference<bdCommonAddr> *)createSessionTask, g_matchmakingInfo);
-                sessionCreated = 1;
-                sessionCreateFinished = 0;
-                SV_DWInitStats();
-                SV_ReadWhiteListfile();
-            }
-            if ( outstandingnotifyjoin && bdRemoteTask::getStatus(notifyJoinTask) != BD_PENDING )
-            {
-                Com_Printf(0, "SERVER: notifyjoin complete!\n");
-                outstandingnotifyjoin = 0;
-            }
-            if ( outstandingnotifyleave && bdRemoteTask::getStatus(notifyLeaveTask) != BD_PENDING )
-            {
-                Com_Printf(0, "SERVER: notifyleave complete!\n");
-                outstandingnotifyleave = 0;
-            }
-            if ( sessionCreateFinished )
-                forceSessionUpdate = SV_HasInfoChanged();
-            if ( !updateSessionTask && (svs.g_msgTime - sessionupdatetimer > 180000 || forceSessionUpdate && sessionCreateFinished) )
-            {
-                updateSessionTask = TaskManager_GetOpenTaskSlot(overlappedTasks_1, 0, 4);
-                dwUpdateSession(updateSessionTask, g_matchmakingInfo);
-                if ( forceSessionUpdate )
-                    Com_Printf(0, "Server: Updating session - serverinfo change\n");
-                else
-                    Com_Printf(0, "Server: Updating session (%ims)\n", svs.g_msgTime - sessionupdatetimer);
-                sessionupdatetimer = svs.g_msgTime;
-                sessionupdatehangtimer = svs.g_msgTime;
-                forceSessionUpdate = 0;
-                lastdwattempt = Sys_Milliseconds();
-            }
-            if ( updateSessionTask )
-            {
-                Com_Printf(0, ".");
-                if ( svs.g_msgTime - sessionupdatehangtimer <= 10000 )
-                {
-                    if ( dwUpdateSessionComplete(updateSessionTask) )
-                    {
-                        if ( dwUpdateSessionComplete(updateSessionTask) == TASK_COMPLETE )
-                        {
-                            Com_Printf(0, "Server: Session updated - %ims\n", svs.g_msgTime - sessionupdatehangtimer);
-                            Dvar_SetBool((dvar_s *)sv_dwlsgerror, 0);
-                            s_lastDwGoodUpdate = Sys_Milliseconds();
-                            s_dwBackOff = 2000;
-                        }
-                        else
-                        {
-                            Com_PrintWarning(0, "Session update error!\n");
-                            Dvar_SetBool((dvar_s *)sv_dwlsgerror, 1);
-                            sessionCreated = 0;
-                            s_dwBackOff *= 2;
-                        }
-                        TaskManager_ClearTask(updateSessionTask);
-                        updateSessionTask = 0;
-                    }
-                }
-                else
-                {
-                    Com_Printf(0, "Server: Giving up on session update after %ims :(\n", svs.g_msgTime - sessionupdatehangtimer);
-                    TaskManager_ClearTask(updateSessionTask);
-                    updateSessionTask = 0;
-                    Dvar_SetBool((dvar_s *)sv_dwlsgerror, 1);
-                    s_dwBackOff *= 2;
-                    sessionCreated = 0;
-                }
-            }
-        }
-        if ( sv_dwlsgerror->current.enabled
-            && !sv_authenticating->current.enabled
-            && (int)(Sys_Milliseconds() - s_lastConnectAttempt) > 1200000 )
-        {
-            Com_Printf(
-                0,
-                "\n************************\n************************\nRECREATING SESSION\n************************\n");
-            dwNetStart(1);
-            while ( g_dwNetStatus == DW_NET_STARTING_ONLINE )
-                dwNetPump();
-            Dvar_SetBool((dvar_s *)sv_authenticating, 1);
-            Com_Printf(0, "reauthenticating dedicated server!\n");
-            g_svdedicatedauthstate = SV_DWNOTAUTHORIZED;
-            DW_DedicatedLogonStart(0);
-        }
-        if ( sv_authenticating->current.enabled )
-        {
-            if ( g_svdedicatedauthstate == SV_DWAUTHORIZING )
-                DW_DedicatedLogonComplete(controllerIndex);
-            if ( g_svdedicatedauthstate == SV_DWAUTHORIZED )
-            {
-                Dvar_SetBool((dvar_s *)sv_authenticating, 0);
-                Dvar_SetBool((dvar_s *)sv_dwlsgerror, 0);
-                sessionCreateFinished = 0;
-                sessionCreated = 0;
-                lastdwattempt = 0;
-                s_dwBackOff = 2000;
-            }
-            if ( g_svdedicatedauthstate == SV_DWAUTHORIZEFAIL )
-            {
-                if ( sv_dwlsgerror->current.enabled )
-                {
-                    Dvar_SetBool((dvar_s *)sv_authenticating, 0);
-                    s_lastConnectAttempt = Sys_Milliseconds() + 1200000;
-                }
-                else
-                {
-                    Com_Error(ERR_DROP, "Dedicated server authentication failure\n");
-                }
-            }
-        }
-        if ( playlist_enabled )
-        {
-            if ( playlist_enabled->current.enabled && LiveStorage_DoWeHavePlaylists() )
-            {
-                if ( sv_playlistFetchInterval )
-                {
-                    v5 = Sys_Milliseconds();
-                    if ( (int)(v5 - SV_GetPlaylistFetchedTime()) > 1000 * sv_playlistFetchInterval->current.integer )
-                    {
-                        v6 = Sys_Milliseconds();
-                        PlaylistFetchedTime = SV_GetPlaylistFetchedTime();
-                        Com_Printf(15, "It's been %i seconds, fetching playlists\n", (int)(v6 - PlaylistFetchedTime) / 1000);
-                        dwEnterDeferredCritsec();
-                        LiveStorage_ForceWADFetch();
-                        dwLeaveDeferredCritsec();
-                    }
-                }
-            }
-        }
-        if ( svs.g_msgTime >= svs.nextHeartbeatTime )
-        {
-            svs.nextHeartbeatTime = svs.g_msgTime + 10000;
-            notifyCount = 0;
-            for ( i = 0; i < com_maxclients->current.integer; ++i )
-            {
-                if ( svs.clients[i].header.state >= CS_CONNECTED && !svs.clients[i].bIsTestClient && !svs.clients[i].bIsDemoClient )
-                {
-                    if ( svs.clients[i].notifyJoin )
-                    {
-                        v8 = i;
-                        v9 = notifyCount;
-                        clients = svs.clients;
-                        LODWORD(toNotify[notifyCount]) = svs.clients[i].dw_userID;
-                        HIDWORD(toNotify[v9]) = HIDWORD(clients[v8].dw_userID);
-                        ++notifyCount;
-                        svs.clients[i].notifyJoin = 0;
-                    }
-                }
-            }
-            if ( notifyCount )
-            {
-                matchmaking = dwGetMatchmaking(0);
-                if ( matchmaking )
-                {
-                    Com_Printf(0, "Server: Starting notifyjoin for %u clients\n", notifyCount);
-                    SessionID = dwGetSessionID();
-                    notifyJoinTask = *(bdRemoteTask **)bdMatchMaking::notifyJoin(
-                                                                                             matchmaking,
-                                                                                             (int)&v15,
-                                                                                             (int)SessionID,
-                                                                                             (int)toNotify,
-                                                                                             notifyCount);
-                    bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>(&v15);
-                    outstandingnotifyjoin = 1;
-                }
-            }
-            if ( g_notifyLeave[0] )
-            {
-                for ( notifyCount = 0;
-                            notifyCount < 0x20 && HIDWORD(g_notifyLeave[notifyCount]) | LODWORD(g_notifyLeave[notifyCount]);
-                            ++notifyCount )
-                {
-                    ;
-                }
-                v18 = dwGetMatchmaking(0);
-                if ( v18 )
-                {
-                    v13 = notifyCount;
-                    v12 = dwGetSessionID();
-                    notifyLeaveTask = *(bdRemoteTask **)bdMatchMaking::notifyLeave(
-                                                                                                v18,
-                                                                                                (int)&v14,
-                                                                                                (int)v12,
-                                                                                                (int)g_notifyLeave,
-                                                                                                v13);
-                    bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>(&v14);
-                    outstandingnotifyleave = 1;
-                    memset(g_notifyLeave, 0, sizeof(g_notifyLeave));
-                }
-            }
-#ifdef KISAK_LIVE_SERVICE
-            if ( live_service && live_service->current.enabled )
-            {
-                for ( j = 0; j < com_maxclients->current.integer; ++j )
-                {
-                    drop = &svs.clients[j];
-                    if ( drop->lastConnectTime )
-                    {
-                        if ( drop->dwchallenge )
-                        {
-                            if ( drop->header.sendAsActive )
-                            {
-                                Com_DPrintf(15, "Still waiting for challengeresponse from client %s\n", drop->name);
-                                if ( svs.g_msgTime - drop->lastConnectTime > 60000 )
-                                {
-                                    Com_DPrintf(
-                                        15,
-                                        "DWCHALLENGERESPONSE: Dropping client %s because it's been %i msec and we've had no challengeresponse\n",
-                                        drop->name,
-                                        svs.g_msgTime - drop->lastConnectTime);
-                                    if ( drop->header.state == CS_ACTIVE )
-                                        SV_DropClient(drop, "EXE_BAD_CHALLENGE", 1, 1);
-                                    else
-                                        NET_OutOfBandPrint(NS_SERVER, drop->header.netchan.remoteAddress, "error\nEXE_BAD_CHALLENGE");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-#endif
-        }
-    }
-#endif
 }
 
 void SV_ReadWhiteListfile()
@@ -696,19 +267,19 @@ void SV_ReadWhiteListfile()
     Com_DPrintf(15, "Parsed %i reserved slot passwords\n", s_numslotpasses);
 }
 
-int s_dwBackOff = 2000;
-int s_lastDwGoodUpdate;
+int s_onlineBackOff = 2000;
+int s_lastOnlineGoodUpdate;
 int SV_QuitIfNeeded()
 {
     int result; // eax
 
-    if (!s_lastDwGoodUpdate || (int)(Sys_Milliseconds() - s_lastDwGoodUpdate) > 10800000)
+    if (!s_lastOnlineGoodUpdate || (int)(Sys_Milliseconds() - s_lastOnlineGoodUpdate) > 10800000)
     {
         Com_PrintWarning(0, "Session creation failed. Killing server\n");
         Sys_Quit();
     }
-    result = 2 * s_dwBackOff;
-    s_dwBackOff *= 2;
+    result = 2 * s_onlineBackOff;
+    s_onlineBackOff *= 2;
     return result;
 }
 
@@ -725,22 +296,14 @@ void __cdecl SV_FlushRedirect(char *outputbuf)
         outputbuf[1156] = 0;
         buf[0] = 1;
         Com_sprintf(&buf[1], 0x48Bu, "print\n%s", outputbuf);
-#ifdef KISAK_LIVE
-        dwRawSendTo(&svs.redirectAddress, (unsigned __int8 *)buf, 0x48Cu);
-#else
         NET_OutOfBandPrint(NS_SERVER, svs.redirectAddress, buf);
-#endif
         len -= 1156;
         outputbuf += 1156;
         *outputbuf = c;
     }
     buf[0] = 1;
     Com_sprintf(&buf[1], 0x48Bu, "print\n%s", outputbuf);
-#ifdef KISAK_LIVE
-    dwRawSendTo(&svs.redirectAddress, (unsigned __int8 *)buf, 0x48Cu);
-#else
     NET_OutOfBandPrint(NS_SERVER, svs.redirectAddress, buf);
-#endif
 }
 
 static int lasttime;
@@ -769,14 +332,14 @@ void __cdecl SVC_RemoteCommand(netadr_t from)
         {
             valid = 1;
             v6 = SV_Cmd_Argv(2);
-            v2 = NET_AdrToStringDW(from);
+            v2 = NET_AdrToStringOnline(from);
             Com_Printf(15, "Rcon from %s:\n%s\n", v2, v6);
         }
         else
         {
             valid = 0;
             v5 = SV_Cmd_Argv(2);
-            v1 = NET_AdrToStringDW(from);
+            v1 = NET_AdrToStringOnline(from);
             Com_Printf(15, "Bad rcon from %s:\n%s\n", v1, v5);
         }
         svs.redirectAddress = from;
@@ -832,24 +395,6 @@ void __cdecl SV_MatchEnd()
 
 void __cdecl SV_SysLog_LogMessage(int severity, const char *msg)
 {
-#ifdef KISAK_LIVE
-    netadr_t to; // [esp+10h] [ebp-420h] BYREF
-    char syslogMsg[1036]; // [esp+20h] [ebp-410h] BYREF
-
-    if ( (int)(Sys_Milliseconds() - lastCall) >= 1000 )
-    {
-        lastCall = Sys_Milliseconds();
-        memset(syslogMsg, 0, 1025);
-        to.type = NA_IP;
-        to.port = 514;
-        to.ip[0] = -48;
-        to.ip[1] = -89;
-        to.ip[2] = -7;
-        to.ip[3] = -95;
-        Com_sprintf(syslogMsg, 0x400u, "<%u>BLACKOPS: %s: %s", severity + 128, sv_hostname->current.string, msg);
-        dwSendSysLogPacket(&to, syslogMsg, &syslogMsg[strlen(syslogMsg) + 1] - &syslogMsg[1]);
-    }
-#endif
 }
 
 void __cdecl SV_SysLog_LogMessage_f()
@@ -891,43 +436,5 @@ bool __cdecl SV_CanLoadCustomGameType()
 
 void __cdecl SV_RegisterRconKey_f()
 {
-#ifdef KISAK_LIVE
-    unsigned __int8 *v0; // eax
-    unsigned int v1; // [esp+0h] [ebp-5Ch]
-    int v2; // [esp+18h] [ebp-44h]
-    int v3; // [esp+1Ch] [ebp-40h]
-    bdSecurityID rconkeyIdString; // [esp+30h] [ebp-2Ch] BYREF
-    bdSecurityID rconkeyID; // [esp+3Ch] [ebp-20h] BYREF
-    int size; // [esp+44h] [ebp-18h]
-    bdSecurityKey rconkey; // [esp+48h] [ebp-14h] BYREF
-
-    if ( Cmd_Argc() == 2 )
-    {
-        strcpy((char *)&rconkeyIdString, "rconkey1");
-        bdSecurityKey::bdSecurityKey(&rconkey);
-        bdSecurityID::bdSecurityID(&rconkeyID);
-        memset(&rconkey, 0, sizeof(rconkey));
-        *(unsigned int *)rconkeyID.ab = 0;
-        *(unsigned int *)&rconkeyID.ab[4] = 0;
-        v2 = strlen(Cmd_Argv(1));
-        if ( v2 < 16 )
-            v3 = v2;
-        else
-            v3 = 16;
-        if ( v3 > 1 )
-            v1 = v3;
-        else
-            v1 = 1;
-        size = v1;
-        v0 = (unsigned __int8 *)Cmd_Argv(1);
-        memcpy(rconkey.ab, v0, v1);
-        rconkeyID = rconkeyIdString;
-        dwRegisterSecIDAndKey(&rconkeyID, &rconkey);
-    }
-    else
-    {
-        Com_Printf(15, "usage: setrconkey key\n");
-    }
-#endif
 }
 

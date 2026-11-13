@@ -7,13 +7,9 @@
 #include <server_mp/sv_init_mp.h>
 #include <stringed/stringed_hooks.h>
 #include <win32/win_shared.h>
-#include <DW/dwUtils_pc.h>
-#include <live/live_win.h>
+#include <universal/offline.h>
 #include <cgame_mp/cg_main_mp.h>
 #include <client/splitscreen.h>
-#include <live/live_pcache.h>
-#include <live/live_steam.h>
-#include <live/live_pcache_profile.h>
 #include <bgame/bg_emblems.h>
 
 char info1[1024];
@@ -737,37 +733,6 @@ char *__cdecl Dvar_InfoString(int localClientNum, int bit)
         }
         v6 = va("%i", clc->qport);
         Info_SetValueForKey(info1, (char *)"qport", v6);
-#ifdef KISAK_LIVE_SERVICE
-        bdTrulyRandomImpl *Instance; // eax
-        bdTrulyRandomImpl *v9; // eax
-        if ( live_service && live_service->current.enabled )
-        {
-            memset(temp64buff, 0, 0xB1u);
-            dwGetOnlineUserID(0, &ourUserID);
-            Com_DPrintf(14, "CHALLENGERESPONSE: Sending bdOnlineUserID %llu to server\n", ourUserID);
-            XUIDToString(&ourUserID, temp64buff);
-            Info_SetValueForKey(info1, "bdOnlineUserID", temp64buff);
-            memset(temp64buff, 0, 0xB1u);
-            if ( !clc->nonce )
-            {
-                Instance = bdSingleton<bdTrulyRandomImpl>::getInstance();
-                RandomUInt = bdTrulyRandomImpl::getRandomUInt(Instance);
-                clc->nonce = RandomUInt;
-                v9 = bdSingleton<bdTrulyRandomImpl>::getInstance();
-                v10 = bdTrulyRandomImpl::getRandomUInt(v9);
-                *(&clc->nonce + 1) = v10;
-            }
-            Com_sprintf(temp64buff, 0xB1u, "%u", *(&clc->nonce + 1));
-            Info_SetValueForKey(info1, "nonce", temp64buff);
-            Com_sprintf(temp64buff, 0xB1u, "%u", clc->nonce);
-            Info_SetValueForKey(info1, "challengeNum", temp64buff);
-            Com_DPrintf(
-                14,
-                "CHALLENGERESPONSE: Sending nonce %u, challengeNum %u to server\n",
-                *(&clc->nonce + 1),
-                clc->nonce);
-        }
-#endif
     }
     return info1;
 }

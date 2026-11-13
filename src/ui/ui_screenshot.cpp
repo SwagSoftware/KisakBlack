@@ -2,7 +2,7 @@
 #include <universal/assertive.h>
 #include <universal/com_memory.h>
 
-void __cdecl UI_Screenshot_Success(dwFileShareReadFileTask *task)
+void __cdecl UI_Screenshot_Success(FileShareReadFileTask *task)
 {
 #ifdef KISAK_SCREENSHOT
     if ( task->buffer == s_buffer )
@@ -22,7 +22,7 @@ void __cdecl UI_Screenshot_Success(dwFileShareReadFileTask *task)
 #endif
 }
 
-void __cdecl UI_Screenshot_Failure(dwFileShareReadFileTask *task)
+void __cdecl UI_Screenshot_Failure(FileShareReadFileTask *task)
 {
 #ifdef KISAK_SCREENSHOT
     if ( task->buffer == s_buffer && s_state )

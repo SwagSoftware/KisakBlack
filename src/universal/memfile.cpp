@@ -1,7 +1,7 @@
 #include "memfile.h"
 #include "com_memory.h"
 #include <qcommon/common.h>
-#include <live/live.h>
+#include <universal/offline.h>
 #include "physicalmemory.h"
 #include <minilzo/minilzo.h>
 

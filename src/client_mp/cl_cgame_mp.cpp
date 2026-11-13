@@ -27,7 +27,7 @@
 #include <client/client.h>
 #include "cl_scrn_mp.h"
 #include <win32/win_shared.h>
-#include <live/live_steam.h>
+#include <universal/offline.h>
 #include <qcommon/dobj_management.h>
 #include <client/con_channels.h>
 #include <qcommon/com_clients.h>

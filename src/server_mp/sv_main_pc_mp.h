@@ -8,12 +8,12 @@ struct reservedslot_t // sizeof=0x19
     bool inUse;                         // XREF: SV_GetSlotForPasswordIfFree(char const *)+55/r
 };
 
-void __cdecl SV_ResetDWState();
+void __cdecl SV_ResetOnlineState();
 int __cdecl SV_GetRegion();
 void __cdecl SV_SetRegion(int region);
 void __cdecl SV_SetTime(int time);
 int __cdecl SV_GetTime();
-void __cdecl SV_DWUserDisconnected(unsigned __int64 userID);
+void __cdecl SV_OnlineUserDisconnected(unsigned __int64 userID);
 int __cdecl SV_GetSlotForPasswordIfFree(const char *password);
 void __cdecl SV_FreeReservedSlot(int slot);
 int __cdecl SV_DropClientForReservedSlot(const char *password);

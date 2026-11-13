@@ -2,7 +2,7 @@
 
 #include <demo/demo_common.h>
 
-struct bdProfileInfo : bdTaskResult // sizeof=0x10
+struct ProfileInfo : TaskResult // sizeof=0x10
 {                                       // XREF: PrivateProfileInfo/r
                                         // PublicProfileInfo/r
     // padding byte
@@ -13,7 +13,7 @@ struct bdProfileInfo : bdTaskResult // sizeof=0x10
                                         // Live_SetPrivateProfile(void)+52/w ...
 };
 
-struct __declspec(align(4)) PublicProfileInfo : bdProfileInfo // sizeof=0x118
+struct __declspec(align(4)) PublicProfileInfo : ProfileInfo // sizeof=0x118
 {                                       // XREF: .data:s_userData/r
                                         // .data:s_taskData/r
     int m_memberVERSION;                // XREF: PCache_BatchUpdatePublicProfiles(int,PCachePublicProfile *,int)+239/w
@@ -24,13 +24,11 @@ struct __declspec(align(4)) PublicProfileInfo : bdProfileInfo // sizeof=0x118
 
     PublicProfileInfo();
 
-    void serialize(bdByteBuffer *buffer);
-    bool deserialize(bdReference<bdByteBuffer> buffer);
     unsigned int sizeOf();
 };
 
 
-struct __declspec(align(4)) PrivateProfileInfo : bdProfileInfo // sizeof=0x260
+struct __declspec(align(4)) PrivateProfileInfo : ProfileInfo // sizeof=0x260
 {                                       // XREF: .data:s_profileInfo/r
     unsigned __int8 m_memberfavsblob[253];
                                         // XREF: Live_GetPrivateProfileComplete(TaskRecord *)+8/o
@@ -41,8 +39,6 @@ struct __declspec(align(4)) PrivateProfileInfo : bdProfileInfo // sizeof=0x260
     // padding byte
 
     PrivateProfileInfo();
-    void serialize(bdByteBuffer *buffer);
-    bool deserialize(bdReference<bdByteBuffer> buffer);
     unsigned int sizeOf();
 };
 
