@@ -26,6 +26,7 @@
 #include <client/cl_keys.h>
 #include <qcommon/com_clients.h>
 #include <stringed/stringed_hooks.h>
+#include <qcommon/common.h>
 
 const char *cg_drawTalkNames[5] =
 { "NONE", "ALL", "FRIENDLY", "ENEMY", NULL };
@@ -866,7 +867,7 @@ void __cdecl CG_DrawPlayerAmmoBackdrop(
                                          localClientNum,
                                          hud_fade_ammodisplay,
                                          cgameGlob->ammoFadeTime,
-                                         (int)((float)(hud_fade_ammodisplay->current.value * 1000.0) + 9.313225746154785e-10));
+                                         SnapFloatToInt((float)(hud_fade_ammodisplay->current.value * 1000.0)));
         if ( drawColor[3] != 0.0 )
         {
             if ( CG_CheckPlayerForLowAmmo(cgameGlob) )
@@ -1215,7 +1216,7 @@ void __cdecl CG_DrawPlayerSprintBack(int localClientNum, const rectDef_s *rect, 
                                 localClientNum,
                                 hud_fade_sprint,
                                 cgameGlob->sprintFadeTime,
-                                (int)((float)(hud_fade_sprint->current.value * 1000.0) + 9.313225746154785e-10));
+                                SnapFloatToInt((float)(hud_fade_sprint->current.value * 1000.0)));
     if ( fadeAlpha != 0.0 )
     {
         drawColor[0] = *color;
@@ -1259,7 +1260,7 @@ void __cdecl CG_DrawPlayerSprintMeter(int localClientNum, const rectDef_s *rect,
                                 localClientNum,
                                 hud_fade_sprint,
                                 cgameGlob->sprintFadeTime,
-                                (int)((float)(hud_fade_sprint->current.value * 1000.0) + 9.313225746154785e-10));
+                                SnapFloatToInt((float)(hud_fade_sprint->current.value * 1000.0)));
     if ( fadeAlpha != 0.0 )
     {
         sprintLeft = PM_GetSprintLeft(ps, cgameGlob->time);
@@ -1351,7 +1352,7 @@ void __cdecl CG_DrawPlayerBarHealth(int localClientNum, const rectDef_s *rect, M
                                  localClientNum,
                                  hud_fade_healthbar,
                                  cgameGlob->healthFadeTime,
-                                 (int)((float)(hud_fade_healthbar->current.value * 1000.0) + 9.313225746154785e-10));
+                                 SnapFloatToInt((float)(hud_fade_healthbar->current.value * 1000.0)));
         if ( color[3] != 0.0 )
         {
             ps = &cgameGlob->nextSnap->ps;
@@ -1469,7 +1470,7 @@ void __cdecl CG_DrawPlayerBarHealthBack(int localClientNum, const rectDef_s *rec
                                     localClientNum,
                                     hud_fade_healthbar,
                                     cgameGlob->healthFadeTime,
-                                    (int)((float)(hud_fade_healthbar->current.value * 1000.0) + 9.313225746154785e-10));
+                                    SnapFloatToInt((float)(hud_fade_healthbar->current.value * 1000.0)));
         if ( fadeAlpha != 0.0 )
         {
             color[3] = fadeAlpha;
@@ -1497,9 +1498,9 @@ void __cdecl CG_DrawPlayerBarHealthBack(int localClientNum, const rectDef_s *rec
                 if ( hud_health_startpulse_critical->current.value <= health )
                     flashTime = hud_health_startpulse_injured->current.value <= health
                                         ? 0
-                                        : (int)((float)(hud_health_pulserate_injured->current.value * 1000.0) + 9.313225746154785e-10);
+                                        : SnapFloatToInt((float)(hud_health_pulserate_injured->current.value * 1000.0));
                 else
-                    flashTime = (int)((float)(hud_health_pulserate_critical->current.value * 1000.0) + 9.313225746154785e-10);
+                    flashTime = SnapFloatToInt((float)(hud_health_pulserate_critical->current.value * 1000.0));
                 if ( flashTime )
                 {
                     if ( cgameGlob->lastHealthPulseTime > cgameGlob->time
@@ -2791,8 +2792,7 @@ void __cdecl CG_DrawDemoControls(int localClientNum, const rectDef_s *rect, Mate
                                                 (float (*)[4])bookmarkColor);
             if ( bookmarkIndex >= 0 )
             {
-                bookmarkX = (float)(int)((float)((float)((float)(bookmarkTime - startTime) / (float)duration) * timelineWidth)
-                                                             + 9.313225746154785e-10)
+                bookmarkX = (float)SnapFloatToInt((float)((float)((float)(bookmarkTime - startTime) / (float)duration) * timelineWidth))
                                     + timelineX;
                 v22 = 1.0
                         - (float)((float)(int)abs(currentTime - bookmarkTime)
@@ -2901,7 +2901,7 @@ void __cdecl CG_DrawDemoControls(int localClientNum, const rectDef_s *rect, Mate
         }
         Demo_DrawVerticalLine(
             &scrPlaceView[localClientNum],
-            (float)(int)((float)(timelineWidth * percentCompleted) + 9.313225746154785e-10) + timelineX,
+            (float)SnapFloatToInt((float)(timelineWidth * percentCompleted)) + timelineX,
             timelineY - (float)(timelineHeight * 0.30000001),
             1.0,
             timelineHeight * 1.3,
@@ -2915,7 +2915,7 @@ void __cdecl CG_DrawDemoControls(int localClientNum, const rectDef_s *rect, Mate
             cgMedia.demoTimelineBookmark);
         CG_DrawRotatedPic(
             &scrPlaceView[localClientNum],
-            (float)((float)(int)((float)(timelineWidth * percentCompleted) + 9.313225746154785e-10) + timelineX)
+            (float)((float)SnapFloatToInt((float)(timelineWidth * percentCompleted)) + timelineX)
         - (float)(timelineCursorWidth / 2.3),
             timelineY - innerGreyBoxYSpacing,
             timelineCursorWidth,
@@ -2931,7 +2931,7 @@ void __cdecl CG_DrawDemoControls(int localClientNum, const rectDef_s *rect, Mate
             timeText,
             0x7FFFFFFF,
             font,
-            (float)((float)(int)((float)(timelineWidth * percentCompleted) + 9.313225746154785e-10) + timelineX)
+            (float)((float)SnapFloatToInt((float)(timelineWidth * percentCompleted)) + timelineX)
         - (float)(timelineTextWidth / 2.0),
             timelineY - (float)(0.89999998 * innerGreyBoxYSpacing),
             rect->horzAlign,
@@ -4285,7 +4285,7 @@ void __cdecl CG_DrawPlayerAmmoValue(
                                  localClientNum,
                                  hud_fade_ammodisplay,
                                  cgameGlob->ammoFadeTime,
-                                 (int)((float)(hud_fade_ammodisplay->current.value * 1000.0) + 9.313225746154785e-10));
+                                 SnapFloatToInt((float)(hud_fade_ammodisplay->current.value * 1000.0)));
         if ( color[3] != 0.0 )
         {
             if ( !cgameGlob->nextSnap
@@ -4597,7 +4597,7 @@ void    CG_DrawPlayerStance(
     v19 = hud_fade_stance->current.value * 1000.0;
     //fadeAlpha = DOUBLE_9_313225746154785eN10;
     fadeAlpha = 9.313225746154785e-10;
-    cgs = (const cgs_t *)(int)(v19 + 9.313225746154785e-10);
+    cgs = (const cgs_t *)SnapFloatToInt(v19);
     x = cgs;
     y = CG_FadeHudMenu(localClientNum, hud_fade_stance, cgameGlob->stanceFadeTime, (int)cgs);
     if ( y != 0.0 )
@@ -5330,7 +5330,7 @@ void __cdecl CG_DrawHoldBreathHint(
                     v7 = UI_SafeTranslateString("PLATFORM_HOLD_BREATH");
                     string = UI_ReplaceConversionString((char*)v7, binding);
                     x = rect->x
-                        - (float)(int)((float)((float)UI_TextWidth(string, 0, font, fontscale) * 0.5) + 9.313225746154785e-10);
+                        - (float)SnapFloatToInt((float)((float)UI_TextWidth(string, 0, font, fontscale) * 0.5));
                     UI_DrawText(
                         &scrPlaceView[localClientNum],
                         (char *)string,
@@ -5386,7 +5386,7 @@ void __cdecl CG_DrawHoldBreathZoomHint(
                         v6 = UI_SafeTranslateString("PLATFORM_HOLD_BREATH_ZOOM");
                         string = UI_ReplaceConversionString(v6, binding);
                         x = rect->x
-                            - (float)(int)((float)((float)UI_TextWidth(string, 0, font, fontscale) * 0.5) + 9.313225746154785e-10);
+                            - (float)SnapFloatToInt((float)((float)UI_TextWidth(string, 0, font, fontscale) * 0.5));
                         UI_DrawText(
                             &scrPlaceView[localClientNum],
                             string,
@@ -5436,7 +5436,7 @@ void __cdecl CG_DrawRCBombHints(
                                      localClientNum,
                                      hud_fade_vehiclecontrols,
                                      cgameGlob->vehicleControlsFadeTime,
-                                     (int)((float)(hud_fade_vehiclecontrols->current.value * 1000.0) + 9.313225746154785e-10))
+                                     SnapFloatToInt((float)(hud_fade_vehiclecontrols->current.value * 1000.0)))
                              * 1.0;
             vehicle = CG_GetEntity(localClientNum, ps->viewlocked_entNum);
             info = CG_GetVehicleInfo(vehicle->nextState.vehicleState.vehicleInfoIndex);
@@ -5635,7 +5635,7 @@ void __cdecl CG_DrawGuidedMissileInfo(
                     cgameGlob->refdef.vieworg[1],
                     cgameGlob->refdef.vieworg[2]);
             }
-            x = rect->x - (float)(int)((float)((float)UI_TextWidth(string, 0, font, fontscale) * 0.5) + 9.313225746154785e-10);
+            x = rect->x - (float)SnapFloatToInt((float)((float)UI_TextWidth(string, 0, font, fontscale) * 0.5));
             UI_DrawText(
                 &scrPlaceView[localClientNum],
                 string,
@@ -5964,7 +5964,7 @@ LABEL_29:
                 __debugbreak();
             }
             color[3] = (float)((cgameGlob->time - cgameGlob->invalidCmdHintTime) % blinkInterval) / (float)blinkInterval;
-            x = rect->x - (float)(int)((float)((float)UI_TextWidth(string, 0, font, fontscale) * 0.5) + 9.313225746154785e-10);
+            x = rect->x - (float)SnapFloatToInt((float)((float)UI_TextWidth(string, 0, font, fontscale) * 0.5));
             UI_DrawText(
                 &scrPlaceView[localClientNum],
                 (char*)string,

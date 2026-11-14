@@ -13,6 +13,7 @@
 #include <glass/glass_client.h>
 #include <xanim/xanim.h>
 #include <gfx_d3d/r_scene.h>
+#include <qcommon/common.h>
 
 void(__cdecl *const s_drawElemHandler[10])(FxDrawState *) =
 {
@@ -71,13 +72,12 @@ unsigned __int8 __cdecl FX_InterpolateColor(
                 float sampleLerpInv,
                 int channel)
 {
-    return (int)((float)((float)((float)((float)((float)refState->base.color[channel] * valueLerpInv)
+    return SnapFloatToInt((float)((float)((float)((float)((float)refState->base.color[channel] * valueLerpInv)
                                                                          + (float)((float)refState->amplitude.color[channel] * valueLerp))
                                                          * sampleLerpInv)
                                          + (float)((float)((float)((float)refState[1].base.color[channel] * valueLerpInv)
                                                                          + (float)((float)refState[1].amplitude.color[channel] * valueLerp))
-                                                         * sampleLerp))
-                         + 9.313225746154785e-10);
+                                                         * sampleLerp)));
 }
 
 void __cdecl FX_SetupVisualState(

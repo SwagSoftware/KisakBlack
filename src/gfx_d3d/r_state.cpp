@@ -11,6 +11,7 @@
 #include "rb_pixelcost.h"
 #include "rb_shade.h"
 #include "r_reflection_probe.h"
+#include <qcommon/common.h>
 
 
 const GfxViewportBehavior s_viewportBehaviorForRenderTarget[44] =
@@ -3130,8 +3131,8 @@ void __cdecl Byte4PackPixelColor(const float *from, unsigned __int8 *to)
     int v8; // [esp+58h] [ebp-38h]
     int v9; // [esp+78h] [ebp-18h]
 
-    if ( (int)((float)(255.0 * *from) + 9.313225746154785e-10) < 255 )
-        v9 = (int)((float)(255.0 * *from) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(255.0 * *from)) < 255 )
+        v9 = SnapFloatToInt((float)(255.0 * *from));
     else
         v9 = 255;
     if ( v9 > 0 )
@@ -3139,8 +3140,8 @@ void __cdecl Byte4PackPixelColor(const float *from, unsigned __int8 *to)
     else
         v5 = 0;
     to[2] = v5;
-    if ( (int)((float)(255.0 * from[1]) + 9.313225746154785e-10) < 255 )
-        v8 = (int)((float)(255.0 * from[1]) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(255.0 * from[1])) < 255 )
+        v8 = SnapFloatToInt((float)(255.0 * from[1]));
     else
         v8 = 255;
     if ( v8 > 0 )
@@ -3148,8 +3149,8 @@ void __cdecl Byte4PackPixelColor(const float *from, unsigned __int8 *to)
     else
         v4 = 0;
     to[1] = v4;
-    if ( (int)((float)(255.0 * from[2]) + 9.313225746154785e-10) < 255 )
-        v7 = (int)((float)(255.0 * from[2]) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(255.0 * from[2])) < 255 )
+        v7 = SnapFloatToInt((float)(255.0 * from[2]));
     else
         v7 = 255;
     if ( v7 > 0 )
@@ -3157,8 +3158,8 @@ void __cdecl Byte4PackPixelColor(const float *from, unsigned __int8 *to)
     else
         v3 = 0;
     *to = v3;
-    if ( (int)((float)(255.0 * from[3]) + 9.313225746154785e-10) < 255 )
-        v6 = (int)((float)(255.0 * from[3]) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(255.0 * from[3])) < 255 )
+        v6 = SnapFloatToInt((float)(255.0 * from[3]));
     else
         v6 = 255;
     if ( v6 > 0 )

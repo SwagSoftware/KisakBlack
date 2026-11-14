@@ -78,6 +78,7 @@
 #include <cgame_mp/cg_ents_mp.h>
 #include <bgame/bg_weapons_def.h>
 #include <universal/com_workercmds.h>
+#include <qcommon/common.h>
 #include <gfx_d3d/r_dvars.h>
 #include <cgame/cg_sound.h>
 #include <win32/win_voice.h>
@@ -2986,9 +2987,8 @@ int __cdecl Com_ModifyMsec(int msec)
     }
     else
     {
-        msec = (int)((float)((float)((float)((float)msec * com_timescale->current.value) * com_codeTimeScale)
-                                             * dev_timescale->current.value)
-                             + 9.313225746154785e-10);
+        msec = SnapFloatToInt((float)((float)((float)((float)msec * com_timescale->current.value) * com_codeTimeScale)
+                                             * dev_timescale->current.value));
         useTimescale = 1;
     }
     if ( msec < 1 )

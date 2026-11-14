@@ -22,6 +22,7 @@
 #include <monkey/monkey.h>
 #include <universal/com_math_anglevectors.h>
 #include <cgame/cg_main.h>
+#include <qcommon/common.h>
 
 kbutton_t playersKb[1][47];
 bool gAttackEdgeDetected[1];
@@ -976,7 +977,7 @@ void __cdecl CL_MouseMove(int localClientNum, usercmd_s *cmd)
                 kb = playersKb[localClientNum];
                 if ( kb[8].active )
                 {
-                    cmd->rightmove = ClampChar((int)((float)(m_side->current.value * mx) + 9.313225746154785e-10) + cmd->rightmove);
+                    cmd->rightmove = ClampChar(SnapFloatToInt((float)(m_side->current.value * mx)) + cmd->rightmove);
                 }
                 else
                 {
@@ -1026,8 +1027,7 @@ void __cdecl CL_MouseMove(int localClientNum, usercmd_s *cmd)
                 }
                 else
                 {
-                    cmd->forwardmove = ClampChar(cmd->forwardmove - (int)((float)(m_forward->current.value * my)
-                                                                                                                            + 9.313225746154785e-10));
+                    cmd->forwardmove = ClampChar(cmd->forwardmove - SnapFloatToInt((float)(m_forward->current.value * my)));
                 }
                 cmd->pitchmove = ClampChar(pitchMove + cmd->pitchmove);
                 cmd->yawmove = ClampChar(yawMove + cmd->yawmove);
@@ -1300,8 +1300,8 @@ char __cdecl CG_HandleLocationSelectionInput(int localClientNum, usercmd_s *cmd)
     cgameGlob->selectedLocation[1] = v3;
     if ( locSelInputState && locSelInputState != LOC_SEL_INPUT_YAW )
     {
-        cmd->selectedLocation[0] = (int)((float)(cgameGlob->selectedLocation[0] * 255.0) + 9.313225746154785e-10) + 0x80;
-        cmd->selectedLocation[1] = (int)((float)(cgameGlob->selectedLocation[1] * 255.0) + 9.313225746154785e-10) + 0x80;
+        cmd->selectedLocation[0] = SnapFloatToInt((float)(cgameGlob->selectedLocation[0] * 255.0)) + 0x80;
+        cmd->selectedLocation[1] = SnapFloatToInt((float)(cgameGlob->selectedLocation[1] * 255.0)) + 0x80;
         if ( cgameGlob->lastTimeSelected + 200 < cgameGlob->time && locSelInputState == LOC_SEL_INPUT_CONFIRM )
         {
             for ( i = 0; i < 3; ++i )
@@ -1318,7 +1318,7 @@ char __cdecl CG_HandleLocationSelectionInput(int localClientNum, usercmd_s *cmd)
             yawVector[2] = 0.0f;
             vectoangles(yawVector, diffAngles);
             diffAngles[1] = 360.0 - diffAngles[1];
-            cmd->selectedYaw = (int)(diffAngles[1] + 9.313225746154785e-10) / 2;
+            cmd->selectedYaw = SnapFloatToInt(diffAngles[1]) / 2;
             cmd->button_bits.setBit(0x10u);
         }
         if ( locSelInputState == LOC_SEL_INPUT_CANCEL )

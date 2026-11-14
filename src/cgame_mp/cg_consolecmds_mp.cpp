@@ -6,6 +6,7 @@
 #include "cg_main_mp.h"
 #include <gfx_d3d/r_dvars.h>
 #include <client/cl_main.h>
+#include <qcommon/common.h>
 
 void __cdecl CG_ScoresUp(int localClientNum)
 {
@@ -188,7 +189,7 @@ LABEL_5:
             ShellshockParms = BG_GetShellshockParms(0);
             BG_SetShellShockParmsFromDvars(ShellshockParms);
             cgameGlob->testShock.time = cgameGlob->time;
-            cgameGlob->testShock.duration = (int)(v5 + 9.313225746154785e-10);
+            cgameGlob->testShock.duration = SnapFloatToInt(v5);
             return;
         }
         if ( v4 == 3 )

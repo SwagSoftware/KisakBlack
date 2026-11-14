@@ -347,7 +347,7 @@ void __cdecl Demo_DrawVerticalLine(
 
     originalWidth = w;
     ScrPlace_ApplyRect(scrPlace, &x, &y, &w, &h, horzAlign, vertAlign);
-    x = (float)(int)(x + 9.313225746154785e-10);
+    x = (float)SnapFloatToInt(x);
     w = originalWidth;
     CL_DrawStretchPicPhysical(x, y, originalWidth, h, s1, t1, s2, t2, color, material);
 }

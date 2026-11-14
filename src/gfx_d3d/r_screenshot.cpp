@@ -175,9 +175,9 @@ void __cdecl R_DownsamplePixelData(
         residual = newSize + residual - oldSize;
         color_4a = color_4 + src[1] * (newSize - residual);
         color_8a = color_8 + src[2] * (newSize - residual);
-        *dst = (int)((float)((float)(color + *src * (newSize - residual)) * colorScale) + 9.313225746154785e-10);
-        dst[1] = (int)((float)((float)color_4a * colorScale) + 9.313225746154785e-10);
-        dst[2] = (int)((float)((float)color_8a * colorScale) + 9.313225746154785e-10);
+        *dst = SnapFloatToInt((float)((float)(color + *src * (newSize - residual)) * colorScale));
+        dst[1] = SnapFloatToInt((float)((float)color_4a * colorScale));
+        dst[2] = SnapFloatToInt((float)((float)color_8a * colorScale));
         dst += nextSample;
     }
 }
@@ -212,20 +212,17 @@ void __cdecl R_UpsamplePixelData(
     {
         if ( currSrc < src )
         {
-            *dsta = (int)((float)((float)((forwardWeight + backwardWeight) * *src) * colorScale) + 9.313225746154785e-10);
-            dsta[1] = (int)((float)((float)((forwardWeight + backwardWeight) * src[1]) * colorScale) + 9.313225746154785e-10);
-            v6 = (float)((float)((forwardWeight + backwardWeight) * src[2]) * colorScale) + 9.313225746154785e-10;
+            *dsta = SnapFloatToInt((float)((float)((forwardWeight + backwardWeight) * *src) * colorScale));
+            dsta[1] = SnapFloatToInt((float)((float)((forwardWeight + backwardWeight) * src[1]) * colorScale));
+            v6 = (float)((float)((forwardWeight + backwardWeight) * src[2]) * colorScale);
         }
         else
         {
-            *dsta = (int)((float)((float)(forwardWeight * currSrc[nextSample] + backwardWeight * *currSrc) * colorScale)
-                                    + 9.313225746154785e-10);
-            dsta[1] = (int)((float)((float)(forwardWeight * currSrc[nextSample + 1] + backwardWeight * currSrc[1]) * colorScale)
-                                        + 9.313225746154785e-10);
-            v6 = (float)((float)(forwardWeight * currSrc[nextSample + 2] + backwardWeight * currSrc[2]) * colorScale)
-                 + 9.313225746154785e-10;
+            *dsta = SnapFloatToInt((float)((float)(forwardWeight * currSrc[nextSample] + backwardWeight * *currSrc) * colorScale));
+            dsta[1] = SnapFloatToInt((float)((float)(forwardWeight * currSrc[nextSample + 1] + backwardWeight * currSrc[1]) * colorScale));
+            v6 = (float)((float)(forwardWeight * currSrc[nextSample + 2] + backwardWeight * currSrc[2]) * colorScale);
         }
-        dsta[2] = (int)v6;
+        dsta[2] = SnapFloatToInt(v6);
         dsta -= nextSample;
         backwardWeight += 2 * oldSize;
         forwardWeight -= 2 * oldSize;
@@ -1207,7 +1204,7 @@ unsigned __int8 __cdecl R_CubemapShotCalcReflectionFactor(
                  + dir[2];
     Vec3Normalize(dir);
     refraction = FresnelTerm(n0, n1, dir[2]);
-    return (int)((float)(refraction * 255.0) + 9.313225746154785e-10);
+    return SnapFloatToInt((float)(refraction * 255.0));
 }
 
 void __cdecl R_CreateReflectionRawDataFromCubemapShot(DiskGfxReflectionProbe *probeRawData, int downSampleRes)

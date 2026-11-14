@@ -178,8 +178,8 @@ void __cdecl MSG_WriteOriginFloat(
     {
         __debugbreak();
     }
-    roundedValue = (int)(value + 9.313225746154785e-10);
-    roundedOldValue = (int)(oldValue + 9.313225746154785e-10);
+    roundedValue = SnapFloatToInt(value);
+    roundedOldValue = SnapFloatToInt(oldValue);
     if ( (unsigned int)(roundedValue - roundedOldValue + 64) >= 0x80 )
     {
         MSG_WriteBit1(msg);
@@ -212,7 +212,7 @@ void __cdecl MSG_WriteOriginFloat(
         {
             __debugbreak();
         }
-        roundedCenter = (int)(svsHeader.mapCenter[index] + 9.313225746154785e-10);
+        roundedCenter = SnapFloatToInt(svsHeader.mapCenter[index]);
         MSG_WriteBits(msg, (roundedOldValue + 0x8000 - roundedCenter) ^ (roundedValue - roundedCenter + 0x8000), 0x10u);
     }
     else
@@ -297,8 +297,8 @@ void __cdecl MSG_WriteOriginZFloat(
     {
         __debugbreak();
     }
-    roundedValue = (int)(value + 9.313225746154785e-10);
-    roundedOldValue = (int)(oldValue + 9.313225746154785e-10);
+    roundedValue = SnapFloatToInt(value);
+    roundedOldValue = SnapFloatToInt(oldValue);
     if ( (unsigned int)(roundedValue - roundedOldValue + 64) >= 0x80 )
     {
         MSG_WriteBit1(msg);
@@ -312,7 +312,7 @@ void __cdecl MSG_WriteOriginZFloat(
         {
             __debugbreak();
         }
-        roundedCenter = (int)(svsHeader.mapCenter[2] + 9.313225746154785e-10);
+        roundedCenter = SnapFloatToInt(svsHeader.mapCenter[2]);
         MSG_WriteBits(msg, (roundedOldValue + 0x10000 - roundedCenter) ^ (roundedValue - roundedCenter + 0x10000), 0x11u);
     }
     else
@@ -377,8 +377,8 @@ void __cdecl MSG_WriteDemoRoundedFloat(
     }
     diffBias = 1 << (diffBits - 1);
     fullBias = 1 << (fullBits - 1);
-    roundedValue = (int)(value + 9.313225746154785e-10);
-    roundedOldValue = (int)(oldValue + 9.313225746154785e-10);
+    roundedValue = SnapFloatToInt(value);
+    roundedOldValue = SnapFloatToInt(oldValue);
     truncDelta = roundedValue - roundedOldValue;
     if ( diffBias + roundedValue - roundedOldValue < 0 || diffBias + truncDelta >= 1 << diffBits )
     {
@@ -474,7 +474,7 @@ bool __cdecl MSG_ValuesAreEqual(int clientNum, int bits, int size, const int *fr
         case -66:
         case -65:
         case -64:
-            result = (int)(*(float *)fromF + 9.313225746154785e-10) == (int)(*(float *)toF + 9.313225746154785e-10);
+            result = SnapFloatToInt(*(float *)fromF) == SnapFloatToInt(*(float *)toF);
             break;
         case -100:
         case -87:
@@ -488,7 +488,7 @@ bool __cdecl MSG_ValuesAreEqual(int clientNum, int bits, int size, const int *fr
             result = *fromF / 100 == *toF / 100;
             break;
         case -86:
-            result = (int)((float)((float)(*(float *)fromF - 1.0) * 10.0) + 9.313225746154785e-10) == (int)((float)((float)(*(float *)toF - 1.0) * 10.0) + 9.313225746154785e-10);
+            result = SnapFloatToInt((float)((float)(*(float *)fromF - 1.0) * 10.0)) == SnapFloatToInt((float)((float)(*(float *)toF - 1.0) * 10.0));
             break;
         case -85:
             v6 = *(unsigned __int8 *)fromF == *(unsigned __int8 *)toF
@@ -1076,7 +1076,7 @@ char __cdecl MSG_WriteDeltaField_Internal(
             MSG_WriteAngle16(msg, *(float *)toF);
             break;
         case 0xFFFFFFAA:
-            MSG_WriteBits(msg, (int)((float)((float)(*(float *)toF - 1.0) * 10.0) + 9.313225746154785e-10), 6u);
+            MSG_WriteBits(msg, SnapFloatToInt((float)((float)(*(float *)toF - 1.0) * 10.0)), 6u);
             break;
         case 0xFFFFFFAB:
             if ( (*((unsigned __int8 *)fromF + 3) == 255 && !*((_BYTE *)toF + 3)

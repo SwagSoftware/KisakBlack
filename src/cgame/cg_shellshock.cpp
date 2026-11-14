@@ -10,6 +10,7 @@
 #include <client_mp/cl_cgame_mp.h>
 #include <sound/snd.h>
 #include <demo/demo_playback.h>
+#include <qcommon/common.h>
 
 const float cg_perturbations[131][2] =
 {
@@ -189,9 +190,8 @@ int __cdecl CG_DrawShellShockSavedScreenBlendBlurred(
         {
             screenBlendTime = parms->screenBlend.blurredEffectTime;
             if ( dt < parms->screenBlend.blurredFadeTime )
-                screenBlendTime = (int)((float)((float)screenBlendTime
-                                                                            * (float)((float)dt / (float)parms->screenBlend.blurredFadeTime))
-                                                            + 9.313225746154785e-10);
+                screenBlendTime = SnapFloatToInt((float)((float)screenBlendTime
+                                                                            * (float)((float)dt / (float)parms->screenBlend.blurredFadeTime)));
             if ( cgameGlob->shellshock.hasSavedScreen )
             {
                 view = CG_GetLocalClientViewParams(localClientNum);

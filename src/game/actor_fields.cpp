@@ -11,6 +11,7 @@
 #include <game_mp/g_spawn_mp.h>
 #include <flame/flame_system.h>
 #include <bgame/bg_weapons_def.h>
+#include <qcommon/common.h>
 
 void __cdecl AIFIELD_NULLSUB(actor_s *pSelf, const actor_fields_s *pField)
 {
@@ -343,7 +344,7 @@ void __cdecl ActorScr_SetTime(actor_s *pSelf, const actor_fields_s *pField)
         __debugbreak();
     }
     v2 = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER) * 1000.0;
-    *(gentity_s **)((char *)&pSelf->ent + pField->ofs) = (gentity_s *)(int)(v2 + 9.313225746154785e-10);
+    *(gentity_s **)((char *)&pSelf->ent + pField->ofs) = (gentity_s *)SnapFloatToInt(v2);
 }
 
 void __cdecl ActorScr_GetTime(actor_s *pSelf, const actor_fields_s *pField)
@@ -1176,7 +1177,7 @@ void __cdecl Cmd_AI_SetValue(actor_s *pSelf, int argc, unsigned __int8 *pBase, c
             SV_Cmd_ArgvBuffer(3, arg, 256);
             v5 = atof(arg);
             v6 = v5 * 1000.0;
-            *(unsigned int *)&pBase[pField->ofs] = (int)(v6 + 9.313225746154785e-10);
+            *(unsigned int *)&pBase[pField->ofs] = SnapFloatToInt(v6);
             return;
         }
 LABEL_28:

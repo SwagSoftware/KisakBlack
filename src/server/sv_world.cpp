@@ -15,6 +15,7 @@
 #include <game_mp/g_main_mp.h>
 #include <glass/glass_server.h>
 #include <DynEntity/DynEntity_server.h>
+#include <qcommon/common.h>
 
 unsigned int __cdecl SV_ClipHandleForEntity(const gentity_s *ent)
 {
@@ -303,7 +304,7 @@ void __cdecl SnapAngles(float *vAngles)
 
     for ( i = 0; i < 3; ++i )
     {
-        rounded = (int)(vAngles[i] + 9.313225746154785e-10);
+        rounded = SnapFloatToInt(vAngles[i]);
         delta = (float)rounded - vAngles[i];
         if ( (float)(delta * delta) < 0.0000010000001 )
             vAngles[i] = (float)rounded;

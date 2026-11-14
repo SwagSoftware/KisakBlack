@@ -30,6 +30,7 @@
 #include <physics/phys_collision.h>
 #include <gfx_d3d/r_dvars.h>
 #include "tl/base/include/tl_system.h"
+#include <qcommon/common.h>
 
 __int16 entity_counts[65536];
 
@@ -1059,12 +1060,12 @@ double __cdecl CG_DrawFPS(int localClientNum, const ScreenPlacement *scrPlace, f
     farRight = (float)(scrPlace->virtualViewableMax[0] - scrPlace->virtualViewableMin[0])
                      + cg_debugInfoCornerOffset->current.value;
     labelWidth = (float)R_TextWidth("wwwwwwwwwwww", 0, cgMedia.smallDevFont) * 1.0;
-    fpsMin = (int)((float)(1000.0 / (float)cg_perfInfo.frame.max) + 9.313225746154785e-10);
-    fpsMax = (int)((float)(1000.0 / (float)cg_perfInfo.frame.min) + 9.313225746154785e-10);
-    fps = (int)((float)(1000.0 / cg_perfInfo.frame.average) + 9.313225746154785e-10);
+    fpsMin = SnapFloatToInt((float)(1000.0 / (float)cg_perfInfo.frame.max));
+    fpsMax = SnapFloatToInt((float)(1000.0 / (float)cg_perfInfo.frame.min));
+    fps = SnapFloatToInt((float)(1000.0 / cg_perfInfo.frame.average));
     v12 = (float)((float)((float)fps - 60.0) + 20.0) / 20.0;
     if ( (float)(v12 - 1.0) < 0.0 )
-        v13 = (float)((float)((float)(int)((float)(1000.0 / cg_perfInfo.frame.average) + 9.313225746154785e-10) - 60.0)
+        v13 = (float)((float)((float)SnapFloatToInt((float)(1000.0 / cg_perfInfo.frame.average)) - 60.0)
                                 + 20.0)
                 / 20.0;
     else
@@ -1076,7 +1077,7 @@ double __cdecl CG_DrawFPS(int localClientNum, const ScreenPlacement *scrPlace, f
     lerp = frac;
     Vec4Lerp(colorRed, colorWhite, frac, varColor);
     color = varColor;
-    s = va("(%i-%i, %i) %i", fpsMin, fpsMax, (int)(cg_perfInfo.frame.variance + 9.313225746154785e-10), fps);
+    s = va("(%i-%i, %i) %i", fpsMin, fpsMax, SnapFloatToInt(cg_perfInfo.frame.variance), fps);
     yf = CG_CornerDebugPrint(scrPlace, farRight, y, labelWidth, s, (char*)" FPS", color) + y;
     s = va("(%i-%i) %1.2f", cg_perfInfo.frame.min, cg_perfInfo.frame.max, cg_perfInfo.frame.average);
     ya = CG_CornerDebugPrint(scrPlace, farRight, yf, labelWidth, s, (char*)" cg ms/frame", colorWhite) + yf;

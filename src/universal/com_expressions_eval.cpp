@@ -30,6 +30,7 @@
 #include <ui/ui_feeders.h>
 #include <cgame/cg_drawtools.h>
 #include <stringed/stringed_hooks.h>
+#include <qcommon/common.h>
 
 int s_indexToFunctionMap[1024];
 
@@ -10552,9 +10553,9 @@ void __cdecl GetCurrentChallengeProgress(int localClientNum, itemDef_s *item, Op
         PlayerStatStringByKey = LiveStats_GetPlayerStatStringByKey(MP_PLAYERSTATSKEY_TIMEPLAYEDTOTAL);
         if ( !I_stricmp(PlayerStatStringByKey, name) )
         {
-            currMinutes = (int)((float)((float)challenge->currentValue / 60.0) + 9.313225746154785e-10);
+            currMinutes = SnapFloatToInt((float)((float)challenge->currentValue / 60.0));
             currTime = va("%id %ih %im", currMinutes / 1440, currMinutes % 1440 / 60, currMinutes % 60);
-            targetMinutes = (int)((float)((float)challenge->targetValue / 60.0) + 9.313225746154785e-10);
+            targetMinutes = SnapFloatToInt((float)((float)challenge->targetValue / 60.0));
             targetTime = va("%id %ih %im", targetMinutes / 1440, targetMinutes % 1440 / 60, targetMinutes % 60);
             result.internals.intVal = (int)va("%s / %s", currTime, targetTime);
             AddOperandToStack(dataStack, &result);
@@ -13240,7 +13241,7 @@ void __cdecl RPN_OP_MODULUS(int localClientNum, itemDef_s *item, OperandStack *d
     if ( data1.dataType == VAL_FLOAT )
     {
         data1.dataType = VAL_INT;
-        data1.internals.intVal = (int)(data1.internals.floatVal + 9.313225746154785e-10);
+        data1.internals.intVal = SnapFloatToInt(data1.internals.floatVal);
     }
     else if ( data1.dataType == VAL_STRING )
     {
@@ -13250,7 +13251,7 @@ void __cdecl RPN_OP_MODULUS(int localClientNum, itemDef_s *item, OperandStack *d
     if ( data2.dataType == VAL_FLOAT )
     {
         data2.dataType = VAL_INT;
-        data2.internals.intVal = (int)(data2.internals.floatVal + 9.313225746154785e-10);
+        data2.internals.intVal = SnapFloatToInt(data2.internals.floatVal);
     }
     else if ( data2.dataType == VAL_STRING )
     {

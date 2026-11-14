@@ -13,6 +13,7 @@
 #include "cg_drawtools.h"
 #include <gfx_d3d/rb_corona.h>
 #include <EffectsCore/fx_sprite.h>
+#include <qcommon/common.h>
 
 const dvar_t *waypointDebugDraw;
 const dvar_t *waypointIconWidth;
@@ -1134,7 +1135,7 @@ $LN32_2:
             Com_sprintf(cghe->hudElemText, 0x100u, "%g", elem->value);
             break;
         case 3u:
-            namedClientIndex = (int)(elem->value + 9.313225746154785e-10);
+            namedClientIndex = SnapFloatToInt(elem->value);
             if ( namedClientIndex >= 0 && namedClientIndex < com_maxclients->current.integer )
             {
                 clientGlob = CG_GetLocalClientGlobals(localClientNum);
@@ -1496,8 +1497,8 @@ void __cdecl SetHudElemPos(const ScreenPlacement *scrPlace, const hudelem_s *ele
             cghe->height,
             &cghe->x,
             &cghe->y);
-        cghe->x = (float)(int)(cghe->x + 9.313225746154785e-10);
-        cghe->y = (float)(int)(cghe->y + 9.313225746154785e-10);
+        cghe->x = (float)SnapFloatToInt(cghe->x);
+        cghe->y = (float)SnapFloatToInt(cghe->y);
     }
     else
     {
