@@ -39,6 +39,7 @@
 #include <client_mp/cl_scrn_mp.h>
 #include "rb_compositing.h"
 #include <ui/ui_main_pc.h>
+#include <qcommon/common.h>
 
 int g_msgTime;
 bool assets_released;
@@ -3230,8 +3231,8 @@ void __cdecl DrawText2D(
                                 v33 = fxDecayDuration / v34;
                                 skipDrawing = v30 >= v33 * ((int)RandWithSeed(&passRandSeed) % v34);
                                 letter = v31;
-                                if ( (int)((float)(255.0 * 1.0) + 9.313225746154785e-10) < 255 )
-                                    v32 = (int)((float)(255.0 * 1.0) + 9.313225746154785e-10);
+                                if ( SnapFloatToInt((float)(255.0 * 1.0)) < 255 )
+                                    v32 = SnapFloatToInt((float)(255.0 * 1.0));
                                 else
                                     v32 = 255;
                                 if ( v32 > 0 )
@@ -4297,8 +4298,8 @@ void __cdecl GetDecayingStringAlphaInfo(
     {
         if ( decayTimeElapsed <= fxDecayDuration )
             fade = (float)((float)alpha / 255.0) * (float)(1.0 - (float)((float)decayTimeElapsed / (float)fxDecayDuration));
-        if ( (int)((float)(255.0 * fade) + 9.313225746154785e-10) < 255 )
-            v6 = (int)((float)(255.0 * fade) + 9.313225746154785e-10);
+        if ( SnapFloatToInt((float)(255.0 * fade)) < 255 )
+            v6 = SnapFloatToInt((float)(255.0 * fade));
         else
             v6 = 255;
         if ( v6 > 0 )
@@ -4309,8 +4310,8 @@ void __cdecl GetDecayingStringAlphaInfo(
     }
     else
     {
-        if ( (int)((float)(255.0 * 0.0) + 9.313225746154785e-10) < 255 )
-            v7 = (int)((float)(255.0 * 0.0) + 9.313225746154785e-10);
+        if ( SnapFloatToInt((float)(255.0 * 0.0)) < 255 )
+            v7 = SnapFloatToInt((float)(255.0 * 0.0));
         else
             v7 = 255;
         if ( v7 > 0 )
@@ -5742,8 +5743,8 @@ void __cdecl RB_SaveScreen_BlendFlashed(const GfxBlendSaveScreenFlashedParam *p,
         if (tess.indexCount)
             RB_EndTessSurface();
         R_Set2D(&gfxCmdBufSourceState);
-        whiteout = (int)((float)(255.0 * p->intensityWhiteout) + 9.313225746154785e-10);
-        color = ((unsigned __int8)(int)((float)(255.0 * p->intensityScreengrab) + 9.313225746154785e-10) << 24)
+        whiteout = SnapFloatToInt((float)(255.0 * p->intensityWhiteout));
+        color = ((unsigned __int8)SnapFloatToInt((float)(255.0 * p->intensityScreengrab)) << 24)
             | whiteout
             | (whiteout << 8)
             | (whiteout << 16);

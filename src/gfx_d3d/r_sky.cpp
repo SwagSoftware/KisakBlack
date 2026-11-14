@@ -238,8 +238,8 @@ void __cdecl R_SetSunFromDvars(sunflare_t *sun)
     *(float *)&v2 = v2;
     sun->flareMaxDot = *(float *)&v2;
     sun->flareMaxAlpha = r_sunflare_max_alpha->current.value;
-    sun->flareFadeInTime = (int)((float)(r_sunflare_fadein->current.value * 1000.0) + 9.313225746154785e-10);
-    sun->flareFadeOutTime = (int)((float)(r_sunflare_fadeout->current.value * 1000.0) + 9.313225746154785e-10);
+    sun->flareFadeInTime = SnapFloatToInt((float)(r_sunflare_fadein->current.value * 1000.0));
+    sun->flareFadeOutTime = SnapFloatToInt((float)(r_sunflare_fadeout->current.value * 1000.0));
     v3 = (float)DEG2RAD(r_sunblind_min_angle->current.value);
     __libm_sse2_cos(v9);
     *(float *)&v3 = v3;
@@ -249,8 +249,8 @@ void __cdecl R_SetSunFromDvars(sunflare_t *sun)
     *(float *)&v4 = v4;
     sun->blindMaxDot = *(float *)&v4;
     sun->blindMaxDarken = r_sunblind_max_darken->current.value;
-    sun->blindFadeInTime = (int)((float)(r_sunblind_fadein->current.value * 1000.0) + 9.313225746154785e-10);
-    sun->blindFadeOutTime = (int)((float)(r_sunblind_fadeout->current.value * 1000.0) + 9.313225746154785e-10);
+    sun->blindFadeInTime = SnapFloatToInt((float)(r_sunblind_fadein->current.value * 1000.0));
+    sun->blindFadeOutTime = SnapFloatToInt((float)(r_sunblind_fadeout->current.value * 1000.0));
     v5 = (float)DEG2RAD(r_sunglare_min_angle->current.value);
     __libm_sse2_cos(v11);
     *(float *)&v5 = v5;
@@ -260,8 +260,8 @@ void __cdecl R_SetSunFromDvars(sunflare_t *sun)
     *(float *)&v6 = v6;
     sun->glareMaxDot = *(float *)&v6;
     sun->glareMaxLighten = r_sunglare_max_lighten->current.value;
-    sun->glareFadeInTime = (int)((float)(r_sunglare_fadein->current.value * 1000.0) + 9.313225746154785e-10);
-    sun->glareFadeOutTime = (int)((float)(r_sunglare_fadeout->current.value * 1000.0) + 9.313225746154785e-10);
+    sun->glareFadeInTime = SnapFloatToInt((float)(r_sunglare_fadein->current.value * 1000.0));
+    sun->glareFadeOutTime = SnapFloatToInt((float)(r_sunglare_fadeout->current.value * 1000.0));
     AngleVectors(&r_sun_fx_position->current.value, sun->sunFxPosition, 0, 0);
     sun->hasValidData = 1;
 }

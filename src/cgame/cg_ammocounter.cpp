@@ -311,7 +311,7 @@ double __cdecl AmmoCounterFadeAlpha(int localClientNum, cg_s *cgameGlob)
                          localClientNum,
                          hud_fade_ammodisplay,
                          cgameGlob->ammoFadeTime,
-                         (int)((float)(hud_fade_ammodisplay->current.value * 1000.0) + 9.313225746154785e-10));
+                         SnapFloatToInt((float)(hud_fade_ammodisplay->current.value * 1000.0)));
 }
 
 void __cdecl CG_DrawFuelTankPercentage(
@@ -802,7 +802,7 @@ void __cdecl CG_DrawPlayerActionSlotArrow(
                                     localClientNum,
                                     hud_fade_ammodisplay,
                                     cgameGlob->ammoFadeTime,
-                                    (int)((float)(hud_fade_ammodisplay->current.value * 1000.0) + 9.313225746154785e-10))
+                                    SnapFloatToInt((float)(hud_fade_ammodisplay->current.value * 1000.0)))
                             * colorMod[3];
     if ( colorMod[3] != 0.0 )
         CL_DrawStretchPic(
@@ -1300,7 +1300,7 @@ void __cdecl CG_DrawPlayerActionSlotBind(
                                     localClientNum,
                                     hud_fade_ammodisplay,
                                     cgameGlob->ammoFadeTime,
-                                    (int)((float)(hud_fade_ammodisplay->current.value * 1000.0) + 9.313225746154785e-10))
+                                    SnapFloatToInt((float)(hud_fade_ammodisplay->current.value * 1000.0)))
                             * colorMod[3];
     if ( colorMod[3] != 0.0 )
         UI_DrawText(
@@ -1337,7 +1337,7 @@ void __cdecl CG_DrawPlayerWeaponBackground(
                                     localClientNum,
                                     hud_fade_ammodisplay,
                                     cgameGlob->ammoFadeTime,
-                                    (int)((float)(hud_fade_ammodisplay->current.value * 1000.0) + 9.313225746154785e-10))
+                                    SnapFloatToInt((float)(hud_fade_ammodisplay->current.value * 1000.0)))
                             * colorMod[3];
     if ( colorMod[3] != 0.0 )
         CL_DrawStretchPic(

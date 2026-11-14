@@ -30,6 +30,7 @@
 #include <bgame/bg_fire.h>
 #include <flame/flame_class_stream.h>
 #include <cgame/cg_local.h>
+#include <qcommon/common.h>
 
 const char *WeaponStateNames[50] =
 {
@@ -247,7 +248,7 @@ void __cdecl CG_DrawCenterString(
             color[2] = color[2] * fadeColor[2];
             color[3] = color[3] * fadeColor[3];
             x = rect->x
-                - (float)(int)((float)((float)UI_TextWidth(centerPrint->text, 0, font, fontscale) * 0.5) + 9.313225746154785e-10);
+                - (float)SnapFloatToInt((float)((float)UI_TextWidth(centerPrint->text, 0, font, fontscale) * 0.5));
             UI_DrawText(
                 &scrPlaceView[localClientNum],
                 centerPrint->text,

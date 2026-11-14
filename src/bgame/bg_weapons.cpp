@@ -2149,9 +2149,8 @@ int __cdecl BG_GetClipSize(unsigned int weaponIndex)
     weapVariantDef = BG_GetWeaponVariantDef(weaponIndex);
     if ( weapVariantDef->iClipSize <= 1 )
         return weapVariantDef->iClipSize;
-    if ( (int)((float)((float)weapVariantDef->iClipSize * player_clipSizeMultiplier->current.value) + 9.313225746154785e-10) > 0 )
-        return (int)((float)((float)weapVariantDef->iClipSize * player_clipSizeMultiplier->current.value)
-                             + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)((float)weapVariantDef->iClipSize * player_clipSizeMultiplier->current.value)) > 0 )
+        return SnapFloatToInt((float)((float)weapVariantDef->iClipSize * player_clipSizeMultiplier->current.value));
     return 1;
 }
 
@@ -2706,9 +2705,8 @@ int __cdecl PM_Weapon_WeaponTimeAdjust(pmove_t *pm, pml_t *pml)
         }
         else
         {
-            msec = (int)((float)((float)((float)pml->msec * (float)(1.0 - 1.0))
-                                                 + (float)((float)((float)pml->msec / perk_weapReloadMultiplier->current.value) * 1.0))
-                                 + 9.313225746154785e-10);
+            msec = SnapFloatToInt((float)((float)((float)pml->msec * (float)(1.0 - 1.0))
+                                                 + (float)((float)((float)pml->msec / perk_weapReloadMultiplier->current.value) * 1.0)));
         }
     }
     else if ( (*weaponState == 6
@@ -2732,7 +2730,7 @@ int __cdecl PM_Weapon_WeaponTimeAdjust(pmove_t *pm, pml_t *pml)
         }
         else
         {
-            msec = (int)((float)((float)pml->msec / perk_weapRateMultiplier->current.value) + 9.313225746154785e-10);
+            msec = SnapFloatToInt((float)((float)pml->msec / perk_weapRateMultiplier->current.value));
         }
     }
     else if ( (ps->perks[0] & 0x80000) != 0 && BG_CanFastSwitch(weapDef, *weaponState) )
@@ -2748,7 +2746,7 @@ int __cdecl PM_Weapon_WeaponTimeAdjust(pmove_t *pm, pml_t *pml)
         {
             __debugbreak();
         }
-        msec = (int)((float)((float)pml->msec / perk_weapSwitchMultiplier->current.value) + 9.313225746154785e-10);
+        msec = SnapFloatToInt((float)((float)pml->msec / perk_weapSwitchMultiplier->current.value));
     }
     else if ( *weaponState == 19 && (ps->perks[0] & 0x20000) != 0 )
     {
@@ -2763,7 +2761,7 @@ int __cdecl PM_Weapon_WeaponTimeAdjust(pmove_t *pm, pml_t *pml)
         {
             __debugbreak();
         }
-        msec = (int)((float)((float)pml->msec / perk_weapMeleeMultiplier->current.value) + 9.313225746154785e-10);
+        msec = SnapFloatToInt((float)((float)pml->msec / perk_weapMeleeMultiplier->current.value));
     }
     else if ( (*weaponState == 10
                     || *weaponState == 12
@@ -2774,7 +2772,7 @@ int __cdecl PM_Weapon_WeaponTimeAdjust(pmove_t *pm, pml_t *pml)
                     || *weaponState == 16)
                  && ui_gv_reloadSpeedModifier->current.value != 0.0 )
     {
-        msec = (int)((float)((float)pml->msec * ui_gv_reloadSpeedModifier->current.value) + 9.313225746154785e-10);
+        msec = SnapFloatToInt((float)((float)pml->msec * ui_gv_reloadSpeedModifier->current.value));
     }
     else
     {
@@ -2792,7 +2790,7 @@ int __cdecl PM_Weapon_WeaponTimeAdjust(pmove_t *pm, pml_t *pml)
                 if ( player_burstFireCooldown->current.value == 0.0 )
                     *weaponTime = 1;
                 else
-                    *weaponTime = (int)((float)(player_burstFireCooldown->current.value * 1000.0) + 9.313225746154785e-10);
+                    *weaponTime = SnapFloatToInt((float)(player_burstFireCooldown->current.value * 1000.0));
                 PM_ContinueWeaponAnim(ps, 0, 0);
                 *weaponState = 0;
                 return 0;

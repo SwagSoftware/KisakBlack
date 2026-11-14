@@ -414,7 +414,7 @@ bool __cdecl PickAabbSplitPlane(
                                     - sideOnCount
                                     - 4 * sideSplitCount;
                 if ( !sideOnCount && !sideSplitCount && !prevMinCount )
-                    heuristic += (int)((float)(nextDist - dist) + 9.313225746154785e-10);
+                    heuristic += SnapFloatToInt((float)(nextDist - dist));
                 if ( heuristic > bestHeuristic )
                 {
                     bestHeuristic = heuristic;

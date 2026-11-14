@@ -670,7 +670,7 @@ void __cdecl R_StoreWindowSettings(const GfxWindowParms *wndParms)
                 monitorWidth = vidConfig.displayWidth;
                 monitorHeight = vidConfig.displayHeight;
             }
-            aspectHeight = (int)((float)((float)((float)monitorHeight * 16.0) / (float)monitorWidth) + 9.313225746154785e-10);
+            aspectHeight = SnapFloatToInt((float)((float)((float)monitorHeight * 16.0) / (float)monitorWidth));
             if ( aspectHeight == 10 )
             {
                 vidConfig.aspectRatioWindow = 1.6f;

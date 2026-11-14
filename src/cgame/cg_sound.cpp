@@ -12,6 +12,7 @@
 #include <universal/com_math_anglevectors.h>
 #include <bgame/bg_weapons.h>
 #include <sound/snd_occlusion.h>
+#include <qcommon/common.h>
 
 const char *g_snd_fire_names[8] =
 {
@@ -317,7 +318,7 @@ void __cdecl CG_SubtitlePrint(int msec, const char *subtitle)
             integer = cg_subtitleWidthStandard->current.integer;
         else
             integer = cg_subtitleWidthWidescreen->current.integer;
-        v3 = (int)((float)(1000.0 * cg_subtitleMinTime->current.value) + 9.313225746154785e-10);
+        v3 = SnapFloatToInt((float)(1000.0 * cg_subtitleMinTime->current.value));
         if ( v3 < msec )
             CL_SubtitlePrint(0, subtitle, msec, integer);
         else

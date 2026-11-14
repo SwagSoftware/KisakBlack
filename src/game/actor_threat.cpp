@@ -11,6 +11,7 @@
 #include "actor_pain.h"
 #include "g_debug.h"
 #include <flame/flame_system.h>
+#include <qcommon/common.h>
 
 threat_bias_t g_threatBias;
 int g_skipDebugString;
@@ -592,7 +593,7 @@ int __fastcall Actor_ThreatFromDistance(float fDistance)
     if ( fDistance >= 2500.0 )
         return 0;
 
-    threat = (int)((float)((float)(AI_THREAT_DISTANCE_RATE * (float)(2500.0 - fDistance)) * (float)(2500.0 - fDistance)) + 9.313225746154785e-10);
+    threat = SnapFloatToInt((float)((float)(AI_THREAT_DISTANCE_RATE * (float)(2500.0 - fDistance)) * (float)(2500.0 - fDistance)));
     DebugSetThreatStringFromString(TDS_DIST_THREAT, va("%d (%0.1f)", threat, fDistance));
     return threat;
 }

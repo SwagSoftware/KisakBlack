@@ -8,6 +8,7 @@
 #include "rb_stats.h"
 #include "rb_corona.h"
 #include "rb_pixelcost.h"
+#include <qcommon/common.h>
 
 SunFlareDynamic sunFlareArray[4];
 
@@ -422,7 +423,7 @@ double __cdecl RB_GetSunSampleRectRelativeArea(int widthInPixels, int heightInPi
         + (float)(rgp.world->sun.sunFxPosition[2] * transform->m[2][3]);
     if (sunTransformedPosition_12 <= 0.0)
         return 0.0;
-    left = (int)((float)((float)((float)((float)((float)((float)((float)((float)(rgp.world->sun.sunFxPosition[0]
+    left = SnapFloatToInt((float)((float)((float)((float)((float)((float)((float)((float)(rgp.world->sun.sunFxPosition[0]
         * transform->m[0][0])
         + (float)(rgp.world->sun.sunFxPosition[1]
             * transform->m[1][0]))
@@ -432,9 +433,8 @@ double __cdecl RB_GetSunSampleRectRelativeArea(int widthInPixels, int heightInPi
         + 1.0)
         * (float)(int)vidConfig.displayWidth)
         - (float)widthInPixels)
-        * 0.5)
-        + 9.313225746154785e-10);
-    top = (int)((float)((float)((float)((float)((float)((float)((float)((float)(rgp.world->sun.sunFxPosition[0]
+        * 0.5));
+    top = SnapFloatToInt((float)((float)((float)((float)((float)((float)((float)((float)(rgp.world->sun.sunFxPosition[0]
         * transform->m[0][1])
         + (float)(rgp.world->sun.sunFxPosition[1]
             * transform->m[1][1]))
@@ -444,8 +444,7 @@ double __cdecl RB_GetSunSampleRectRelativeArea(int widthInPixels, int heightInPi
         + 1.0)
         * (float)(int)vidConfig.displayHeight)
         - (float)heightInPixels)
-        * 0.5)
-        + 9.313225746154785e-10);
+        * 0.5));
     right = widthInPixels + left;
     bottom = heightInPixels + top;
     if (left < 0)
@@ -706,9 +705,9 @@ void __cdecl RB_DrawSunFlareCore(float alpha, float sizeIn640x480)
     RB_TessSunBillboard(
         sizeIn640x480 / 640.0,
         sizeIn640x480 / 480.0,
-        (GfxColor)((unsigned __int8)(int)((float)(alpha * 255.0) + 9.313225746154785e-10)
-                         | ((unsigned __int8)(int)((float)(alpha * 255.0) + 9.313225746154785e-10) << 8)
-                         | ((unsigned __int8)(int)((float)(alpha * 255.0) + 9.313225746154785e-10) << 16)
+        (GfxColor)((unsigned __int8)SnapFloatToInt((float)(alpha * 255.0))
+                         | ((unsigned __int8)SnapFloatToInt((float)(alpha * 255.0)) << 8)
+                         | ((unsigned __int8)SnapFloatToInt((float)(alpha * 255.0)) << 16)
                          | 0xFF000000));
 }
 

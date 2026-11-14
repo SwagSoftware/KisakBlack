@@ -12,6 +12,7 @@
 #include <cgame_mp/cg_ents_mp.h>
 #include <qcommon/dobj_management.h>
 #include <cgame_mp/cg_servercmds_mp.h>
+#include <qcommon/common.h>
 
 const char *offhandStrings[5] =
 {
@@ -102,7 +103,7 @@ void __cdecl CG_DrawOffHandIcon(
                                              localClientNum,
                                              hud_fade_offhand,
                                              cgameGlob->offhandFadeTime,
-                                             (int)((float)(hud_fade_offhand->current.value * 1000.0) + 9.313225746154785e-10))
+                                             SnapFloatToInt((float)(hud_fade_offhand->current.value * 1000.0)))
                                      * color[3];
             if ( drawColor_12 != 0.0 )
             {
@@ -251,7 +252,7 @@ void __cdecl CG_DrawOffHandHighlight(
                                                  localClientNum,
                                                  hud_fade_offhand,
                                                  cgameGlob->offhandFadeTime,
-                                                 (int)((float)(hud_fade_offhand->current.value * 1000.0) + 9.313225746154785e-10))
+                                                 SnapFloatToInt((float)(hud_fade_offhand->current.value * 1000.0)))
                                          * color[3];
                 if ( drawColor[3] != 0.0 )
                 {
@@ -396,7 +397,7 @@ void __cdecl CG_DrawOffHandAmmo(
                                              localClientNum,
                                              hud_fade_offhand,
                                              cgameGlob->offhandFadeTime,
-                                             (int)((float)(hud_fade_offhand->current.value * 1000.0) + 9.313225746154785e-10))
+                                             SnapFloatToInt((float)(hud_fade_offhand->current.value * 1000.0)))
                                      * color[3];
             if ( drawColor[3] != 0.0 )
             {
@@ -458,7 +459,7 @@ void __cdecl CG_DrawOffHandName(
                                          localClientNum,
                                          hud_fade_offhand,
                                          cgameGlob->offhandFadeTime,
-                                         (int)((float)(hud_fade_offhand->current.value * 1000.0) + 9.313225746154785e-10))
+                                         SnapFloatToInt((float)(hud_fade_offhand->current.value * 1000.0)))
                                  * color[3];
         if ( drawColor[3] != 0.0 )
         {

@@ -67,6 +67,7 @@
 #include <gfx_d3d/r_dpvs.h>
 #include <sound/snd_bank.h>
 #include <gfx_d3d/r_primarylights.h>
+#include <qcommon/common.h>
 
 scr_data_t g_scr_data;
 
@@ -3610,7 +3611,7 @@ void __cdecl ScrCmd_SetNormalHealth(scr_entref_t entref)
         normalHealth = 1.0f;
     if ( ent->client )
     {
-        newHealth = (int)((float)((float)ent->client->sess.maxHealth * normalHealth) + 9.313225746154785e-10);
+        newHealth = SnapFloatToInt((float)((float)ent->client->sess.maxHealth * normalHealth));
         v1 = va("%c \"%i\"", 74, 0);
         SV_GameSendServerCommand(ent - g_entities, SV_CMD_CAN_IGNORE, v1);
     }
@@ -8870,7 +8871,7 @@ void Scr_PlayLoopedFX()
 LABEL_13:
     Scr_GetVector(2u, pos, SCRIPTINSTANCE_SERVER);
     v1 = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER) * 1000.0;
-    repeat = (int)(v1 + 9.313225746154785e-10);
+    repeat = SnapFloatToInt(v1);
     if ( repeat <= 0 )
         Scr_FxParamError(1u, "playLoopedFx called with repeat < 0.001 seconds", fxId);
     ent = G_Spawn();
@@ -8961,7 +8962,7 @@ void Scr_TriggerFX()
     if (Scr_GetNumParam(SCRIPTINSTANCE_SERVER) == 2)
     {
         v1 = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER) * 1000.0;
-        ent->s.time2 = (int)(v1 + 9.313225746154785e-10);
+        ent->s.time2 = SnapFloatToInt(v1);
     }
     else
     {
@@ -9431,7 +9432,7 @@ void Scr_VisionSetNaked()
     if ( NumParam == 2 )
     {
         v2 = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER) * 1000.0;
-        duration = (int)(v2 + 9.313225746154785e-10);
+        duration = SnapFloatToInt(v2);
 LABEL_4:
         name = Scr_GetString(0, SCRIPTINSTANCE_SERVER);
         v0 = va("\"%s\" %i", name, duration);
@@ -9456,7 +9457,7 @@ void Scr_VisionSetNight()
     if ( NumParam == 2 )
     {
         v2 = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER) * 1000.0;
-        duration = (int)(v2 + 9.313225746154785e-10);
+        duration = SnapFloatToInt(v2);
 LABEL_4:
         name = Scr_GetString(0, SCRIPTINSTANCE_SERVER);
         v0 = va("\"%s\" %i", name, duration);
@@ -9911,7 +9912,7 @@ void GScr_Earthquake()
 
     scale = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
     v1 = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER) * 1000.0;
-    duration = (int)(v1 + 9.313225746154785e-10);
+    duration = SnapFloatToInt(v1);
     Scr_GetVector(2u, source, SCRIPTINSTANCE_SERVER);
     radius = Scr_GetFloat(3u, SCRIPTINSTANCE_SERVER);
     if (scale <= 0.0)
@@ -9970,7 +9971,7 @@ void __cdecl GScr_ShellShock(scr_entref_t entref)
             break;
     }
     v3 = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER) * 1000.0;
-    duration = (int)(v3 + 9.313225746154785e-10);
+    duration = SnapFloatToInt(v3);
     if ( (unsigned int)duration > 0xEA60 )
     {
         v1 = va("duration %g should be >= 0 and <= 60", (float)((float)duration * 0.001));

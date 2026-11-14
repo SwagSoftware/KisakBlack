@@ -4,6 +4,7 @@
 #include "r_state.h"
 #include "rb_draw3d.h"
 #include "rb_backend.h"
+#include <qcommon/common.h>
 
 bool __cdecl RB_UsingDepthOfFieldFX(const GfxViewInfo *viewInfo)
 {
@@ -2901,7 +2902,7 @@ void __cdecl RB_BlurScreen(const GfxViewInfo *viewInfo, float blurRadius)
   color = -1;
   if ( blurRadiusMin > blurRadius )
   {
-    HIBYTE(color) = (int)((float)((float)(blurRadius / blurRadiusMin) * 255.0) + 9.313225746154785e-10);
+    HIBYTE(color) = SnapFloatToInt((float)((float)(blurRadius / blurRadiusMin) * 255.0));
     blurRadius = 1440.0 / (float)gfxCmdBufSourceState.sceneViewport.height;
   }
   imageSurface = Image_GetSurface(gfxRenderTargets[R_RENDERTARGET_RESOLVED_SCENE].image);

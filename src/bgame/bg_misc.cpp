@@ -3402,14 +3402,10 @@ void __cdecl BG_SetShellShockParmsFromDvars(shellshock_parms_t *parms)
 
     if ( !parms && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_misc.cpp", 2527, 0, "%s", "parms") )
         __debugbreak();
-    parms->screenBlend.blurredEffectTime = (int)((float)(bg_shock_screenBlurBlendTime->current.value * 1000.0)
-                                                                                         + 9.313225746154785e-10);
-    parms->screenBlend.blurredFadeTime = (int)((float)(bg_shock_screenBlurBlendFadeTime->current.value * 1000.0)
-                                                                                     + 9.313225746154785e-10);
-    parms->screenBlend.flashShotFadeTime = (int)((float)(bg_shock_screenFlashShotFadeTime->current.value * 1000.0)
-                                                                                         + 9.313225746154785e-10);
-    parms->screenBlend.flashWhiteFadeTime = (int)((float)(bg_shock_screenFlashWhiteFadeTime->current.value * 1000.0)
-                                                                                            + 9.313225746154785e-10);
+    parms->screenBlend.blurredEffectTime = SnapFloatToInt((float)(bg_shock_screenBlurBlendTime->current.value * 1000.0));
+    parms->screenBlend.blurredFadeTime = SnapFloatToInt((float)(bg_shock_screenBlurBlendFadeTime->current.value * 1000.0));
+    parms->screenBlend.flashShotFadeTime = SnapFloatToInt((float)(bg_shock_screenFlashShotFadeTime->current.value * 1000.0));
+    parms->screenBlend.flashWhiteFadeTime = SnapFloatToInt((float)(bg_shock_screenFlashWhiteFadeTime->current.value * 1000.0));
     if ( parms->screenBlend.blurredFadeTime <= 0
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_misc.cpp",
@@ -3448,14 +3444,14 @@ void __cdecl BG_SetShellShockParmsFromDvars(shellshock_parms_t *parms)
         0x40u);
     strncpy((char *)parms->sound.end, (char *)bg_shock_soundEnd->current.integer, 0x40u);
     strncpy((char *)parms->sound.endAbort, (char *)bg_shock_soundEndAbort->current.integer, 0x40u);
-    parms->sound.fadeInTime = (int)((float)(bg_shock_soundFadeInTime->current.value * 1000.0) + 9.313225746154785e-10);
-    parms->sound.fadeOutTime = (int)((float)(bg_shock_soundFadeOutTime->current.value * 1000.0) + 9.313225746154785e-10);
-    parms->sound.loopFadeTime = (int)((float)(bg_shock_soundLoopFadeTime->current.value * 1000.0) + 9.313225746154785e-10);
-    parms->sound.loopEndDelay = (int)((float)(bg_shock_soundLoopEndDelay->current.value * 1000.0) + 9.313225746154785e-10);
+    parms->sound.fadeInTime = SnapFloatToInt((float)(bg_shock_soundFadeInTime->current.value * 1000.0));
+    parms->sound.fadeOutTime = SnapFloatToInt((float)(bg_shock_soundFadeOutTime->current.value * 1000.0));
+    parms->sound.loopFadeTime = SnapFloatToInt((float)(bg_shock_soundLoopFadeTime->current.value * 1000.0));
+    parms->sound.loopEndDelay = SnapFloatToInt((float)(bg_shock_soundLoopEndDelay->current.value * 1000.0));
     strncpy((char *)parms->sound.roomtype, (char *)bg_shock_soundRoomType->current.integer, 0x40u);
     parms->sound.drylevel = bg_shock_soundDryLevel->current.value;
     parms->sound.wetlevel = bg_shock_soundWetLevel->current.value;
-    parms->sound.modEndDelay = (int)((float)(bg_shock_soundModEndDelay->current.value * 1000.0) + 9.313225746154785e-10);
+    parms->sound.modEndDelay = SnapFloatToInt((float)(bg_shock_soundModEndDelay->current.value * 1000.0));
     if ( parms->sound.fadeInTime < 0
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_misc.cpp",
@@ -3512,8 +3508,7 @@ void __cdecl BG_SetShellShockParmsFromDvars(shellshock_parms_t *parms)
         __debugbreak();
     }
     parms->lookControl.affect = bg_shock_lookControl->current.enabled;
-    parms->lookControl.fadeTime = (int)((float)(bg_shock_lookControl_fadeTime->current.value * 1000.0)
-                                                                        + 9.313225746154785e-10);
+    parms->lookControl.fadeTime = SnapFloatToInt((float)(bg_shock_lookControl_fadeTime->current.value * 1000.0));
     if ( parms->lookControl.fadeTime <= 0
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_misc.cpp",

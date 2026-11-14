@@ -1259,7 +1259,7 @@ void __cdecl Dvar_StringToColor(const char *string, unsigned __int8 *color)
         v5 = v9;
     else
         v5 = 0.0f;
-    *color = (int)((float)(255.0 * v5) + 9.313225746154785e-10);
+    *color = SnapFloatToInt((float)(255.0 * v5));
     if ((float)(colorVec[1] - 1.0) < 0.0)
         v8 = colorVec[1];
     else
@@ -1268,7 +1268,7 @@ void __cdecl Dvar_StringToColor(const char *string, unsigned __int8 *color)
         v4 = v8;
     else
         v4 = 0.0f;
-    color[1] = (int)((float)(255.0 * v4) + 9.313225746154785e-10);
+    color[1] = SnapFloatToInt((float)(255.0 * v4));
     if ((float)(colorVec[2] - 1.0) < 0.0)
         v7 = colorVec[2];
     else
@@ -1277,7 +1277,7 @@ void __cdecl Dvar_StringToColor(const char *string, unsigned __int8 *color)
         v3 = v7;
     else
         v3 = 0.0f;
-    color[2] = (int)((float)(255.0 * v3) + 9.313225746154785e-10);
+    color[2] = SnapFloatToInt((float)(255.0 * v3));
     if ((float)(colorVec[3] - 1.0) < 0.0)
         v6 = colorVec[3];
     else
@@ -1286,7 +1286,7 @@ void __cdecl Dvar_StringToColor(const char *string, unsigned __int8 *color)
         v2 = v6;
     else
         v2 = 0.0f;
-    color[3] = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
+    color[3] = SnapFloatToInt((float)(255.0 * v2));
 }
 
 void __cdecl Dvar_GetUnpackedColorByName(const char *dvarName, float *expandedColor)
@@ -2853,7 +2853,7 @@ void __cdecl Dvar_SetColorFromSource(dvar_s *dvar, float r, float g, float b, fl
                 v9 = v13;
             else
                 v9 = 0.0f;
-            newValue.enabled = (int)((float)(255.0 * v9) + 9.313225746154785e-10);
+            newValue.enabled = SnapFloatToInt((float)(255.0 * v9));
             if ((float)(g - 1.0) < 0.0)
                 v12 = g;
             else
@@ -2862,7 +2862,7 @@ void __cdecl Dvar_SetColorFromSource(dvar_s *dvar, float r, float g, float b, fl
                 v8 = v12;
             else
                 v8 = 0.0f;
-            newValue.color[1] = (int)((float)(255.0 * v8) + 9.313225746154785e-10);
+            newValue.color[1] = SnapFloatToInt((float)(255.0 * v8));
             if ((float)(b - 1.0) < 0.0)
                 v11 = b;
             else
@@ -2871,7 +2871,7 @@ void __cdecl Dvar_SetColorFromSource(dvar_s *dvar, float r, float g, float b, fl
                 v7 = v11;
             else
                 v7 = 0.0f;
-            newValue.color[2] = (int)((float)(255.0 * v7) + 9.313225746154785e-10);
+            newValue.color[2] = SnapFloatToInt((float)(255.0 * v7));
             if ((float)(a - 1.0) < 0.0)
                 v10 = a;
             else
@@ -2880,7 +2880,7 @@ void __cdecl Dvar_SetColorFromSource(dvar_s *dvar, float r, float g, float b, fl
                 v6 = v10;
             else
                 v6 = 0.0f;
-            newValue.color[3] = (int)((float)(255.0 * v6) + 9.313225746154785e-10);
+            newValue.color[3] = SnapFloatToInt((float)(255.0 * v6));
         }
         else
         {

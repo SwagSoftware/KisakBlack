@@ -11,6 +11,7 @@
 #include <cgame/cg_scr_main.h>
 #include <bgame/bg_weapons_def.h>
 #include <stringed/stringed_hooks.h>
+#include <qcommon/common.h>
 
 const game_hudelem_field_t fields_0[28] =
 {
@@ -1234,7 +1235,7 @@ void __cdecl HudElem_SetColor(game_hudelem_s *hud, int offset)
         v4 = v7;
     else
         v4 = 0.0f;
-    hud->elem.color.r = (int)((float)(255.0 * v4) + 9.313225746154785e-10);
+    hud->elem.color.r = SnapFloatToInt((float)(255.0 * v4));
     if ( (float)(color[1] - 1.0) < 0.0 )
         v6 = color[1];
     else
@@ -1243,7 +1244,7 @@ void __cdecl HudElem_SetColor(game_hudelem_s *hud, int offset)
         v3 = v6;
     else
         v3 = 0.0f;
-    hud->elem.color.g = (int)((float)(255.0 * v3) + 9.313225746154785e-10);
+    hud->elem.color.g = SnapFloatToInt((float)(255.0 * v3));
     if ( (float)(color[2] - 1.0) < 0.0 )
         v5 = color[2];
     else
@@ -1252,7 +1253,7 @@ void __cdecl HudElem_SetColor(game_hudelem_s *hud, int offset)
         v2 = v5;
     else
         v2 = 0.0f;
-    hud->elem.color.b = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
+    hud->elem.color.b = SnapFloatToInt((float)(255.0 * v2));
 }
 
 void __cdecl HudElem_GetColor(game_hudelem_s *hud, int offset)
@@ -1300,7 +1301,7 @@ void __cdecl HudElem_SetAlpha(game_hudelem_s *hud, int offset)
         v2 = v3;
     else
         v2 = 0.0f;
-    hud->elem.color.a = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
+    hud->elem.color.a = SnapFloatToInt((float)(255.0 * v2));
 }
 
 void __cdecl HudElem_GetAlpha(game_hudelem_s *hud, int offset)
@@ -1347,7 +1348,7 @@ void __cdecl HudElem_SetGlowColor(game_hudelem_s *hud, int offset)
         v4 = v7;
     else
         v4 = 0.0f;
-    hud->elem.glowColor.r = (int)((float)(255.0 * v4) + 9.313225746154785e-10);
+    hud->elem.glowColor.r = SnapFloatToInt((float)(255.0 * v4));
     if ( (float)(glowColor[1] - 1.0) < 0.0 )
         v6 = glowColor[1];
     else
@@ -1356,7 +1357,7 @@ void __cdecl HudElem_SetGlowColor(game_hudelem_s *hud, int offset)
         v3 = v6;
     else
         v3 = 0.0f;
-    hud->elem.glowColor.g = (int)((float)(255.0 * v3) + 9.313225746154785e-10);
+    hud->elem.glowColor.g = SnapFloatToInt((float)(255.0 * v3));
     if ( (float)(glowColor[2] - 1.0) < 0.0 )
         v5 = glowColor[2];
     else
@@ -1365,7 +1366,7 @@ void __cdecl HudElem_SetGlowColor(game_hudelem_s *hud, int offset)
         v2 = v5;
     else
         v2 = 0.0f;
-    hud->elem.glowColor.b = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
+    hud->elem.glowColor.b = SnapFloatToInt((float)(255.0 * v2));
 }
 
 void __cdecl HudElem_GetGlowColor(game_hudelem_s *hud, int offset)
@@ -1413,7 +1414,7 @@ void __cdecl HudElem_SetGlowAlpha(game_hudelem_s *hud, int offset)
         v2 = v3;
     else
         v2 = 0.0f;
-    hud->elem.glowColor.a = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
+    hud->elem.glowColor.a = SnapFloatToInt((float)(255.0 * v2));
 }
 
 void __cdecl HudElem_GetGlowAlpha(game_hudelem_s *hud, int offset)
@@ -2240,7 +2241,7 @@ void __cdecl HECmd_FadeOverTime(scr_entref_t entref)
     }
     BG_LerpHudColors(&hud->elem, level.time, &hud->elem.fromColor);
     hud->elem.fadeStartTime = level.time;
-    AssignToSmallerType<short>(&hud->elem.fadeTime, (int)((float)(1000.0 * fadeTime) + 9.313225746154785e-10));
+    AssignToSmallerType<short>(&hud->elem.fadeTime, SnapFloatToInt((float)(1000.0 * fadeTime)));
 }
 
 void __cdecl HECmd_ScaleOverTime(scr_entref_t entref)
@@ -2272,7 +2273,7 @@ void __cdecl HECmd_ScaleOverTime(scr_entref_t entref)
     width.intValue = Scr_GetInt(1u, SCRIPTINSTANCE_SERVER);
     height.intValue = Scr_GetInt(2u, SCRIPTINSTANCE_SERVER);
     hud->elem.scaleStartTime = level.time;
-    AssignToSmallerType<short>(&hud->elem.scaleTime, (int)((float)(1000.0 * scaleTime) + 9.313225746154785e-10));
+    AssignToSmallerType<short>(&hud->elem.scaleTime, SnapFloatToInt((float)(1000.0 * scaleTime)));
     hud->elem.fromWidth = hud->elem.width;
     hud->elem.fromHeight = hud->elem.height;
     AssignToSmallerType<short>(&hud->elem.width, width.intValue);
@@ -2302,7 +2303,7 @@ void __cdecl HECmd_MoveOverTime(scr_entref_t entref)
         Scr_ParamError(0, v1, SCRIPTINSTANCE_SERVER);
     }
     hud->elem.moveStartTime = level.time;
-    AssignToSmallerType<short>(&hud->elem.moveTime, (int)((float)(1000.0 * moveTime) + 9.313225746154785e-10));
+    AssignToSmallerType<short>(&hud->elem.moveTime, SnapFloatToInt((float)(1000.0 * moveTime)));
     hud->elem.fromX = hud->elem.x;
     hud->elem.fromY = hud->elem.y;
     hud->elem.fromAlignOrg = hud->elem.alignOrg;

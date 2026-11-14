@@ -41,6 +41,7 @@
 #include <turret/turret_placement.h>
 #include <cgame/cg_scr_main.h>
 #include <sound/snd_bank.h>
+#include <qcommon/common.h>
 
 static void __cdecl METHOD_NULLSUB(scr_entref_t entref)
 {
@@ -7009,7 +7010,7 @@ void __cdecl PlayerCmd_BeginLocationTypeSelection(scr_entref_t entref, locSel_t 
         }
     }
     pSelf->client->ps.locationSelectionType = selectionType;
-    radiusBits = (int)((float)(radiusa * 15.0) + 9.313225746154785e-10);
+    radiusBits = SnapFloatToInt((float)(radiusa * 15.0));
     if ( radiusBits >= 0x10
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_client_script_cmd_mp.cpp",

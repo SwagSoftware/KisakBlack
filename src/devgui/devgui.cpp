@@ -1235,7 +1235,7 @@ void __cdecl DevGui_DrawSingleSlider(
         devgui_bevelShade->current.value,
         (const unsigned __int8 *)&devgui_colorSliderBgnd->current);
     DevGui_DrawBevelBox(
-        (int)((float)((float)x + (float)((float)(rowWidth - 8) * fraction)) + 9.313225746154785e-10),
+        SnapFloatToInt((float)((float)x + (float)((float)(rowWidth - 8) * fraction))),
         y,
         8,
         rowHeight,
@@ -2536,7 +2536,7 @@ double __cdecl DevGui_PickFloatScrollStep(float min, float max)
     float roundedStep; // [esp+38h] [ebp-4h]
 
     range = max - min;
-    if ( max == (float)(int)(max + 9.313225746154785e-10) && min == (float)(int)(min + 9.313225746154785e-10) )
+    if ( max == (float)SnapFloatToInt(max) && min == (float)SnapFloatToInt(min) )
     {
         for ( step = 1.0f; range > (float)(step * 100.0); step = step * 2.0 )
             ;
@@ -2546,9 +2546,9 @@ double __cdecl DevGui_PickFloatScrollStep(float min, float max)
     else
     {
         step = range * 0.0099999998;
-        roundedStep = (float)(int)((float)(range * 0.0099999998) + 9.313225746154785e-10);
+        roundedStep = (float)SnapFloatToInt((float)(range * 0.0099999998));
         if ( roundedStep != 0.0 && fabs(roundedStep - step) < 0.1 )
-            return (float)(int)((float)(range * 0.0099999998) + 9.313225746154785e-10);
+            return (float)SnapFloatToInt((float)(range * 0.0099999998));
     }
     return step;
 }

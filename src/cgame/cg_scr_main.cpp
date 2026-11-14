@@ -50,6 +50,7 @@
 #include "cg_event.h"
 #include <game/g_load_utils.h>
 #include <stringed/stringed_hooks.h>
+#include <qcommon/common.h>
 
 cg_level_locals_t cg_level;
 cscr_data_t cg_scr_data;
@@ -1778,7 +1779,7 @@ void CScr_PlayLoopedFX()
 LABEL_13:
     Scr_GetVector(4u, pos, SCRIPTINSTANCE_CLIENT);
     Float = Scr_GetFloat(3u, SCRIPTINSTANCE_CLIENT);
-    period = (int)((float)(Float * 1000.0) + 9.313225746154785e-10);
+    period = SnapFloatToInt((float)(Float * 1000.0));
     if (period <= 0)
         CScr_FxParamError(localClientNum, 3, "playLoopedFx called with repeat < 0.001 seconds", fxId);
     if ((unsigned int)entId > 0x200
@@ -3208,7 +3209,7 @@ LABEL_4:
     }
     Scr_Error(SCRIPTINSTANCE_CLIENT, "Incorrect number of params.", 0);
 LABEL_10:
-    v1 = (int)((float)(1000.0 * fadetime) + 9.313225746154785e-10);
+    v1 = SnapFloatToInt((float)(1000.0 * fadetime));
     if ( v1 > 0 )
         SND_DeactivateEnvironmentEffects(priority, v1);
     else
@@ -3260,8 +3261,8 @@ $LN6_23:
             {
                 prio = 1;
             }
-            if ( (int)((float)(1000.0 * fadetime) + 9.313225746154785e-10) > 0 )
-                fademsec = (int)((float)(1000.0 * fadetime) + 9.313225746154785e-10);
+            if ( SnapFloatToInt((float)(1000.0 * fadetime)) > 0 )
+                fademsec = SnapFloatToInt((float)(1000.0 * fadetime));
             else
                 fademsec = 0;
             SND_SetEnvironmentEffects(prio, pszReverb, drylevel, wetlevel, fademsec);
@@ -5222,7 +5223,7 @@ void __cdecl CScr_PlayFX()
             if ( numParams > 5 )
             {
                 Float = Scr_GetFloat(5u, SCRIPTINSTANCE_CLIENT);
-                iTime = (int)((float)(Float * 1000.0) + 9.313225746154785e-10);
+                iTime = SnapFloatToInt((float)(Float * 1000.0));
             }
             CScr_SetFxAngles(2u, axis, angles);
             effectHandle = CScr_PlayFXInternal(localClientNum, fxId, angles, pos, iTime);
@@ -6522,7 +6523,7 @@ void __cdecl CScrCmd_Earthquake(scr_entref_t entref)
 
     scale = Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT);
     Float = Scr_GetFloat(1u, SCRIPTINSTANCE_CLIENT);
-    duration = (int)((float)(Float * 1000.0) + 9.313225746154785e-10);
+    duration = SnapFloatToInt((float)(Float * 1000.0));
     Scr_GetVector(2u, source, SCRIPTINSTANCE_CLIENT);
     radius = Scr_GetFloat(3u, SCRIPTINSTANCE_CLIENT);
     CG_StartShakeCamera(entref.client, scale, duration, source, radius);
@@ -6615,8 +6616,8 @@ void __cdecl Byte4PackRgba(const float *from, unsigned __int8 *to)
     int v8; // [esp+58h] [ebp-38h]
     int v9; // [esp+78h] [ebp-18h]
 
-    if ( (int)((float)(255.0 * *from) + 9.313225746154785e-10) < 255 )
-        v9 = (int)((float)(255.0 * *from) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(255.0 * *from)) < 255 )
+        v9 = SnapFloatToInt((float)(255.0 * *from));
     else
         v9 = 255;
     if ( v9 > 0 )
@@ -6624,8 +6625,8 @@ void __cdecl Byte4PackRgba(const float *from, unsigned __int8 *to)
     else
         v5 = 0;
     *to = v5;
-    if ( (int)((float)(255.0 * from[1]) + 9.313225746154785e-10) < 255 )
-        v8 = (int)((float)(255.0 * from[1]) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(255.0 * from[1])) < 255 )
+        v8 = SnapFloatToInt((float)(255.0 * from[1]));
     else
         v8 = 255;
     if ( v8 > 0 )
@@ -6633,8 +6634,8 @@ void __cdecl Byte4PackRgba(const float *from, unsigned __int8 *to)
     else
         v4 = 0;
     to[1] = v4;
-    if ( (int)((float)(255.0 * from[2]) + 9.313225746154785e-10) < 255 )
-        v7 = (int)((float)(255.0 * from[2]) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(255.0 * from[2])) < 255 )
+        v7 = SnapFloatToInt((float)(255.0 * from[2]));
     else
         v7 = 255;
     if ( v7 > 0 )
@@ -6642,8 +6643,8 @@ void __cdecl Byte4PackRgba(const float *from, unsigned __int8 *to)
     else
         v3 = 0;
     to[2] = v3;
-    if ( (int)((float)(255.0 * from[3]) + 9.313225746154785e-10) < 255 )
-        v6 = (int)((float)(255.0 * from[3]) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(255.0 * from[3])) < 255 )
+        v6 = SnapFloatToInt((float)(255.0 * from[3]));
     else
         v6 = 255;
     if ( v6 > 0 )

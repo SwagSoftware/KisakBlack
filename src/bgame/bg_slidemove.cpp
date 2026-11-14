@@ -11,6 +11,7 @@
 #include <physics/phys_gjk_collision_detection.h>
 #include "bg_jump.h"
 #include <qcommon/cm_load.h>
+#include <qcommon/common.h>
 
 bool do_push; // this supposed to have a value? (KISAKTODO)
 bool do_step_down = true;
@@ -2571,7 +2572,7 @@ LABEL_27:
                 {
                     if ( fabs(ps->origin[2] - down_o[2]) > 0.5 )
                     {
-                        iDelta = (int)((float)(ps->origin[2] - down_o[2]) + 9.313225746154785e-10);
+                        iDelta = SnapFloatToInt((float)(ps->origin[2] - down_o[2]));
                         if ( iDelta )
                         {
                             if ( pm->viewChangeTime < ps->commandTime || pm->viewChangeTime > ps->commandTime + 1000 )

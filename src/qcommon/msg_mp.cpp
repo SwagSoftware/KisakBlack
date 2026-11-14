@@ -4480,9 +4480,9 @@ double __cdecl MSG_ReadOriginFloat(int bits, msg_t *msg, float oldValue)
             }
             index = 1;
         }
-        roundedCenter = (int)((*MSG_GetMapCenter())[index] + 9.313225746154785e-10);
+        roundedCenter = SnapFloatToInt((*MSG_GetMapCenter())[index]);
         return (float)(roundedCenter
-                                 + (((int)(oldValue + 9.313225746154785e-10) + 0x8000 - roundedCenter) ^ MSG_ReadBits(msg, 0x10u))
+                                 + ((SnapFloatToInt(oldValue) + 0x8000 - roundedCenter) ^ MSG_ReadBits(msg, 0x10u))
                                  - 0x8000);
     }
     else
@@ -4497,9 +4497,9 @@ double __cdecl MSG_ReadOriginZFloat(msg_t *msg, float oldValue)
 
     if ( MSG_ReadBit(msg) )
     {
-        roundedCenter = (int)((*MSG_GetMapCenter())[2] + 9.313225746154785e-10);
+        roundedCenter = SnapFloatToInt((*MSG_GetMapCenter())[2]);
         return (float)(roundedCenter
-                                 + (((int)(oldValue + 9.313225746154785e-10) + 0x10000 - roundedCenter) ^ MSG_ReadBits(msg, 0x11u))
+                                 + ((SnapFloatToInt(oldValue) + 0x10000 - roundedCenter) ^ MSG_ReadBits(msg, 0x11u))
                                  - 0x10000);
     }
     else

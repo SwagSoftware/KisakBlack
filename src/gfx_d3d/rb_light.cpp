@@ -7,6 +7,7 @@
 #include <qcommon/com_bsp.h>
 #include <universal/com_files.h>
 #include <libs/libtomcrypt-1.17/src/headers/tomcrypt.h>
+#include <qcommon/common.h>
 
 unsigned int lightPointCount;
 tlAtomicMutex lightGridMutex;
@@ -46,8 +47,8 @@ void __cdecl R_ShowLightVisCachePoints(const float *viewOrigin, const DpvsPlane 
         spread = r_vc_showlog->current.integer;
         if ( spread > 0 )
         {
-            x = (int)((float)(*viewOrigin - -131072.0) + 9.313225746154785e-10) >> 5;
-            y = (int)((float)(viewOrigin[1] - -131072.0) + 9.313225746154785e-10) >> 5;
+            x = SnapFloatToInt((float)(*viewOrigin - -131072.0)) >> 5;
+            y = SnapFloatToInt((float)(viewOrigin[1] - -131072.0)) >> 5;
             z = (int)((float)(viewOrigin[2] - -131072.0) - 0.4999999990686774) >> 6;
             origin[0] = (double)x * 32.0 + -131072.0;
             origin[1] = (double)y * 32.0 + -131072.0;

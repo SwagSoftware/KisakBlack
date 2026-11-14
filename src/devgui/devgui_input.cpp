@@ -10,6 +10,7 @@
 #include <cmath>
 #include <universal/assertive.h>
 #include <client/cl_gamepad.h>
+#include <qcommon/common.h>
 
 DevGuiInput s_input;
 
@@ -325,12 +326,12 @@ __int64 __cdecl DevGui_UpdateIntScroll(float deltaTime, __int64 value, __int64 m
                     s_input.digitalSliderTime > stepTime;
                     s_input.digitalSliderTime = s_input.digitalSliderTime - stepTime )
         {
-            scroll += (int)(s_input.digitalAxis[axis] + 9.313225746154785e-10);
+            scroll += SnapFloatToInt(s_input.digitalAxis[axis]);
         }
     }
     else if ( s_input.digitalStates[axis] == SCROLL_PRESSED )
     {
-        scroll = (int)(s_input.digitalAxis[axis] + 9.313225746154785e-10);
+        scroll = SnapFloatToInt(s_input.digitalAxis[axis]);
     }
     else
     {

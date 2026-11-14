@@ -5,6 +5,7 @@
 #include "rb_logfile.h"
 #include "r_dvars.h"
 #include "r_stream.h"
+#include <qcommon/common.h>
 
 CoronaState coronaState[4];
 int coronaTimeLastUpdated;
@@ -215,9 +216,9 @@ void __cdecl RB_DrawCorona(Corona *corona, int frameTime, const Material *corona
         RB_DrawCoronaSprite(
             corona,
             coronaMat,
-            (GfxColor)((unsigned __int8)(int)((float)(corona->info->color[2] * scale) + 9.313225746154785e-10)
-                             | ((unsigned __int8)(int)((float)(corona->info->color[1] * scale) + 9.313225746154785e-10) << 8)
-                             | ((unsigned __int8)(int)((float)(corona->info->color[0] * scale) + 9.313225746154785e-10) << 16)
+            (GfxColor)((unsigned __int8)SnapFloatToInt((float)(corona->info->color[2] * scale))
+                             | ((unsigned __int8)SnapFloatToInt((float)(corona->info->color[1] * scale)) << 8)
+                             | ((unsigned __int8)SnapFloatToInt((float)(corona->info->color[0] * scale)) << 16)
                              | 0xFF000000),
             corona->info->radius,
             0);

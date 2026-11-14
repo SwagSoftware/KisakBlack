@@ -25,6 +25,7 @@
 #include <universal/surfaceflags.h>
 #include <gfx_d3d/r_fog.h>
 #include "cg_servercmds_mp.h"
+#include <qcommon/common.h>
 
 GfxFog cg_clientVolFog;
 
@@ -199,7 +200,7 @@ void CScr_SpawnFX()
     }
     Scr_GetVector(2u, pos, SCRIPTINSTANCE_CLIENT);
     Float = Scr_GetFloat(3u, SCRIPTINSTANCE_CLIENT);
-    iTime = (int)((float)(Float * 1000.0) + 9.313225746154785e-10);
+    iTime = SnapFloatToInt((float)(Float * 1000.0));
     if ( numParams == 4 )
     {
         CScr_SetFxAngles(0, axis, angles);
@@ -1590,7 +1591,7 @@ void __cdecl CScrCmd_ShellShock(scr_entref_t entref)
     localClientNum = CScr_GetLocalClientNum(0);
     shock = Scr_GetString(1u, SCRIPTINSTANCE_CLIENT);
     Float = Scr_GetFloat(2u, SCRIPTINSTANCE_CLIENT);
-    duration = (int)((float)(1000.0 * Float) + 9.313225746154785e-10);
+    duration = SnapFloatToInt((float)(1000.0 * Float));
     if ( (unsigned int)duration > 0xEA60 )
     {
         error = va("duration %g should be >= 0 and <= 60", (float)((float)duration * 0.001));

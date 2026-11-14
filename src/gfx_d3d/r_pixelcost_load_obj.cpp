@@ -45,21 +45,18 @@ void __cdecl RB_PixelCost_BuildColorCodeMap(unsigned __int8 (*pixels)[4], int pi
         {
             lerp = (float)(pixelIndex - s_pixelCostColorCodeTable[codeIndex].count)
                      / (float)(s_pixelCostColorCodeTable[codeIndex + 1].count - s_pixelCostColorCodeTable[codeIndex].count);
-            (*pixels)[4 * pixelIndex] = (int)((float)((float)s_pixelCostColorCodeTable[codeIndex].b
+            (*pixels)[4 * pixelIndex] = SnapFloatToInt((float)((float)s_pixelCostColorCodeTable[codeIndex].b
                                                                                             + (float)((float)(s_pixelCostColorCodeTable[codeIndex + 1].b
                                                                                                                             - s_pixelCostColorCodeTable[codeIndex].b)
-                                                                                                            * lerp))
-                                                                            + 9.313225746154785e-10);
-            (*pixels)[4 * pixelIndex + 1] = (int)((float)((float)s_pixelCostColorCodeTable[codeIndex].g
+                                                                                                            * lerp)));
+            (*pixels)[4 * pixelIndex + 1] = SnapFloatToInt((float)((float)s_pixelCostColorCodeTable[codeIndex].g
                                                                                                     + (float)((float)(s_pixelCostColorCodeTable[codeIndex + 1].g
                                                                                                                                     - s_pixelCostColorCodeTable[codeIndex].g)
-                                                                                                                    * lerp))
-                                                                                    + 9.313225746154785e-10);
-            (*pixels)[4 * pixelIndex + 2] = (int)((float)((float)s_pixelCostColorCodeTable[codeIndex].r
+                                                                                                                    * lerp)));
+            (*pixels)[4 * pixelIndex + 2] = SnapFloatToInt((float)((float)s_pixelCostColorCodeTable[codeIndex].r
                                                                                                     + (float)((float)(s_pixelCostColorCodeTable[codeIndex + 1].r
                                                                                                                                     - s_pixelCostColorCodeTable[codeIndex].r)
-                                                                                                                    * lerp))
-                                                                                    + 9.313225746154785e-10);
+                                                                                                                    * lerp)));
             (*pixels)[4 * pixelIndex + 3] = -1;
         }
     }

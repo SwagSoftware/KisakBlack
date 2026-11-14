@@ -26,6 +26,7 @@
 #include <universal/q_shared.h>
 #include <bgame/bg_wind.h>
 #include <cgame_mp/cg_local_mp.h>
+#include <qcommon/common.h>
 
 
 bool __cdecl FX_IsDemoPlaying()
@@ -2218,7 +2219,7 @@ unsigned __int8 __cdecl FX_ProcessEmitting(
             v7))
             __debugbreak();
     }
-    return (int)((float)((float)(256.0 * residual) / maxDistPerEmit) + 9.313225746154785e-10);
+    return SnapFloatToInt((float)((float)(256.0 * residual) / maxDistPerEmit));
 }
 
 void __cdecl FX_GetQuatForOrientation(

@@ -942,7 +942,7 @@ double __cdecl CG_FadeCompass(int localClientNum, int displayStartTime, CompassT
                          localClientNum,
                          hud_fade_compass,
                          displayStartTime,
-                         (int)((float)(hud_fade_compass->current.value * 1000.0) + 9.313225746154785e-10));
+                         SnapFloatToInt((float)(hud_fade_compass->current.value * 1000.0)));
 }
 
 double __cdecl CG_FadeCompassIcons(int localClientNum, bool ignoreGlobalScrambler)

@@ -925,9 +925,9 @@ void __cdecl Con_InitMessageBuffer()
                 con_gameMsgWindowNLineCount[gameWindowIndex]->current.integer + 3,
                 3,
                 2048,
-                (int)((float)(con_gameMsgWindowNScrollTime[gameWindowIndex]->current.value * 1000.0) + 9.313225746154785e-10),
-                (int)((float)(con_gameMsgWindowNFadeInTime[gameWindowIndex]->current.value * 1000.0) + 9.313225746154785e-10),
-                (int)((float)(con_gameMsgWindowNFadeOutTime[gameWindowIndex]->current.value * 1000.0) + 9.313225746154785e-10));
+                SnapFloatToInt((float)(con_gameMsgWindowNScrollTime[gameWindowIndex]->current.value * 1000.0)),
+                SnapFloatToInt((float)(con_gameMsgWindowNFadeInTime[gameWindowIndex]->current.value * 1000.0)),
+                SnapFloatToInt((float)(con_gameMsgWindowNFadeOutTime[gameWindowIndex]->current.value * 1000.0)));
         Con_InitMessageWindow(
             &msgBuf->miniconWindow,
             msgBuf->miniconMessages,
@@ -1215,7 +1215,7 @@ int __cdecl Con_GetDefaultMsgDuration(print_msg_dest_t dest)
         time = con_gameMsgWindowNMsgTime[dest - CON_DEST_GAME_FIRST]->current.value * 1000.0f;
     }
 
-    return static_cast<int>(time + 9.313225746154785e-10);
+    return SnapFloatToInt(time);
 }
 
 void __cdecl Con_UpdateMessage(int localClientNum, MessageWindow *msgwnd, int duration)
@@ -1768,8 +1768,8 @@ unsigned int __cdecl CL_AddMessageIcon(
     }
     v7 = CL_AddMessageChar(msg, msgLen, msgMaxLen, 94);
     msgLena = CL_AddMessageChar(msg, v7, msgMaxLen, horzFlipIcon + 1);
-    if ( (int)((float)(iconWidth * 32.0) + 9.313225746154785e-10) < 127 )
-        v12 = (int)((float)(iconWidth * 32.0) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(iconWidth * 32.0)) < 127 )
+        v12 = SnapFloatToInt((float)(iconWidth * 32.0));
     else
         v12 = 127;
     if ( v12 > 16 )
@@ -1777,8 +1777,8 @@ unsigned int __cdecl CL_AddMessageIcon(
     else
         v10 = 16;
     msgLenb = CL_AddMessageChar(msg, msgLena, msgMaxLen, v10 + 16);
-    if ( (int)((float)(iconHeight * 32.0) + 9.313225746154785e-10) < 127 )
-        v11 = (int)((float)(iconHeight * 32.0) + 9.313225746154785e-10);
+    if ( SnapFloatToInt((float)(iconHeight * 32.0)) < 127 )
+        v11 = SnapFloatToInt((float)(iconHeight * 32.0));
     else
         v11 = 127;
     if ( v11 > 16 )
@@ -2212,7 +2212,7 @@ void __cdecl Con_DrawGameMessageWindow(
             &con.messageBuffer[localClientNum].gamemsgWindows[windowIndex],
             xPos,
             yPos,
-            (int)((float)(fontScale * 48.0) + 9.313225746154785e-10),
+            SnapFloatToInt((float)(fontScale * 48.0)),
             horzAlign,
             vertAlign,
             font,
@@ -2380,9 +2380,9 @@ void __cdecl Con_DrawMessageWindowNewToOld(
                     v13 = 0.0f;
                 lerpFactor = v13;
                 if ( up )
-                    y += (int)((float)((float)charHeight * lerpFactor) + 9.313225746154785e-10);
+                    y += SnapFloatToInt((float)((float)charHeight * lerpFactor));
                 else
-                    y -= (int)((float)((float)charHeight * lerpFactor) + 9.313225746154785e-10);
+                    y -= SnapFloatToInt((float)((float)charHeight * lerpFactor));
             }
         }
     }
@@ -2877,11 +2877,9 @@ void __cdecl Con_DrawMessageWindowOldToNew(
                         __debugbreak();
                     }
                     if ( up )
-                        v += (int)((float)((float)((float)time / (float)msgwnd->scrollTime) * (float)charHeight)
-                                         + 9.313225746154785e-10);
+                        v += SnapFloatToInt((float)((float)((float)time / (float)msgwnd->scrollTime) * (float)charHeight));
                     else
-                        v -= (int)((float)((float)((float)time / (float)msgwnd->scrollTime) * (float)charHeight)
-                                         + 9.313225746154785e-10);
+                        v -= SnapFloatToInt((float)((float)((float)time / (float)msgwnd->scrollTime) * (float)charHeight));
                 }
             }
             finalColor[3] = Con_GetMessageAlpha(message, msgwnd, LocalClientGlobals->serverTime, 0) * color[3];
