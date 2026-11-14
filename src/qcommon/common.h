@@ -223,7 +223,6 @@ int __cdecl Com_GetPrivateClients();
 void Com_Printf_NoFilter(const char *fmt, ...);
 
 #include <xmmintrin.h>  // SSE
-#include <emmintrin.h>  // SSE2
 
 // (https://github.com/SwagSoftware/KisakCOD/issues/52)
 // The default x87 rounding mode for floating point to integer is Round to nearest Even (Banker's rounding)
@@ -265,14 +264,6 @@ inline int SnapFloatToInt(float x)
     int i;
     i = _mm_cvtss_si32(_mm_set_ss(x));
     return i;
-}
-
-// Double precision version of the above, for the `fld; fadd qword ptr [2^-30]; fistp` idiom.
-// The decompiler shows it as `(int)(x + 9.313225746154785e-10)`, but a C cast truncates toward zero,
-// so an exact negative integer such as -72.0 becomes -71.999999999 and then -71 instead of -72.
-inline int SnapDoubleToInt(double x)
-{
-    return _mm_cvtsd_si32(_mm_set_sd(x));
 }
 
 
