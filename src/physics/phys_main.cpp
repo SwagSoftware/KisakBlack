@@ -3296,7 +3296,11 @@ void __thiscall cdl_proftimer::reset()
         do
         {
             swap = 0;
-            for (i = 0; i < 5; ++i)
+            // DEVIATION FROM RETAIL: BlackOpsMP.exe 0x61B100 runs this loop with i < 5 (unrolled), so it also
+            // compares/swaps mx[4] with the 8 bytes after the 0x60-byte struct. Retail gets away with it because of
+            // what the linker put there; in our build it is g_render_mutex, which the sort fills with a frame time,
+            // hanging the next Lock(). Bounded to 4 so the sort stays inside mx[5].
+            for (i = 0; i < 4; ++i)
             {
                 if (this->mx[i] > this->mx[i + 1])
                 {
